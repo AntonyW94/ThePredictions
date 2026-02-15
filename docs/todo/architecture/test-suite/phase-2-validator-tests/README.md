@@ -90,6 +90,48 @@ The custom validation extensions (`MustBeASafeName`, `MustBeASafeLeagueName`) ar
 - [x] `PredictionLeague.Contracts` project exists with all request/DTO classes
 - [ ] FluentValidation.TestHelper package (added in Task 1)
 
+## Coverage
+
+### How Coverage Works
+
+The `tools/Test Coverage/coverage-unit.bat` script discovers and runs **all** `.csproj` files under `tests/Unit/`. The `coverage.runsettings` file has no assembly inclusion/exclusion filters — coverlet measures whatever assemblies each test project references. Adding `ThePredictions.Validators.Tests.Unit` with a `ProjectReference` to `PredictionLeague.Validators` will automatically include the Validators assembly in coverage reports.
+
+### Coverage Target
+
+The Validators project must achieve **100% line and branch coverage**, matching the Domain project standard. This is achievable because:
+
+- All concrete validators have parameterised constructors only (no parameterless ORM constructors)
+- All base validators have protected constructors only
+- Extension methods are pure static (no untestable code)
+- `[GeneratedRegex]` source-generated code is already excluded by the `[CompilerGeneratedAttribute]` filter in `coverage.runsettings`
+- Private helper methods (e.g. `BeAValidUrl`) are fully reachable through the public validator API
+- No `[ExcludeFromCodeCoverage]` should be needed anywhere in the Validators project
+
+### Verifying Coverage
+
+After completing all tasks, run:
+
+```bash
+tools\Test Coverage\coverage-unit.bat
+```
+
+The HTML report at `coverage/report/index.html` should show 100% line and 100% branch coverage for both the Domain and Validators assemblies.
+
+## Shared Test Helpers
+
+### Candidates for `ThePredictions.Tests.Shared`
+
+Some request builder methods are needed across multiple test files and should live in the shared test project rather than being duplicated:
+
+| Builder | Used By | Why Shared |
+|---------|---------|------------|
+| `ValidCreateMatchRequest()` | `CreateMatchRequestValidatorTests`, `CreateRoundRequestValidatorTests` | Round tests need valid child matches |
+| `ValidUpdateMatchRequest()` | `UpdateMatchRequestValidatorTests`, `UpdateRoundRequestValidatorTests` | Round tests need valid child matches |
+
+The shared project will need a new `ProjectReference` to `PredictionLeague.Contracts` to access the request types.
+
+Request builders that are only used by a single test class (e.g. `CreateValidRequest()` for `CreateLeagueRequest`) should stay as private helpers in their test class — no need to share them.
+
 ## Technical Notes
 
 ### Package Requirements

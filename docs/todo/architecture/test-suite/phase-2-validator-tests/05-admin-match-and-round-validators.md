@@ -145,27 +145,57 @@ public class CreateRoundRequestValidatorTests
 
 ## Code Patterns to Follow
 
-For base validator testing, test the same rules through both concrete validators:
+### Shared Match Request Builders
+
+Use the shared `ValidMatchRequestBuilder` from `ThePredictions.Tests.Shared` (created in Task 1) for both match and round tests. This avoids duplicating valid match request construction:
 
 ```csharp
-// CreateMatchRequestValidatorTests.cs
+// Match validator tests — use shared builder, then modify the field under test
 public class CreateMatchRequestValidatorTests
 {
     private readonly CreateMatchRequestValidator _validator = new();
 
     [Fact]
+    public void Validate_ShouldPass_WhenAllFieldsAreValid()
+    {
+        var request = ValidMatchRequestBuilder.CreateValidCreateMatchRequest();
+
+        var result = _validator.TestValidate(request);
+
+        result.ShouldNotHaveAnyValidationErrors();
+    }
+
+    [Fact]
     public void Validate_ShouldFail_WhenHomeAndAwayTeamsAreTheSame()
     {
-        var request = new CreateMatchRequest
-        {
-            HomeTeamId = 5,
-            AwayTeamId = 5,    // Same as home
-            MatchDateTimeUtc = DateTime.UtcNow.AddDays(1)
-        };
+        var request = ValidMatchRequestBuilder.CreateValidCreateMatchRequest();
+        request.HomeTeamId = 5;
+        request.AwayTeamId = 5;
 
         var result = _validator.TestValidate(request);
 
         result.ShouldHaveValidationErrorFor(x => x.AwayTeamId);
+    }
+}
+
+// Round validator tests — use the same shared builder for child matches
+public class CreateRoundRequestValidatorTests
+{
+    [Fact]
+    public void Validate_ShouldPass_WhenAllFieldsAreValid()
+    {
+        var request = new CreateRoundRequest
+        {
+            SeasonId = 1,
+            RoundNumber = 5,
+            StartDateUtc = new DateTime(2025, 1, 1, 12, 0, 0, DateTimeKind.Utc),
+            DeadlineUtc = new DateTime(2025, 1, 2, 12, 0, 0, DateTimeKind.Utc),
+            Matches = new List<CreateMatchRequest>
+            {
+                ValidMatchRequestBuilder.CreateValidCreateMatchRequest()
+            }
+        };
+        // ...
     }
 }
 ```
