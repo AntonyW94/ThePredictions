@@ -33,7 +33,7 @@ Create the `ThePredictions.Validators.Tests.Unit` test project and the `ThePredi
 | `tests/Shared/ThePredictions.Tests.Builders/Admin/Matches/UpdateMatchRequestBuilder.cs` | Create | Builder |
 | `tests/Shared/ThePredictions.Tests.Builders/Admin/Rounds/CreateRoundRequestBuilder.cs` | Create | Builder |
 | `tests/Shared/ThePredictions.Tests.Builders/Admin/Rounds/UpdateRoundRequestBuilder.cs` | Create | Builder |
-| `tests/Shared/ThePredictions.Tests.Builders/Admin/Results/MatchResultDtoBuilder.cs` | Create | Builder |
+| `tests/Shared/ThePredictions.Tests.Builders/Admin/Matches/MatchResultDtoBuilder.cs` | Create | Builder |
 | `tests/Shared/ThePredictions.Tests.Builders/Admin/Seasons/CreateSeasonRequestBuilder.cs` | Create | Builder |
 | `tests/Shared/ThePredictions.Tests.Builders/Admin/Seasons/UpdateSeasonRequestBuilder.cs` | Create | Builder |
 | `tests/Shared/ThePredictions.Tests.Builders/Admin/Teams/CreateTeamRequestBuilder.cs` | Create | Builder |
@@ -112,7 +112,6 @@ tests/Shared/ThePredictions.Tests.Builders/
 ├── Account/
 ├── Admin/
 │   ├── Matches/
-│   ├── Results/
 │   ├── Rounds/
 │   ├── Seasons/
 │   ├── Teams/
@@ -130,7 +129,6 @@ tests/Unit/ThePredictions.Validators.Tests.Unit/
 ├── Account/
 ├── Admin/
 │   ├── Matches/
-│   ├── Results/
 │   ├── Rounds/
 │   ├── Seasons/
 │   ├── Teams/
@@ -361,7 +359,7 @@ Match the existing domain test project for package versions:
 
 - The `FluentValidation.TestHelper` namespace is built into the main FluentValidation package (12.1.1). No separate NuGet package is needed — it comes transitively via the Validators project reference.
 - The builders project references `PredictionLeague.Contracts` only. The existing `ThePredictions.Tests.Shared` project continues to reference `PredictionLeague.Domain` only. This separation keeps dependencies clean.
-- The builders folder structure mirrors the Contracts project (where the request/DTO types live). The test folder structure mirrors the Validators project (where the validators live). Both now have `Admin/Results/` for `MatchResultDto`/`MatchResultDtoValidator`.
+- The builders folder structure mirrors the Contracts project (where the request/DTO types live). The test folder structure mirrors the Validators project (where the validators live). Both projects now use `Admin/Matches/` for all match-related types including `MatchResultDto`/`MatchResultDtoValidator`.
 - Coverlet will automatically measure the Validators assembly because the test project has a `ProjectReference` to it via the Validators project reference. No changes to `coverage.runsettings` are needed.
 - No `[ExcludeFromCodeCoverage]` should be needed — all validator code is testable through the public API.
 - Each builder has exactly one public type per file, matching the codebase convention.

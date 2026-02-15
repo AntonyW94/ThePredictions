@@ -216,9 +216,8 @@ tests/Unit/ThePredictions.Validators.Tests.Unit/
 ├── Admin/
 │   ├── Matches/
 │   │   ├── CreateMatchRequestValidatorTests.cs
+│   │   ├── MatchResultDtoValidatorTests.cs
 │   │   └── UpdateMatchRequestValidatorTests.cs
-│   ├── Results/
-│   │   └── MatchResultDtoValidatorTests.cs
 │   ├── Rounds/
 │   │   ├── CreateRoundRequestValidatorTests.cs
 │   │   └── UpdateRoundRequestValidatorTests.cs
