@@ -8,30 +8,64 @@
 
 ## Goal
 
-Create the `ThePredictions.Validators.Tests.Unit` test project with all required package references and add it to the solution.
+Create the `ThePredictions.Validators.Tests.Unit` test project and the `ThePredictions.Tests.Builders` shared builders project, with all required references and fluent request builders.
 
 ## Files to Modify
 
 | File | Action | Purpose |
 |------|--------|---------|
 | `tests/Unit/ThePredictions.Validators.Tests.Unit/ThePredictions.Validators.Tests.Unit.csproj` | Create | New test project |
-| `tests/Shared/ThePredictions.Tests.Shared/ThePredictions.Tests.Shared.csproj` | Modify | Add `PredictionLeague.Contracts` reference |
-| `tests/Shared/ThePredictions.Tests.Shared/Builders/ValidAuthenticationRequests.cs` | Create | Login, Register, RefreshToken, PasswordReset builders |
-| `tests/Shared/ThePredictions.Tests.Shared/Builders/ValidLeagueRequests.cs` | Create | CreateLeague, UpdateLeague, DefinePrizeStructure, JoinLeague builders |
-| `tests/Shared/ThePredictions.Tests.Shared/Builders/ValidPredictionRequests.cs` | Create | SubmitPredictions, PredictionSubmissionDto, ApplyBoost builders |
-| `tests/Shared/ThePredictions.Tests.Shared/Builders/ValidAdminMatchRequests.cs` | Create | CreateMatch, UpdateMatch builders |
-| `tests/Shared/ThePredictions.Tests.Shared/Builders/ValidAdminRoundRequests.cs` | Create | CreateRound, UpdateRound, MatchResultDto builders |
-| `tests/Shared/ThePredictions.Tests.Shared/Builders/ValidAdminSeasonRequests.cs` | Create | CreateSeason, UpdateSeason builders |
-| `tests/Shared/ThePredictions.Tests.Shared/Builders/ValidAdminTeamRequests.cs` | Create | CreateTeam, UpdateTeam builders |
-| `tests/Shared/ThePredictions.Tests.Shared/Builders/ValidAdminUserRequests.cs` | Create | DeleteUser, UpdateUserRole builders |
-| `tests/Shared/ThePredictions.Tests.Shared/Builders/ValidAccountRequests.cs` | Create | UpdateUserDetails builder |
-| `PredictionLeague.sln` | Modify | Add project to solution under `Tests\Unit` folder |
+| `tests/Shared/ThePredictions.Tests.Builders/ThePredictions.Tests.Builders.csproj` | Create | New shared builders project |
+| `tests/Shared/ThePredictions.Tests.Builders/Authentication/LoginRequestBuilder.cs` | Create | Builder |
+| `tests/Shared/ThePredictions.Tests.Builders/Authentication/RegisterRequestBuilder.cs` | Create | Builder |
+| `tests/Shared/ThePredictions.Tests.Builders/Authentication/RefreshTokenRequestBuilder.cs` | Create | Builder |
+| `tests/Shared/ThePredictions.Tests.Builders/Authentication/RequestPasswordResetRequestBuilder.cs` | Create | Builder |
+| `tests/Shared/ThePredictions.Tests.Builders/Authentication/ResetPasswordRequestBuilder.cs` | Create | Builder |
+| `tests/Shared/ThePredictions.Tests.Builders/Leagues/CreateLeagueRequestBuilder.cs` | Create | Builder |
+| `tests/Shared/ThePredictions.Tests.Builders/Leagues/UpdateLeagueRequestBuilder.cs` | Create | Builder |
+| `tests/Shared/ThePredictions.Tests.Builders/Leagues/DefinePrizeStructureRequestBuilder.cs` | Create | Builder |
+| `tests/Shared/ThePredictions.Tests.Builders/Leagues/DefinePrizeSettingDtoBuilder.cs` | Create | Builder |
+| `tests/Shared/ThePredictions.Tests.Builders/Leagues/JoinLeagueRequestBuilder.cs` | Create | Builder |
+| `tests/Shared/ThePredictions.Tests.Builders/Predictions/SubmitPredictionsRequestBuilder.cs` | Create | Builder |
+| `tests/Shared/ThePredictions.Tests.Builders/Predictions/PredictionSubmissionDtoBuilder.cs` | Create | Builder |
+| `tests/Shared/ThePredictions.Tests.Builders/Boosts/ApplyBoostRequestBuilder.cs` | Create | Builder |
+| `tests/Shared/ThePredictions.Tests.Builders/Admin/Matches/CreateMatchRequestBuilder.cs` | Create | Builder |
+| `tests/Shared/ThePredictions.Tests.Builders/Admin/Matches/UpdateMatchRequestBuilder.cs` | Create | Builder |
+| `tests/Shared/ThePredictions.Tests.Builders/Admin/Rounds/CreateRoundRequestBuilder.cs` | Create | Builder |
+| `tests/Shared/ThePredictions.Tests.Builders/Admin/Rounds/UpdateRoundRequestBuilder.cs` | Create | Builder |
+| `tests/Shared/ThePredictions.Tests.Builders/Admin/Rounds/MatchResultDtoBuilder.cs` | Create | Builder |
+| `tests/Shared/ThePredictions.Tests.Builders/Admin/Seasons/CreateSeasonRequestBuilder.cs` | Create | Builder |
+| `tests/Shared/ThePredictions.Tests.Builders/Admin/Seasons/UpdateSeasonRequestBuilder.cs` | Create | Builder |
+| `tests/Shared/ThePredictions.Tests.Builders/Admin/Teams/CreateTeamRequestBuilder.cs` | Create | Builder |
+| `tests/Shared/ThePredictions.Tests.Builders/Admin/Teams/UpdateTeamRequestBuilder.cs` | Create | Builder |
+| `tests/Shared/ThePredictions.Tests.Builders/Admin/Users/DeleteUserRequestBuilder.cs` | Create | Builder |
+| `tests/Shared/ThePredictions.Tests.Builders/Admin/Users/UpdateUserRoleRequestBuilder.cs` | Create | Builder |
+| `tests/Shared/ThePredictions.Tests.Builders/Account/UpdateUserDetailsRequestBuilder.cs` | Create | Builder |
+| `PredictionLeague.sln` | Modify | Add both projects to solution |
 
 ## Implementation Steps
 
-### Step 1: Create the Test Project
+### Step 1: Create the Builders Project
 
-Create the project file with all required dependencies:
+Create `tests/Shared/ThePredictions.Tests.Builders/ThePredictions.Tests.Builders.csproj`. This project only references `PredictionLeague.Contracts`:
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\PredictionLeague.Contracts\PredictionLeague.Contracts.csproj" />
+  </ItemGroup>
+</Project>
+```
+
+### Step 2: Create the Test Project
+
+Create `tests/Unit/ThePredictions.Validators.Tests.Unit/ThePredictions.Validators.Tests.Unit.csproj`:
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -52,24 +86,40 @@ Create the project file with all required dependencies:
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\PredictionLeague.Validators\PredictionLeague.Validators.csproj" />
-    <ProjectReference Include="..\..\..\src\PredictionLeague.Contracts\PredictionLeague.Contracts.csproj" />
+    <ProjectReference Include="..\..\Shared\ThePredictions.Tests.Builders\ThePredictions.Tests.Builders.csproj" />
   </ItemGroup>
 </Project>
 ```
 
 **Key package:** `FluentValidation.TestHelper` provides `TestValidate()`, `ShouldHaveValidationErrorFor()`, and `ShouldNotHaveAnyValidationErrors()`.
 
-**Note:** The project also references `ThePredictions.Tests.Shared` for shared request builders (see Step 4).
-
-### Step 2: Add to Solution
+### Step 3: Add Both Projects to Solution
 
 ```bash
+dotnet sln PredictionLeague.sln add tests/Shared/ThePredictions.Tests.Builders/ThePredictions.Tests.Builders.csproj --solution-folder "Tests\Shared"
 dotnet sln PredictionLeague.sln add tests/Unit/ThePredictions.Validators.Tests.Unit/ThePredictions.Validators.Tests.Unit.csproj --solution-folder "Tests\Unit"
 ```
 
-### Step 3: Create Folder Structure
+### Step 4: Create Folder Structures
 
-Create the test folder structure mirroring the validators project:
+**Builders project** (mirrors the Validators project structure):
+
+```
+tests/Shared/ThePredictions.Tests.Builders/
+├── Account/
+├── Admin/
+│   ├── Matches/
+│   ├── Rounds/
+│   ├── Seasons/
+│   ├── Teams/
+│   └── Users/
+├── Authentication/
+├── Boosts/
+├── Leagues/
+└── Predictions/
+```
+
+**Test project** (same structure):
 
 ```
 tests/Unit/ThePredictions.Validators.Tests.Unit/
@@ -86,300 +136,196 @@ tests/Unit/ThePredictions.Validators.Tests.Unit/
 └── Predictions/
 ```
 
-### Step 4: Add Contracts Reference to Shared Test Project
+### Step 5: Create Fluent Request Builders
 
-The shared test project currently only references `PredictionLeague.Domain`. Add a reference to `PredictionLeague.Contracts` so shared request builders can create valid request objects:
+Each builder follows this pattern:
 
-```xml
-<!-- Add to ThePredictions.Tests.Shared.csproj -->
-<ProjectReference Include="..\..\..\src\PredictionLeague.Contracts\PredictionLeague.Contracts.csproj" />
-```
+1. **Private fields** with valid defaults — `new XxxBuilder().Build()` always returns a valid object
+2. **`With*()`** methods for each validated property — returns `this` for chaining
+3. **`Build()`** method — returns a new request/DTO instance
 
-### Step 5: Create Shared Request Builders
-
-Create one static factory class per area under `tests/Shared/ThePredictions.Tests.Shared/Builders/`. Each class returns a fully valid request object that tests can then mutate for their specific scenario. This makes the builders reusable across future test projects (Application handler tests, API controller tests, etc.).
-
-**Pattern:** Each factory method returns a valid, mutable request. Tests modify only the property under test:
+#### Full Example: `CreateLeagueRequestBuilder`
 
 ```csharp
-// In the test:
-var request = ValidLeagueRequests.CreateLeagueRequest();
-request.Name = "";  // only mutate the property being tested
-var result = _validator.TestValidate(request);
-```
-
-**Builders to create (one file each):**
-
-#### `ValidAuthenticationRequests.cs`
-
-```csharp
-public static class ValidAuthenticationRequests
+public class CreateLeagueRequestBuilder
 {
-    public static LoginRequest LoginRequest() => new()
-    {
-        Email = "user@example.com",
-        Password = "ValidPass1"
-    };
+    private string _name = "Test League";
+    private int _seasonId = 1;
+    private decimal _price = 10.00m;
+    private DateTime _entryDeadlineUtc = new(2099, 6, 1, 12, 0, 0, DateTimeKind.Utc);
+    private int _pointsForExactScore = 3;
+    private int _pointsForCorrectResult = 1;
 
-    public static RegisterRequest RegisterRequest() => new()
+    public CreateLeagueRequestBuilder WithName(string name)
     {
-        FirstName = "John",
-        LastName = "Smith",
-        Email = "john.smith@example.com",
-        Password = "ValidPass1"
-    };
+        _name = name;
+        return this;
+    }
 
-    public static RefreshTokenRequest RefreshTokenRequest() => new()
+    public CreateLeagueRequestBuilder WithSeasonId(int seasonId)
     {
-        Token = "valid-refresh-token"
-    };
+        _seasonId = seasonId;
+        return this;
+    }
 
-    public static RequestPasswordResetRequest RequestPasswordResetRequest() => new()
+    public CreateLeagueRequestBuilder WithPrice(decimal price)
     {
-        Email = "user@example.com"
-    };
+        _price = price;
+        return this;
+    }
 
-    public static ResetPasswordRequest ResetPasswordRequest() => new()
+    public CreateLeagueRequestBuilder WithEntryDeadlineUtc(DateTime entryDeadlineUtc)
     {
-        Token = "valid-reset-token",
-        NewPassword = "NewValidPass1",
-        ConfirmPassword = "NewValidPass1"
+        _entryDeadlineUtc = entryDeadlineUtc;
+        return this;
+    }
+
+    public CreateLeagueRequestBuilder WithPointsForExactScore(int pointsForExactScore)
+    {
+        _pointsForExactScore = pointsForExactScore;
+        return this;
+    }
+
+    public CreateLeagueRequestBuilder WithPointsForCorrectResult(int pointsForCorrectResult)
+    {
+        _pointsForCorrectResult = pointsForCorrectResult;
+        return this;
+    }
+
+    public CreateLeagueRequest Build() => new()
+    {
+        Name = _name,
+        SeasonId = _seasonId,
+        Price = _price,
+        EntryDeadlineUtc = _entryDeadlineUtc,
+        PointsForExactScore = _pointsForExactScore,
+        PointsForCorrectResult = _pointsForCorrectResult
     };
 }
 ```
 
-#### `ValidLeagueRequests.cs`
+#### Full Example: `CreateMatchRequestBuilder`
 
 ```csharp
-public static class ValidLeagueRequests
+public class CreateMatchRequestBuilder
 {
-    public static CreateLeagueRequest CreateLeagueRequest() => new()
-    {
-        Name = "Test League",
-        SeasonId = 1,
-        Price = 10.00m,
-        EntryDeadlineUtc = new DateTime(2099, 6, 1, 12, 0, 0, DateTimeKind.Utc),
-        PointsForExactScore = 3,
-        PointsForCorrectResult = 1
-    };
+    private int _homeTeamId = 1;
+    private int _awayTeamId = 2;
+    private DateTime _matchDateTimeUtc = new(2025, 6, 15, 15, 0, 0, DateTimeKind.Utc);
 
-    public static UpdateLeagueRequest UpdateLeagueRequest() => new()
+    public CreateMatchRequestBuilder WithHomeTeamId(int homeTeamId)
     {
-        Name = "Updated League",
-        Price = 10.00m,
-        EntryDeadlineUtc = new DateTime(2099, 6, 1, 12, 0, 0, DateTimeKind.Utc),
-        PointsForExactScore = 3,
-        PointsForCorrectResult = 1
-    };
+        _homeTeamId = homeTeamId;
+        return this;
+    }
 
-    public static DefinePrizeStructureRequest DefinePrizeStructureRequest() => new()
+    public CreateMatchRequestBuilder WithAwayTeamId(int awayTeamId)
     {
-        PrizeSettings = new List<DefinePrizeSettingDto>
-        {
-            DefinePrizeSettingDto()
-        }
-    };
+        _awayTeamId = awayTeamId;
+        return this;
+    }
 
-    public static DefinePrizeSettingDto DefinePrizeSettingDto() => new()
+    public CreateMatchRequestBuilder WithMatchDateTimeUtc(DateTime matchDateTimeUtc)
     {
-        PrizeType = /* valid enum value */,
-        PrizeAmount = 50.00m,
-        Rank = 1,
-        Multiplier = 1.0m,
-        PrizeDescription = "First place"
-    };
+        _matchDateTimeUtc = matchDateTimeUtc;
+        return this;
+    }
 
-    public static JoinLeagueRequest JoinLeagueRequest() => new()
+    public CreateMatchRequest Build() => new()
     {
-        EntryCode = "ABC123"
+        HomeTeamId = _homeTeamId,
+        AwayTeamId = _awayTeamId,
+        MatchDateTimeUtc = _matchDateTimeUtc
     };
 }
 ```
 
-#### `ValidPredictionRequests.cs`
+#### Full Example: `RegisterRequestBuilder`
 
 ```csharp
-public static class ValidPredictionRequests
+public class RegisterRequestBuilder
 {
-    public static SubmitPredictionsRequest SubmitPredictionsRequest() => new()
-    {
-        RoundId = 1,
-        Predictions = new List<PredictionSubmissionDto>
-        {
-            PredictionSubmissionDto()
-        }
-    };
+    private string _firstName = "John";
+    private string _lastName = "Smith";
+    private string _email = "john.smith@example.com";
+    private string _password = "ValidPass1";
 
-    public static PredictionSubmissionDto PredictionSubmissionDto() => new()
+    public RegisterRequestBuilder WithFirstName(string firstName)
     {
-        MatchId = 1,
-        HomeScore = 2,
-        AwayScore = 1
-    };
+        _firstName = firstName;
+        return this;
+    }
 
-    public static ApplyBoostRequest ApplyBoostRequest() => new()
+    public RegisterRequestBuilder WithLastName(string lastName)
     {
-        LeagueId = 1,
-        RoundId = 1,
-        BoostCode = "DOUBLE"
+        _lastName = lastName;
+        return this;
+    }
+
+    public RegisterRequestBuilder WithEmail(string email)
+    {
+        _email = email;
+        return this;
+    }
+
+    public RegisterRequestBuilder WithPassword(string password)
+    {
+        _password = password;
+        return this;
+    }
+
+    public RegisterRequest Build() => new()
+    {
+        FirstName = _firstName,
+        LastName = _lastName,
+        Email = _email,
+        Password = _password
     };
 }
 ```
 
-#### `ValidAdminMatchRequests.cs`
+#### Remaining Builders — Default Values
 
-```csharp
-public static class ValidAdminMatchRequests
-{
-    public static CreateMatchRequest CreateMatchRequest() => new()
-    {
-        HomeTeamId = 1,
-        AwayTeamId = 2,
-        MatchDateTimeUtc = new DateTime(2025, 6, 15, 15, 0, 0, DateTimeKind.Utc)
-    };
+All remaining builders follow the same pattern. The table below lists each builder and its default field values:
 
-    public static UpdateMatchRequest UpdateMatchRequest() => new()
-    {
-        HomeTeamId = 1,
-        AwayTeamId = 2,
-        MatchDateTimeUtc = new DateTime(2025, 6, 15, 15, 0, 0, DateTimeKind.Utc)
-    };
-}
-```
+| Builder | Fields (default values) |
+|---------|------------------------|
+| `LoginRequestBuilder` | Email = `"user@example.com"`, Password = `"ValidPass1"` |
+| `RefreshTokenRequestBuilder` | Token = `"valid-refresh-token"` |
+| `RequestPasswordResetRequestBuilder` | Email = `"user@example.com"` |
+| `ResetPasswordRequestBuilder` | Token = `"valid-reset-token"`, NewPassword = `"NewValidPass1"`, ConfirmPassword = `"NewValidPass1"` |
+| `UpdateLeagueRequestBuilder` | Name = `"Updated League"`, Price = `10.00m`, EntryDeadlineUtc = `2099-06-01`, PointsForExactScore = `3`, PointsForCorrectResult = `1` |
+| `DefinePrizeStructureRequestBuilder` | PrizeSettings = `[new DefinePrizeSettingDtoBuilder().Build()]` |
+| `DefinePrizeSettingDtoBuilder` | PrizeType = valid enum, PrizeAmount = `50.00m`, Rank = `1`, Multiplier = `1.0m`, PrizeDescription = `"First place"` |
+| `JoinLeagueRequestBuilder` | EntryCode = `"ABC123"` |
+| `SubmitPredictionsRequestBuilder` | RoundId = `1`, Predictions = `[new PredictionSubmissionDtoBuilder().Build()]` |
+| `PredictionSubmissionDtoBuilder` | MatchId = `1`, HomeScore = `2`, AwayScore = `1` |
+| `ApplyBoostRequestBuilder` | LeagueId = `1`, RoundId = `1`, BoostCode = `"DOUBLE"` |
+| `UpdateMatchRequestBuilder` | HomeTeamId = `1`, AwayTeamId = `2`, MatchDateTimeUtc = `2025-06-15 15:00 UTC` |
+| `CreateRoundRequestBuilder` | SeasonId = `1`, RoundNumber = `5`, StartDateUtc = `2025-01-01 12:00 UTC`, DeadlineUtc = `2025-01-02 12:00 UTC`, Matches = `[new CreateMatchRequestBuilder().Build()]` |
+| `UpdateRoundRequestBuilder` | StartDateUtc = `2025-01-01 12:00 UTC`, DeadlineUtc = `2025-01-02 12:00 UTC`, Matches = `[new UpdateMatchRequestBuilder().Build()]` |
+| `MatchResultDtoBuilder` | MatchId = `1`, HomeScore = `2`, AwayScore = `1`, Status = valid enum |
+| `CreateSeasonRequestBuilder` | Name = `"Premier League 2025-26"`, StartDateUtc = `2025-08-01`, EndDateUtc = `2026-05-31`, NumberOfRounds = `38` |
+| `UpdateSeasonRequestBuilder` | Same defaults as CreateSeasonRequestBuilder |
+| `CreateTeamRequestBuilder` | Name = `"Manchester United"`, ShortName = `"Man United"`, LogoUrl = `"https://example.com/logo.png"`, Abbreviation = `"MUN"` |
+| `UpdateTeamRequestBuilder` | Same defaults as CreateTeamRequestBuilder |
+| `DeleteUserRequestBuilder` | NewAdministratorId = `null` |
+| `UpdateUserRoleRequestBuilder` | NewRole = valid `ApplicationUserRole` enum name |
+| `UpdateUserDetailsRequestBuilder` | FirstName = `"John"`, LastName = `"Smith"`, PhoneNumber = `"07123456789"` |
 
-#### `ValidAdminRoundRequests.cs`
+**Note:** Builders that contain child collections (e.g. `CreateRoundRequestBuilder`, `SubmitPredictionsRequestBuilder`) use the child builder's `Build()` for their defaults. This ensures changes to child builder defaults cascade automatically.
 
-```csharp
-public static class ValidAdminRoundRequests
-{
-    public static CreateRoundRequest CreateRoundRequest() => new()
-    {
-        SeasonId = 1,
-        RoundNumber = 5,
-        StartDateUtc = new DateTime(2025, 1, 1, 12, 0, 0, DateTimeKind.Utc),
-        DeadlineUtc = new DateTime(2025, 1, 2, 12, 0, 0, DateTimeKind.Utc),
-        Matches = new List<CreateMatchRequest>
-        {
-            ValidAdminMatchRequests.CreateMatchRequest()
-        }
-    };
-
-    public static UpdateRoundRequest UpdateRoundRequest() => new()
-    {
-        StartDateUtc = new DateTime(2025, 1, 1, 12, 0, 0, DateTimeKind.Utc),
-        DeadlineUtc = new DateTime(2025, 1, 2, 12, 0, 0, DateTimeKind.Utc),
-        Matches = new List<UpdateMatchRequest>
-        {
-            ValidAdminMatchRequests.UpdateMatchRequest()
-        }
-    };
-
-    public static MatchResultDto MatchResultDto() => new()
-    {
-        MatchId = 1,
-        HomeScore = 2,
-        AwayScore = 1,
-        Status = /* valid enum value */
-    };
-}
-```
-
-#### `ValidAdminSeasonRequests.cs`
-
-```csharp
-public static class ValidAdminSeasonRequests
-{
-    public static CreateSeasonRequest CreateSeasonRequest() => new()
-    {
-        Name = "Premier League 2025-26",
-        StartDateUtc = new DateTime(2025, 8, 1, 0, 0, 0, DateTimeKind.Utc),
-        EndDateUtc = new DateTime(2026, 5, 31, 0, 0, 0, DateTimeKind.Utc),
-        NumberOfRounds = 38
-    };
-
-    public static UpdateSeasonRequest UpdateSeasonRequest() => new()
-    {
-        Name = "Premier League 2025-26",
-        StartDateUtc = new DateTime(2025, 8, 1, 0, 0, 0, DateTimeKind.Utc),
-        EndDateUtc = new DateTime(2026, 5, 31, 0, 0, 0, DateTimeKind.Utc),
-        NumberOfRounds = 38
-    };
-}
-```
-
-#### `ValidAdminTeamRequests.cs`
-
-```csharp
-public static class ValidAdminTeamRequests
-{
-    public static CreateTeamRequest CreateTeamRequest() => new()
-    {
-        Name = "Manchester United",
-        ShortName = "Man United",
-        LogoUrl = "https://example.com/logo.png",
-        Abbreviation = "MUN"
-    };
-
-    public static UpdateTeamRequest UpdateTeamRequest() => new()
-    {
-        Name = "Manchester United",
-        ShortName = "Man United",
-        LogoUrl = "https://example.com/logo.png",
-        Abbreviation = "MUN"
-    };
-}
-```
-
-#### `ValidAdminUserRequests.cs`
-
-```csharp
-public static class ValidAdminUserRequests
-{
-    public static DeleteUserRequest DeleteUserRequest() => new()
-    {
-        NewAdministratorId = null
-    };
-
-    public static UpdateUserRoleRequest UpdateUserRoleRequest() => new()
-    {
-        NewRole = "Admin"  // use an actual ApplicationUserRole enum name
-    };
-}
-```
-
-#### `ValidAccountRequests.cs`
-
-```csharp
-public static class ValidAccountRequests
-{
-    public static UpdateUserDetailsRequest UpdateUserDetailsRequest() => new()
-    {
-        FirstName = "John",
-        LastName = "Smith",
-        PhoneNumber = "07123456789"
-    };
-}
-```
-
-### Step 6: Add Shared Project Reference to Test Project
-
-Update the test project `.csproj` to also reference the shared project:
-
-```xml
-<ProjectReference Include="..\..\Shared\ThePredictions.Tests.Shared\ThePredictions.Tests.Shared.csproj" />
-```
-
-### Step 7: Verify Build
+### Step 6: Verify Build
 
 ```bash
 dotnet build PredictionLeague.sln
 ```
 
-Confirm the new test project compiles with all dependencies resolved. The `FluentValidation.TestHelper` version should be compatible with the FluentValidation version used by the Validators project (12.1.1). If not, adjust the TestHelper version accordingly.
+Confirm both new projects compile with all dependencies resolved. The `FluentValidation.TestHelper` version should be compatible with the FluentValidation version used by the Validators project (12.1.1). If not, adjust the TestHelper version accordingly.
 
 ## Code Patterns to Follow
 
-Match the existing domain test project structure:
+Match the existing domain test project for package versions:
 
 ```xml
 <!-- From ThePredictions.Domain.Tests.Unit.csproj -->
@@ -391,19 +337,21 @@ Match the existing domain test project structure:
 
 ## Verification
 
-- [ ] Project compiles without errors
-- [ ] `dotnet test` runs on the new project (0 tests initially is fine)
-- [ ] Project appears under `Tests\Unit` solution folder in the solution
-- [ ] FluentValidation.TestHelper is compatible with the FluentValidation version in the Validators project
-- [ ] All folder directories are created
-- [ ] Shared project has `PredictionLeague.Contracts` reference
-- [ ] `ValidMatchRequestBuilder` is accessible from the test project
-- [ ] `tools\Test Coverage\coverage-unit.bat` discovers and runs the new test project (check that it finds the `.csproj` under `tests\Unit\`)
+- [ ] Both projects compile without errors
+- [ ] `dotnet test` runs on the test project (0 tests initially is fine)
+- [ ] Test project appears under `Tests\Unit` solution folder
+- [ ] Builders project appears under `Tests\Shared` solution folder
+- [ ] FluentValidation.TestHelper is compatible with FluentValidation 12.1.1
+- [ ] All folder directories are created in both projects
+- [ ] `new CreateLeagueRequestBuilder().Build()` produces a valid `CreateLeagueRequest`
+- [ ] `tools\Test Coverage\coverage-unit.bat` discovers the new test project
+- [ ] Builders project does NOT reference `PredictionLeague.Domain`
+- [ ] `ThePredictions.Tests.Shared` is NOT modified (remains Domain-only)
 
 ## Notes
 
 - The `FluentValidation.TestHelper` version must be compatible with the `FluentValidation` version used by the main Validators project. Check `PredictionLeague.Validators.csproj` for the installed FluentValidation version and match accordingly.
-- The `PredictionLeague.Contracts` reference is needed because the validators validate request/DTO types from that project.
-- The shared project reference is needed for `ValidMatchRequestBuilder` which is used by both match and round validator tests.
-- Coverlet will automatically measure the Validators assembly because the test project has a `ProjectReference` to it. No changes to `coverage.runsettings` are needed.
+- The builders project references `PredictionLeague.Contracts` only. The existing `ThePredictions.Tests.Shared` project continues to reference `PredictionLeague.Domain` only. This separation keeps dependencies clean.
+- Coverlet will automatically measure the Validators assembly because the test project has a `ProjectReference` to it via the Validators project reference. No changes to `coverage.runsettings` are needed.
 - No `[ExcludeFromCodeCoverage]` should be needed — all validator code is testable through the public API.
+- Each builder has exactly one public type per file, matching the codebase convention.

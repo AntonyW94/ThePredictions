@@ -120,30 +120,45 @@ Tests the same base rules through `UpdateTeamRequestValidator`:
 
 ## Code Patterns to Follow
 
-Use `CreateValidRequest()` helpers to reduce test setup boilerplate:
+Use shared builders from `ThePredictions.Tests.Builders`:
 
 ```csharp
 public class CreateTeamRequestValidatorTests
 {
     private readonly CreateTeamRequestValidator _validator = new();
 
-    private static CreateTeamRequest CreateValidRequest() => new()
+    [Fact]
+    public void Validate_ShouldPass_WhenAllFieldsAreValid()
     {
-        Name = "Manchester United",
-        ShortName = "Man United",
-        LogoUrl = "https://example.com/logo.png",
-        Abbreviation = "MUN"
-    };
+        var request = new CreateTeamRequestBuilder().Build();
+
+        var result = _validator.TestValidate(request);
+
+        result.ShouldNotHaveAnyValidationErrors();
+    }
 
     [Fact]
     public void Validate_ShouldFail_WhenNameIsEmpty()
     {
-        var request = CreateValidRequest();
-        request.Name = "";
+        var request = new CreateTeamRequestBuilder()
+            .WithName("")
+            .Build();
 
         var result = _validator.TestValidate(request);
 
         result.ShouldHaveValidationErrorFor(x => x.Name);
+    }
+
+    [Fact]
+    public void Validate_ShouldFail_WhenLogoUrlIsInvalid()
+    {
+        var request = new CreateTeamRequestBuilder()
+            .WithLogoUrl("not-a-url")
+            .Build();
+
+        var result = _validator.TestValidate(request);
+
+        result.ShouldHaveValidationErrorFor(x => x.LogoUrl);
     }
 }
 ```

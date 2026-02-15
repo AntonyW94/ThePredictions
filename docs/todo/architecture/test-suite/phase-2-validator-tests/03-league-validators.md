@@ -101,7 +101,7 @@ Write unit tests for all 4 league validators covering league creation, updates, 
 
 ## Code Patterns to Follow
 
-For testing boundary values, use `[Theory]` with `[InlineData]`:
+Use shared builders from `ThePredictions.Tests.Builders`. For testing boundary values, use `[Theory]` with `[InlineData]`:
 
 ```csharp
 [Theory]
@@ -109,8 +109,9 @@ For testing boundary values, use `[Theory]` with `[InlineData]`:
 [InlineData(101)]
 public void Validate_ShouldFail_WhenPointsForExactScoreIsOutOfRange(int points)
 {
-    var request = CreateValidRequest();
-    request.PointsForExactScore = points;
+    var request = new CreateLeagueRequestBuilder()
+        .WithPointsForExactScore(points)
+        .Build();
 
     var result = _validator.TestValidate(request);
 
@@ -118,18 +119,21 @@ public void Validate_ShouldFail_WhenPointsForExactScoreIsOutOfRange(int points)
 }
 ```
 
-Use a `CreateValidRequest()` helper method in each test class to create a baseline valid request, then modify the field under test:
+The builder provides valid defaults — each test only overrides the property under test:
 
 ```csharp
-private static CreateLeagueRequest CreateValidRequest() => new()
-{
-    Name = "Test League",
-    SeasonId = 1,
-    Price = 10.00m,
-    EntryDeadlineUtc = DateTime.UtcNow.AddDays(7),
-    PointsForExactScore = 3,
-    PointsForCorrectResult = 1
-};
+// Happy path — builder defaults are all valid
+var request = new CreateLeagueRequestBuilder().Build();
+
+// Failure test — override one property
+var request = new CreateLeagueRequestBuilder()
+    .WithName("")
+    .Build();
+
+// Multiple overrides for related tests
+var request = new CreateLeagueRequestBuilder()
+    .WithPrice(-1)
+    .Build();
 ```
 
 ## Verification

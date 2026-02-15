@@ -83,26 +83,23 @@ public class CreateRoundRequestValidatorTests
     [Fact]
     public void Validate_ShouldPass_WhenAllFieldsAreValid()
     {
-        var request = new CreateRoundRequest
-        {
-            SeasonId = 1,
-            RoundNumber = 5,
-            StartDateUtc = new DateTime(2025, 1, 1, 12, 0, 0, DateTimeKind.Utc),
-            DeadlineUtc = new DateTime(2025, 1, 2, 12, 0, 0, DateTimeKind.Utc),
-            Matches = new List<CreateMatchRequest>
-            {
-                new()
-                {
-                    HomeTeamId = 1,
-                    AwayTeamId = 2,
-                    MatchDateTimeUtc = new DateTime(2025, 1, 3, 15, 0, 0, DateTimeKind.Utc)
-                }
-            }
-        };
+        var request = new CreateRoundRequestBuilder().Build();
 
         var result = _validator.TestValidate(request);
 
         result.ShouldNotHaveAnyValidationErrors();
+    }
+
+    [Fact]
+    public void Validate_ShouldFail_WhenSeasonIdIsZero()
+    {
+        var request = new CreateRoundRequestBuilder()
+            .WithSeasonId(0)
+            .Build();
+
+        var result = _validator.TestValidate(request);
+
+        result.ShouldHaveValidationErrorFor(x => x.SeasonId);
     }
 }
 ```
@@ -145,12 +142,10 @@ public class CreateRoundRequestValidatorTests
 
 ## Code Patterns to Follow
 
-### Shared Match Request Builders
-
-Use the shared `ValidMatchRequestBuilder` from `ThePredictions.Tests.Shared` (created in Task 1) for both match and round tests. This avoids duplicating valid match request construction:
+Use shared builders from `ThePredictions.Tests.Builders` for all request construction:
 
 ```csharp
-// Match validator tests — use shared builder, then modify the field under test
+// Match validator tests — fluent builder with override
 public class CreateMatchRequestValidatorTests
 {
     private readonly CreateMatchRequestValidator _validator = new();
@@ -158,7 +153,7 @@ public class CreateMatchRequestValidatorTests
     [Fact]
     public void Validate_ShouldPass_WhenAllFieldsAreValid()
     {
-        var request = ValidMatchRequestBuilder.CreateValidCreateMatchRequest();
+        var request = new CreateMatchRequestBuilder().Build();
 
         var result = _validator.TestValidate(request);
 
@@ -168,9 +163,10 @@ public class CreateMatchRequestValidatorTests
     [Fact]
     public void Validate_ShouldFail_WhenHomeAndAwayTeamsAreTheSame()
     {
-        var request = ValidMatchRequestBuilder.CreateValidCreateMatchRequest();
-        request.HomeTeamId = 5;
-        request.AwayTeamId = 5;
+        var request = new CreateMatchRequestBuilder()
+            .WithHomeTeamId(5)
+            .WithAwayTeamId(5)
+            .Build();
 
         var result = _validator.TestValidate(request);
 
@@ -178,24 +174,18 @@ public class CreateMatchRequestValidatorTests
     }
 }
 
-// Round validator tests — use the same shared builder for child matches
+// Round validator tests — builder default includes a valid child match
 public class CreateRoundRequestValidatorTests
 {
     [Fact]
     public void Validate_ShouldPass_WhenAllFieldsAreValid()
     {
-        var request = new CreateRoundRequest
-        {
-            SeasonId = 1,
-            RoundNumber = 5,
-            StartDateUtc = new DateTime(2025, 1, 1, 12, 0, 0, DateTimeKind.Utc),
-            DeadlineUtc = new DateTime(2025, 1, 2, 12, 0, 0, DateTimeKind.Utc),
-            Matches = new List<CreateMatchRequest>
-            {
-                ValidMatchRequestBuilder.CreateValidCreateMatchRequest()
-            }
-        };
-        // ...
+        var request = new CreateRoundRequestBuilder().Build();
+        // Default includes Matches = [new CreateMatchRequestBuilder().Build()]
+
+        var result = _validator.TestValidate(request);
+
+        result.ShouldNotHaveAnyValidationErrors();
     }
 }
 ```

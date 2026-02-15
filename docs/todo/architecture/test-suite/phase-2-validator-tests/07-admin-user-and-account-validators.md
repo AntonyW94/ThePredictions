@@ -41,7 +41,8 @@ public class DeleteUserRequestValidatorTests
     [Fact]
     public void Validate_ShouldPass_WhenNewAdministratorIdIsNull()
     {
-        var request = new DeleteUserRequest { NewAdministratorId = null };
+        var request = new DeleteUserRequestBuilder().Build();
+        // Default has NewAdministratorId = null
 
         var result = _validator.TestValidate(request);
 
@@ -51,7 +52,9 @@ public class DeleteUserRequestValidatorTests
     [Fact]
     public void Validate_ShouldFail_WhenNewAdministratorIdIsEmptyButNotNull()
     {
-        var request = new DeleteUserRequest { NewAdministratorId = "" };
+        var request = new DeleteUserRequestBuilder()
+            .WithNewAdministratorId("")
+            .Build();
 
         var result = _validator.TestValidate(request);
 
@@ -85,7 +88,9 @@ public class UpdateUserRoleRequestValidatorTests
     [Fact]
     public void Validate_ShouldFail_WhenRoleIsInvalidValue()
     {
-        var request = new UpdateUserRoleRequest { NewRole = "SuperAdmin" };
+        var request = new UpdateUserRoleRequestBuilder()
+            .WithNewRole("SuperAdmin")
+            .Build();
 
         var result = _validator.TestValidate(request);
 
@@ -95,7 +100,9 @@ public class UpdateUserRoleRequestValidatorTests
     [Fact]
     public void Validate_ShouldPass_WhenRoleIsCaseInsensitive()
     {
-        var request = new UpdateUserRoleRequest { NewRole = "admin" };
+        var request = new UpdateUserRoleRequestBuilder()
+            .WithNewRole("admin")
+            .Build();
 
         var result = _validator.TestValidate(request);
 
@@ -137,18 +144,12 @@ public class UpdateUserDetailsRequestValidatorTests
 {
     private readonly UpdateUserDetailsRequestValidator _validator = new();
 
-    private static UpdateUserDetailsRequest CreateValidRequest() => new()
-    {
-        FirstName = "John",
-        LastName = "Smith",
-        PhoneNumber = "07123456789"
-    };
-
     [Fact]
     public void Validate_ShouldPass_WhenPhoneNumberIsEmpty()
     {
-        var request = CreateValidRequest();
-        request.PhoneNumber = "";
+        var request = new UpdateUserDetailsRequestBuilder()
+            .WithPhoneNumber("")
+            .Build();
 
         var result = _validator.TestValidate(request);
 
@@ -158,8 +159,9 @@ public class UpdateUserDetailsRequestValidatorTests
     [Fact]
     public void Validate_ShouldFail_WhenPhoneNumberDoesNotStartWith07()
     {
-        var request = CreateValidRequest();
-        request.PhoneNumber = "08123456789";
+        var request = new UpdateUserDetailsRequestBuilder()
+            .WithPhoneNumber("08123456789")
+            .Build();
 
         var result = _validator.TestValidate(request);
 
@@ -170,7 +172,7 @@ public class UpdateUserDetailsRequestValidatorTests
 
 ## Code Patterns to Follow
 
-For testing enum-based validation with `.Must()`, check actual enum values:
+Use shared builders from `ThePredictions.Tests.Builders`. For testing enum-based validation with `.Must()`, check actual enum values:
 
 ```csharp
 [Theory]
@@ -178,7 +180,9 @@ For testing enum-based validation with `.Must()`, check actual enum values:
 [InlineData("User")]
 public void Validate_ShouldPass_WhenRoleIsValid(string role)
 {
-    var request = new UpdateUserRoleRequest { NewRole = role };
+    var request = new UpdateUserRoleRequestBuilder()
+        .WithNewRole(role)
+        .Build();
 
     var result = _validator.TestValidate(request);
 

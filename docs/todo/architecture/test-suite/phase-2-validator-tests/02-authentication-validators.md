@@ -44,11 +44,7 @@ public class LoginRequestValidatorTests
     [Fact]
     public void Validate_ShouldPass_WhenAllFieldsAreValid()
     {
-        var request = new LoginRequest
-        {
-            Email = "user@example.com",
-            Password = "ValidPassword1"
-        };
+        var request = new LoginRequestBuilder().Build();
 
         var result = _validator.TestValidate(request);
 
@@ -58,7 +54,9 @@ public class LoginRequestValidatorTests
     [Fact]
     public void Validate_ShouldFail_WhenEmailIsEmpty()
     {
-        var request = new LoginRequest { Email = "", Password = "ValidPassword1" };
+        var request = new LoginRequestBuilder()
+            .WithEmail("")
+            .Build();
 
         var result = _validator.TestValidate(request);
 
@@ -131,7 +129,7 @@ public class LoginRequestValidatorTests
 
 ## Code Patterns to Follow
 
-Use FluentValidation's `TestValidate()` pattern consistently:
+Use shared builders from `ThePredictions.Tests.Builders` with FluentValidation's `TestValidate()`:
 
 ```csharp
 public class SomeValidatorTests
@@ -142,7 +140,7 @@ public class SomeValidatorTests
     public void Validate_ShouldPass_WhenAllFieldsAreValid()
     {
         // Arrange
-        var request = new SomeRequest { /* all valid fields */ };
+        var request = new SomeRequestBuilder().Build();
 
         // Act
         var result = _validator.TestValidate(request);
@@ -155,7 +153,9 @@ public class SomeValidatorTests
     public void Validate_ShouldFail_WhenFieldIsInvalid()
     {
         // Arrange
-        var request = new SomeRequest { Field = invalidValue };
+        var request = new SomeRequestBuilder()
+            .WithField(invalidValue)
+            .Build();
 
         // Act
         var result = _validator.TestValidate(request);

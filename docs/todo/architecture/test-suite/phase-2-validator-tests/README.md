@@ -24,7 +24,7 @@ Create unit tests for all 27 validators in the `PredictionLeague.Validators` pro
 
 ## Test Approach
 
-All validators are tested using FluentValidation's built-in `TestValidate()` method:
+All validators are tested using FluentValidation's built-in `TestValidate()` method, combined with shared fluent request builders from `ThePredictions.Tests.Shared`:
 
 ```csharp
 public class CreateLeagueRequestValidatorTests
@@ -35,7 +35,7 @@ public class CreateLeagueRequestValidatorTests
     public void Validate_ShouldPass_WhenAllFieldsAreValid()
     {
         // Arrange
-        var request = new CreateLeagueRequest { Name = "My League", SeasonId = 1, ... };
+        var request = new CreateLeagueRequestBuilder().Build();
 
         // Act
         var result = _validator.TestValidate(request);
@@ -48,7 +48,9 @@ public class CreateLeagueRequestValidatorTests
     public void Validate_ShouldFail_WhenNameIsEmpty()
     {
         // Arrange
-        var request = new CreateLeagueRequest { Name = "" };
+        var request = new CreateLeagueRequestBuilder()
+            .WithName("")
+            .Build();
 
         // Act
         var result = _validator.TestValidate(request);
@@ -117,20 +119,87 @@ tools\Test Coverage\coverage-unit.bat
 
 The HTML report at `coverage/report/index.html` should show 100% line and 100% branch coverage for both the Domain and Validators assemblies.
 
-## Shared Test Helpers
+## Shared Request Builders
 
-### Candidates for `ThePredictions.Tests.Shared`
+### Fluent Builder Pattern
 
-Some request builder methods are needed across multiple test files and should live in the shared test project rather than being duplicated:
+All request/DTO types get a fluent builder class in a dedicated `ThePredictions.Tests.Builders` project. Each builder:
 
-| Builder | Used By | Why Shared |
-|---------|---------|------------|
-| `ValidCreateMatchRequest()` | `CreateMatchRequestValidatorTests`, `CreateRoundRequestValidatorTests` | Round tests need valid child matches |
-| `ValidUpdateMatchRequest()` | `UpdateMatchRequestValidatorTests`, `UpdateRoundRequestValidatorTests` | Round tests need valid child matches |
+- Has private fields with **valid defaults** so `new XxxBuilder().Build()` always produces a valid object
+- Exposes `.WithProperty()` methods for each validated property
+- Returns `this` for fluent chaining
+- Has a `.Build()` method returning the request/DTO
+- Follows one-public-type-per-file (one builder per `.cs` file)
 
-The shared project will need a new `ProjectReference` to `PredictionLeague.Contracts` to access the request types.
+```csharp
+// Builder definition (in shared project)
+public class CreateLeagueRequestBuilder
+{
+    private string _name = "Test League";
+    private int _seasonId = 1;
+    private decimal _price = 10.00m;
+    // ... all fields with valid defaults
 
-Request builders that are only used by a single test class (e.g. `CreateValidRequest()` for `CreateLeagueRequest`) should stay as private helpers in their test class — no need to share them.
+    public CreateLeagueRequestBuilder WithName(string name) { _name = name; return this; }
+    public CreateLeagueRequestBuilder WithSeasonId(int id) { _seasonId = id; return this; }
+    public CreateLeagueRequestBuilder WithPrice(decimal price) { _price = price; return this; }
+    // ... all With methods
+
+    public CreateLeagueRequest Build() => new()
+    {
+        Name = _name, SeasonId = _seasonId, Price = _price, ...
+    };
+}
+
+// Usage in tests
+var request = new CreateLeagueRequestBuilder().WithName("").Build();
+var request = new CreateLeagueRequestBuilder().WithPrice(-1).Build();
+```
+
+### Why a Separate Project
+
+The builders live in `tests/Shared/ThePredictions.Tests.Builders/`, separate from the existing `ThePredictions.Tests.Shared` project. This keeps dependencies clean:
+
+| Project | References | Contains |
+|---------|-----------|----------|
+| `ThePredictions.Tests.Builders` | `PredictionLeague.Contracts` only | Fluent request/DTO builders |
+| `ThePredictions.Tests.Shared` | `PredictionLeague.Domain` only | Test doubles (`TestDateTimeProvider`, etc.) |
+
+Benefits:
+- **Cross-project reuse:** Validator tests need them now; Application handler tests and API controller tests will reuse them in later phases
+- **Single source of truth:** If a request type's properties change, only one builder needs updating
+- **Standard pattern:** Establishes a consistent approach for all test projects in the solution
+- **Clean dependencies:** Each shared project references only what it needs
+
+### Builder Inventory
+
+| Builder Class | Request/DTO | Builder File |
+|--------------|-------------|--------------|
+| `LoginRequestBuilder` | `LoginRequest` | `LoginRequestBuilder.cs` |
+| `RegisterRequestBuilder` | `RegisterRequest` | `RegisterRequestBuilder.cs` |
+| `RefreshTokenRequestBuilder` | `RefreshTokenRequest` | `RefreshTokenRequestBuilder.cs` |
+| `RequestPasswordResetRequestBuilder` | `RequestPasswordResetRequest` | `RequestPasswordResetRequestBuilder.cs` |
+| `ResetPasswordRequestBuilder` | `ResetPasswordRequest` | `ResetPasswordRequestBuilder.cs` |
+| `CreateLeagueRequestBuilder` | `CreateLeagueRequest` | `CreateLeagueRequestBuilder.cs` |
+| `UpdateLeagueRequestBuilder` | `UpdateLeagueRequest` | `UpdateLeagueRequestBuilder.cs` |
+| `DefinePrizeStructureRequestBuilder` | `DefinePrizeStructureRequest` | `DefinePrizeStructureRequestBuilder.cs` |
+| `DefinePrizeSettingDtoBuilder` | `DefinePrizeSettingDto` | `DefinePrizeSettingDtoBuilder.cs` |
+| `JoinLeagueRequestBuilder` | `JoinLeagueRequest` | `JoinLeagueRequestBuilder.cs` |
+| `SubmitPredictionsRequestBuilder` | `SubmitPredictionsRequest` | `SubmitPredictionsRequestBuilder.cs` |
+| `PredictionSubmissionDtoBuilder` | `PredictionSubmissionDto` | `PredictionSubmissionDtoBuilder.cs` |
+| `ApplyBoostRequestBuilder` | `ApplyBoostRequest` | `ApplyBoostRequestBuilder.cs` |
+| `CreateMatchRequestBuilder` | `CreateMatchRequest` | `CreateMatchRequestBuilder.cs` |
+| `UpdateMatchRequestBuilder` | `UpdateMatchRequest` | `UpdateMatchRequestBuilder.cs` |
+| `CreateRoundRequestBuilder` | `CreateRoundRequest` | `CreateRoundRequestBuilder.cs` |
+| `UpdateRoundRequestBuilder` | `UpdateRoundRequest` | `UpdateRoundRequestBuilder.cs` |
+| `MatchResultDtoBuilder` | `MatchResultDto` | `MatchResultDtoBuilder.cs` |
+| `CreateSeasonRequestBuilder` | `CreateSeasonRequest` | `CreateSeasonRequestBuilder.cs` |
+| `UpdateSeasonRequestBuilder` | `UpdateSeasonRequest` | `UpdateSeasonRequestBuilder.cs` |
+| `CreateTeamRequestBuilder` | `CreateTeamRequest` | `CreateTeamRequestBuilder.cs` |
+| `UpdateTeamRequestBuilder` | `UpdateTeamRequest` | `UpdateTeamRequestBuilder.cs` |
+| `DeleteUserRequestBuilder` | `DeleteUserRequest` | `DeleteUserRequestBuilder.cs` |
+| `UpdateUserRoleRequestBuilder` | `UpdateUserRoleRequest` | `UpdateUserRoleRequestBuilder.cs` |
+| `UpdateUserDetailsRequestBuilder` | `UpdateUserDetailsRequest` | `UpdateUserDetailsRequestBuilder.cs` |
 
 ## Technical Notes
 

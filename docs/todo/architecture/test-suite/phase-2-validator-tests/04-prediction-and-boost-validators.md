@@ -44,18 +44,23 @@ public class SubmitPredictionsRequestValidatorTests
     [Fact]
     public void Validate_ShouldPass_WhenAllFieldsAreValid()
     {
-        var request = new SubmitPredictionsRequest
-        {
-            RoundId = 1,
-            Predictions = new List<PredictionSubmissionDto>
-            {
-                new() { MatchId = 1, HomeScore = 2, AwayScore = 1 }
-            }
-        };
+        var request = new SubmitPredictionsRequestBuilder().Build();
 
         var result = _validator.TestValidate(request);
 
         result.ShouldNotHaveAnyValidationErrors();
+    }
+
+    [Fact]
+    public void Validate_ShouldFail_WhenRoundIdIsZero()
+    {
+        var request = new SubmitPredictionsRequestBuilder()
+            .WithRoundId(0)
+            .Build();
+
+        var result = _validator.TestValidate(request);
+
+        result.ShouldHaveValidationErrorFor(x => x.RoundId);
     }
 }
 ```
@@ -95,7 +100,7 @@ public class SubmitPredictionsRequestValidatorTests
 
 ## Code Patterns to Follow
 
-For testing score boundaries, `[Theory]` with `[InlineData]` is effective:
+Use shared builders from `ThePredictions.Tests.Builders`. For testing score boundaries, `[Theory]` with `[InlineData]` is effective:
 
 ```csharp
 [Theory]
@@ -103,12 +108,9 @@ For testing score boundaries, `[Theory]` with `[InlineData]` is effective:
 [InlineData(10)]
 public void Validate_ShouldFail_WhenHomeScoreIsOutOfRange(int score)
 {
-    var dto = new PredictionSubmissionDto
-    {
-        MatchId = 1,
-        HomeScore = score,
-        AwayScore = 0
-    };
+    var dto = new PredictionSubmissionDtoBuilder()
+        .WithHomeScore(score)
+        .Build();
 
     var result = _validator.TestValidate(dto);
 
