@@ -33,7 +33,7 @@ Create the `ThePredictions.Validators.Tests.Unit` test project and the `ThePredi
 | `tests/Shared/ThePredictions.Tests.Builders/Admin/Matches/UpdateMatchRequestBuilder.cs` | Create | Builder |
 | `tests/Shared/ThePredictions.Tests.Builders/Admin/Rounds/CreateRoundRequestBuilder.cs` | Create | Builder |
 | `tests/Shared/ThePredictions.Tests.Builders/Admin/Rounds/UpdateRoundRequestBuilder.cs` | Create | Builder |
-| `tests/Shared/ThePredictions.Tests.Builders/Admin/Rounds/MatchResultDtoBuilder.cs` | Create | Builder |
+| `tests/Shared/ThePredictions.Tests.Builders/Admin/Results/MatchResultDtoBuilder.cs` | Create | Builder |
 | `tests/Shared/ThePredictions.Tests.Builders/Admin/Seasons/CreateSeasonRequestBuilder.cs` | Create | Builder |
 | `tests/Shared/ThePredictions.Tests.Builders/Admin/Seasons/UpdateSeasonRequestBuilder.cs` | Create | Builder |
 | `tests/Shared/ThePredictions.Tests.Builders/Admin/Teams/CreateTeamRequestBuilder.cs` | Create | Builder |
@@ -77,10 +77,13 @@ Create `tests/Unit/ThePredictions.Validators.Tests.Unit/ThePredictions.Validator
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="xunit.v3" Version="3.0.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0" />
     <PackageReference Include="FluentAssertions" Version="7.0.0" />
-    <PackageReference Include="FluentValidation.TestHelper" Version="11.11.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
   </ItemGroup>
 
@@ -91,7 +94,7 @@ Create `tests/Unit/ThePredictions.Validators.Tests.Unit/ThePredictions.Validator
 </Project>
 ```
 
-**Key package:** `FluentValidation.TestHelper` provides `TestValidate()`, `ShouldHaveValidationErrorFor()`, and `ShouldNotHaveAnyValidationErrors()`.
+**Key note:** The `FluentValidation.TestHelper` namespace (providing `TestValidate()`, `ShouldHaveValidationErrorFor()`, and `ShouldNotHaveAnyValidationErrors()`) is built into the main FluentValidation package. No separate NuGet package is needed — it comes transitively via the Validators project reference (FluentValidation 12.1.1).
 
 ### Step 3: Add Both Projects to Solution
 
@@ -102,13 +105,14 @@ dotnet sln PredictionLeague.sln add tests/Unit/ThePredictions.Validators.Tests.U
 
 ### Step 4: Create Folder Structures
 
-**Builders project** (mirrors the Validators project structure):
+**Builders project** (mirrors the Contracts project structure):
 
 ```
 tests/Shared/ThePredictions.Tests.Builders/
 ├── Account/
 ├── Admin/
 │   ├── Matches/
+│   ├── Results/
 │   ├── Rounds/
 │   ├── Seasons/
 │   ├── Teams/
@@ -119,7 +123,7 @@ tests/Shared/ThePredictions.Tests.Builders/
 └── Predictions/
 ```
 
-**Test project** (same structure):
+**Test project** (mirrors the Validators project structure):
 
 ```
 tests/Unit/ThePredictions.Validators.Tests.Unit/
@@ -321,7 +325,7 @@ All remaining builders follow the same pattern. The table below lists each build
 dotnet build PredictionLeague.sln
 ```
 
-Confirm both new projects compile with all dependencies resolved. The `FluentValidation.TestHelper` version should be compatible with the FluentValidation version used by the Validators project (12.1.1). If not, adjust the TestHelper version accordingly.
+Confirm both new projects compile with all dependencies resolved.
 
 ## Code Patterns to Follow
 
@@ -329,6 +333,10 @@ Match the existing domain test project for package versions:
 
 ```xml
 <!-- From ThePredictions.Domain.Tests.Unit.csproj -->
+<PackageReference Include="coverlet.collector" Version="6.0.4">
+  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+  <PrivateAssets>all</PrivateAssets>
+</PackageReference>
 <PackageReference Include="xunit.v3" Version="3.0.0" />
 <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0" />
 <PackageReference Include="FluentAssertions" Version="7.0.0" />
@@ -341,7 +349,7 @@ Match the existing domain test project for package versions:
 - [ ] `dotnet test` runs on the test project (0 tests initially is fine)
 - [ ] Test project appears under `Tests\Unit` solution folder
 - [ ] Builders project appears under `Tests\Shared` solution folder
-- [ ] FluentValidation.TestHelper is compatible with FluentValidation 12.1.1
+- [ ] `using FluentValidation.TestHelper;` resolves (comes transitively from Validators project)
 - [ ] All folder directories are created in both projects
 - [ ] `new CreateLeagueRequestBuilder().Build()` produces a valid `CreateLeagueRequest`
 - [ ] `tools\Test Coverage\coverage-unit.bat` discovers the new test project
@@ -350,8 +358,9 @@ Match the existing domain test project for package versions:
 
 ## Notes
 
-- The `FluentValidation.TestHelper` version must be compatible with the `FluentValidation` version used by the main Validators project. Check `PredictionLeague.Validators.csproj` for the installed FluentValidation version and match accordingly.
+- The `FluentValidation.TestHelper` namespace is built into the main FluentValidation package (12.1.1). No separate NuGet package is needed — it comes transitively via the Validators project reference.
 - The builders project references `PredictionLeague.Contracts` only. The existing `ThePredictions.Tests.Shared` project continues to reference `PredictionLeague.Domain` only. This separation keeps dependencies clean.
+- The builders folder structure mirrors the Contracts project (where the request/DTO types live). The test folder structure mirrors the Validators project (where the validators live). These differ for `MatchResultDto` — the builder is in `Admin/Results/` (matching the contract) while the test is in `Admin/Rounds/` (matching the validator).
 - Coverlet will automatically measure the Validators assembly because the test project has a `ProjectReference` to it via the Validators project reference. No changes to `coverage.runsettings` are needed.
 - No `[ExcludeFromCodeCoverage]` should be needed — all validator code is testable through the public API.
 - Each builder has exactly one public type per file, matching the codebase convention.

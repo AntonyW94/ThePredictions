@@ -24,7 +24,7 @@ Create unit tests for all 27 validators in the `PredictionLeague.Validators` pro
 
 ## Test Approach
 
-All validators are tested using FluentValidation's built-in `TestValidate()` method, combined with shared fluent request builders from `ThePredictions.Tests.Shared`:
+All validators are tested using FluentValidation's built-in `TestValidate()` method, combined with shared fluent request builders from `ThePredictions.Tests.Builders`:
 
 ```csharp
 public class CreateLeagueRequestValidatorTests
@@ -90,7 +90,7 @@ The custom validation extensions (`MustBeASafeName`, `MustBeASafeLeagueName`) ar
 - [x] Phase 1: Domain Unit Tests (complete - 462 tests)
 - [x] `PredictionLeague.Validators` project exists with all 27 validators
 - [x] `PredictionLeague.Contracts` project exists with all request/DTO classes
-- [ ] FluentValidation.TestHelper package (added in Task 1)
+- [ ] `FluentValidation.TestHelper` namespace available (built into FluentValidation 12.1.1, comes transitively via Validators reference)
 
 ## Coverage
 
@@ -205,7 +205,7 @@ Benefits:
 
 ### Package Requirements
 
-The test project needs `FluentValidation.TestHelper` for the `TestValidate()` extension method and assertion helpers like `ShouldHaveValidationErrorFor()` and `ShouldNotHaveAnyValidationErrors()`.
+The `TestValidate()` extension method and assertion helpers (`ShouldHaveValidationErrorFor()`, `ShouldNotHaveAnyValidationErrors()`) live in the `FluentValidation.TestHelper` namespace, which is built into the main FluentValidation package. No separate NuGet package is needed — the test project gets these via its transitive reference to FluentValidation 12.1.1 through the Validators project.
 
 ### Test File Structure
 
