@@ -2,7 +2,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using PredictionLeague.Application.Repositories;
 
-namespace PredictionLeague.Application.Features.Admin.Tasks.Commands;
+namespace PredictionLeague.Application.Features.External.Tasks.Commands;
 
 public class CleanupExpiredDataCommandHandler : IRequestHandler<CleanupExpiredDataCommand, CleanupResult>
 {

@@ -82,7 +82,7 @@ public class ApiAuthenticationStateProvider(HttpClient httpClient, ILocalStorage
         var tokenModel = new RefreshTokenRequest { Token = refreshToken.Replace(' ', '+') };
         logger.LogDebug("Sending refresh token request to API");
 
-        var response = await httpClient.PostAsJsonAsync("api/auth/refresh-token", tokenModel);
+        var response = await httpClient.PostAsJsonAsync("api/authentication/refresh-token", tokenModel);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -134,7 +134,7 @@ public class ApiAuthenticationStateProvider(HttpClient httpClient, ILocalStorage
         try
         {
             var emptyContent = new StringContent("", Encoding.UTF8, "application/json");
-            var response = await httpClient.PostAsync("api/auth/refresh-token", emptyContent);
+            var response = await httpClient.PostAsync("api/authentication/refresh-token", emptyContent);
 
             if (!response.IsSuccessStatusCode) 
                 return null;

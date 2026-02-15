@@ -9,7 +9,7 @@ public class AuthenticationService(HttpClient httpClient, AuthenticationStatePro
 {
     public async Task<AuthenticationResponse> RegisterAsync(RegisterRequest registerRequest)
     {
-        var response = await httpClient.PostAsJsonAsync("api/auth/register", registerRequest);
+        var response = await httpClient.PostAsJsonAsync("api/authentication/register", registerRequest);
         if (response.IsSuccessStatusCode)
         {
             var successResponse = await response.Content.ReadFromJsonAsync<SuccessfulAuthenticationResponse>();
@@ -47,7 +47,7 @@ public class AuthenticationService(HttpClient httpClient, AuthenticationStatePro
     
     public async Task<AuthenticationResponse> LoginAsync(LoginRequest loginRequest)
     {
-        var response = await httpClient.PostAsJsonAsync("api/auth/login", loginRequest);
+        var response = await httpClient.PostAsJsonAsync("api/authentication/login", loginRequest);
         if (response.IsSuccessStatusCode)
         {
             var successResponse = await response.Content.ReadFromJsonAsync<SuccessfulAuthenticationResponse>();
@@ -64,7 +64,7 @@ public class AuthenticationService(HttpClient httpClient, AuthenticationStatePro
     
     public async Task LogoutAsync()
     {
-        await httpClient.PostAsync("api/auth/logout", null);
+        await httpClient.PostAsync("api/authentication/logout", null);
         await ((ApiAuthenticationStateProvider)authenticationStateProvider).MarkUserAsLoggedOutAsync();
     }
 
@@ -72,7 +72,7 @@ public class AuthenticationService(HttpClient httpClient, AuthenticationStatePro
     {
         try
         {
-            var response = await httpClient.PostAsJsonAsync("api/auth/forgot-password", new { email });
+            var response = await httpClient.PostAsJsonAsync("api/authentication/forgot-password", new { email });
             return response.IsSuccessStatusCode;
         }
         catch
@@ -90,7 +90,7 @@ public class AuthenticationService(HttpClient httpClient, AuthenticationStatePro
             ConfirmPassword = confirmPassword
         };
 
-        var response = await httpClient.PostAsJsonAsync("api/auth/reset-password", request);
+        var response = await httpClient.PostAsJsonAsync("api/authentication/reset-password", request);
 
         if (response.IsSuccessStatusCode)
         {

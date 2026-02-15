@@ -3,7 +3,7 @@ using PredictionLeague.Application.Repositories;
 using PredictionLeague.Application.Services.Boosts;
 using PredictionLeague.Contracts.Boosts;
 
-namespace PredictionLeague.Application.Features.Predictions.Queries;
+namespace PredictionLeague.Application.Features.Boosts.Queries;
 
 public class GetAvailableBoostsQueryHandler : IRequestHandler<GetAvailableBoostsQuery, List<BoostOptionDto>>
 {

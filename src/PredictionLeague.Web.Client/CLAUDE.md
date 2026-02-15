@@ -63,7 +63,7 @@ else
 
 1. `ApiAuthenticationStateProvider` checks localStorage for `accessToken`
 2. Validates JWT expiration
-3. Auto-refreshes expired tokens via `/api/auth/refresh-token`
+3. Auto-refreshes expired tokens via `/api/authentication/refresh-token`
 4. Sets `Authorization: Bearer {token}` header on HttpClient
 
 ## CSS Architecture

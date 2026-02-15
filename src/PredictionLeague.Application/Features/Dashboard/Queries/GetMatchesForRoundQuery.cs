@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using PredictionLeague.Contracts.Admin.Rounds;
 
-namespace PredictionLeague.Application.Features.Rounds.Queries;
+namespace PredictionLeague.Application.Features.Dashboard.Queries;
 
 public record GetMatchesForRoundQuery(int RoundId) : IRequest<IEnumerable<MatchInRoundDto>>;

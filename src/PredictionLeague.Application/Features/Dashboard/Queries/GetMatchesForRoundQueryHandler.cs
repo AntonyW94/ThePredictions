@@ -2,7 +2,7 @@
 using PredictionLeague.Application.Data;
 using PredictionLeague.Contracts.Admin.Rounds;
 
-namespace PredictionLeague.Application.Features.Rounds.Queries;
+namespace PredictionLeague.Application.Features.Dashboard.Queries;
 
 public class GetMatchesForRoundQueryHandler : IRequestHandler<GetMatchesForRoundQuery, IEnumerable<MatchInRoundDto>>
 {

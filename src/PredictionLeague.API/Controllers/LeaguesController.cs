@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PredictionLeague.Application.Features.Leagues.Commands;
+using PredictionLeague.Application.Features.Boosts.Queries;
 using PredictionLeague.Application.Features.Leagues.Queries;
 using PredictionLeague.Contracts.Admin.Rounds;
 using PredictionLeague.Contracts.Boosts;

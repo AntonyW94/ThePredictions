@@ -41,10 +41,10 @@ public static class DependencyInjection
                         Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
                         ```
 
-                        To obtain a token, use the `/api/auth/login` or `/api/auth/register` endpoints.
+                        To obtain a token, use the `/api/authentication/login` or `/api/authentication/register` endpoints.
 
                         ## Scheduled Tasks
-                        Endpoints under `/api/tasks/` require API Key authentication via the `X-Api-Key` header.
+                        Endpoints under `/api/external/tasks/` require API Key authentication via the `X-Api-Key` header.
                         These are intended for scheduled jobs (cron) and should not be called directly by users.
 
                         ## Rate Limiting
@@ -90,12 +90,12 @@ public static class DependencyInjection
                         JWT Bearer token authentication.
 
                         **How to authenticate:**
-                        1. Call `/api/auth/login` with your credentials
+                        1. Call `/api/authentication/login` with your credentials
                         2. Copy the `accessToken` from the response
                         3. Click 'Authorize' and paste the token (without 'Bearer ' prefix)
                         4. Click 'Authorize' to apply
 
-                        Token expires after 15 minutes. Use `/api/auth/refresh-token` to obtain a new token.
+                        Token expires after 15 minutes. Use `/api/authentication/refresh-token` to obtain a new token.
                         """,
                     Type = SecuritySchemeType.Http,
                     Scheme = "bearer",

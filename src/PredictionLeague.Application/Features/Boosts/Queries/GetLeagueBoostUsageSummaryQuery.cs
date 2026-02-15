@@ -1,7 +1,7 @@
 using MediatR;
 using PredictionLeague.Contracts.Boosts;
 
-namespace PredictionLeague.Application.Features.Leagues.Queries;
+namespace PredictionLeague.Application.Features.Boosts.Queries;
 
 public record GetLeagueBoostUsageSummaryQuery(
     int LeagueId,

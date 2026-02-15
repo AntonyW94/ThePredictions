@@ -4,12 +4,13 @@ using Microsoft.AspNetCore.RateLimiting;
 using PredictionLeague.API.Filters;
 using PredictionLeague.Application.Features.Admin.Rounds.Commands;
 using PredictionLeague.Application.Features.Admin.Seasons.Commands;
-using PredictionLeague.Application.Features.Admin.Tasks.Commands;
+using PredictionLeague.Application.Features.External.Tasks.Commands;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace PredictionLeague.API.Controllers;
+namespace PredictionLeague.API.Controllers.External;
 
-[Route("api/[controller]")]
+[Route("api/external/tasks")]
+[Route("api/tasks")]
 [ApiController]
 [ApiKeyAuthorise]
 [DisableRateLimiting]

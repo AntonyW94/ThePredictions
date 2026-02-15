@@ -5,15 +5,16 @@ Rules specific to the REST API project. For solution-wide patterns, see the root
 ## Controller Organisation
 
 ```
-/api/auth           → Authentication (login, register, refresh)
+/api/authentication → Authentication (login, register, refresh) [also /api/auth]
 /api/account        → User profile
+/api/boosts         → Boost management
 /api/dashboard      → Dashboard data
 /api/leagues        → League CRUD and membership
 /api/predictions    → Prediction submission
 /api/rounds         → Round queries
 /api/admin/rounds   → Admin round management
 /api/admin/seasons  → Admin season management
-/api/tasks          → Background job triggers (API key protected)
+/api/external/tasks → Background job triggers (API key protected) [also /api/tasks]
 ```
 
 ## Controller Patterns
@@ -120,19 +121,20 @@ if (league.AdministratorUserId != userId)
 
 ## Scheduled Task Endpoints
 
-All `/api/tasks/*` endpoints are protected by API key.
+All `/api/external/tasks/*` endpoints are protected by API key. The legacy `/api/tasks/*` routes also work for backwards compatibility.
 
 | Endpoint | Purpose | Frequency |
 |----------|---------|-----------|
-| `POST /api/tasks/publish-upcoming-rounds` | Publish rounds ready for predictions | Daily 9am |
-| `POST /api/tasks/send-reminders` | Email reminders for upcoming deadlines | Every 30 min |
-| `POST /api/tasks/sync-season` | Sync fixture data from Football API | Daily 8am |
-| `POST /api/tasks/update-live-scores` | Update scores during matches | Every minute |
+| `POST /api/external/tasks/publish-upcoming-rounds` | Publish rounds ready for predictions | Daily 9am |
+| `POST /api/external/tasks/send-reminders` | Email reminders for upcoming deadlines | Every 30 min |
+| `POST /api/external/tasks/sync` | Sync fixture data from Football API | Daily 8am |
+| `POST /api/external/tasks/score-update` | Update scores during matches | Every minute |
 
 ### Task Controller Pattern
 
 ```csharp
 [ApiController]
+[Route("api/external/tasks")]
 [Route("api/tasks")]
 public class TasksController : ControllerBase
 {

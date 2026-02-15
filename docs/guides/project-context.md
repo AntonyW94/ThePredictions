@@ -224,12 +224,12 @@ Production only. The development site does not have scheduled jobs.
 
 | Job | Frequency | Endpoint |
 |-----|-----------|----------|
-| Publish Upcoming Rounds | Daily at 9am | `/api/tasks/publish-upcoming-rounds` |
-| Send Email Reminders | Every 30 minutes | `/api/tasks/send-reminders` |
-| Sync Season | Daily at 8am | `/api/tasks/sync-season` |
-| Live Update Scores | Every minute | `/api/tasks/update-live-scores` |
+| Publish Upcoming Rounds | Daily at 9am | `/api/external/tasks/publish-upcoming-rounds` |
+| Send Email Reminders | Every 30 minutes | `/api/external/tasks/send-reminders` |
+| Sync Season | Daily at 8am | `/api/external/tasks/sync` |
+| Live Update Scores | Every minute | `/api/external/tasks/score-update` |
 
-All scheduled endpoints protected by API key (`X-Api-Key` header).
+All scheduled endpoints protected by API key (`X-Api-Key` header). The legacy `/api/tasks/*` routes also work for backwards compatibility.
 
 ### GitHub Actions
 
