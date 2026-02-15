@@ -217,10 +217,11 @@ tests/Unit/ThePredictions.Validators.Tests.Unit/
 │   ├── Matches/
 │   │   ├── CreateMatchRequestValidatorTests.cs
 │   │   └── UpdateMatchRequestValidatorTests.cs
+│   ├── Results/
+│   │   └── MatchResultDtoValidatorTests.cs
 │   ├── Rounds/
 │   │   ├── CreateRoundRequestValidatorTests.cs
-│   │   ├── UpdateRoundRequestValidatorTests.cs
-│   │   └── MatchResultDtoValidatorTests.cs
+│   │   └── UpdateRoundRequestValidatorTests.cs
 │   ├── Seasons/
 │   │   ├── CreateSeasonRequestValidatorTests.cs
 │   │   └── UpdateSeasonRequestValidatorTests.cs

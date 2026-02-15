@@ -130,6 +130,7 @@ tests/Unit/ThePredictions.Validators.Tests.Unit/
 ├── Account/
 ├── Admin/
 │   ├── Matches/
+│   ├── Results/
 │   ├── Rounds/
 │   ├── Seasons/
 │   ├── Teams/
@@ -360,7 +361,7 @@ Match the existing domain test project for package versions:
 
 - The `FluentValidation.TestHelper` namespace is built into the main FluentValidation package (12.1.1). No separate NuGet package is needed — it comes transitively via the Validators project reference.
 - The builders project references `PredictionLeague.Contracts` only. The existing `ThePredictions.Tests.Shared` project continues to reference `PredictionLeague.Domain` only. This separation keeps dependencies clean.
-- The builders folder structure mirrors the Contracts project (where the request/DTO types live). The test folder structure mirrors the Validators project (where the validators live). These differ for `MatchResultDto` — the builder is in `Admin/Results/` (matching the contract) while the test is in `Admin/Rounds/` (matching the validator).
+- The builders folder structure mirrors the Contracts project (where the request/DTO types live). The test folder structure mirrors the Validators project (where the validators live). Both now have `Admin/Results/` for `MatchResultDto`/`MatchResultDtoValidator`.
 - Coverlet will automatically measure the Validators assembly because the test project has a `ProjectReference` to it via the Validators project reference. No changes to `coverage.runsettings` are needed.
 - No `[ExcludeFromCodeCoverage]` should be needed — all validator code is testable through the public API.
 - Each builder has exactly one public type per file, matching the codebase convention.

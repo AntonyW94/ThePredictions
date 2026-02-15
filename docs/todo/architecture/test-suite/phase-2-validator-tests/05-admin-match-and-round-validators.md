@@ -18,7 +18,7 @@ Write unit tests for the 5 admin match and round validators, including testing i
 | `tests/Unit/ThePredictions.Validators.Tests.Unit/Admin/Matches/UpdateMatchRequestValidatorTests.cs` | Create | Update match validation tests (includes base rules) |
 | `tests/Unit/ThePredictions.Validators.Tests.Unit/Admin/Rounds/CreateRoundRequestValidatorTests.cs` | Create | Create round validation tests |
 | `tests/Unit/ThePredictions.Validators.Tests.Unit/Admin/Rounds/UpdateRoundRequestValidatorTests.cs` | Create | Update round validation tests |
-| `tests/Unit/ThePredictions.Validators.Tests.Unit/Admin/Rounds/MatchResultDtoValidatorTests.cs` | Create | Match result validation tests |
+| `tests/Unit/ThePredictions.Validators.Tests.Unit/Admin/Results/MatchResultDtoValidatorTests.cs` | Create | Match result validation tests |
 
 ## Implementation Steps
 

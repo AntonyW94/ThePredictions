@@ -2,7 +2,7 @@ using FluentValidation;
 using PredictionLeague.Contracts.Admin.Results;
 using System.Diagnostics.CodeAnalysis;
 
-namespace PredictionLeague.Validators.Admin.Rounds;
+namespace PredictionLeague.Validators.Admin.Results;
 
 [SuppressMessage("ReSharper", "UnusedType.Global")]
 public class MatchResultDtoValidator : AbstractValidator<MatchResultDto>
