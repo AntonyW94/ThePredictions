@@ -16,7 +16,6 @@ namespace PredictionLeague.API.Controllers;
 
 [ApiController]
 [Route("api/authentication")]
-[Route("api/auth")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [EnableRateLimiting("auth")]
 [SwaggerTag("Authentication - Register, login, logout, and token refresh")]

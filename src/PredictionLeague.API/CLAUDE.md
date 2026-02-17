@@ -5,7 +5,7 @@ Rules specific to the REST API project. For solution-wide patterns, see the root
 ## Controller Organisation
 
 ```
-/api/authentication → Authentication (login, register, refresh) [also /api/auth]
+/api/authentication → Authentication (login, register, refresh)
 /api/account        → User profile
 /api/boosts         → Boost management
 /api/dashboard      → Dashboard data
