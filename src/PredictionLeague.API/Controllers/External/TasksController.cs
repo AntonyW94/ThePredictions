@@ -9,7 +9,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace PredictionLeague.API.Controllers.External;
 
-[Route("api/external/tasks")]
+[Route("api/external/[controller]")]
 [Route("api/tasks")]
 [ApiController]
 [ApiKeyAuthorise]
