@@ -15,7 +15,7 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace PredictionLeague.API.Controllers;
 
 [ApiController]
-[Route("api/authentication")]
+[Route("api/[controller]")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [EnableRateLimiting("auth")]
 [SwaggerTag("Authentication - Register, login, logout, and token refresh")]
