@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using PredictionLeague.Application.Repositories;
 using PredictionLeague.Application.Services;
-using PredictionLeague.Contracts.Admin.Results;
+using PredictionLeague.Contracts.Admin.Matches;
 using PredictionLeague.Domain.Common.Enumerations;
 
 namespace PredictionLeague.Application.Features.Admin.Rounds.Commands;

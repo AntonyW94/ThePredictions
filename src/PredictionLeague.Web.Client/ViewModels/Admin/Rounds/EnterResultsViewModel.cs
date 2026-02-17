@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
-using PredictionLeague.Contracts.Admin.Results;
+using PredictionLeague.Contracts.Admin.Matches;
 using PredictionLeague.Contracts.Admin.Rounds;
 using System.Net.Http.Json;
 

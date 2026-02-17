@@ -1,7 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PredictionLeague.Application.Features.Predictions.Queries;
+using PredictionLeague.Application.Features.Boosts.Queries;
 using PredictionLeague.Application.Services.Boosts;
 using PredictionLeague.Contracts.Boosts;
 using Swashbuckle.AspNetCore.Annotations;

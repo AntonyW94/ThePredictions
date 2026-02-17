@@ -5,7 +5,7 @@ using PredictionLeague.Application.Services;
 using PredictionLeague.Contracts.Boosts;
 using PredictionLeague.Domain.Common.Enumerations;
 
-namespace PredictionLeague.Application.Features.Leagues.Queries;
+namespace PredictionLeague.Application.Features.Boosts.Queries;
 
 public class GetLeagueBoostUsageSummaryQueryHandler
     : IRequestHandler<GetLeagueBoostUsageSummaryQuery, List<BoostUsageSummaryDto>>

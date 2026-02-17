@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PredictionLeague.Application.Features.Rounds.Queries;
+using PredictionLeague.Application.Features.Dashboard.Queries;
 using PredictionLeague.Contracts.Admin.Rounds;
 using Swashbuckle.AspNetCore.Annotations;
 

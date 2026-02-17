@@ -19,12 +19,12 @@ namespace PredictionLeague.API.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [EnableRateLimiting("auth")]
 [SwaggerTag("Authentication - Register, login, logout, and token refresh")]
-public class AuthController : AuthControllerBase
+public class AuthenticationController : AuthControllerBase
 {
-    private readonly ILogger<AuthController> _logger;
+    private readonly ILogger<AuthenticationController> _logger;
     private readonly IMediator _mediator;
 
-    public AuthController(ILogger<AuthController> logger, IConfiguration configuration, IMediator mediator) : base(configuration)
+    public AuthenticationController(ILogger<AuthenticationController> logger, IConfiguration configuration, IMediator mediator) : base(configuration)
     {
         _logger = logger;
         _mediator = mediator;
