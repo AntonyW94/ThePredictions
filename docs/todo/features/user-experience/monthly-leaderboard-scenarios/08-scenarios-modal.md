@@ -14,17 +14,17 @@ Create a modal component to display detailed winning scenarios for a selected co
 
 | File | Action | Purpose |
 |------|--------|---------|
-| `PredictionLeague.Web.Client/Features/Leagues/Components/ScenariosModal.razor` | Create | Modal for detailed scenarios |
-| `PredictionLeague.Web.Client/Features/Leagues/Components/ScenariosModal.razor.cs` | Create | Component code-behind |
-| `PredictionLeague.Web.Client/wwwroot/css/components/scenarios-modal.css` | Create | Modal styling |
-| `PredictionLeague.Web.Client/wwwroot/css/app.css` | Modify | Import new CSS |
+| `ThePredictions.Web.Client/Features/Leagues/Components/ScenariosModal.razor` | Create | Modal for detailed scenarios |
+| `ThePredictions.Web.Client/Features/Leagues/Components/ScenariosModal.razor.cs` | Create | Component code-behind |
+| `ThePredictions.Web.Client/wwwroot/css/components/scenarios-modal.css` | Create | Modal styling |
+| `ThePredictions.Web.Client/wwwroot/css/app.css` | Modify | Import new CSS |
 
 ## Implementation Steps
 
 ### Step 1: Create ScenariosModal Component
 
 ```razor
-@* PredictionLeague.Web.Client/Features/Leagues/Components/ScenariosModal.razor *@
+@* ThePredictions.Web.Client/Features/Leagues/Components/ScenariosModal.razor *@
 
 @if (IsVisible)
 {
@@ -244,12 +244,12 @@ Create a modal component to display detailed winning scenarios for a selected co
 ### Step 2: Create Component Code-Behind
 
 ```csharp
-// PredictionLeague.Web.Client/Features/Leagues/Components/ScenariosModal.razor.cs
+// ThePredictions.Web.Client/Features/Leagues/Components/ScenariosModal.razor.cs
 using Microsoft.AspNetCore.Components;
-using PredictionLeague.Contracts.Leagues.Insights;
+using ThePredictions.Contracts.Leagues.Insights;
 using System.Net.Http.Json;
 
-namespace PredictionLeague.Web.Client.Features.Leagues.Components;
+namespace ThePredictions.Web.Client.Features.Leagues.Components;
 
 public partial class ScenariosModal : ComponentBase
 {
@@ -372,7 +372,7 @@ public partial class ScenariosModal : ComponentBase
 ### Step 3: Create Modal CSS Styles
 
 ```css
-/* PredictionLeague.Web.Client/wwwroot/css/components/scenarios-modal.css */
+/* ThePredictions.Web.Client/wwwroot/css/components/scenarios-modal.css */
 
 /* ============================================
    Scenarios Modal

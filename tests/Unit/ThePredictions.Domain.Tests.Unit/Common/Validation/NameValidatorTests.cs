@@ -1,5 +1,5 @@
 using FluentAssertions;
-using PredictionLeague.Domain.Common.Validation;
+using ThePredictions.Domain.Common.Validation;
 using Xunit;
 
 namespace ThePredictions.Domain.Tests.Unit.Common.Validation;

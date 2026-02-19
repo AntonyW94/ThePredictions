@@ -1,5 +1,5 @@
 using FluentAssertions;
-using PredictionLeague.Domain.Services.Boosts;
+using ThePredictions.Domain.Services.Boosts;
 using Xunit;
 
 namespace ThePredictions.Domain.Tests.Unit.Services.Boosts;

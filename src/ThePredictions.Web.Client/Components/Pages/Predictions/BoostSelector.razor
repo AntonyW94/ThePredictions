@@ -1,0 +1,57 @@
+@using ThePredictions.Contracts.Boosts
+
+@if (Options.Count > 0)
+{
+    <div class="boost-selector">
+        <div class="boost-selector-grid @($"boost-count-{Options.Count}")" role="list">
+            @foreach (var option in Options)
+            {
+                <div class="boost-card-wrapper" role="listitem">
+                    <BoostCard LeagueId="@LeagueId"
+                               RoundId="@RoundId"
+                               BoostCode="@option.BoostCode"
+                               ImageUrl="@option.ImageUrl"
+                               SelectedImageUrl="@option.SelectedImageUrl"
+                               DisabledImageUrl="@option.DisabledImageUrl"
+                               ImageAlt="@option.Name"
+                               Tooltip="@option.Tooltip"
+                               IsSelected="@(SelectedCode == option.BoostCode)"
+                               Eligibility="@option.Eligibility"
+                               IsSelectedChanged="@(async selected => await OnCardToggled(option.BoostCode, selected))" />
+                </div>
+            }
+        </div>
+
+        <div class="boost-description-wrapper text-white mt-2 pt-4 pb-2 w-100" aria-live="polite" aria-atomic="true">
+            @if (SelectedOption is not null)
+            {
+                <div class="boost-description text-center">
+                    <div class="fw-bold">@SelectedOption.Name</div>
+                    <div class="mt-1">@SelectedOption.Description</div>
+                </div>
+            }
+            else
+            {
+                <div class="boost-description text-muted">Select a boost to see details.</div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired] public int LeagueId { get; set; }
+    [Parameter, EditorRequired] public int RoundId { get; set; }
+
+    [Parameter] public List<BoostOptionDto> Options { get; set; } = [];
+
+    [Parameter] public string SelectedCode { get; set; } = "None";
+    [Parameter] public EventCallback<string> SelectedCodeChanged { get; set; }
+
+    private BoostOptionDto? SelectedOption => Options.FirstOrDefault(o => o.BoostCode == SelectedCode);
+
+    private async Task OnCardToggled(string code, bool isSelected)
+    {
+        SelectedCode = !isSelected ? "None" : code;
+        await SelectedCodeChanged.InvokeAsync(SelectedCode);
+    }
+}

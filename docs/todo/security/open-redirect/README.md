@@ -30,7 +30,7 @@ The `ExternalAuthController` accepts `returnUrl` and `source` parameters from us
 
 | File | Lines |
 |------|-------|
-| `PredictionLeague.API/Controllers/ExternalAuthController.cs` | 27, 52, 61, 72-74 |
+| `ThePredictions.API/Controllers/ExternalAuthController.cs` | 27, 52, 61, 72-74 |
 
 ### Attack Scenario
 

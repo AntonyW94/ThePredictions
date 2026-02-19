@@ -14,18 +14,18 @@ Create a Blazor component to display league insights on the league dashboard, sh
 
 | File | Action | Purpose |
 |------|--------|---------|
-| `PredictionLeague.Web.Client/Features/Leagues/Components/LeagueInsights.razor` | Create | Main insights display component |
-| `PredictionLeague.Web.Client/Features/Leagues/Components/LeagueInsights.razor.cs` | Create | Component code-behind |
-| `PredictionLeague.Web.Client/Features/Leagues/Pages/LeagueDashboard.razor` | Modify | Include insights component |
-| `PredictionLeague.Web.Client/wwwroot/css/components/insights.css` | Create | Styling for insights |
-| `PredictionLeague.Web.Client/wwwroot/css/app.css` | Modify | Import new CSS |
+| `ThePredictions.Web.Client/Features/Leagues/Components/LeagueInsights.razor` | Create | Main insights display component |
+| `ThePredictions.Web.Client/Features/Leagues/Components/LeagueInsights.razor.cs` | Create | Component code-behind |
+| `ThePredictions.Web.Client/Features/Leagues/Pages/LeagueDashboard.razor` | Modify | Include insights component |
+| `ThePredictions.Web.Client/wwwroot/css/components/insights.css` | Create | Styling for insights |
+| `ThePredictions.Web.Client/wwwroot/css/app.css` | Modify | Import new CSS |
 
 ## Implementation Steps
 
 ### Step 1: Create LeagueInsights Component
 
 ```razor
-@* PredictionLeague.Web.Client/Features/Leagues/Components/LeagueInsights.razor *@
+@* ThePredictions.Web.Client/Features/Leagues/Components/LeagueInsights.razor *@
 
 @if (IsLoading)
 {
@@ -184,12 +184,12 @@ else if (HasError)
 ### Step 2: Create Component Code-Behind
 
 ```csharp
-// PredictionLeague.Web.Client/Features/Leagues/Components/LeagueInsights.razor.cs
+// ThePredictions.Web.Client/Features/Leagues/Components/LeagueInsights.razor.cs
 using Microsoft.AspNetCore.Components;
-using PredictionLeague.Contracts.Leagues.Insights;
+using ThePredictions.Contracts.Leagues.Insights;
 using System.Net.Http.Json;
 
-namespace PredictionLeague.Web.Client.Features.Leagues.Components;
+namespace ThePredictions.Web.Client.Features.Leagues.Components;
 
 public partial class LeagueInsights : ComponentBase
 {
@@ -294,7 +294,7 @@ public partial class LeagueInsights : ComponentBase
 ### Step 3: Create CSS Styles
 
 ```css
-/* PredictionLeague.Web.Client/wwwroot/css/components/insights.css */
+/* ThePredictions.Web.Client/wwwroot/css/components/insights.css */
 
 /* ============================================
    League Insights Panel

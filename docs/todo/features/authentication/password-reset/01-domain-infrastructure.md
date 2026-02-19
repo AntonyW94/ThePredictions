@@ -14,25 +14,25 @@ Create the `PasswordResetToken` entity and repository for storing password reset
 
 | File | Action | Purpose |
 |------|--------|---------|
-| `PredictionLeague.Domain/Models/PasswordResetToken.cs` | Create | Domain entity for reset tokens |
-| `PredictionLeague.Application/Repositories/IPasswordResetTokenRepository.cs` | Create | Repository interface |
-| `PredictionLeague.Infrastructure/Repositories/PasswordResetTokenRepository.cs` | Create | Repository implementation |
-| `PredictionLeague.Contracts/Authentication/RequestPasswordResetRequest.cs` | Create | Request DTO for forgot password |
-| `PredictionLeague.Contracts/Authentication/ResetPasswordRequest.cs` | Create | Request DTO for password reset |
-| `PredictionLeague.Contracts/Authentication/ResetPasswordResponse.cs` | Create | Base response type |
-| `PredictionLeague.Contracts/Authentication/SuccessfulResetPasswordResponse.cs` | Create | Success response with tokens |
-| `PredictionLeague.Contracts/Authentication/FailedResetPasswordResponse.cs` | Create | Failure response with message |
-| `PredictionLeague.Validators/Authentication/RequestPasswordResetRequestValidator.cs` | Create | Validator for forgot password |
-| `PredictionLeague.Validators/Authentication/ResetPasswordRequestValidator.cs` | Create | Validator for password reset |
+| `ThePredictions.Domain/Models/PasswordResetToken.cs` | Create | Domain entity for reset tokens |
+| `ThePredictions.Application/Repositories/IPasswordResetTokenRepository.cs` | Create | Repository interface |
+| `ThePredictions.Infrastructure/Repositories/PasswordResetTokenRepository.cs` | Create | Repository implementation |
+| `ThePredictions.Contracts/Authentication/RequestPasswordResetRequest.cs` | Create | Request DTO for forgot password |
+| `ThePredictions.Contracts/Authentication/ResetPasswordRequest.cs` | Create | Request DTO for password reset |
+| `ThePredictions.Contracts/Authentication/ResetPasswordResponse.cs` | Create | Base response type |
+| `ThePredictions.Contracts/Authentication/SuccessfulResetPasswordResponse.cs` | Create | Success response with tokens |
+| `ThePredictions.Contracts/Authentication/FailedResetPasswordResponse.cs` | Create | Failure response with message |
+| `ThePredictions.Validators/Authentication/RequestPasswordResetRequestValidator.cs` | Create | Validator for forgot password |
+| `ThePredictions.Validators/Authentication/ResetPasswordRequestValidator.cs` | Create | Validator for password reset |
 
 ## Files to Modify
 
 | File | Action | Purpose |
 |------|--------|---------|
-| `PredictionLeague.Application/Services/IUserManager.cs` | Modify | Add `HasPasswordAsync` method |
-| `PredictionLeague.Infrastructure/Services/UserManagerService.cs` | Modify | Implement `HasPasswordAsync` |
-| `PredictionLeague.Infrastructure/DependencyInjection.cs` | Modify | Register repository |
-| `PredictionLeague.Application/Configuration/TemplateSettings.cs` | Modify | Add new email template IDs |
+| `ThePredictions.Application/Services/IUserManager.cs` | Modify | Add `HasPasswordAsync` method |
+| `ThePredictions.Infrastructure/Services/UserManagerService.cs` | Modify | Implement `HasPasswordAsync` |
+| `ThePredictions.Infrastructure/DependencyInjection.cs` | Modify | Register repository |
+| `ThePredictions.Application/Configuration/TemplateSettings.cs` | Modify | Add new email template IDs |
 
 ## Implementation Steps
 
@@ -43,7 +43,7 @@ Create the `PasswordResetToken` entity and repository for storing password reset
 
 using System.Security.Cryptography;
 
-namespace PredictionLeague.Domain.Models;
+namespace ThePredictions.Domain.Models;
 
 public class PasswordResetToken
 {
@@ -102,9 +102,9 @@ public class PasswordResetToken
 ```csharp
 // IPasswordResetTokenRepository.cs
 
-using PredictionLeague.Domain.Models;
+using ThePredictions.Domain.Models;
 
-namespace PredictionLeague.Application.Repositories;
+namespace ThePredictions.Application.Repositories;
 
 public interface IPasswordResetTokenRepository
 {
@@ -146,11 +146,11 @@ public interface IPasswordResetTokenRepository
 // PasswordResetTokenRepository.cs
 
 using Dapper;
-using PredictionLeague.Application.Repositories;
-using PredictionLeague.Domain.Models;
-using PredictionLeague.Infrastructure.Data;
+using ThePredictions.Application.Repositories;
+using ThePredictions.Domain.Models;
+using ThePredictions.Infrastructure.Data;
 
-namespace PredictionLeague.Infrastructure.Repositories;
+namespace ThePredictions.Infrastructure.Repositories;
 
 public class PasswordResetTokenRepository : IPasswordResetTokenRepository
 {
@@ -275,7 +275,7 @@ public async Task<bool> HasPasswordAsync(ApplicationUser user)
 ### Step 7: Register Repository in DependencyInjection
 
 ```csharp
-// In PredictionLeague.Infrastructure/DependencyInjection.cs
+// In ThePredictions.Infrastructure/DependencyInjection.cs
 // Add with other repository registrations
 
 services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
@@ -300,7 +300,7 @@ public class TemplateSettings
 ```csharp
 // RequestPasswordResetRequest.cs
 
-namespace PredictionLeague.Contracts.Authentication;
+namespace ThePredictions.Contracts.Authentication;
 
 public class RequestPasswordResetRequest
 {
@@ -311,7 +311,7 @@ public class RequestPasswordResetRequest
 ```csharp
 // ResetPasswordRequest.cs
 
-namespace PredictionLeague.Contracts.Authentication;
+namespace ThePredictions.Contracts.Authentication;
 
 public class ResetPasswordRequest
 {
@@ -326,7 +326,7 @@ public class ResetPasswordRequest
 ```csharp
 // ResetPasswordResponse.cs
 
-namespace PredictionLeague.Contracts.Authentication;
+namespace ThePredictions.Contracts.Authentication;
 
 public abstract record ResetPasswordResponse(bool IsSuccess);
 ```
@@ -334,7 +334,7 @@ public abstract record ResetPasswordResponse(bool IsSuccess);
 ```csharp
 // SuccessfulResetPasswordResponse.cs
 
-namespace PredictionLeague.Contracts.Authentication;
+namespace ThePredictions.Contracts.Authentication;
 
 public record SuccessfulResetPasswordResponse(
     string AccessToken,
@@ -346,7 +346,7 @@ public record SuccessfulResetPasswordResponse(
 ```csharp
 // FailedResetPasswordResponse.cs
 
-namespace PredictionLeague.Contracts.Authentication;
+namespace ThePredictions.Contracts.Authentication;
 
 public record FailedResetPasswordResponse(string Message) : ResetPasswordResponse(false);
 ```
@@ -357,10 +357,10 @@ public record FailedResetPasswordResponse(string Message) : ResetPasswordRespons
 // RequestPasswordResetRequestValidator.cs
 
 using FluentValidation;
-using PredictionLeague.Contracts.Authentication;
+using ThePredictions.Contracts.Authentication;
 using System.Diagnostics.CodeAnalysis;
 
-namespace PredictionLeague.Validators.Authentication;
+namespace ThePredictions.Validators.Authentication;
 
 [SuppressMessage("ReSharper", "UnusedType.Global")]
 public class RequestPasswordResetRequestValidator : AbstractValidator<RequestPasswordResetRequest>
@@ -381,10 +381,10 @@ public class RequestPasswordResetRequestValidator : AbstractValidator<RequestPas
 // ResetPasswordRequestValidator.cs
 
 using FluentValidation;
-using PredictionLeague.Contracts.Authentication;
+using ThePredictions.Contracts.Authentication;
 using System.Diagnostics.CodeAnalysis;
 
-namespace PredictionLeague.Validators.Authentication;
+namespace ThePredictions.Validators.Authentication;
 
 [SuppressMessage("ReSharper", "UnusedType.Global")]
 public class ResetPasswordRequestValidator : AbstractValidator<ResetPasswordRequest>

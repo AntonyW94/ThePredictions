@@ -1,5 +1,5 @@
 using FluentAssertions;
-using PredictionLeague.Domain.Common.Exceptions;
+using ThePredictions.Domain.Common.Exceptions;
 using Xunit;
 
 namespace ThePredictions.Domain.Tests.Unit.Common.Exceptions;

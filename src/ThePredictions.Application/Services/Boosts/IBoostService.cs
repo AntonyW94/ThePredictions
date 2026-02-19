@@ -1,0 +1,28 @@
+using ThePredictions.Contracts.Boosts;
+
+namespace ThePredictions.Application.Services.Boosts;
+
+public interface IBoostService
+{
+    Task<BoostEligibilityDto> GetEligibilityAsync(
+        string userId,
+        int leagueId,
+        int roundId,
+        string boostCode,
+        CancellationToken cancellationToken);
+
+    Task<ApplyBoostResultDto> ApplyBoostAsync(
+        string userId,
+        int leagueId,
+        int roundId,
+        string boostCode,
+        CancellationToken cancellationToken);
+
+    Task<bool> DeleteUserBoostUsageAsync(
+        string userId,
+        int leagueId,
+        int roundId,
+        CancellationToken cancellationToken);
+
+    Task ApplyRoundBoostsAsync(int roundId, CancellationToken cancellationToken);
+}

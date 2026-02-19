@@ -1,6 +1,6 @@
 using FluentAssertions;
-using PredictionLeague.Domain.Common.Enumerations;
-using PredictionLeague.Domain.Models;
+using ThePredictions.Domain.Common.Enumerations;
+using ThePredictions.Domain.Models;
 using Xunit;
 
 namespace ThePredictions.Domain.Tests.Unit.Models;

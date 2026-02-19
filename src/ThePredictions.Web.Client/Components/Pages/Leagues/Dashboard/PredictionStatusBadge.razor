@@ -1,0 +1,59 @@
+@using ThePredictions.Domain.Common.Enumerations
+
+<div class="@BadgeClass">
+    <span class="badge-icon">
+        <i class="@IconClass"></i>
+    </span>
+    @if (IsHidden)
+    {
+        <span class="blurred-score" title="Predictions are hidden until the deadline.">0 - 0</span>
+    }
+    else
+    {
+        <span>@HomeScore - @AwayScore</span>
+    }
+
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public MatchStatus Status { get; set; }
+
+    [Parameter]
+    public PredictionOutcome Outcome { get; set; }
+
+    [Parameter]
+    public int? HomeScore { get; set; }
+
+    [Parameter]
+    public int? AwayScore { get; set; }
+
+    [Parameter]
+    public bool IsHidden { get; set; }
+
+    private string BadgeClass => $"prediction-badge badge-group {GetColorClass()} {(Status == MatchStatus.InProgress ? GetPulsingClass() : "")}";
+
+    private string GetColorClass() => Outcome switch
+    {
+        PredictionOutcome.Incorrect => "badge-group--red",
+        PredictionOutcome.CorrectResult => "badge-group--yellow",
+        PredictionOutcome.ExactScore => "badge-group--green",
+        _ => "badge-group--blue"
+    };
+
+    private string GetPulsingClass() => Outcome switch
+    {
+        PredictionOutcome.Incorrect => "pulsing-red",
+        PredictionOutcome.CorrectResult => "pulsing-yellow",
+        PredictionOutcome.ExactScore => "pulsing-green",
+        _ => "pulsing-blue"
+    };
+
+    private string IconClass => Outcome switch
+    {
+        PredictionOutcome.Incorrect => "bi bi-x-circle",
+        PredictionOutcome.CorrectResult => "bi bi-check-circle",
+        PredictionOutcome.ExactScore => "bi bi-check-circle-fill",
+        _ => "bi bi-clock"
+    };
+}

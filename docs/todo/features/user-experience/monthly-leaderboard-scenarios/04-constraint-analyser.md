@@ -14,18 +14,18 @@ Implement logic to analyse a user's winning scenarios and generate human-readabl
 
 | File | Action | Purpose |
 |------|--------|---------|
-| `PredictionLeague.Application/Features/Leagues/Services/ConstraintAnalyser.cs` | Create | Analyse scenarios to generate constraints |
-| `PredictionLeague.Application/Features/Leagues/Services/ScenarioCalculator.cs` | Modify | Integrate constraint analysis |
+| `ThePredictions.Application/Features/Leagues/Services/ConstraintAnalyser.cs` | Create | Analyse scenarios to generate constraints |
+| `ThePredictions.Application/Features/Leagues/Services/ScenarioCalculator.cs` | Modify | Integrate constraint analysis |
 
 ## Implementation Steps
 
 ### Step 1: Create ConstraintAnalyser Class
 
 ```csharp
-// PredictionLeague.Application/Features/Leagues/Services/ConstraintAnalyser.cs
-using PredictionLeague.Contracts.Leagues.Insights;
+// ThePredictions.Application/Features/Leagues/Services/ConstraintAnalyser.cs
+using ThePredictions.Contracts.Leagues.Insights;
 
-namespace PredictionLeague.Application.Features.Leagues.Services;
+namespace ThePredictions.Application.Features.Leagues.Services;
 
 /// <summary>
 /// Analyses winning scenarios to generate human-readable constraints

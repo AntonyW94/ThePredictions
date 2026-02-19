@@ -14,10 +14,10 @@ Create a command and handler that processes password reset requests. The handler
 
 | File | Action | Purpose |
 |------|--------|---------|
-| `PredictionLeague.Application/Features/Authentication/Commands/RequestPasswordReset/RequestPasswordResetCommand.cs` | Create | Command record |
-| `PredictionLeague.Application/Features/Authentication/Commands/RequestPasswordReset/RequestPasswordResetCommandHandler.cs` | Create | Command handler |
-| `PredictionLeague.Contracts/Authentication/RequestPasswordResetRequest.cs` | Create | API request DTO |
-| `PredictionLeague.Validators/Authentication/RequestPasswordResetRequestValidator.cs` | Create | FluentValidation validator |
+| `ThePredictions.Application/Features/Authentication/Commands/RequestPasswordReset/RequestPasswordResetCommand.cs` | Create | Command record |
+| `ThePredictions.Application/Features/Authentication/Commands/RequestPasswordReset/RequestPasswordResetCommandHandler.cs` | Create | Command handler |
+| `ThePredictions.Contracts/Authentication/RequestPasswordResetRequest.cs` | Create | API request DTO |
+| `ThePredictions.Validators/Authentication/RequestPasswordResetRequestValidator.cs` | Create | FluentValidation validator |
 
 ## Implementation Steps
 
@@ -28,7 +28,7 @@ Create a command and handler that processes password reset requests. The handler
 
 using MediatR;
 
-namespace PredictionLeague.Application.Features.Authentication.Commands.RequestPasswordReset;
+namespace ThePredictions.Application.Features.Authentication.Commands.RequestPasswordReset;
 
 public record RequestPasswordResetCommand(string Email, string ResetUrlBase) : IRequest<Unit>;
 ```
@@ -38,7 +38,7 @@ public record RequestPasswordResetCommand(string Email, string ResetUrlBase) : I
 ```csharp
 // RequestPasswordResetRequest.cs
 
-namespace PredictionLeague.Contracts.Authentication;
+namespace ThePredictions.Contracts.Authentication;
 
 public record RequestPasswordResetRequest
 {
@@ -52,9 +52,9 @@ public record RequestPasswordResetRequest
 // RequestPasswordResetRequestValidator.cs
 
 using FluentValidation;
-using PredictionLeague.Contracts.Authentication;
+using ThePredictions.Contracts.Authentication;
 
-namespace PredictionLeague.Validators.Authentication;
+namespace ThePredictions.Validators.Authentication;
 
 public class RequestPasswordResetRequestValidator : AbstractValidator<RequestPasswordResetRequest>
 {
@@ -75,12 +75,12 @@ public class RequestPasswordResetRequestValidator : AbstractValidator<RequestPas
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using PredictionLeague.Application.Configuration;
-using PredictionLeague.Application.Repositories;
-using PredictionLeague.Application.Services;
-using PredictionLeague.Domain.Models;
+using ThePredictions.Application.Configuration;
+using ThePredictions.Application.Repositories;
+using ThePredictions.Application.Services;
+using ThePredictions.Domain.Models;
 
-namespace PredictionLeague.Application.Features.Authentication.Commands.RequestPasswordReset;
+namespace ThePredictions.Application.Features.Authentication.Commands.RequestPasswordReset;
 
 public class RequestPasswordResetCommandHandler : IRequestHandler<RequestPasswordResetCommand, Unit>
 {

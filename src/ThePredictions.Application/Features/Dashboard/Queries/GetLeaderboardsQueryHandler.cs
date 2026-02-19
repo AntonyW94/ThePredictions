@@ -1,0 +1,144 @@
+using MediatR;
+using ThePredictions.Application.Data;
+using ThePredictions.Contracts.Leaderboards;
+using ThePredictions.Domain.Common.Enumerations;
+using System.Diagnostics.CodeAnalysis;
+
+namespace ThePredictions.Application.Features.Dashboard.Queries;
+
+public class GetLeaderboardsQueryHandler : IRequestHandler<GetLeaderboardsQuery, IEnumerable<LeagueLeaderboardDto>>
+{
+    private readonly IApplicationReadDbConnection _connection;
+
+    public GetLeaderboardsQueryHandler(IApplicationReadDbConnection connection)
+    {
+        _connection = connection;
+    }
+
+    public async Task<IEnumerable<LeagueLeaderboardDto>> Handle(GetLeaderboardsQuery request, CancellationToken cancellationToken)
+    {
+        const string sql = @"
+            WITH AllLeagueRanks AS (
+                SELECT
+                    l.[Id] AS [LeagueId],
+                    l.[Name] AS [LeagueName],
+                    l.[Price] AS [LeaguePrice],
+                    s.[Name] AS [SeasonName],
+                    u.[Id] AS [UserId],
+                    u.[FirstName] + ' ' + LEFT(u.[LastName], 1) AS [PlayerName],
+                    SUM(ISNULL(lrr.[BoostedPoints], 0)) AS [TotalPoints],
+                    RANK() OVER (PARTITION BY l.[Id] ORDER BY SUM(ISNULL(lrr.[BoostedPoints], 0)) DESC) AS [Rank],
+                    stats.[SnapshotOverallRank] AS [SnapshotRank],
+                    ar.[IsInProgress] AS [IsRoundInProgress]
+                FROM
+                    [LeagueMembers] lm
+                JOIN
+                    [AspNetUsers] u ON lm.[UserId] = u.[Id]
+	            JOIN
+                    [Leagues] l ON lm.[LeagueId] = l.[Id]
+                JOIN
+                    [Seasons] s ON l.[SeasonId] = s.[Id]
+                CROSS APPLY (
+                    SELECT CASE WHEN EXISTS (
+                        SELECT 1
+                        FROM [Rounds] r
+                        WHERE r.[SeasonId] = l.[SeasonId] AND r.[Status] = @InProgressStatus
+                    ) THEN 1 ELSE 0 END AS IsInProgress
+                ) ar
+                LEFT JOIN
+                    [LeagueRoundResults] lrr ON lm.[UserId] = lrr.[UserId] AND lrr.[LeagueId] = l.[Id]
+                LEFT JOIN
+                    [LeagueMemberStats] stats ON lm.[LeagueId] = stats.[LeagueId] AND lm.[UserId] = stats.[UserId]
+                WHERE
+                    lm.[Status] = @ApprovedStatus
+                GROUP BY
+                    l.[Id],
+                    l.[Name],
+                    l.[Price],
+                    s.[Name],
+                    l.[SeasonId],
+                    u.[Id],
+                    u.[FirstName],
+                    u.[LastName],
+                    stats.[SnapshotOverallRank],
+                    ar.[IsInProgress]
+            )
+            SELECT
+                alr.[LeagueId],
+                alr.[LeagueName],
+                alr.[LeaguePrice],
+                alr.[SeasonName],
+                alr.[Rank],
+                alr.[PlayerName],
+                alr.[TotalPoints],
+                alr.[UserId],
+                alr.[SnapshotRank],
+                alr.[IsRoundInProgress]
+            FROM
+                [AllLeagueRanks] alr
+            WHERE
+                alr.[LeagueId] IN (
+                    SELECT [LeagueId] FROM [LeagueMembers] WHERE [UserId] = @UserId AND [Status] = @ApprovedStatus
+                )
+            ORDER BY
+                alr.[LeaguePrice] DESC,
+                alr.[LeagueName],
+                alr.[Rank],
+                alr.[PlayerName];";
+
+        var flatResults = await _connection.QueryAsync<FlatLeaderboardEntry>(
+            sql,
+            cancellationToken,
+            new
+            {
+                request.UserId,
+                ApprovedStatus = nameof(LeagueMemberStatus.Approved),
+                InProgressStatus = nameof(RoundStatus.InProgress)
+            }
+        );
+
+        var result = flatResults
+            .GroupBy(x => new { x.LeagueId, x.LeagueName, x.LeaguePrice, x.SeasonName })
+            .Select(g => new
+            {
+                g.Key.LeaguePrice,
+                Dto = new LeagueLeaderboardDto
+                {
+                    LeagueId = g.Key.LeagueId,
+                    LeagueName = g.Key.LeagueName,
+                    SeasonName = g.Key.SeasonName,
+                    Entries = g.Select(entry => new LeaderboardEntryDto
+                    {
+                        Rank = entry.Rank,
+                        PlayerName = entry.PlayerName,
+                        TotalPoints = entry.TotalPoints,
+                        UserId = entry.UserId,
+                        SnapshotRank = entry.SnapshotRank,
+                        IsRoundInProgress = entry.IsRoundInProgress == 1
+                    }).ToList()
+                }
+            })
+            .OrderByDescending(x => x.LeaguePrice)
+            .ThenBy(x => x.Dto.LeagueName)
+            .Select(x => x.Dto);
+
+        return result;
+    }
+
+    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
+    [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+    [SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Local")]
+    private record FlatLeaderboardEntry
+    {
+        public int LeagueId { get; init; }
+        public string LeagueName { get; init; } = null!;
+        public decimal LeaguePrice { get; init; }
+        public string SeasonName { get; init; } = null!;
+        public long Rank { get; init; }
+        public string PlayerName { get; init; } = null!;
+        public int TotalPoints { get; init; }
+        public string UserId { get; init; } = null!;
+        public long? SnapshotRank { get; init; }
+        public int IsRoundInProgress { get; init; }
+    }
+}

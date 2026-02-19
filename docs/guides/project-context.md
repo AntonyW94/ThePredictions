@@ -30,15 +30,15 @@ This file provides background context for understanding the codebase. Unlike oth
 
 ```
 src/
-├── PredictionLeague.API              → REST controllers and endpoints
-├── PredictionLeague.Application      → CQRS commands, queries, and handlers
-├── PredictionLeague.Contracts        → DTOs shared between layers
-├── PredictionLeague.Domain           → Core business entities and domain logic
-├── PredictionLeague.Hosting.Shared   → Shared hosting configuration
-├── PredictionLeague.Infrastructure   → Data access, repositories, external services
-├── PredictionLeague.Validators       → FluentValidation validators
-├── PredictionLeague.Web              → Blazor server host
-└── PredictionLeague.Web.Client       → Blazor WebAssembly UI components
+├── ThePredictions.API              → REST controllers and endpoints
+├── ThePredictions.Application      → CQRS commands, queries, and handlers
+├── ThePredictions.Contracts        → DTOs shared between layers
+├── ThePredictions.Domain           → Core business entities and domain logic
+├── ThePredictions.Hosting.Shared   → Shared hosting configuration
+├── ThePredictions.Infrastructure   → Data access, repositories, external services
+├── ThePredictions.Validators       → FluentValidation validators
+├── ThePredictions.Web              → Blazor server host
+└── ThePredictions.Web.Client       → Blazor WebAssembly UI components
 tests/
 ├── Shared/                           → Shared test helpers (TestDateTimeProvider, etc.)
 └── Unit/                             → Unit tests (xUnit + FluentAssertions)
@@ -126,7 +126,7 @@ All database logins have database owner permissions (Fasthosts only supports own
 
 ### Publish Profiles
 
-The `PredictionLeague.Web` project has two publish profiles:
+The `ThePredictions.Web` project has two publish profiles:
 
 | Profile | Environment | Output Folder | Notes |
 |---------|-------------|---------------|-------|
@@ -179,7 +179,7 @@ All database logins have database owner permissions (Fasthosts only supports own
 
 ### Publish Profiles
 
-The `PredictionLeague.Web` project has two publish profiles:
+The `ThePredictions.Web` project has two publish profiles:
 
 | Profile | Environment | Output Folder | Notes |
 |---------|-------------|---------------|-------|
@@ -256,7 +256,7 @@ Both workflows use `tools/ThePredictions.DatabaseTools/`. The **dev refresh** re
 
 ## Season Sync Algorithm
 
-The `SyncSeasonWithApiCommandHandler` synchronises match data from the external football API into the local database. It runs daily via a scheduled job and processes all fixtures for the season in a single pass. The handler is in `src/PredictionLeague.Application/Features/Admin/Seasons/Commands/SyncSeasonWithApiCommandHandler.cs`.
+The `SyncSeasonWithApiCommandHandler` synchronises match data from the external football API into the local database. It runs daily via a scheduled job and processes all fixtures for the season in a single pass. The handler is in `src/ThePredictions.Application/Features/Admin/Seasons/Commands/SyncSeasonWithApiCommandHandler.cs`.
 
 ### Overview
 
@@ -443,13 +443,13 @@ These are intentional trade-offs, not issues to fix:
 
 ```bash
 # Run the API
-dotnet run --project src/PredictionLeague.API
+dotnet run --project src/ThePredictions.API
 
 # Run the Blazor client
-dotnet run --project src/PredictionLeague.Web
+dotnet run --project src/ThePredictions.Web
 
 # Build all projects
-dotnet build PredictionLeague.sln
+dotnet build ThePredictions.sln
 
 # Run unit tests with coverage report
 tools\Test Coverage\coverage-unit.bat

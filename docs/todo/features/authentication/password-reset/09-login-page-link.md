@@ -14,7 +14,7 @@ Add a "Forgot password?" link to the login page that navigates users to the forg
 
 | File | Action | Purpose |
 |------|--------|---------|
-| `PredictionLeague.Web.Client/Components/Pages/Authentication/Login.razor` | Modify | Add forgot password link |
+| `ThePredictions.Web.Client/Components/Pages/Authentication/Login.razor` | Modify | Add forgot password link |
 
 ## Implementation Steps
 

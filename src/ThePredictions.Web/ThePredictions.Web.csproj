@@ -1,0 +1,118 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <!-- Only include English satellite assemblies - excludes de, fr, es, zh-Hans, etc. -->
+        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\ThePredictions.API\ThePredictions.API.csproj" />
+        <ProjectReference Include="..\ThePredictions.Application\ThePredictions.Application.csproj" />
+        <ProjectReference Include="..\ThePredictions.Contracts\ThePredictions.Contracts.csproj" />
+        <ProjectReference Include="..\ThePredictions.Validators\ThePredictions.Validators.csproj" />
+        <ProjectReference Include="..\ThePredictions.Web.Client\ThePredictions.Web.Client.csproj">
+          <TreatAsUsed>true</TreatAsUsed>
+        </ProjectReference>
+        <PackageReference Include="Serilog.Expressions" Version="5.0.0">
+          <TreatAsUsed>true</TreatAsUsed>
+        </PackageReference>
+        <PackageReference Include="Serilog.Sinks.Datadog.Logs" Version="0.6.0">
+          <TreatAsUsed>true</TreatAsUsed>
+        </PackageReference>
+    </ItemGroup>
+
+    <!--
+    CSS Bundling and Cache Busting for Production
+
+    Development (dotnet run): Uses separate CSS files with @imports for easy debugging
+    Production (dotnet publish): Bundles all CSS into one file with cache busting
+
+    This target:
+    1. Concatenates all CSS files in correct order
+    2. Prepends Google Fonts import
+    3. Deletes individual CSS files
+    4. Adds cache busting version to index.html
+    -->
+    <Target Name="BundleCssAndAddCacheBusting" AfterTargets="Publish">
+        <PropertyGroup>
+            <CssVersion>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</CssVersion>
+            <PublishWwwRoot>$(PublishDir)wwwroot\</PublishWwwRoot>
+            <PublishCssDir>$(PublishWwwRoot)css\</PublishCssDir>
+            <TargetCss>$(PublishCssDir)app.css</TargetCss>
+            <IndexHtmlPath>$(PublishWwwRoot)index.html</IndexHtmlPath>
+        </PropertyGroup>
+
+        <Message Importance="high" Text="Bundling CSS files..." />
+
+        <!-- Define CSS files in bundle order (matching previous bundleconfig.json) -->
+        <ItemGroup>
+            <CssFilesToBundle Include="$(PublishCssDir)variables.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)utilities\typography.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)utilities\colours.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)utilities\borders.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)utilities\sizing.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)utilities\spacing.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)utilities\flex.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)utilities\display.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)utilities\position.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)utilities\overflow.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)utilities\cursor.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)utilities\animations.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)utilities\effects.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)layout\layout.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)layout\loading.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)layout\navbar.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)layout\section.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)components\cards\card-base.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)components\cards\team-cards.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)components\cards\match-cards.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)components\cards\member-cards.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)components\cards\round-cards.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)components\badges.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)components\boosts.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)components\detail-list.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)components\buttons.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)components\carousel.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)components\forms.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)components\modals.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)components\rank-display.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)pages\dashboard.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)pages\home.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)pages\leaderboard.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)pages\predictions.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)pages\prizes.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)pages\results-grid.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)pages\boost-usage.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)app-base.css" />
+        </ItemGroup>
+
+        <!-- Concatenate all CSS files with Google Fonts import at the top -->
+        <Exec Command="powershell -NoProfile -Command &quot;$googleFonts = '@import url(''https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&amp;display=swap'');'; $files = @('@(CssFilesToBundle)'.Split(';')); $content = $files | ForEach-Object { if (Test-Path $_) { Get-Content -Raw $_ } } | Out-String; Set-Content -Path '$(TargetCss)' -Value ($googleFonts + [Environment]::NewLine + $content) -NoNewline&quot;" />
+
+        <!-- Delete individual CSS files and their compressed versions -->
+        <ItemGroup>
+            <CompressedCssToDelete Include="$(PublishCssDir)**\*.css.br" Exclude="$(TargetCss).br" />
+            <CompressedCssToDelete Include="$(PublishCssDir)**\*.css.gz" Exclude="$(TargetCss).gz" />
+        </ItemGroup>
+        <Delete Files="@(CssFilesToBundle)" />
+        <Delete Files="@(CompressedCssToDelete)" />
+
+        <!-- Remove empty CSS directories -->
+        <RemoveDir Directories="$(PublishCssDir)utilities" Condition="Exists('$(PublishCssDir)utilities')" />
+        <RemoveDir Directories="$(PublishCssDir)layout" Condition="Exists('$(PublishCssDir)layout')" />
+        <RemoveDir Directories="$(PublishCssDir)components\cards" Condition="Exists('$(PublishCssDir)components\cards')" />
+        <RemoveDir Directories="$(PublishCssDir)components" Condition="Exists('$(PublishCssDir)components')" />
+        <RemoveDir Directories="$(PublishCssDir)pages" Condition="Exists('$(PublishCssDir)pages')" />
+
+        <Message Importance="high" Text="CSS bundled successfully!" />
+
+        <!-- Add cache busting version to index.html -->
+        <Message Importance="high" Text="Adding CSS cache busting version: $(CssVersion)" />
+        <Exec Command="powershell -NoProfile -Command &quot;(Get-Content '$(IndexHtmlPath)') -replace 'href=\&quot;css/app\.css\&quot;', 'href=\&quot;css/app.css?v=$(CssVersion)\&quot;' | Set-Content '$(IndexHtmlPath)'&quot;" />
+
+        <Message Importance="high" Text="CSS processing complete. Cache version: $(CssVersion)" />
+    </Target>
+</Project>

@@ -1,0 +1,85 @@
+@using ThePredictions.Web.Client.Services.Dashboard
+
+@page "/dashboard"
+
+@attribute [Authorize]
+@inject IDashboardStateService DashboardState
+@implements IAsyncDisposable
+
+<PageTitle>Dashboard</PageTitle>
+
+<AuthorizeView>
+    <Authorizing>
+        <div class="app-loading-container">
+            <div class="spinner"></div>
+            <p>Authorising...</p>
+        </div>
+    </Authorizing>
+    <Authorized>
+        <div class="page-container">
+            <div class="dashboard-container">
+                <div class="row align-items-stretch">
+                    <div class="col-lg-8">
+                        <div class="row">
+                            <div class="col-lg-12 mb-4">
+                                <ActiveRoundsTile />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            @{
+                                var showAvailableLeagues = DashboardState.IsAvailableLeaguesLoading || DashboardState.AvailableLeagues.Any() || DashboardState.HasAvailablePrivateLeagues;
+                                var myLeaguesClass = showAvailableLeagues ? "col-lg-6 mb-4 mb-md-0" : "col-lg-12 mb-4 mb-lg-0";
+                            }
+
+                            <div class="@myLeaguesClass">
+                                <MyLeaguesTile />
+                            </div>
+
+                            @if (showAvailableLeagues)
+                            {
+                                <div class="col-lg-6 mb-4 mb-md-0">
+                                    <AvailableLeaguesTile />
+                                </div>
+                            }
+                        </div>
+                        
+                        @if (DashboardState.PendingRequests.Any() || DashboardState.IsPendingRequestsLoading)
+                        {
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <PendingRequestsTile />
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="col-lg-4">
+                        <LeaderboardsTile />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        DashboardState.OnStateChange += StateHasChanged;
+
+        await Task.WhenAll(
+            DashboardState.LoadMyLeaguesAsync(),
+            DashboardState.LoadAvailableLeaguesAsync(),
+            DashboardState.LoadLeaderboardsAsync(),
+            DashboardState.LoadActiveRoundsAsync(),
+            DashboardState.LoadPendingRequestsAsync()
+        );
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        DashboardState.OnStateChange -= StateHasChanged;
+        return ValueTask.CompletedTask;
+    }
+}

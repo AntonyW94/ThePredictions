@@ -14,18 +14,18 @@ Implement logic to handle in-progress matches correctly, filtering out impossibl
 
 | File | Action | Purpose |
 |------|--------|---------|
-| `PredictionLeague.Application/Features/Leagues/Services/ScenarioCalculator.cs` | Modify | Add live match handling |
-| `PredictionLeague.Application/Features/Leagues/Services/LiveMatchFilter.cs` | Create | Dedicated helper for live match logic |
+| `ThePredictions.Application/Features/Leagues/Services/ScenarioCalculator.cs` | Modify | Add live match handling |
+| `ThePredictions.Application/Features/Leagues/Services/LiveMatchFilter.cs` | Create | Dedicated helper for live match logic |
 
 ## Implementation Steps
 
 ### Step 1: Create LiveMatchFilter Helper
 
 ```csharp
-// PredictionLeague.Application/Features/Leagues/Services/LiveMatchFilter.cs
-using PredictionLeague.Contracts.Leagues.Insights;
+// ThePredictions.Application/Features/Leagues/Services/LiveMatchFilter.cs
+using ThePredictions.Contracts.Leagues.Insights;
 
-namespace PredictionLeague.Application.Features.Leagues.Services;
+namespace ThePredictions.Application.Features.Leagues.Services;
 
 /// <summary>
 /// Handles filtering and validation for live (in-progress) matches.

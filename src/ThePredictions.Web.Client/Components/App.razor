@@ -1,0 +1,20 @@
+@using ThePredictions.Web.Client.Components.Layout
+
+<Router AppAssembly="typeof(Program).Assembly">
+    <Found Context="routeData">
+        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+            <Authorizing>
+                <div class="page-container text-white d-flex justify-content-center align-items-center h-screen">
+                    <div class="app-loading-container">
+                        <div class="spinner"></div>
+                        <p>Authorising...</p>
+                    </div>
+                </div>
+            </Authorizing>
+            <NotAuthorized>
+                <RedirectToLogin />
+            </NotAuthorized>
+        </AuthorizeRouteView>
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
+</Router>

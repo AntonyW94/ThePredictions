@@ -1,5 +1,5 @@
 using FluentAssertions;
-using PredictionLeague.Domain.Models;
+using ThePredictions.Domain.Models;
 using ThePredictions.Tests.Shared.Helpers;
 using Xunit;
 

@@ -1,4 +1,4 @@
-# CLAUDE.md - PredictionLeague
+# CLAUDE.md - ThePredictions
 
 This file contains the critical rules for AI assistants. **Read this entire file before making any changes.**
 
@@ -132,8 +132,8 @@ For comprehensive rules with examples, consult these files:
 
 | Project | File |
 |---------|------|
-| API controllers, authentication, error handling | [`src/PredictionLeague.API/CLAUDE.md`](src/PredictionLeague.API/CLAUDE.md) |
-| Blazor components, state management, CSS | [`src/PredictionLeague.Web.Client/CLAUDE.md`](src/PredictionLeague.Web.Client/CLAUDE.md) |
+| API controllers, authentication, error handling | [`src/ThePredictions.API/CLAUDE.md`](src/ThePredictions.API/CLAUDE.md) |
+| Blazor components, state management, CSS | [`src/ThePredictions.Web.Client/CLAUDE.md`](src/ThePredictions.Web.Client/CLAUDE.md) |
 
 ## Workflow Checklists
 
@@ -178,14 +178,14 @@ Use these when creating new features:
 
 ```
 src/
-├── PredictionLeague.Domain           → Core business entities
-├── PredictionLeague.Application      → CQRS commands/queries
-├── PredictionLeague.Infrastructure   → Data access, external services
-├── PredictionLeague.API              → REST controllers
-├── PredictionLeague.Web              → Blazor server host
-├── PredictionLeague.Web.Client       → Blazor WebAssembly UI
-├── PredictionLeague.Contracts        → DTOs
-└── PredictionLeague.Validators       → FluentValidation validators
+├── ThePredictions.Domain           → Core business entities
+├── ThePredictions.Application      → CQRS commands/queries
+├── ThePredictions.Infrastructure   → Data access, external services
+├── ThePredictions.API              → REST controllers
+├── ThePredictions.Web              → Blazor server host
+├── ThePredictions.Web.Client       → Blazor WebAssembly UI
+├── ThePredictions.Contracts        → DTOs
+└── ThePredictions.Validators       → FluentValidation validators
 tools/
 ├── Test Coverage                     → Coverage scripts and settings
 └── ThePredictions.DatabaseTools      → Dev database refresh & prod backup tool
@@ -197,8 +197,8 @@ tests/
 ### Useful Commands
 
 ```bash
-dotnet run --project src/PredictionLeague.API      # Run API
-dotnet run --project src/PredictionLeague.Web      # Run Blazor client
-dotnet build PredictionLeague.sln                  # Build all
+dotnet run --project src/ThePredictions.API      # Run API
+dotnet run --project src/ThePredictions.Web      # Run Blazor client
+dotnet build ThePredictions.sln                  # Build all
 tools\Test Coverage\coverage-unit.bat              # Run unit tests + coverage report
 ```

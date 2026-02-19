@@ -14,11 +14,11 @@ Create a command and handler that validates the reset token from the database, l
 
 | File | Action | Purpose |
 |------|--------|---------|
-| `PredictionLeague.Application/Features/Authentication/Commands/ResetPassword/ResetPasswordCommand.cs` | Create | Command record |
-| `PredictionLeague.Application/Features/Authentication/Commands/ResetPassword/ResetPasswordCommandHandler.cs` | Create | Command handler |
-| `PredictionLeague.Contracts/Authentication/ResetPasswordRequest.cs` | Create | API request DTO |
-| `PredictionLeague.Contracts/Authentication/ResetPasswordResponse.cs` | Create | API response DTOs |
-| `PredictionLeague.Validators/Authentication/ResetPasswordRequestValidator.cs` | Create | FluentValidation validator |
+| `ThePredictions.Application/Features/Authentication/Commands/ResetPassword/ResetPasswordCommand.cs` | Create | Command record |
+| `ThePredictions.Application/Features/Authentication/Commands/ResetPassword/ResetPasswordCommandHandler.cs` | Create | Command handler |
+| `ThePredictions.Contracts/Authentication/ResetPasswordRequest.cs` | Create | API request DTO |
+| `ThePredictions.Contracts/Authentication/ResetPasswordResponse.cs` | Create | API response DTOs |
+| `ThePredictions.Validators/Authentication/ResetPasswordRequestValidator.cs` | Create | FluentValidation validator |
 
 ## Implementation Steps
 
@@ -28,9 +28,9 @@ Create a command and handler that validates the reset token from the database, l
 // ResetPasswordCommand.cs
 
 using MediatR;
-using PredictionLeague.Contracts.Authentication;
+using ThePredictions.Contracts.Authentication;
 
-namespace PredictionLeague.Application.Features.Authentication.Commands.ResetPassword;
+namespace ThePredictions.Application.Features.Authentication.Commands.ResetPassword;
 
 public record ResetPasswordCommand(
     string Token,
@@ -43,9 +43,9 @@ public record ResetPasswordCommand(
 ### Step 2: Create the Response Types
 
 ```csharp
-// ResetPasswordResponse.cs (in PredictionLeague.Contracts/Authentication)
+// ResetPasswordResponse.cs (in ThePredictions.Contracts/Authentication)
 
-namespace PredictionLeague.Contracts.Authentication;
+namespace ThePredictions.Contracts.Authentication;
 
 public abstract record ResetPasswordResponse(bool IsSuccess, string? Message = null);
 
@@ -63,7 +63,7 @@ public record FailedResetPasswordResponse(string Message) : ResetPasswordRespons
 ```csharp
 // ResetPasswordRequest.cs
 
-namespace PredictionLeague.Contracts.Authentication;
+namespace ThePredictions.Contracts.Authentication;
 
 public record ResetPasswordRequest
 {
@@ -81,9 +81,9 @@ public record ResetPasswordRequest
 // ResetPasswordRequestValidator.cs
 
 using FluentValidation;
-using PredictionLeague.Contracts.Authentication;
+using ThePredictions.Contracts.Authentication;
 
-namespace PredictionLeague.Validators.Authentication;
+namespace ThePredictions.Validators.Authentication;
 
 public class ResetPasswordRequestValidator : AbstractValidator<ResetPasswordRequest>
 {
@@ -114,11 +114,11 @@ public class ResetPasswordRequestValidator : AbstractValidator<ResetPasswordRequ
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using PredictionLeague.Application.Repositories;
-using PredictionLeague.Application.Services;
-using PredictionLeague.Contracts.Authentication;
+using ThePredictions.Application.Repositories;
+using ThePredictions.Application.Services;
+using ThePredictions.Contracts.Authentication;
 
-namespace PredictionLeague.Application.Features.Authentication.Commands.ResetPassword;
+namespace ThePredictions.Application.Features.Authentication.Commands.ResetPassword;
 
 public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand, ResetPasswordResponse>
 {

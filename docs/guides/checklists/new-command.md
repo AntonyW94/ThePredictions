@@ -4,10 +4,10 @@ Use this checklist when creating a new command (write operation).
 
 ## Files to Create
 
-- [ ] `src/PredictionLeague.Application/Features/{Area}/Commands/{CommandName}/{CommandName}Command.cs`
-- [ ] `src/PredictionLeague.Application/Features/{Area}/Commands/{CommandName}/{CommandName}CommandHandler.cs`
-- [ ] `src/PredictionLeague.Validators/{Area}/{CommandName}CommandValidator.cs`
-- [ ] `src/PredictionLeague.Contracts/{Area}/{ResultDto}.cs` (if returning data)
+- [ ] `src/ThePredictions.Application/Features/{Area}/Commands/{CommandName}/{CommandName}Command.cs`
+- [ ] `src/ThePredictions.Application/Features/{Area}/Commands/{CommandName}/{CommandName}CommandHandler.cs`
+- [ ] `src/ThePredictions.Validators/{Area}/{CommandName}CommandValidator.cs`
+- [ ] `src/ThePredictions.Contracts/{Area}/{ResultDto}.cs` (if returning data)
 
 ## Command Definition
 

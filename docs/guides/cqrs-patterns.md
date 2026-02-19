@@ -14,7 +14,7 @@ Commands use repositories (`IXxxRepository`) for data access.
 ### Command Structure
 
 ```
-PredictionLeague.Application/
+ThePredictions.Application/
 └── Features/
     └── Leagues/
         └── Commands/
@@ -22,11 +22,11 @@ PredictionLeague.Application/
                 ├── CreateLeagueCommand.cs
                 └── CreateLeagueCommandHandler.cs
 
-PredictionLeague.Validators/
+ThePredictions.Validators/
 └── Leagues/
     └── CreateLeagueCommandValidator.cs
 
-PredictionLeague.Contracts/
+ThePredictions.Contracts/
 └── Leagues/
     └── LeagueDto.cs
 ```
@@ -82,7 +82,7 @@ public class CreateLeagueCommandHandler : IRequestHandler<CreateLeagueCommand, L
 ### Query Structure
 
 ```
-PredictionLeague.Application/
+ThePredictions.Application/
 └── Features/
     └── Leagues/
         └── Queries/
@@ -90,7 +90,7 @@ PredictionLeague.Application/
                 ├── GetMyLeaguesQuery.cs
                 └── GetMyLeaguesQueryHandler.cs
 
-PredictionLeague.Contracts/
+ThePredictions.Contracts/
 └── Leagues/
     └── MyLeagueDto.cs
 ```

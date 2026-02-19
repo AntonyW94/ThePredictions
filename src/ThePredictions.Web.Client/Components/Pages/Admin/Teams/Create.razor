@@ -1,0 +1,63 @@
+@page "/admin/teams/create"
+
+@attribute [Authorize(Roles = RoleNames.Administrator)]
+
+@inject HttpClient Http
+
+@using ThePredictions.Contracts.Admin.Teams
+
+<PageTitle>Create Team</PageTitle>
+
+<div class="page-container">
+    <div class="form-container">
+        <h3 class="text-center fw-bold text-white mb-4">Create New Team</h3>
+        <BaseFormComponent TModel="CreateTeamRequest"
+                           Model="_model"
+                           SubmitAction="HandleCreateTeamAsync"
+                           SuccessRedirectUrl="/admin/teams"
+                           BackUrl="/admin/teams"
+                           SuccessAlertMessage="Team created successfully!"
+                           BusyText="Creating Team...">
+            <ChildContent>
+                <div class="mb-3">
+                    <label for="name" class="form-label text-white">Team Name</label>
+                    <InputText id="name" class="form-control" @bind-Value="_model.Name" />
+                    <StyledValidationMessage For="@(() => _model.Name)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="short-name" class="form-label text-white">Short Name</label>
+                    <InputText id="short-name" class="form-control" @bind-Value="_model.ShortName" />
+                    <StyledValidationMessage For="@(() => _model.ShortName)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="abbreviation" class="form-label text-white">Abbreviation (3 letters)</label>
+                    <InputText id="abbreviation" class="form-control" @bind-Value="_model.Abbreviation" />
+                    <StyledValidationMessage For="@(() => _model.Abbreviation)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="logo-url" class="form-label text-white">Logo URL</label>
+                    <InputText id="logo-url" class="form-control" @bind-Value="_model.LogoUrl" />
+                    <StyledValidationMessage For="@(() => _model.LogoUrl)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="api-team-id" class="form-label text-white">API Team ID</label>
+                    <InputNumber id="api-team-id" class="form-control" @bind-Value="_model.ApiTeamId" />
+                    <StyledValidationMessage For="@(() => _model.ApiTeamId!)" />
+                </div>
+            </ChildContent>
+        </BaseFormComponent>
+    </div>
+</div>
+
+@code {
+    private readonly CreateTeamRequest _model = new();
+
+    private Task<HttpResponseMessage> HandleCreateTeamAsync()
+    {
+        return Http.PostAsJsonAsync("api/admin/teams/create", _model);
+    }
+}

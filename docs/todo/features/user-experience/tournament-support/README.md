@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines a comprehensive plan to extend PredictionLeague to support tournament-format competitions (e.g., FIFA World Cup 2026, UEFA Champions League knockout stages) alongside the existing league format (e.g., Premier League).
+This document outlines a comprehensive plan to extend ThePredictions to support tournament-format competitions (e.g., FIFA World Cup 2026, UEFA Champions League knockout stages) alongside the existing league format (e.g., Premier League).
 
 **Target Delivery:** May 2026 (for FIFA World Cup 2026 starting June 2026)
 
@@ -337,10 +337,10 @@ ALTER TABLE [Matches] ADD [ApiRoundName] NVARCHAR(128) NULL;
 
 ### 6.1 New Enumerations
 
-**File:** `PredictionLeague.Domain/Common/Enumerations/CompetitionType.cs`
+**File:** `ThePredictions.Domain/Common/Enumerations/CompetitionType.cs`
 
 ```csharp
-namespace PredictionLeague.Domain.Common.Enumerations;
+namespace ThePredictions.Domain.Common.Enumerations;
 
 public enum CompetitionType
 {
@@ -350,10 +350,10 @@ public enum CompetitionType
 }
 ```
 
-**File:** `PredictionLeague.Domain/Common/Enumerations/TournamentStageType.cs`
+**File:** `ThePredictions.Domain/Common/Enumerations/TournamentStageType.cs`
 
 ```csharp
-namespace PredictionLeague.Domain.Common.Enumerations;
+namespace ThePredictions.Domain.Common.Enumerations;
 
 public enum TournamentStageType
 {
@@ -364,10 +364,10 @@ public enum TournamentStageType
 
 ### 6.2 New Domain Models
 
-**File:** `PredictionLeague.Domain/Models/TournamentStage.cs`
+**File:** `ThePredictions.Domain/Models/TournamentStage.cs`
 
 ```csharp
-namespace PredictionLeague.Domain.Models;
+namespace ThePredictions.Domain.Models;
 
 public class TournamentStage
 {
@@ -392,10 +392,10 @@ public class TournamentStage
 }
 ```
 
-**File:** `PredictionLeague.Domain/Models/TournamentGroup.cs`
+**File:** `ThePredictions.Domain/Models/TournamentGroup.cs`
 
 ```csharp
-namespace PredictionLeague.Domain.Models;
+namespace ThePredictions.Domain.Models;
 
 public class TournamentGroup
 {
@@ -431,7 +431,7 @@ public class TournamentGroup
 
 ### 6.3 Modified Domain Models
 
-**File:** `PredictionLeague.Domain/Models/Season.cs` (additions)
+**File:** `ThePredictions.Domain/Models/Season.cs` (additions)
 
 ```csharp
 // Add property
@@ -464,7 +464,7 @@ public bool IsTournament => CompetitionType == CompetitionType.Tournament
 public bool HasGroupStage => CompetitionType == CompetitionType.Tournament;
 ```
 
-**File:** `PredictionLeague.Domain/Models/Round.cs` (additions)
+**File:** `ThePredictions.Domain/Models/Round.cs` (additions)
 
 ```csharp
 // Add properties
@@ -485,7 +485,7 @@ public IEnumerable<string> GetApiRoundNamesList()
 // Update constructor and Create method to support tournament properties
 ```
 
-**File:** `PredictionLeague.Domain/Models/Match.cs` (additions)
+**File:** `ThePredictions.Domain/Models/Match.cs` (additions)
 
 ```csharp
 // Add properties
@@ -540,7 +540,7 @@ public void AssignTeams(int homeTeamId, int awayTeamId)
 
 ### 6.4 Updated Domain Service
 
-**File:** `PredictionLeague.Domain/Services/PredictionDomainService.cs`
+**File:** `ThePredictions.Domain/Services/PredictionDomainService.cs`
 
 ```csharp
 public IEnumerable<UserPrediction> SubmitPredictions(
@@ -587,7 +587,7 @@ public IEnumerable<UserPrediction> SubmitPredictions(
 
 ### 7.1 New Repositories
 
-**File:** `PredictionLeague.Application/Repositories/ITournamentStageRepository.cs`
+**File:** `ThePredictions.Application/Repositories/ITournamentStageRepository.cs`
 
 ```csharp
 public interface ITournamentStageRepository
@@ -597,7 +597,7 @@ public interface ITournamentStageRepository
 }
 ```
 
-**File:** `PredictionLeague.Application/Repositories/ITournamentGroupRepository.cs`
+**File:** `ThePredictions.Application/Repositories/ITournamentGroupRepository.cs`
 
 ```csharp
 public interface ITournamentGroupRepository
@@ -610,7 +610,7 @@ public interface ITournamentGroupRepository
 
 ### 7.2 Updated API Sync Logic
 
-**File:** `PredictionLeague.Application/Features/Admin/Seasons/Commands/SyncSeasonWithApiCommandHandler.cs`
+**File:** `ThePredictions.Application/Features/Admin/Seasons/Commands/SyncSeasonWithApiCommandHandler.cs`
 
 Key changes:
 1. Parse tournament round names (e.g., "Group A - 1", "Quarter-finals")
@@ -650,7 +650,7 @@ private static (TournamentStageCode Stage, char? GroupLetter, int? Matchday) Par
 
 ### 7.3 New Commands
 
-**File:** `PredictionLeague.Application/Features/Admin/Rounds/Commands/CreateTournamentRoundCommand.cs`
+**File:** `ThePredictions.Application/Features/Admin/Rounds/Commands/CreateTournamentRoundCommand.cs`
 
 ```csharp
 public record CreateTournamentRoundCommand(
@@ -665,7 +665,7 @@ public record CreateTournamentRoundCommand(
 
 ### 7.4 Updated Queries
 
-**File:** `PredictionLeague.Application/Features/Predictions/Queries/GetPredictionPageDataQueryHandler.cs`
+**File:** `ThePredictions.Application/Features/Predictions/Queries/GetPredictionPageDataQueryHandler.cs`
 
 Add per-match deadline information:
 
@@ -688,7 +688,7 @@ EffectiveDeadlineUtc = match.CustomLockTimeUtc ?? roundDeadline
 
 ### 8.1 Updated DTOs
 
-**File:** `PredictionLeague.Contracts/Dashboard/MatchPredictionDto.cs`
+**File:** `ThePredictions.Contracts/Dashboard/MatchPredictionDto.cs`
 
 ```csharp
 public class MatchPredictionDto
@@ -706,7 +706,7 @@ public class MatchPredictionDto
 }
 ```
 
-**File:** `PredictionLeague.Contracts/Predictions/PredictionPageDto.cs`
+**File:** `ThePredictions.Contracts/Predictions/PredictionPageDto.cs`
 
 ```csharp
 public class PredictionPageDto

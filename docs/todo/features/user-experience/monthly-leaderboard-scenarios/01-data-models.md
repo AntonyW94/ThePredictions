@@ -14,22 +14,22 @@ Create all DTOs needed to represent insights, scenarios, constraints, and elimin
 
 | File | Action | Purpose |
 |------|--------|---------|
-| `PredictionLeague.Contracts/Leagues/Insights/LeagueInsightsSummary.cs` | Create | Main response DTO for insights endpoint |
-| `PredictionLeague.Contracts/Leagues/Insights/ContenderInsights.cs` | Create | Per-user insights with probabilities |
-| `PredictionLeague.Contracts/Leagues/Insights/EliminatedUserDto.cs` | Create | Info about eliminated users |
-| `PredictionLeague.Contracts/Leagues/Insights/WinningScenario.cs` | Create | Single scenario where user wins |
-| `PredictionLeague.Contracts/Leagues/Insights/ScenarioMatchResult.cs` | Create | Match result within a scenario |
-| `PredictionLeague.Contracts/Leagues/Insights/MatchConstraint.cs` | Create | What a user needs for a specific match |
-| `PredictionLeague.Contracts/Leagues/Insights/Scoreline.cs` | Create | A specific score with reason |
-| `PredictionLeague.Contracts/Leagues/Insights/ResultType.cs` | Create | Enum for home win/draw/away win |
+| `ThePredictions.Contracts/Leagues/Insights/LeagueInsightsSummary.cs` | Create | Main response DTO for insights endpoint |
+| `ThePredictions.Contracts/Leagues/Insights/ContenderInsights.cs` | Create | Per-user insights with probabilities |
+| `ThePredictions.Contracts/Leagues/Insights/EliminatedUserDto.cs` | Create | Info about eliminated users |
+| `ThePredictions.Contracts/Leagues/Insights/WinningScenario.cs` | Create | Single scenario where user wins |
+| `ThePredictions.Contracts/Leagues/Insights/ScenarioMatchResult.cs` | Create | Match result within a scenario |
+| `ThePredictions.Contracts/Leagues/Insights/MatchConstraint.cs` | Create | What a user needs for a specific match |
+| `ThePredictions.Contracts/Leagues/Insights/Scoreline.cs` | Create | A specific score with reason |
+| `ThePredictions.Contracts/Leagues/Insights/ResultType.cs` | Create | Enum for home win/draw/away win |
 
 ## Implementation Steps
 
 ### Step 1: Create ResultType Enum
 
 ```csharp
-// PredictionLeague.Contracts/Leagues/Insights/ResultType.cs
-namespace PredictionLeague.Contracts.Leagues.Insights;
+// ThePredictions.Contracts/Leagues/Insights/ResultType.cs
+namespace ThePredictions.Contracts.Leagues.Insights;
 
 public enum ResultType
 {
@@ -42,8 +42,8 @@ public enum ResultType
 ### Step 2: Create Scoreline Record
 
 ```csharp
-// PredictionLeague.Contracts/Leagues/Insights/Scoreline.cs
-namespace PredictionLeague.Contracts.Leagues.Insights;
+// ThePredictions.Contracts/Leagues/Insights/Scoreline.cs
+namespace ThePredictions.Contracts.Leagues.Insights;
 
 /// <summary>
 /// Represents a specific match scoreline, optionally with a reason
@@ -68,8 +68,8 @@ public record Scoreline(
 ### Step 3: Create ScenarioMatchResult Record
 
 ```csharp
-// PredictionLeague.Contracts/Leagues/Insights/ScenarioMatchResult.cs
-namespace PredictionLeague.Contracts.Leagues.Insights;
+// ThePredictions.Contracts/Leagues/Insights/ScenarioMatchResult.cs
+namespace ThePredictions.Contracts.Leagues.Insights;
 
 /// <summary>
 /// Represents a hypothetical match result within a scenario.
@@ -94,8 +94,8 @@ public record ScenarioMatchResult(
 ### Step 4: Create WinningScenario Record
 
 ```csharp
-// PredictionLeague.Contracts/Leagues/Insights/WinningScenario.cs
-namespace PredictionLeague.Contracts.Leagues.Insights;
+// ThePredictions.Contracts/Leagues/Insights/WinningScenario.cs
+namespace ThePredictions.Contracts.Leagues.Insights;
 
 /// <summary>
 /// Represents a single scenario (combination of match results)
@@ -116,8 +116,8 @@ public record WinningScenario(
 ### Step 5: Create MatchConstraint Record
 
 ```csharp
-// PredictionLeague.Contracts/Leagues/Insights/MatchConstraint.cs
-namespace PredictionLeague.Contracts.Leagues.Insights;
+// ThePredictions.Contracts/Leagues/Insights/MatchConstraint.cs
+namespace ThePredictions.Contracts.Leagues.Insights;
 
 /// <summary>
 /// Describes what result(s) a user needs for a specific match to have a chance of winning.
@@ -192,8 +192,8 @@ public record MatchConstraint(
 ### Step 6: Create EliminatedUserDto Record
 
 ```csharp
-// PredictionLeague.Contracts/Leagues/Insights/EliminatedUserDto.cs
-namespace PredictionLeague.Contracts.Leagues.Insights;
+// ThePredictions.Contracts/Leagues/Insights/EliminatedUserDto.cs
+namespace ThePredictions.Contracts.Leagues.Insights;
 
 /// <summary>
 /// Information about a user who has been mathematically eliminated.
@@ -217,8 +217,8 @@ public record EliminatedUserDto(
 ### Step 7: Create ContenderInsights Record
 
 ```csharp
-// PredictionLeague.Contracts/Leagues/Insights/ContenderInsights.cs
-namespace PredictionLeague.Contracts.Leagues.Insights;
+// ThePredictions.Contracts/Leagues/Insights/ContenderInsights.cs
+namespace ThePredictions.Contracts.Leagues.Insights;
 
 /// <summary>
 /// Detailed insights for a single user who is still in contention.
@@ -261,8 +261,8 @@ public record ContenderInsights(
 ### Step 8: Create LeagueInsightsSummary Record
 
 ```csharp
-// PredictionLeague.Contracts/Leagues/Insights/LeagueInsightsSummary.cs
-namespace PredictionLeague.Contracts.Leagues.Insights;
+// ThePredictions.Contracts/Leagues/Insights/LeagueInsightsSummary.cs
+namespace ThePredictions.Contracts.Leagues.Insights;
 
 /// <summary>
 /// Complete insights summary for a league's current in-progress round.
@@ -313,7 +313,7 @@ Follow existing DTO patterns in the Contracts project:
 
 ```csharp
 // Example from existing code - LeagueDto.cs
-namespace PredictionLeague.Contracts.Leagues;
+namespace ThePredictions.Contracts.Leagues;
 
 public record LeagueDto(
     int Id,

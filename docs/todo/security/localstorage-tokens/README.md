@@ -27,8 +27,8 @@ A04:2021 - Insecure Design
 ## Problem Description
 
 **Affected Files:**
-- `PredictionLeague.Web.Client/Services/AuthStateProvider.cs`
-- `PredictionLeague.Web.Client/Services/TokenStorageService.cs`
+- `ThePredictions.Web.Client/Services/AuthStateProvider.cs`
+- `ThePredictions.Web.Client/Services/TokenStorageService.cs`
 
 **Security Concerns:**
 - XSS attacks could steal access tokens

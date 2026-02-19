@@ -1,0 +1,210 @@
+@using ThePredictions.Domain.Common.Enumerations
+@using ThePredictions.Web.Client.Services.Dashboard
+@using System.Globalization
+
+@inject IDashboardStateService DashboardState
+
+@implements IAsyncDisposable
+
+@if (DashboardState.PendingRequests.Any())
+{
+    <div class="section h-100">
+        <h3 class="text-white text-center fw-bold mb-4">Requests & Alerts</h3>
+
+        <ApiError Message="@DashboardState.PendingRequestsErrorMessage" />
+
+        @if (DashboardState.IsPendingRequestsLoading)
+        {
+            <div class="d-flex justify-content-center align-items-center flex-grow-1">
+                <div class="spinner-border text-light" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="card-grid">
+                @foreach (var request in DashboardState.PendingRequests)
+                {
+                    <div class="card mb-3">
+                        <div class="header">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h5 class="fw-bold text-white mb-0">@request.LeagueName</h5>
+                                    <small class="text-white-50 fw-bold">@request.SeasonName</small>
+                                    <div class="d-flex justify-content-between align-items-center gap-4 mb-1">
+                                        <div class="text-sm text-muted mt-1">
+                                            Sent: @GetTimeAgo(request.JoinedAtUtc)
+                                        </div>
+                                       
+                                        <div class="flex-shrink-0">
+                                            @if (request.Status == LeagueMemberStatus.Rejected)
+                                            {
+                                                <span class="badge badge-group--red">Rejected</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-group--orange">Pending</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="px-3">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <div class="glass-panel gradient-flex-info center">
+                                        <div class="d-flex align-items-center mb-1 gap-1">
+                                            <i class="bi bi-person-fill me-1 text-grey-300"></i>
+                                            <small class="text-white-50 text-xs">Admin</small>
+                                        </div>
+                                        <span class="text-white small fw-bold text-truncate">@request.AdminName</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-6">
+                                    <div class="glass-panel gradient-flex-info center">
+                                        <div class="d-flex align-items-center mb-1 gap-1">
+                                            <i class="bi bi-people-fill me-1 text-grey-300"></i>
+                                            <small class="text-white-50 text-xs">Members</small>
+                                        </div>
+                                        <span class="text-white small fw-bold">@request.MemberCount</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-6">
+                                    <div class="glass-panel gradient-flex-info center">
+                                        <div class="d-flex align-items-center mb-1 gap-1">
+                                            <i class="bi bi-cash-stack me-1 text-grey-300"></i>
+                                            <small class="text-white-50 text-xs">Entry</small>
+                                        </div>
+                                        <span class="text-white small fw-bold">
+                                            @(request.EntryFee > 0 ? request.EntryFee.ToString("C", new CultureInfo("en-GB")) : "Free")
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="col-6">
+                                    <div class="glass-panel gradient-flex-info center">
+                                        <div class="d-flex align-items-center mb-1 gap-1">
+                                            <i class="bi bi-trophy-fill me-1 text-grey-300"></i>
+                                            <small class="text-white-50 text-xs">Est. Pot</small>
+                                        </div>
+                                        <span class="text-white small fw-bold">
+                                            @(request.PotValue > 0 ? request.PotValue.ToString("C", new CultureInfo("en-GB")) : "£0.00")
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="footer px-3">
+                            @switch (request.Status)
+                            {
+                                case LeagueMemberStatus.Pending:
+                                {
+                                    <button class="btn btn-sm w-100 red-outline-button"
+                                            @onclick="() => CancelRequest(request.LeagueId)"
+                                            disabled="@_processingIds.Contains(request.LeagueId)">
+                                        @if (_processingIds.Contains(request.LeagueId))
+                                        {
+                                            <span><i class="spinner-border spinner-border-sm me-1"></i> Cancelling...</span>
+                                        }
+                                        else
+                                        {
+                                            <span>Cancel Request</span>
+                                        }
+                                    </button>
+                                    break;
+                                }
+
+                                case LeagueMemberStatus.Rejected:
+                                {
+                                    <button class="btn btn-sm w-100 red-button"
+                                            @onclick="() => DismissAlert(request.LeagueId)"
+                                            disabled="@_processingIds.Contains(request.LeagueId)">
+                                        @if (_processingIds.Contains(request.LeagueId))
+                                        {
+                                            <span><i class="spinner-border spinner-border-sm me-1"></i> Removing...</span>
+                                        }
+                                        else
+                                        {
+                                            <span>Remove Notification</span>
+                                        }
+                                    </button>
+                                    break;
+                                }
+
+                                case LeagueMemberStatus.Approved:
+                                    break;
+
+                                default:
+                                    throw new ArgumentOutOfRangeException();
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private readonly HashSet<int> _processingIds = [];
+
+    protected override void OnInitialized()
+    {
+        DashboardState.OnStateChange += StateHasChanged;
+    }
+
+    private async Task CancelRequest(int leagueId)
+    {
+        if (!_processingIds.Add(leagueId))
+            return;
+
+        try
+        {
+            await DashboardState.CancelJoinRequestAsync(leagueId);
+        }
+        finally
+        {
+            _processingIds.Remove(leagueId);
+        }
+    }
+
+    private async Task DismissAlert(int leagueId)
+    {
+        if (!_processingIds.Add(leagueId))
+            return;
+
+        try
+        {
+            await DashboardState.DismissAlertAsync(leagueId);
+        }
+        finally
+        {
+            _processingIds.Remove(leagueId);
+        }
+    }
+
+    private static string GetTimeAgo(DateTime dateUtc)
+    {
+        var span = DateTime.UtcNow - dateUtc;
+
+        if (span.TotalDays > 1) 
+            return $"{(int)span.TotalDays}d ago";
+
+        if (span.TotalHours > 1) 
+            return $"{(int)span.TotalHours}h ago";
+
+        return span.TotalMinutes > 1 ? $"{(int)span.TotalMinutes}m ago" : "Just now";
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        DashboardState.OnStateChange -= StateHasChanged;
+        return ValueTask.CompletedTask;
+    }
+}

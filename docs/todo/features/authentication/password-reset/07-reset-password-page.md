@@ -14,10 +14,10 @@ Create a Blazor page where users can enter their new password after clicking the
 
 | File | Action | Purpose |
 |------|--------|---------|
-| `PredictionLeague.Web.Client/Components/Pages/Authentication/ResetPassword.razor` | Create | Reset password page |
-| `PredictionLeague.Web.Client/Services/IAuthenticationService.cs` | Modify | Add reset password method |
-| `PredictionLeague.Web.Client/Services/AuthenticationService.cs` | Modify | Implement reset password method |
-| `PredictionLeague.Contracts/Authentication/ResetPasswordRequest.cs` | Already created | Used by service |
+| `ThePredictions.Web.Client/Components/Pages/Authentication/ResetPassword.razor` | Create | Reset password page |
+| `ThePredictions.Web.Client/Services/IAuthenticationService.cs` | Modify | Add reset password method |
+| `ThePredictions.Web.Client/Services/AuthenticationService.cs` | Modify | Implement reset password method |
+| `ThePredictions.Contracts/Authentication/ResetPasswordRequest.cs` | Already created | Used by service |
 
 ## Implementation Steps
 
@@ -72,7 +72,7 @@ public async Task<ResetPasswordResponse> ResetPasswordAsync(string token, string
 @inject NavigationManager NavigationManager
 
 @using Microsoft.AspNetCore.WebUtilities
-@using PredictionLeague.Contracts.Authentication
+@using ThePredictions.Contracts.Authentication
 
 <PageTitle>Reset Password</PageTitle>
 

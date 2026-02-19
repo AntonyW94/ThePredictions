@@ -1,6 +1,6 @@
 using FluentAssertions;
-using PredictionLeague.Domain.Common.Exceptions;
-using PredictionLeague.Domain.Common.Guards;
+using ThePredictions.Domain.Common.Exceptions;
+using ThePredictions.Domain.Common.Guards;
 using Xunit;
 
 namespace ThePredictions.Domain.Tests.Unit.Common.Guards;
