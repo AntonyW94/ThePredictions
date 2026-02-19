@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using FluentValidation;
 using FluentValidation.Internal;
 using Microsoft.AspNetCore.Components;
@@ -15,7 +16,7 @@ public class FluentValidationValidator : ComponentBase, IDisposable
     private EditContext? EditContext { get; set; }
 
     [Inject]
-    private IServiceProvider ServiceProvider { get; init; } = default!;
+    private IServiceProvider ServiceProvider { get; init; } = null!;
 
     private ValidationMessageStore? _messageStore;
     private IValidator? _validator;
@@ -40,6 +41,7 @@ public class FluentValidationValidator : ComponentBase, IDisposable
         return ServiceProvider.GetService(validatorType) as IValidator;
     }
 
+    [SuppressMessage("ReSharper", "AsyncVoidEventHandlerMethod")]
     private async void HandleValidationRequested(object? sender, ValidationRequestedEventArgs e)
     {
         if (EditContext is null || _messageStore is null || _validator is null)
@@ -59,6 +61,7 @@ public class FluentValidationValidator : ComponentBase, IDisposable
         EditContext.NotifyValidationStateChanged();
     }
 
+    [SuppressMessage("ReSharper", "AsyncVoidEventHandlerMethod")]
     private async void HandleFieldChanged(object? sender, FieldChangedEventArgs e)
     {
         if (EditContext is null || _messageStore is null || _validator is null)
@@ -85,10 +88,10 @@ public class FluentValidationValidator : ComponentBase, IDisposable
 
     public void Dispose()
     {
-        if (EditContext is not null)
-        {
-            EditContext.OnValidationRequested -= HandleValidationRequested;
-            EditContext.OnFieldChanged -= HandleFieldChanged;
-        }
+        if (EditContext is null)
+            return;
+
+        EditContext.OnValidationRequested -= HandleValidationRequested;
+        EditContext.OnFieldChanged -= HandleFieldChanged;
     }
 }

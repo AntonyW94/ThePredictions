@@ -6,18 +6,11 @@ using ThePredictions.Domain.Common.Guards;
 
 namespace ThePredictions.Application.Features.Leagues.Commands;
 
-public class RemoveRejectedLeagueCommandHandler : IRequestHandler<RemoveRejectedLeagueCommand>
+public class RemoveRejectedLeagueCommandHandler(ILeagueRepository leagueRepository) : IRequestHandler<RemoveRejectedLeagueCommand>
 {
-    private readonly ILeagueRepository _leagueRepository;
-
-    public RemoveRejectedLeagueCommandHandler(ILeagueRepository leagueRepository)
-    {
-        _leagueRepository = leagueRepository;
-    }
-
     public async Task Handle(RemoveRejectedLeagueCommand request, CancellationToken cancellationToken)
     {
-        var league = await _leagueRepository.GetByIdAsync(request.LeagueId, cancellationToken);
+        var league = await leagueRepository.GetByIdAsync(request.LeagueId, cancellationToken);
         Guard.Against.EntityNotFound(request.LeagueId, league, "League");
 
         var member = league.Members.FirstOrDefault(m => m.UserId == request.CurrentUserId);
@@ -26,6 +19,6 @@ public class RemoveRejectedLeagueCommandHandler : IRequestHandler<RemoveRejected
         
         league.RemoveMember(request.CurrentUserId);
 
-        await _leagueRepository.UpdateAsync(league, cancellationToken);
+        await leagueRepository.UpdateAsync(league, cancellationToken);
     }
 }

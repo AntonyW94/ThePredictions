@@ -6,15 +6,8 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace ThePredictions.Application.Features.Admin.Rounds.Queries;
 
-public class FetchRoundsForSeasonQueryHandler : IRequestHandler<FetchRoundsForSeasonQuery, IEnumerable<RoundDto>>
+public class FetchRoundsForSeasonQueryHandler(IApplicationReadDbConnection dbConnection) : IRequestHandler<FetchRoundsForSeasonQuery, IEnumerable<RoundDto>>
 {
-    private readonly IApplicationReadDbConnection _dbConnection;
-
-    public FetchRoundsForSeasonQueryHandler(IApplicationReadDbConnection dbConnection)
-    {
-        _dbConnection = dbConnection;
-    }
-
     public async Task<IEnumerable<RoundDto>> Handle(FetchRoundsForSeasonQuery request, CancellationToken cancellationToken)
     {
         const string sql = @"
@@ -48,7 +41,7 @@ public class FetchRoundsForSeasonQueryHandler : IRequestHandler<FetchRoundsForSe
             ORDER BY
                 r.[RoundNumber];";
 
-        var queryResult = await _dbConnection.QueryAsync<RoundQueryResult>(sql, cancellationToken, new { request.SeasonId, ApprovedStatus = nameof(LeagueMemberStatus.Approved) });
+        var queryResult = await dbConnection.QueryAsync<RoundQueryResult>(sql, cancellationToken, new { request.SeasonId, ApprovedStatus = nameof(LeagueMemberStatus.Approved) });
 
         return queryResult.Select(r => new RoundDto(
             r.Id,

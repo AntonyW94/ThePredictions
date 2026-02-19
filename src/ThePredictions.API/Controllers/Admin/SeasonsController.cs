@@ -13,15 +13,8 @@ namespace ThePredictions.API.Controllers.Admin;
 [ApiController]
 [Route("api/admin/[controller]")]
 [SwaggerTag("Admin: Seasons - Manage competition seasons (Admin only)")]
-public class SeasonsController : ApiControllerBase
+public class SeasonsController(IMediator mediator) : ApiControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public SeasonsController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     #region Create
 
     [HttpPost("create")]
@@ -46,7 +39,7 @@ public class SeasonsController : ApiControllerBase
             request.ApiLeagueId
         );
 
-        var newSeasonDto = await _mediator.Send(command, cancellationToken);
+        var newSeasonDto = await mediator.Send(command, cancellationToken);
 
         return CreatedAtAction("GetById", new { seasonId = newSeasonDto.Id }, newSeasonDto);
     }
@@ -65,7 +58,7 @@ public class SeasonsController : ApiControllerBase
     public async Task<ActionResult<IEnumerable<SeasonDto>>> FetchAllAsync(CancellationToken cancellationToken)
     {
         var query = new FetchAllSeasonsQuery();
-        return Ok(await _mediator.Send(query, cancellationToken));
+        return Ok(await mediator.Send(query, cancellationToken));
     }
 
     [HttpGet("{seasonId:int}")]
@@ -81,7 +74,7 @@ public class SeasonsController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var query = new GetSeasonByIdQuery(seasonId);
-        var season = await _mediator.Send(query, cancellationToken);
+        var season = await mediator.Send(query, cancellationToken);
 
         if (season == null)
             return NotFound();
@@ -116,7 +109,7 @@ public class SeasonsController : ApiControllerBase
             request.NumberOfRounds,
             request.ApiLeagueId);
 
-        await _mediator.Send(command, cancellationToken);
+        await mediator.Send(command, cancellationToken);
 
         return NoContent();
     }
@@ -135,7 +128,7 @@ public class SeasonsController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var command = new UpdateSeasonStatusCommand(seasonId, isActive);
-        await _mediator.Send(command, cancellationToken);
+        await mediator.Send(command, cancellationToken);
 
         return NoContent();
     }

@@ -7,15 +7,8 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace ThePredictions.Application.Features.Predictions.Queries;
 
-public class GetPredictionPageDataQueryHandler : IRequestHandler<GetPredictionPageDataQuery, PredictionPageDto?>
+public class GetPredictionPageDataQueryHandler(IApplicationReadDbConnection dbConnection) : IRequestHandler<GetPredictionPageDataQuery, PredictionPageDto?>
 {
-    private readonly IApplicationReadDbConnection _dbConnection;
-
-    public GetPredictionPageDataQueryHandler(IApplicationReadDbConnection dbConnection)
-    {
-        _dbConnection = dbConnection;
-    }
-
     public async Task<PredictionPageDto?> Handle(GetPredictionPageDataQuery request, CancellationToken cancellationToken)
     {
         const string sql = @"
@@ -46,7 +39,7 @@ public class GetPredictionPageDataQueryHandler : IRequestHandler<GetPredictionPa
             WHERE r.[Id] = @RoundId
             ORDER BY m.[MatchDateTimeUtc];";
 
-        var queryResult = await _dbConnection.QueryAsync<PredictionPageQueryResult>(
+        var queryResult = await dbConnection.QueryAsync<PredictionPageQueryResult>(
             sql,
             cancellationToken,
             new
@@ -87,7 +80,7 @@ public class GetPredictionPageDataQueryHandler : IRequestHandler<GetPredictionPa
             ORDER BY 
                 l.[Name];";
 
-        var leagues = await _dbConnection.QueryAsync<PredictionLeagueQueryResult>(
+        var leagues = await dbConnection.QueryAsync<PredictionLeagueQueryResult>(
             leaguesSql,
             cancellationToken,
             new { firstRow.SeasonId, request.UserId, ApprovedStatus = nameof(LeagueMemberStatus.Approved) }
@@ -103,7 +96,7 @@ public class GetPredictionPageDataQueryHandler : IRequestHandler<GetPredictionPa
                 ubu.[UserId] = @UserId
                 AND ubu.[RoundId] = @RoundId;";
 
-        var boostUsages = await _dbConnection.QueryAsync<UserBoostUsageResult>(
+        var boostUsages = await dbConnection.QueryAsync<UserBoostUsageResult>(
             userBoostSql,
             cancellationToken,
             new { request.UserId, request.RoundId }

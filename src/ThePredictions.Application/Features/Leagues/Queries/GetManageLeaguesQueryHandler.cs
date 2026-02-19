@@ -5,15 +5,8 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace ThePredictions.Application.Features.Leagues.Queries;
 
-public class GetManageLeaguesQueryHandler : IRequestHandler<GetManageLeaguesQuery, ManageLeaguesDto>
+public class GetManageLeaguesQueryHandler(IApplicationReadDbConnection dbConnection) : IRequestHandler<GetManageLeaguesQuery, ManageLeaguesDto>
 {
-    private readonly IApplicationReadDbConnection _dbConnection;
-
-    public GetManageLeaguesQueryHandler(IApplicationReadDbConnection dbConnection)
-    {
-        _dbConnection = dbConnection;
-    }
-
     public async Task<ManageLeaguesDto> Handle(GetManageLeaguesQuery request, CancellationToken cancellationToken)
     {
         const string sql = @"
@@ -43,7 +36,7 @@ public class GetManageLeaguesQueryHandler : IRequestHandler<GetManageLeaguesQuer
             ORDER BY
                 s.[StartDateUtc] DESC, l.[Name] ASC;";
 
-        var allLeagues = await _dbConnection.QueryAsync<LeagueWithCategory>(
+        var allLeagues = await dbConnection.QueryAsync<LeagueWithCategory>(
             sql,
             cancellationToken,
             new { request.UserId });

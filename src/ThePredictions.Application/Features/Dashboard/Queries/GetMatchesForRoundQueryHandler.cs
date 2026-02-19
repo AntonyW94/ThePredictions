@@ -4,15 +4,9 @@ using ThePredictions.Contracts.Admin.Rounds;
 
 namespace ThePredictions.Application.Features.Dashboard.Queries;
 
-public class GetMatchesForRoundQueryHandler : IRequestHandler<GetMatchesForRoundQuery, IEnumerable<MatchInRoundDto>>
+public class GetMatchesForRoundQueryHandler(IApplicationReadDbConnection dbConnection)
+    : IRequestHandler<GetMatchesForRoundQuery, IEnumerable<MatchInRoundDto>>
 {
-    private readonly IApplicationReadDbConnection _dbConnection;
-
-    public GetMatchesForRoundQueryHandler(IApplicationReadDbConnection dbConnection)
-    {
-        _dbConnection = dbConnection;
-    }
-
     public async Task<IEnumerable<MatchInRoundDto>> Handle(GetMatchesForRoundQuery request, CancellationToken cancellationToken)
     {
         const string sql = @"
@@ -43,6 +37,6 @@ public class GetMatchesForRoundQueryHandler : IRequestHandler<GetMatchesForRound
             ORDER BY 
                 m.[MatchDateTimeUtc];";
 
-        return await _dbConnection.QueryAsync<MatchInRoundDto>(sql, cancellationToken, new { request.RoundId });
+        return await dbConnection.QueryAsync<MatchInRoundDto>(sql, cancellationToken, new { request.RoundId });
     }
 }

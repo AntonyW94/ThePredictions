@@ -8,22 +8,13 @@ using System.Globalization;
 
 namespace ThePredictions.Application.Features.Leagues.Queries;
 
-public class GetMonthsForLeagueQueryHandler : IRequestHandler<GetMonthsForLeagueQuery, IEnumerable<MonthDto>>
+public class GetMonthsForLeagueQueryHandler(
+    IApplicationReadDbConnection dbConnection,
+    ILeagueMembershipService membershipService) : IRequestHandler<GetMonthsForLeagueQuery, IEnumerable<MonthDto>>
 {
-    private readonly IApplicationReadDbConnection _dbConnection;
-    private readonly ILeagueMembershipService _membershipService;
-
-    public GetMonthsForLeagueQueryHandler(
-        IApplicationReadDbConnection dbConnection,
-        ILeagueMembershipService membershipService)
-    {
-        _dbConnection = dbConnection;
-        _membershipService = membershipService;
-    }
-
     public async Task<IEnumerable<MonthDto>> Handle(GetMonthsForLeagueQuery request, CancellationToken cancellationToken)
     {
-        await _membershipService.EnsureApprovedMemberAsync(request.LeagueId, request.CurrentUserId, cancellationToken);
+        await membershipService.EnsureApprovedMemberAsync(request.LeagueId, request.CurrentUserId, cancellationToken);
 
         const string sql = @"
             WITH SeasonInfo AS (
@@ -75,7 +66,7 @@ public class GetMonthsForLeagueQueryHandler : IRequestHandler<GetMonthsForLeague
                 END,
                 ma.[Month]";
 
-        var months = await _dbConnection.QueryAsync<MonthRow>(sql, cancellationToken, new { request.LeagueId, DraftStatus = nameof(RoundStatus.Draft), CompletedStatus = nameof(RoundStatus.Completed) });
+        var months = await dbConnection.QueryAsync<MonthRow>(sql, cancellationToken, new { request.LeagueId, DraftStatus = nameof(RoundStatus.Draft), CompletedStatus = nameof(RoundStatus.Completed) });
        
         return months.Select(m => new MonthDto(m.Month, CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(m.Month), m.RoundsRemaining, m.RoundsCompleted));
     }

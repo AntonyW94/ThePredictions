@@ -8,15 +8,8 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace ThePredictions.Infrastructure.Repositories.Boosts;
 
-public sealed class BoostReadRepository : IBoostReadRepository
+public sealed class BoostReadRepository(IApplicationReadDbConnection dbConnection) : IBoostReadRepository
 {
-    private readonly IApplicationReadDbConnection _dbConnection;
-
-    public BoostReadRepository(IApplicationReadDbConnection dbConnection)
-    {
-        _dbConnection = dbConnection;
-    }
-
     public async Task<(int SeasonId, int RoundNumber, DateTime DeadlineUtc)> GetRoundInfoAsync(int roundId, CancellationToken cancellationToken)
     {
         const string sql = @"
@@ -24,7 +17,7 @@ public sealed class BoostReadRepository : IBoostReadRepository
                 FROM [Rounds] r
                 WHERE r.[Id] = @RoundId;";
 
-        var rows = await _dbConnection.QueryAsync<RoundInfoRow>(
+        var rows = await dbConnection.QueryAsync<RoundInfoRow>(
             sql,
             cancellationToken,
             new { RoundId = roundId });
@@ -41,7 +34,7 @@ public sealed class BoostReadRepository : IBoostReadRepository
                 FROM [Leagues] l
                 WHERE l.[Id] = @LeagueId;";
 
-        var rows = (await _dbConnection.QueryAsync<int>(sql, cancellationToken, new { LeagueId = leagueId })).ToList();
+        var rows = (await dbConnection.QueryAsync<int>(sql, cancellationToken, new { LeagueId = leagueId })).ToList();
         if (rows.Count == 0)
             return null;
 
@@ -69,7 +62,7 @@ public sealed class BoostReadRepository : IBoostReadRepository
             ORDER BY 
                 lbr.[Id]";
 
-        return await _dbConnection.QueryAsync<BoostDefinition>(sql, cancellationToken, new { LeagueId = leagueId });
+        return await dbConnection.QueryAsync<BoostDefinition>(sql, cancellationToken, new { LeagueId = leagueId });
     }
 
     public async Task<bool> IsUserMemberOfLeagueAsync(string userId, int leagueId, CancellationToken cancellationToken)
@@ -81,7 +74,7 @@ public sealed class BoostReadRepository : IBoostReadRepository
                   AND lm.[UserId] = @UserId
                   AND lm.[Status] = @ApprovedStatus;";
 
-        var rows = await _dbConnection.QueryAsync<int>(sql, cancellationToken, new { LeagueId = leagueId, UserId = userId, ApprovedStatus = nameof(LeagueMemberStatus.Approved) });
+        var rows = await dbConnection.QueryAsync<int>(sql, cancellationToken, new { LeagueId = leagueId, UserId = userId, ApprovedStatus = nameof(LeagueMemberStatus.Approved) });
 
         return rows.Any();
     }
@@ -99,7 +92,7 @@ public sealed class BoostReadRepository : IBoostReadRepository
                    AND lbr.[LeagueId] = @LeagueId
                 WHERE bd.[Code] = @BoostCode;";
 
-        var ruleRows = await _dbConnection.QueryAsync<LeagueBoostRuleRow>(ruleSql, cancellationToken, new { LeagueId = leagueId, BoostCode = boostCode });
+        var ruleRows = await dbConnection.QueryAsync<LeagueBoostRuleRow>(ruleSql, cancellationToken, new { LeagueId = leagueId, BoostCode = boostCode });
 
         var ruleRow = ruleRows.SingleOrDefault();
         if (ruleRow == null)
@@ -114,7 +107,7 @@ public sealed class BoostReadRepository : IBoostReadRepository
                 WHERE [LeagueBoostRuleId] = @LeagueBoostRuleId
                 ORDER BY [StartRoundNumber];";
 
-        var windowRows = await _dbConnection.QueryAsync<LeagueBoostWindowRow>(
+        var windowRows = await dbConnection.QueryAsync<LeagueBoostWindowRow>(
             windowsSql,
             cancellationToken,
             new { ruleRow.LeagueBoostRuleId });
@@ -148,7 +141,7 @@ public sealed class BoostReadRepository : IBoostReadRepository
                   AND ubu.[SeasonId] = @SeasonId
                   AND bd.[Code] = @BoostCode;";
 
-        var seasonRows = await _dbConnection.QueryAsync<CountRow>(
+        var seasonRows = await dbConnection.QueryAsync<CountRow>(
             seasonUsesSql,
             cancellationToken,
             new { UserId = userId, LeagueId = leagueId, SeasonId = seasonId, BoostCode = boostCode });
@@ -166,7 +159,7 @@ public sealed class BoostReadRepository : IBoostReadRepository
                   AND ubu.[RoundId] = @RoundId
                   AND bd.[Code] = @BoostCode;";
 
-        var usedRows = await _dbConnection.QueryAsync<CountRow>(
+        var usedRows = await dbConnection.QueryAsync<CountRow>(
             usedThisRoundSql,
             cancellationToken,
             new { UserId = userId, LeagueId = leagueId, SeasonId = seasonId, RoundId = roundId, BoostCode = boostCode });
@@ -183,7 +176,7 @@ public sealed class BoostReadRepository : IBoostReadRepository
                   AND @RoundNumber BETWEEN lbw.[StartRoundNumber] AND lbw.[EndRoundNumber]
                 ORDER BY lbw.[StartRoundNumber];";
 
-        var activeWindowRows = (await _dbConnection.QueryAsync<LeagueBoostWindowRow>(
+        var activeWindowRows = (await dbConnection.QueryAsync<LeagueBoostWindowRow>(
             activeWindowsSql,
             cancellationToken,
             new { LeagueId = leagueId, BoostCode = boostCode, RoundNumber = roundNumber })).ToList();
@@ -217,7 +210,7 @@ public sealed class BoostReadRepository : IBoostReadRepository
 
         foreach (var w in windowRows)
         {
-            var rows = await _dbConnection.QueryAsync<CountRow>(
+            var rows = await dbConnection.QueryAsync<CountRow>(
                 windowCountSql,
                 cancellationToken,
                 new { UserId = userId, LeagueId = leagueId, SeasonId = seasonId, BoostCode = boostCode, StartRound = w.StartRoundNumber, EndRound = w.EndRoundNumber });
@@ -251,7 +244,7 @@ public sealed class BoostReadRepository : IBoostReadRepository
             WHERE 
                 ubu.[RoundId] = @RoundId;";
 
-        return (await _dbConnection.QueryAsync<UserRoundBoostDto>(sql, cancellationToken, new { RoundId = roundId })).ToList();
+        return (await dbConnection.QueryAsync<UserRoundBoostDto>(sql, cancellationToken, new { RoundId = roundId })).ToList();
     }
 
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]

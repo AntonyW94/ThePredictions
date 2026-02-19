@@ -17,15 +17,8 @@ namespace ThePredictions.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [SwaggerTag("Leagues - Create, join, and manage prediction leagues")]
-public class LeaguesController : ApiControllerBase
+public class LeaguesController(IMediator mediator) : ApiControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public LeaguesController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     #region Create
 
     [HttpPost("create")]
@@ -48,7 +41,7 @@ public class LeaguesController : ApiControllerBase
             request.PointsForExactScore,
             request.PointsForCorrectResult);
 
-        var newLeague = await _mediator.Send(command, cancellationToken);
+        var newLeague = await mediator.Send(command, cancellationToken);
 
         return CreatedAtAction("GetLeagueById", new { leagueId = newLeague.Id }, newLeague);
     }
@@ -68,7 +61,7 @@ public class LeaguesController : ApiControllerBase
         var isAdmin = User.IsInRole(nameof(ApplicationUserRole.Administrator));
         var query = new GetManageLeaguesQuery(CurrentUserId, isAdmin);
 
-        return Ok(await _mediator.Send(query, cancellationToken));
+        return Ok(await mediator.Send(query, cancellationToken));
     }
 
     [HttpGet("{leagueId:int}")]
@@ -84,7 +77,7 @@ public class LeaguesController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var query = new GetLeagueByIdQuery(leagueId, CurrentUserId);
-        var result = await _mediator.Send(query, cancellationToken);
+        var result = await mediator.Send(query, cancellationToken);
 
         if (result == null)
             return NotFound();
@@ -105,7 +98,7 @@ public class LeaguesController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var query = new FetchLeagueMembersQuery(leagueId, CurrentUserId);
-        var result = await _mediator.Send(query, cancellationToken);
+        var result = await mediator.Send(query, cancellationToken);
 
         if (result == null)
             return NotFound();
@@ -122,7 +115,7 @@ public class LeaguesController : ApiControllerBase
     public async Task<ActionResult<CreateLeaguePageData>> GetCreateLeaguePageDataAsync(CancellationToken cancellationToken)
     {
         var query = new GetCreateLeaguePageDataQuery();
-        return Ok(await _mediator.Send(query, cancellationToken));
+        return Ok(await mediator.Send(query, cancellationToken));
     }
 
     [HttpGet("{leagueId:int}/prizes")]
@@ -138,7 +131,7 @@ public class LeaguesController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var query = new GetLeaguePrizesPageQuery(leagueId, CurrentUserId);
-        var result = await _mediator.Send(query, cancellationToken);
+        var result = await mediator.Send(query, cancellationToken);
 
         if (result == null)
             return NotFound();
@@ -160,7 +153,7 @@ public class LeaguesController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var query = new GetLeagueDashboardRoundResultsQuery(leagueId, roundId, CurrentUserId);
-        var result = await _mediator.Send(query, cancellationToken);
+        var result = await mediator.Send(query, cancellationToken);
 
         if (result == null)
             return NotFound();
@@ -181,7 +174,7 @@ public class LeaguesController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var query = new GetLeagueRoundsForDashboardQuery(leagueId, CurrentUserId);
-        return Ok(await _mediator.Send(query, cancellationToken));
+        return Ok(await mediator.Send(query, cancellationToken));
     }
 
     [HttpGet("{leagueId:int}/dashboard-data")]
@@ -198,7 +191,7 @@ public class LeaguesController : ApiControllerBase
     {
         var isAdmin = User.IsInRole(nameof(ApplicationUserRole.Administrator));
         var query = new GetLeagueDashboardQuery(leagueId, CurrentUserId, isAdmin);
-        var result = await _mediator.Send(query, cancellationToken);
+        var result = await mediator.Send(query, cancellationToken);
 
         if (result == null)
             return NotFound();
@@ -221,7 +214,7 @@ public class LeaguesController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var query = new GetMonthsForLeagueQuery(leagueId, CurrentUserId);
-        return Ok(await _mediator.Send(query, cancellationToken));
+        return Ok(await mediator.Send(query, cancellationToken));
     }
 
     [HttpGet("{leagueId:int}/boost-usage")]
@@ -236,7 +229,7 @@ public class LeaguesController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var query = new GetLeagueBoostUsageSummaryQuery(leagueId, CurrentUserId);
-        return Ok(await _mediator.Send(query, cancellationToken));
+        return Ok(await mediator.Send(query, cancellationToken));
     }
 
     [HttpGet("{leagueId:int}/leaderboard/overall")]
@@ -252,7 +245,7 @@ public class LeaguesController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var query = new GetOverallLeaderboardQuery(leagueId, CurrentUserId);
-        var result = await _mediator.Send(query, cancellationToken);
+        var result = await mediator.Send(query, cancellationToken);
 
         return Ok(result);
     }
@@ -271,7 +264,7 @@ public class LeaguesController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var query = new GetMonthlyLeaderboardQuery(leagueId, month, CurrentUserId);
-        return Ok(await _mediator.Send(query, cancellationToken));
+        return Ok(await mediator.Send(query, cancellationToken));
     }
 
     [HttpGet("{leagueId:int}/leaderboard/exact-scores")]
@@ -287,7 +280,7 @@ public class LeaguesController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var query = new GetExactScoresLeaderboardQuery(leagueId, CurrentUserId);
-        return Ok(await _mediator.Send(query, cancellationToken));
+        return Ok(await mediator.Send(query, cancellationToken));
     }
 
     #endregion
@@ -307,7 +300,7 @@ public class LeaguesController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var query = new GetWinningsQuery(leagueId, CurrentUserId);
-        return Ok(await _mediator.Send(query, cancellationToken));
+        return Ok(await mediator.Send(query, cancellationToken));
     }
 
     #endregion
@@ -339,7 +332,7 @@ public class LeaguesController : ApiControllerBase
             request.PointsForCorrectResult,
             CurrentUserId);
 
-        await _mediator.Send(command, cancellationToken);
+        await mediator.Send(command, cancellationToken);
 
         return NoContent();
     }
@@ -356,7 +349,7 @@ public class LeaguesController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var command = new JoinLeagueCommand(CurrentUserId, CurrentUserFirstName, CurrentUserLastName, null, request.EntryCode);
-        await _mediator.Send(command, cancellationToken);
+        await mediator.Send(command, cancellationToken);
 
         return NoContent();
     }
@@ -374,7 +367,7 @@ public class LeaguesController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var command = new JoinLeagueCommand(CurrentUserId, CurrentUserFirstName, CurrentUserLastName, leagueId, null);
-        await _mediator.Send(command, cancellationToken);
+        await mediator.Send(command, cancellationToken);
 
         return NoContent();
     }
@@ -395,7 +388,7 @@ public class LeaguesController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var command = new UpdateLeagueMemberStatusCommand(leagueId, memberId, CurrentUserId, newStatus);
-        await _mediator.Send(command, cancellationToken);
+        await mediator.Send(command, cancellationToken);
 
         return NoContent();
     }
@@ -415,7 +408,7 @@ public class LeaguesController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var command = new DefinePrizeStructureCommand(leagueId, CurrentUserId, request.PrizeSettings);
-        await _mediator.Send(command, cancellationToken);
+        await mediator.Send(command, cancellationToken);
 
         return NoContent();
     }
@@ -433,7 +426,7 @@ public class LeaguesController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var command = new CancelLeagueRequestCommand(leagueId, CurrentUserId);
-        await _mediator.Send(command, cancellationToken);
+        await mediator.Send(command, cancellationToken);
 
         return NoContent();
     }
@@ -451,7 +444,7 @@ public class LeaguesController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var command = new DismissRejectedNotificationCommand(leagueId, CurrentUserId);
-        await _mediator.Send(command, cancellationToken);
+        await mediator.Send(command, cancellationToken);
 
         return NoContent();
     }
@@ -476,7 +469,7 @@ public class LeaguesController : ApiControllerBase
         var isAdmin = User.IsInRole(nameof(ApplicationUserRole.Administrator));
 
         var command = new DeleteLeagueCommand(leagueId, CurrentUserId, isAdmin);
-        await _mediator.Send(command, cancellationToken);
+        await mediator.Send(command, cancellationToken);
 
         return NoContent();
     }

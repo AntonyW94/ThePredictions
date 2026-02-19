@@ -5,14 +5,9 @@ using System.Data;
 
 namespace ThePredictions.Infrastructure.Data;
 
-public class SqlConnectionFactory : IDbConnectionFactory
+public class SqlConnectionFactory(IConfiguration configuration) : IDbConnectionFactory
 {
-    private readonly string _connectionString;
-
-    public SqlConnectionFactory(IConfiguration configuration)
-    {
-        _connectionString = configuration.GetConnectionString("DataConnection") ?? throw new InvalidOperationException("Connection string 'DataConnection' not found.");
-    }
+    private readonly string _connectionString = configuration.GetConnectionString("DataConnection") ?? throw new InvalidOperationException("Connection string 'DataConnection' not found.");
 
     public IDbConnection CreateConnection()
     {

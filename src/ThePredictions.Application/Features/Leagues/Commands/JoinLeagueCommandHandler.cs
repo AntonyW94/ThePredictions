@@ -7,38 +7,27 @@ using ThePredictions.Domain.Models;
 
 namespace ThePredictions.Application.Features.Leagues.Commands;
 
-public class JoinLeagueCommandHandler : IRequestHandler<JoinLeagueCommand>
+public class JoinLeagueCommandHandler(ILeagueRepository leagueRepository, IMediator mediator, IDateTimeProvider dateTimeProvider) : IRequestHandler<JoinLeagueCommand>
 {
-    private readonly ILeagueRepository _leagueRepository;
-    private readonly IMediator _mediator;
-    private readonly IDateTimeProvider _dateTimeProvider;
-
-    public JoinLeagueCommandHandler(ILeagueRepository leagueRepository, IMediator mediator, IDateTimeProvider dateTimeProvider)
-    {
-        _leagueRepository = leagueRepository;
-        _mediator = mediator;
-        _dateTimeProvider = dateTimeProvider;
-    }
-
     public async Task Handle(JoinLeagueCommand request, CancellationToken cancellationToken)
     {
         var league = await FetchLeagueAsync(request, cancellationToken);
 
         Guard.Against.EntityNotFound(request.LeagueId ?? 0, league, "League");
 
-        league.AddMember(request.JoiningUserId, _dateTimeProvider);
+        league.AddMember(request.JoiningUserId, dateTimeProvider);
 
-        await _leagueRepository.UpdateAsync(league, cancellationToken);
+        await leagueRepository.UpdateAsync(league, cancellationToken);
         await NotifyAdminAsync(league, request, cancellationToken);
     }
 
     private async Task<League?> FetchLeagueAsync(JoinLeagueCommand request, CancellationToken cancellationToken)
     {
         if (request.LeagueId.HasValue)
-            return await _leagueRepository.GetByIdAsync(request.LeagueId.Value, cancellationToken);
+            return await leagueRepository.GetByIdAsync(request.LeagueId.Value, cancellationToken);
 
         if (!string.IsNullOrWhiteSpace(request.EntryCode))
-            return await _leagueRepository.GetByEntryCodeAsync(request.EntryCode, cancellationToken);
+            return await leagueRepository.GetByEntryCodeAsync(request.EntryCode, cancellationToken);
 
         throw new InvalidOperationException("Either a LeagueId or an EntryCode must be provided.");
     }
@@ -47,7 +36,7 @@ public class JoinLeagueCommandHandler : IRequestHandler<JoinLeagueCommand>
     {
         if (league.Members.Any(m => m.UserId == request.JoiningUserId))
         {
-            await _mediator.Send(new NotifyLeagueAdminOfJoinRequestCommand(
+            await mediator.Send(new NotifyLeagueAdminOfJoinRequestCommand(
                 league.Id,
                 request.JoiningUserFirstName,
                 request.JoiningUserLastName), cancellationToken);

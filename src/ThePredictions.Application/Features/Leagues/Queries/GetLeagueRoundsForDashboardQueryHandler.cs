@@ -6,22 +6,13 @@ using ThePredictions.Domain.Common.Enumerations;
 
 namespace ThePredictions.Application.Features.Leagues.Queries;
 
-public class GetLeagueRoundsForDashboardQueryHandler : IRequestHandler<GetLeagueRoundsForDashboardQuery, IEnumerable<RoundDto>>
+public class GetLeagueRoundsForDashboardQueryHandler(
+    IApplicationReadDbConnection dbConnection,
+    ILeagueMembershipService membershipService) : IRequestHandler<GetLeagueRoundsForDashboardQuery, IEnumerable<RoundDto>>
 {
-    private readonly IApplicationReadDbConnection _dbConnection;
-    private readonly ILeagueMembershipService _membershipService;
-
-    public GetLeagueRoundsForDashboardQueryHandler(
-        IApplicationReadDbConnection dbConnection,
-        ILeagueMembershipService membershipService)
-    {
-        _dbConnection = dbConnection;
-        _membershipService = membershipService;
-    }
-
     public async Task<IEnumerable<RoundDto>> Handle(GetLeagueRoundsForDashboardQuery request, CancellationToken cancellationToken)
     {
-        await _membershipService.EnsureApprovedMemberAsync(request.LeagueId, request.CurrentUserId, cancellationToken);
+        await membershipService.EnsureApprovedMemberAsync(request.LeagueId, request.CurrentUserId, cancellationToken);
 
         const string sql = @"
             SELECT
@@ -50,6 +41,6 @@ public class GetLeagueRoundsForDashboardQueryHandler : IRequestHandler<GetLeague
             CompletedStatus = nameof(RoundStatus.Completed)
         };
 
-        return await _dbConnection.QueryAsync<RoundDto>(sql, cancellationToken, parameters);
+        return await dbConnection.QueryAsync<RoundDto>(sql, cancellationToken, parameters);
     }
 }

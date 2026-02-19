@@ -5,15 +5,9 @@ using ThePredictions.Domain.Common.Enumerations;
 
 namespace ThePredictions.Application.Features.Dashboard.Queries;
 
-public class GetAvailableLeaguesQueryHandler : IRequestHandler<GetAvailableLeaguesQuery, IEnumerable<AvailableLeagueDto>>
+public class GetAvailableLeaguesQueryHandler(IApplicationReadDbConnection dbConnection)
+    : IRequestHandler<GetAvailableLeaguesQuery, IEnumerable<AvailableLeagueDto>>
 {
-    private readonly IApplicationReadDbConnection _dbConnection;
-
-    public GetAvailableLeaguesQueryHandler(IApplicationReadDbConnection dbConnection)
-    {
-        _dbConnection = dbConnection;
-    }
-
     public async Task<IEnumerable<AvailableLeagueDto>> Handle(GetAvailableLeaguesQuery request, CancellationToken cancellationToken)
     {
         const string sql = @"
@@ -40,6 +34,6 @@ public class GetAvailableLeaguesQueryHandler : IRequestHandler<GetAvailableLeagu
                 s.[StartDateUtc] DESC, 
                 l.[Name];";
 
-        return await _dbConnection.QueryAsync<AvailableLeagueDto>(sql, cancellationToken, new { request.UserId, ApprovedStatus = nameof(LeagueMemberStatus.Approved) });
+        return await dbConnection.QueryAsync<AvailableLeagueDto>(sql, cancellationToken, new { request.UserId, ApprovedStatus = nameof(LeagueMemberStatus.Approved) });
     }
 }

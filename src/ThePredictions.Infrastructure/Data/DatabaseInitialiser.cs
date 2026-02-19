@@ -5,18 +5,11 @@ using ThePredictions.Domain.Common.Enumerations;
 
 namespace ThePredictions.Infrastructure.Data;
 
-public class DatabaseInitialiser : IHostedService
+public class DatabaseInitialiser(IServiceProvider serviceProvider) : IHostedService
 {
-    private readonly IServiceProvider _serviceProvider;
-
-    public DatabaseInitialiser(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-    }
-
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = serviceProvider.CreateScope();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
         foreach (ApplicationUserRole role in Enum.GetValues(typeof(ApplicationUserRole)))

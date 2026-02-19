@@ -13,15 +13,8 @@ namespace ThePredictions.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [SwaggerTag("Dashboard - Aggregated data for the main dashboard view")]
-public class DashboardController : ApiControllerBase
+public class DashboardController(IMediator mediator) : ApiControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public DashboardController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     [HttpGet("active-rounds")]
     [SwaggerOperation(
         Summary = "Get active rounds for dashboard",
@@ -31,7 +24,7 @@ public class DashboardController : ApiControllerBase
     public async Task<ActionResult<IEnumerable<ActiveRoundDto>>> GetActiveRoundsAsync(CancellationToken cancellationToken)
     {
         var query = new GetActiveRoundsQuery(CurrentUserId);
-        return Ok(await _mediator.Send(query, cancellationToken));
+        return Ok(await mediator.Send(query, cancellationToken));
     }
 
     [HttpGet("my-leagues")]
@@ -43,7 +36,7 @@ public class DashboardController : ApiControllerBase
     public async Task<ActionResult<IEnumerable<MyLeagueDto>>> GetMyLeaguesAsync(CancellationToken cancellationToken)
     {
         var query = new GetMyLeaguesQuery(CurrentUserId);
-        return Ok(await _mediator.Send(query, cancellationToken));
+        return Ok(await mediator.Send(query, cancellationToken));
     }
 
     [HttpGet("available-leagues")]
@@ -55,7 +48,7 @@ public class DashboardController : ApiControllerBase
     public async Task<ActionResult<IEnumerable<AvailableLeagueDto>>> GetAvailableLeaguesAsync(CancellationToken cancellationToken)
     {
         var query = new GetAvailableLeaguesQuery(CurrentUserId);
-        return Ok(await _mediator.Send(query, cancellationToken));
+        return Ok(await mediator.Send(query, cancellationToken));
     }
 
     [HttpGet("private-leagues-available")]
@@ -67,7 +60,7 @@ public class DashboardController : ApiControllerBase
     public async Task<IActionResult> CheckForAvailablePrivateLeaguesAsync(CancellationToken cancellationToken)
     {
         var query = new CheckForAvailablePrivateLeaguesQuery(CurrentUserId);
-        return Ok(await _mediator.Send(query, cancellationToken));
+        return Ok(await mediator.Send(query, cancellationToken));
     }
 
     [HttpGet("leaderboards")]
@@ -79,7 +72,7 @@ public class DashboardController : ApiControllerBase
     public async Task<IActionResult> GetLeaderboardsAsync(CancellationToken cancellationToken)
     {
         var query = new GetLeaderboardsQuery(CurrentUserId);
-        return Ok(await _mediator.Send(query, cancellationToken));
+        return Ok(await mediator.Send(query, cancellationToken));
     }
 
     [HttpGet("pending-requests")]
@@ -91,7 +84,7 @@ public class DashboardController : ApiControllerBase
     public async Task<ActionResult<IEnumerable<LeagueRequestDto>>> GetPendingRequestsAsync(CancellationToken cancellationToken)
     {
         var query = new GetPendingRequestsQuery(CurrentUserId);
-        var result = await _mediator.Send(query, cancellationToken);
+        var result = await mediator.Send(query, cancellationToken);
         return Ok(result);
     }
 }

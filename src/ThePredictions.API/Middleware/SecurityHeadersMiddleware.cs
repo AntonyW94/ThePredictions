@@ -1,14 +1,7 @@
 namespace ThePredictions.API.Middleware;
 
-public class SecurityHeadersMiddleware
+public class SecurityHeadersMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate _next;
-
-    public SecurityHeadersMiddleware(RequestDelegate next)
-    {
-        _next = next;
-    }
-
     public async Task InvokeAsync(HttpContext context)
     {
         // Prevent MIME type sniffing
@@ -60,7 +53,7 @@ public class SecurityHeadersMiddleware
             "base-uri 'self'; " +
             "upgrade-insecure-requests;");
 
-        await _next(context);
+        await next(context);
     }
 }
 

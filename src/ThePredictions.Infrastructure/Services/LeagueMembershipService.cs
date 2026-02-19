@@ -4,15 +4,8 @@ using ThePredictions.Domain.Common.Enumerations;
 
 namespace ThePredictions.Infrastructure.Services;
 
-public class LeagueMembershipService : ILeagueMembershipService
+public class LeagueMembershipService(IApplicationReadDbConnection dbConnection) : ILeagueMembershipService
 {
-    private readonly IApplicationReadDbConnection _dbConnection;
-
-    public LeagueMembershipService(IApplicationReadDbConnection dbConnection)
-    {
-        _dbConnection = dbConnection;
-    }
-
     public async Task<bool> IsApprovedMemberAsync(int leagueId, string userId, CancellationToken cancellationToken)
     {
         const string sql = @"
@@ -22,7 +15,7 @@ public class LeagueMembershipService : ILeagueMembershipService
               AND [UserId] = @UserId
               AND [Status] = @ApprovedStatus;";
 
-        var count = await _dbConnection.QuerySingleOrDefaultAsync<int>(
+        var count = await dbConnection.QuerySingleOrDefaultAsync<int>(
             sql,
             cancellationToken,
             new { LeagueId = leagueId, UserId = userId, ApprovedStatus = nameof(LeagueMemberStatus.Approved) });
@@ -46,7 +39,7 @@ public class LeagueMembershipService : ILeagueMembershipService
             WHERE [Id] = @LeagueId
               AND [AdministratorUserId] = @UserId;";
 
-        var count = await _dbConnection.QuerySingleOrDefaultAsync<int>(
+        var count = await dbConnection.QuerySingleOrDefaultAsync<int>(
             sql,
             cancellationToken,
             new { LeagueId = leagueId, UserId = userId });

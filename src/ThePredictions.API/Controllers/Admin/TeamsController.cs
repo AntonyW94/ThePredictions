@@ -13,15 +13,8 @@ namespace ThePredictions.API.Controllers.Admin;
 [ApiController]
 [Route("api/admin/[controller]")]
 [SwaggerTag("Admin: Teams - Manage football teams (Admin only)")]
-public class TeamsController : ApiControllerBase
+public class TeamsController(IMediator mediator) : ApiControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public TeamsController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     #region Create
 
     [HttpPost("create")]
@@ -44,7 +37,7 @@ public class TeamsController : ApiControllerBase
             request.ApiTeamId
         );
 
-        var createdTeam = await _mediator.Send(command, cancellationToken);
+        var createdTeam = await mediator.Send(command, cancellationToken);
 
         return CreatedAtAction("GetTeamById", new { teamId = createdTeam.Id }, createdTeam);
     }
@@ -63,7 +56,7 @@ public class TeamsController : ApiControllerBase
     public async Task<ActionResult<IEnumerable<TeamDto>>> FetchAllTeamsAsync(CancellationToken cancellationToken)
     {
         var query = new FetchAllTeamsQuery();
-        return Ok(await _mediator.Send(query, cancellationToken));
+        return Ok(await mediator.Send(query, cancellationToken));
     }
 
     [HttpGet("{teamId:int}")]
@@ -79,7 +72,7 @@ public class TeamsController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var query = new GetTeamByIdQuery(teamId);
-        var team = await _mediator.Send(query, cancellationToken);
+        var team = await mediator.Send(query, cancellationToken);
 
         if (team == null)
             return NotFound();
@@ -114,7 +107,7 @@ public class TeamsController : ApiControllerBase
             request.ApiTeamId
         );
 
-        await _mediator.Send(command, cancellationToken);
+        await mediator.Send(command, cancellationToken);
 
         return NoContent();
     }

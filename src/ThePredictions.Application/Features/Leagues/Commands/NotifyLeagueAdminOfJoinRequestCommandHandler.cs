@@ -6,18 +6,9 @@ using ThePredictions.Application.Services;
 
 namespace ThePredictions.Application.Features.Leagues.Commands;
 
-public class NotifyLeagueAdminOfJoinRequestCommandHandler : IRequestHandler<NotifyLeagueAdminOfJoinRequestCommand>
+public class NotifyLeagueAdminOfJoinRequestCommandHandler(IApplicationReadDbConnection dbConnection, IEmailService emailService, IOptions<BrevoSettings> brevoSettings) : IRequestHandler<NotifyLeagueAdminOfJoinRequestCommand>
 {
-    private readonly IApplicationReadDbConnection _dbConnection;
-    private readonly IEmailService _emailService;
-    private readonly BrevoSettings _brevoSettings;
-
-    public NotifyLeagueAdminOfJoinRequestCommandHandler(IApplicationReadDbConnection dbConnection, IEmailService emailService, IOptions<BrevoSettings> brevoSettings)
-    {
-        _dbConnection = dbConnection;
-        _emailService = emailService;
-        _brevoSettings = brevoSettings.Value;
-    }
+    private readonly BrevoSettings _brevoSettings = brevoSettings.Value;
 
     public async Task Handle(NotifyLeagueAdminOfJoinRequestCommand request, CancellationToken cancellationToken)
     {
@@ -39,7 +30,7 @@ public class NotifyLeagueAdminOfJoinRequestCommandHandler : IRequestHandler<Noti
                 WHERE 
                     l.[Id] = @LeagueId;";
 
-        var admin = await _dbConnection.QuerySingleOrDefaultAsync<LeagueAdminDto>(sql, cancellationToken, new { request.LeagueId });
+        var admin = await dbConnection.QuerySingleOrDefaultAsync<LeagueAdminDto>(sql, cancellationToken, new { request.LeagueId });
         if (admin != null)
         {
             var templateId = _brevoSettings.Templates.JoinLeagueRequest;
@@ -53,7 +44,7 @@ public class NotifyLeagueAdminOfJoinRequestCommandHandler : IRequestHandler<Noti
                 ADMIN_NAME = admin.FirstName
             };
 
-            await _emailService.SendTemplatedEmailAsync(admin.Email, templateId, parameters);
+            await emailService.SendTemplatedEmailAsync(admin.Email, templateId, parameters);
         }
     }
 }

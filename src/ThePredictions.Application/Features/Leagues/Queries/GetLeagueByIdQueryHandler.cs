@@ -5,22 +5,13 @@ using ThePredictions.Contracts.Leagues;
 
 namespace ThePredictions.Application.Features.Leagues.Queries;
 
-public class GetLeagueByIdQueryHandler : IRequestHandler<GetLeagueByIdQuery, LeagueDto?>
+public class GetLeagueByIdQueryHandler(
+    IApplicationReadDbConnection dbConnection,
+    ILeagueMembershipService membershipService) : IRequestHandler<GetLeagueByIdQuery, LeagueDto?>
 {
-    private readonly IApplicationReadDbConnection _dbConnection;
-    private readonly ILeagueMembershipService _membershipService;
-
-    public GetLeagueByIdQueryHandler(
-        IApplicationReadDbConnection dbConnection,
-        ILeagueMembershipService membershipService)
-    {
-        _dbConnection = dbConnection;
-        _membershipService = membershipService;
-    }
-
     public async Task<LeagueDto?> Handle(GetLeagueByIdQuery request, CancellationToken cancellationToken)
     {
-        await _membershipService.EnsureApprovedMemberAsync(request.Id, request.CurrentUserId, cancellationToken);
+        await membershipService.EnsureApprovedMemberAsync(request.Id, request.CurrentUserId, cancellationToken);
 
         const string sql = @"
             SELECT
@@ -51,7 +42,7 @@ public class GetLeagueByIdQueryHandler : IRequestHandler<GetLeagueByIdQuery, Lea
                 l.[PointsForExactScore],
                 l.[PointsForCorrectResult];";
 
-        return await _dbConnection.QuerySingleOrDefaultAsync<LeagueDto>(
+        return await dbConnection.QuerySingleOrDefaultAsync<LeagueDto>(
             sql,
             cancellationToken,
             new { request.Id }

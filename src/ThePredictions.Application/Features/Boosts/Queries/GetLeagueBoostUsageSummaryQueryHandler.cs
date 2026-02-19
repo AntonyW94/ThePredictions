@@ -7,25 +7,16 @@ using ThePredictions.Domain.Common.Enumerations;
 
 namespace ThePredictions.Application.Features.Boosts.Queries;
 
-public class GetLeagueBoostUsageSummaryQueryHandler
+public class GetLeagueBoostUsageSummaryQueryHandler(
+    IApplicationReadDbConnection dbConnection,
+    ILeagueMembershipService membershipService)
     : IRequestHandler<GetLeagueBoostUsageSummaryQuery, List<BoostUsageSummaryDto>>
 {
-    private readonly IApplicationReadDbConnection _dbConnection;
-    private readonly ILeagueMembershipService _membershipService;
-
-    public GetLeagueBoostUsageSummaryQueryHandler(
-        IApplicationReadDbConnection dbConnection,
-        ILeagueMembershipService membershipService)
-    {
-        _dbConnection = dbConnection;
-        _membershipService = membershipService;
-    }
-
     public async Task<List<BoostUsageSummaryDto>> Handle(
         GetLeagueBoostUsageSummaryQuery request,
         CancellationToken cancellationToken)
     {
-        await _membershipService.EnsureApprovedMemberAsync(
+        await membershipService.EnsureApprovedMemberAsync(
             request.LeagueId, request.CurrentUserId, cancellationToken);
 
         var boostRulesTask = GetEnabledBoostRulesAsync(request.LeagueId, cancellationToken);
@@ -71,7 +62,7 @@ public class GetLeagueBoostUsageSummaryQueryHandler
 
             if (ruleWindows.Count == 0)
             {
-                var isFullSeason = true;
+                const bool isFullSeason = true;
                 var maxUses = rule.TotalUsesPerSeason;
                 var endRound = roundRange?.MaxRoundNumber ?? 1;
                 var hasWindowPassed = HasWindowPassed(
@@ -207,7 +198,7 @@ public class GetLeagueBoostUsageSummaryQueryHandler
             WHERE lbr.[LeagueId] = @LeagueId AND lbr.[IsEnabled] = 1
             ORDER BY lbr.[Id];";
 
-        return await _dbConnection.QueryAsync<BoostRuleRow>(sql, cancellationToken, new { LeagueId = leagueId });
+        return await dbConnection.QueryAsync<BoostRuleRow>(sql, cancellationToken, new { LeagueId = leagueId });
     }
 
     private async Task<IEnumerable<WindowRow>> GetWindowsAsync(
@@ -224,7 +215,7 @@ public class GetLeagueBoostUsageSummaryQueryHandler
             WHERE lbr.[LeagueId] = @LeagueId AND lbr.[IsEnabled] = 1
             ORDER BY lbw.[StartRoundNumber];";
 
-        return await _dbConnection.QueryAsync<WindowRow>(sql, cancellationToken, new { LeagueId = leagueId });
+        return await dbConnection.QueryAsync<WindowRow>(sql, cancellationToken, new { LeagueId = leagueId });
     }
 
     private async Task<IEnumerable<MemberRow>> GetMembersAsync(
@@ -239,7 +230,7 @@ public class GetLeagueBoostUsageSummaryQueryHandler
             WHERE lm.[LeagueId] = @LeagueId AND lm.[Status] = @ApprovedStatus
             ORDER BY [PlayerName];";
 
-        return await _dbConnection.QueryAsync<MemberRow>(
+        return await dbConnection.QueryAsync<MemberRow>(
             sql, cancellationToken,
             new { LeagueId = leagueId, ApprovedStatus = nameof(LeagueMemberStatus.Approved) });
     }
@@ -249,7 +240,7 @@ public class GetLeagueBoostUsageSummaryQueryHandler
     {
         const string sql = "SELECT [SeasonId] FROM [Leagues] WHERE [Id] = @LeagueId;";
 
-        return await _dbConnection.QuerySingleOrDefaultAsync<SeasonInfoRow>(
+        return await dbConnection.QuerySingleOrDefaultAsync<SeasonInfoRow>(
             sql, cancellationToken, new { LeagueId = leagueId });
     }
 
@@ -281,7 +272,7 @@ public class GetLeagueBoostUsageSummaryQueryHandler
               )
             ORDER BY r.[RoundNumber];";
 
-        return await _dbConnection.QueryAsync<UsageRow>(
+        return await dbConnection.QueryAsync<UsageRow>(
             sql, cancellationToken,
             new { LeagueId = leagueId, SeasonId = seasonId, CurrentUserId = currentUserId });
     }
@@ -296,7 +287,7 @@ public class GetLeagueBoostUsageSummaryQueryHandler
             WHERE l.[Id] = @LeagueId AND r.[Status] = @InProgressStatus
             ORDER BY r.[RoundNumber];";
 
-        return await _dbConnection.QuerySingleOrDefaultAsync<int?>(
+        return await dbConnection.QuerySingleOrDefaultAsync<int?>(
             sql, cancellationToken,
             new { LeagueId = leagueId, InProgressStatus = nameof(RoundStatus.InProgress) });
     }
@@ -311,7 +302,7 @@ public class GetLeagueBoostUsageSummaryQueryHandler
             WHERE l.[Id] = @LeagueId AND r.[Status] = @CompletedStatus
             ORDER BY r.[RoundNumber] DESC;";
 
-        return await _dbConnection.QuerySingleOrDefaultAsync<int?>(
+        return await dbConnection.QuerySingleOrDefaultAsync<int?>(
             sql, cancellationToken,
             new { LeagueId = leagueId, CompletedStatus = nameof(RoundStatus.Completed) });
     }
@@ -327,12 +318,13 @@ public class GetLeagueBoostUsageSummaryQueryHandler
             INNER JOIN [Leagues] l ON r.[SeasonId] = l.[SeasonId]
             WHERE l.[Id] = @LeagueId;";
 
-        return await _dbConnection.QuerySingleOrDefaultAsync<RoundRangeRow>(
+        return await dbConnection.QuerySingleOrDefaultAsync<RoundRangeRow>(
             sql, cancellationToken, new { LeagueId = leagueId });
     }
 
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+    [SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Local")]
     private sealed class BoostRuleRow
     {
         public string BoostCode { get; init; } = string.Empty;
@@ -344,6 +336,7 @@ public class GetLeagueBoostUsageSummaryQueryHandler
 
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+    [SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Local")]
     private sealed class WindowRow
     {
         public int LeagueBoostRuleId { get; init; }
@@ -354,6 +347,7 @@ public class GetLeagueBoostUsageSummaryQueryHandler
 
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+    [SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Local")]
     private sealed class MemberRow
     {
         public string UserId { get; init; } = string.Empty;
@@ -362,6 +356,7 @@ public class GetLeagueBoostUsageSummaryQueryHandler
 
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+    [SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Local")]
     private sealed class SeasonInfoRow
     {
         public int SeasonId { get; init; }
@@ -369,6 +364,7 @@ public class GetLeagueBoostUsageSummaryQueryHandler
 
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+    [SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Local")]
     private sealed class UsageRow
     {
         public string UserId { get; init; } = string.Empty;
@@ -379,6 +375,7 @@ public class GetLeagueBoostUsageSummaryQueryHandler
 
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+    [SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Local")]
     private sealed class RoundRangeRow
     {
         public int MinRoundNumber { get; init; }

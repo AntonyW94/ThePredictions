@@ -6,15 +6,9 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace ThePredictions.Application.Features.Admin.Users.Queries;
 
-public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, IEnumerable<UserDto>>
+public class GetAllUsersQueryHandler(IApplicationReadDbConnection dbConnection)
+    : IRequestHandler<GetAllUsersQuery, IEnumerable<UserDto>>
 {
-    private readonly IApplicationReadDbConnection _dbConnection;
-
-    public GetAllUsersQueryHandler(IApplicationReadDbConnection dbConnection)
-    {
-        _dbConnection = dbConnection;
-    }
-
     public async Task<IEnumerable<UserDto>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
     {
         const string sql = @"
@@ -36,7 +30,7 @@ public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, IEnumer
                 FullName;";
 
         var parameters = new { AdminRoleName = nameof(ApplicationUserRole.Administrator) };
-        var queryResult = await _dbConnection.QueryAsync<UserQueryResult>(sql, cancellationToken, parameters);
+        var queryResult = await dbConnection.QueryAsync<UserQueryResult>(sql, cancellationToken, parameters);
 
         return queryResult.Select(u => new UserDto(
             u.Id,

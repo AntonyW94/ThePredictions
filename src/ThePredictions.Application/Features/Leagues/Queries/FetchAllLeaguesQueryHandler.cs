@@ -4,15 +4,8 @@ using ThePredictions.Contracts.Leagues;
 
 namespace ThePredictions.Application.Features.Leagues.Queries;
 
-public class FetchAllLeaguesQueryHandler : IRequestHandler<FetchAllLeaguesQuery, IEnumerable<LeagueDto>>
+public class FetchAllLeaguesQueryHandler(IApplicationReadDbConnection dbConnection) : IRequestHandler<FetchAllLeaguesQuery, IEnumerable<LeagueDto>>
 {
-    private readonly IApplicationReadDbConnection _dbConnection;
-
-    public FetchAllLeaguesQueryHandler(IApplicationReadDbConnection dbConnection)
-    {
-        _dbConnection = dbConnection;
-    }
-
     public async Task<IEnumerable<LeagueDto>> Handle(FetchAllLeaguesQuery request, CancellationToken cancellationToken)
     {
         const string sql = @"
@@ -46,6 +39,6 @@ public class FetchAllLeaguesQueryHandler : IRequestHandler<FetchAllLeaguesQuery,
                 s.[StartDateUtc] DESC,
                 l.[Name] ASC;";
 
-        return await _dbConnection.QueryAsync<LeagueDto>(sql, cancellationToken);
+        return await dbConnection.QueryAsync<LeagueDto>(sql, cancellationToken);
     }
 }

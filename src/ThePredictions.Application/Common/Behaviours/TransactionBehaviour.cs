@@ -5,15 +5,8 @@ using System.Transactions;
 
 namespace ThePredictions.Application.Common.Behaviours;
 
-public class TransactionBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>, ITransactionalRequest
+public class TransactionBehaviour<TRequest, TResponse>(ILogger<TransactionBehaviour<TRequest, TResponse>> logger) : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>, ITransactionalRequest
 {
-    private readonly ILogger<TransactionBehaviour<TRequest, TResponse>> _logger;
-
-    public TransactionBehaviour(ILogger<TransactionBehaviour<TRequest, TResponse>> logger)
-    {
-        _logger = logger;
-    }
-
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         var requestName = typeof(TRequest).Name;
@@ -22,19 +15,19 @@ public class TransactionBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
 
         try
         {
-            _logger.LogDebug("Beginning transaction for {RequestName}", requestName);
+            logger.LogDebug("Beginning transaction for {RequestName}", requestName);
 
             var response = await next(cancellationToken);
 
             scope.Complete();
 
-            _logger.LogDebug("Committed transaction for {RequestName}", requestName);
+            logger.LogDebug("Committed transaction for {RequestName}", requestName);
 
             return response;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Transaction for {RequestName} failed. Rolling back.", requestName);
+            logger.LogError(ex, "Transaction for {RequestName} failed. Rolling back.", requestName);
             throw;
         }
     }

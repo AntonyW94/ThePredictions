@@ -9,11 +9,9 @@ using System.Data;
 
 namespace ThePredictions.Infrastructure.Repositories;
 
-public class LeagueRepository : ILeagueRepository
+public class LeagueRepository(IDbConnectionFactory connectionFactory, IDateTimeProvider dateTimeProvider) : ILeagueRepository
 {
-    private readonly IDbConnectionFactory _connectionFactory;
-    private readonly IDateTimeProvider _dateTimeProvider;
-    private IDbConnection Connection => _connectionFactory.CreateConnection();
+    private IDbConnection Connection => connectionFactory.CreateConnection();
 
     private const string GetLeaguesWithMembersSql = @"
         SELECT
@@ -21,12 +19,6 @@ public class LeagueRepository : ILeagueRepository
             lm.*
         FROM [Leagues] l
         LEFT JOIN [LeagueMembers] lm ON l.[Id] = lm.[LeagueId]";
-
-    public LeagueRepository(IDbConnectionFactory connectionFactory, IDateTimeProvider dateTimeProvider)
-    {
-        _connectionFactory = connectionFactory;
-        _dateTimeProvider = dateTimeProvider;
-    }
 
     #region Create
 
@@ -73,8 +65,8 @@ public class LeagueRepository : ILeagueRepository
 
         var newLeagueId = await Connection.ExecuteScalarAsync<int>(command);
 
-        var adminMember = LeagueMember.Create(newLeagueId, league.AdministratorUserId, _dateTimeProvider);
-        adminMember.Approve(_dateTimeProvider);
+        var adminMember = LeagueMember.Create(newLeagueId, league.AdministratorUserId, dateTimeProvider);
+        adminMember.Approve(dateTimeProvider);
 
         await AddMemberAsync(adminMember, cancellationToken);
 

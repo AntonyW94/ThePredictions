@@ -15,15 +15,8 @@ namespace ThePredictions.API.Controllers.External;
 [ApiKeyAuthorise]
 [DisableRateLimiting]
 [SwaggerTag("Scheduled Tasks - Automated background jobs (API key required)")]
-public class TasksController : ApiControllerBase
+public class TasksController(IMediator mediator) : ApiControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public TasksController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     [HttpPost("score-update")]
     [SwaggerOperation(
         Summary = "Trigger live score update",
@@ -33,7 +26,7 @@ public class TasksController : ApiControllerBase
     public async Task<IActionResult> TriggerLiveScoreUpdateAsync(CancellationToken cancellationToken)
     {
         var command = new UpdateAllLiveScoresCommand();
-        await _mediator.Send(command, cancellationToken);
+        await mediator.Send(command, cancellationToken);
 
         return NoContent();
     }
@@ -47,7 +40,7 @@ public class TasksController : ApiControllerBase
     public async Task<IActionResult> SyncSeasonsAsync(CancellationToken cancellationToken)
     {
         var command = new SyncAllActiveSeasonsCommand();
-        await _mediator.Send(command, cancellationToken);
+        await mediator.Send(command, cancellationToken);
 
         return NoContent();
     }
@@ -61,7 +54,7 @@ public class TasksController : ApiControllerBase
     public async Task<IActionResult> SendScheduledRemindersAsync(CancellationToken cancellationToken)
     {
         var command = new SendScheduledRemindersCommand();
-        await _mediator.Send(command, cancellationToken);
+        await mediator.Send(command, cancellationToken);
 
         return NoContent();
     }
@@ -75,7 +68,7 @@ public class TasksController : ApiControllerBase
     public async Task<IActionResult> PublishUpcomingRoundsAsync(CancellationToken cancellationToken)
     {
         var command = new PublishUpcomingRoundsCommand();
-        await _mediator.Send(command, cancellationToken);
+        await mediator.Send(command, cancellationToken);
 
         return NoContent();
     }
@@ -91,7 +84,7 @@ public class TasksController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var command = new RecalculateSeasonStatsCommand(seasonId);
-        await _mediator.Send(command, cancellationToken);
+        await mediator.Send(command, cancellationToken);
 
         return NoContent();
     }
@@ -105,7 +98,7 @@ public class TasksController : ApiControllerBase
     public async Task<IActionResult> CleanupExpiredDataAsync(CancellationToken cancellationToken)
     {
         var command = new CleanupExpiredDataCommand();
-        var result = await _mediator.Send(command, cancellationToken);
+        var result = await mediator.Send(command, cancellationToken);
 
         return Ok(result);
     }

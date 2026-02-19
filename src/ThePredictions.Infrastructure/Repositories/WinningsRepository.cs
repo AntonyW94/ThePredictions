@@ -7,15 +7,9 @@ using System.Data;
 
 namespace ThePredictions.Infrastructure.Repositories;
 
-public class WinningsRepository : IWinningsRepository
+public class WinningsRepository(IDbConnectionFactory connectionFactory) : IWinningsRepository
 {
-    private readonly IDbConnectionFactory _connectionFactory;
-    private IDbConnection Connection => _connectionFactory.CreateConnection();
-
-    public WinningsRepository(IDbConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
+    private IDbConnection Connection => connectionFactory.CreateConnection();
 
     public async Task AddWinningsAsync(IEnumerable<Winning> winnings, CancellationToken cancellationToken)
     {

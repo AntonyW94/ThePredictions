@@ -10,17 +10,9 @@ using System.Security.Claims;
 
 namespace ThePredictions.Application.Features.Authentication.Commands.LoginWithGoogle;
 
-public class LoginWithGoogleCommandHandler : IRequestHandler<LoginWithGoogleCommand, AuthenticationResponse>
+public class LoginWithGoogleCommandHandler(IUserManager userManager, IAuthenticationTokenService tokenService)
+    : IRequestHandler<LoginWithGoogleCommand, AuthenticationResponse>
 {
-    private readonly IUserManager _userManager;
-    private readonly IAuthenticationTokenService _tokenService;
-
-    public LoginWithGoogleCommandHandler(IUserManager userManager, IAuthenticationTokenService tokenService)
-    {
-        _userManager = userManager;
-        _tokenService = tokenService;
-    }
-
     public async Task<AuthenticationResponse> Handle(LoginWithGoogleCommand request, CancellationToken cancellationToken)
     {
         const string provider = "Google";
@@ -32,20 +24,20 @@ public class LoginWithGoogleCommandHandler : IRequestHandler<LoginWithGoogleComm
         var providerKey = principal.FindFirstValue(ClaimTypes.NameIdentifier);
         Guard.Against.NullOrWhiteSpace(providerKey, message: "Could not determine user identifier from external provider.");
 
-        var user = await _userManager.FindByLoginAsync(provider, providerKey);
+        var user = await userManager.FindByLoginAsync(provider, providerKey);
         if (user == null)
         {
             var email = principal.FindFirstValue(ClaimTypes.Email);
             Guard.Against.NullOrWhiteSpace(email, message: "Could not retrieve email from external provider.");
 
-            var userByEmail = await _userManager.FindByEmailAsync(email);
+            var userByEmail = await userManager.FindByEmailAsync(email);
             if (userByEmail != null)
                 user = await LinkExternalLoginToExistingUser(userByEmail, provider, providerKey);
             else
                 user = await CreateNewUserFromExternalLogin(principal, provider, providerKey);
         }
 
-        var (accessToken, refreshToken, expiresAtUtc) = await _tokenService.GenerateTokensAsync(user, cancellationToken);
+        var (accessToken, refreshToken, expiresAtUtc) = await tokenService.GenerateTokensAsync(user, cancellationToken);
 
         return new SuccessfulAuthenticationResponse(
             AccessToken: accessToken,
@@ -67,19 +59,19 @@ public class LoginWithGoogleCommandHandler : IRequestHandler<LoginWithGoogleComm
             EmailConfirmed = true
         };
 
-        var createResult = await _userManager.CreateAsync(newUser);
+        var createResult = await userManager.CreateAsync(newUser);
         if (!createResult.Succeeded)
             throw new IdentityUpdateException(createResult.Errors);
 
-        await _userManager.AddToRoleAsync(newUser, nameof(ApplicationUserRole.Player));
+        await userManager.AddToRoleAsync(newUser, nameof(ApplicationUserRole.Player));
 
-        var addLoginResult = await _userManager.AddLoginAsync(newUser,provider, providerKey);
+        var addLoginResult = await userManager.AddLoginAsync(newUser,provider, providerKey);
         return !addLoginResult.Succeeded ? throw new IdentityUpdateException(addLoginResult.Errors) : newUser;
     }
 
     private async Task<ApplicationUser> LinkExternalLoginToExistingUser(ApplicationUser user, string provider, string providerKey)
     {
-        var addLoginResult = await _userManager.AddLoginAsync(user, provider, providerKey);
+        var addLoginResult = await userManager.AddLoginAsync(user, provider, providerKey);
         return !addLoginResult.Succeeded ? throw new IdentityUpdateException(addLoginResult.Errors) : user;
     }
 }

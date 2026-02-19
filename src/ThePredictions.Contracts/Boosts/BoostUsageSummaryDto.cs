@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ThePredictions.Contracts.Boosts;
 
+[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 public sealed class BoostUsageSummaryDto
 {
     public string BoostCode { get; init; } = string.Empty;

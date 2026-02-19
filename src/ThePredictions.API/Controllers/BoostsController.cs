@@ -12,17 +12,8 @@ namespace ThePredictions.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [SwaggerTag("Boosts - Apply score multipliers to predictions")]
-public class BoostsController : ApiControllerBase
+public class BoostsController(IBoostService boostService, IMediator mediator) : ApiControllerBase
 {
-    private readonly IBoostService _boostService;
-    private readonly IMediator _mediator;
-
-    public BoostsController(IBoostService boostService, IMediator mediator)
-    {
-        _boostService = boostService;
-        _mediator = mediator;
-    }
-
     [HttpGet("available")]
     [SwaggerOperation(
         Summary = "Get available boosts",
@@ -35,7 +26,7 @@ public class BoostsController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var query = new GetAvailableBoostsQuery(leagueId, roundId, CurrentUserId);
-        var result = await _mediator.Send(query, cancellationToken);
+        var result = await mediator.Send(query, cancellationToken);
 
         return Ok(result);
     }
@@ -51,7 +42,7 @@ public class BoostsController : ApiControllerBase
         [FromBody, SwaggerParameter("Boost application details", Required = true)] ApplyBoostRequest req,
         CancellationToken cancellationToken)
     {
-        var result = await _boostService.ApplyBoostAsync(CurrentUserId, req.LeagueId, req.RoundId, req.BoostCode, cancellationToken);
+        var result = await boostService.ApplyBoostAsync(CurrentUserId, req.LeagueId, req.RoundId, req.BoostCode, cancellationToken);
         if (result.Success)
             return Ok(result);
 
@@ -69,7 +60,7 @@ public class BoostsController : ApiControllerBase
         [FromQuery, SwaggerParameter("Round identifier", Required = true)] int roundId,
         CancellationToken cancellationToken)
     {
-        await _boostService.DeleteUserBoostUsageAsync(CurrentUserId, leagueId, roundId, cancellationToken);
+        await boostService.DeleteUserBoostUsageAsync(CurrentUserId, leagueId, roundId, cancellationToken);
 
         return NoContent();
     }

@@ -5,66 +5,55 @@ using System.Text.Json;
 
 namespace ThePredictions.API.Middleware;
 
-public class ErrorHandlingMiddleware
+public class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger, IWebHostEnvironment env)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<ErrorHandlingMiddleware> _logger;
-    private readonly IWebHostEnvironment _env;
-
-    public ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger, IWebHostEnvironment env)
-    {
-        _next = next;
-        _logger = logger;
-        _env = env;
-    }
-
     public async Task InvokeAsync(HttpContext context)
     {
         try
         {
-            await _next(context);
+            await next(context);
         }
         catch (Exception ex) when (ex is KeyNotFoundException or ArgumentNullException or EntityNotFoundException)
         {
-            _logger.LogWarning("Not Found Error: {Message}", ex.Message);
+            logger.LogWarning("Not Found Error: {Message}", ex.Message);
             await HandleKnownExceptionAsync(context, HttpStatusCode.NotFound, new { message = ex.Message });
         }
         catch (ArgumentException ex)
         {
-            _logger.LogWarning("Invalid Argument/Business Rule Error: {Message}", ex.Message);
+            logger.LogWarning("Invalid Argument/Business Rule Error: {Message}", ex.Message);
             await HandleKnownExceptionAsync(context, HttpStatusCode.BadRequest, new { message = ex.Message });
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogWarning("Invalid Operation Error: {Message}", ex.Message);
+            logger.LogWarning("Invalid Operation Error: {Message}", ex.Message);
              await HandleKnownExceptionAsync(context, HttpStatusCode.BadRequest, new { message = ex.Message });
         }
         catch (FluentValidation.ValidationException ex)
         {
-            _logger.LogWarning("Validation Error: {Errors}", ex.Errors);
+            logger.LogWarning("Validation Error: {Errors}", ex.Errors);
             await HandleKnownExceptionAsync(context, HttpStatusCode.BadRequest, new { errors = ex.Errors });
         }
         catch (IdentityUpdateException ex)
         {
-            _logger.LogWarning("Identity Update Error: {Message}", ex.Errors);
+            logger.LogWarning("Identity Update Error: {Message}", ex.Errors);
             await HandleKnownExceptionAsync(context, HttpStatusCode.BadRequest, new { errors = ex.Errors });
         }
         catch (UnauthorizedAccessException ex)
         {
-            _logger.LogWarning("Authorization Error: {Message}", ex.Message);
+            logger.LogWarning("Authorization Error: {Message}", ex.Message);
             await HandleKnownExceptionAsync(context, HttpStatusCode.Unauthorized, new { message = "You are not authorized to perform this action." });
         }
         catch (IOException ex) when (ex.Message.Contains("The client reset the request stream"))
         {
-            _logger.LogInformation("Client reset the request stream. Request path: {Path}", context.Request.Path);
+            logger.LogInformation("Client reset the request stream. Request path: {Path}", context.Request.Path);
         } 
         catch (Exception ex) when (ex.Message.Contains("A task was canceled"))
         {
-            _logger.LogInformation("Task cancelled. Request path: {Path}", context.Request.Path);
+            logger.LogInformation("Task cancelled. Request path: {Path}", context.Request.Path);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An unhandled exception has occurred.");
+            logger.LogError(ex, "An unhandled exception has occurred.");
             await HandleUnhandledExceptionAsync(context, ex);
         }
     }
@@ -81,7 +70,7 @@ public class ErrorHandlingMiddleware
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-        var response = _env.IsDevelopment()
+        var response = env.IsDevelopment()
             ? new { message = exception.Message, details = exception.StackTrace }
             : new { message = "An internal server error has occurred.", details = (string?)null };
 

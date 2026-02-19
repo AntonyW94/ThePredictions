@@ -7,33 +7,32 @@ using System.Data;
 
 namespace ThePredictions.Infrastructure.Repositories;
 
-public class RoundRepository : IRoundRepository
+public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRepository
 {
-    private readonly IDbConnectionFactory _connectionFactory;
-    private IDbConnection Connection => _connectionFactory.CreateConnection();
+    private IDbConnection Connection => connectionFactory.CreateConnection();
 
     #region SQL Constants
 
     private const string AddMatchSql = @"
-        INSERT INTO [Matches] 
+        INSERT INTO [Matches]
         (
-            [RoundId], 
-            [HomeTeamId], 
-            [AwayTeamId], 
-            [MatchDateTimeUtc], 
-            [CustomLockTimeUtc], 
+            [RoundId],
+            [HomeTeamId],
+            [AwayTeamId],
+            [MatchDateTimeUtc],
+            [CustomLockTimeUtc],
             [Status],
             [ExternalId],
             [PlaceholderHomeName],
             [PlaceholderAwayName]
         )
-        VALUES 
+        VALUES
         (
-            @RoundId, 
-            @HomeTeamId, 
-            @AwayTeamId, 
-            @MatchDateTimeUtc, 
-            @CustomLockTimeUtc, 
+            @RoundId,
+            @HomeTeamId,
+            @AwayTeamId,
+            @MatchDateTimeUtc,
+            @CustomLockTimeUtc,
             @Status,
             @ExternalId,
             @PlaceholderHomeName,
@@ -41,18 +40,13 @@ public class RoundRepository : IRoundRepository
         );";
 
     private const string GetRoundsWithMatchesSql = @"
-        SELECT 
-            r.*, 
+        SELECT
+            r.*,
             m.*
         FROM [Rounds] r
         LEFT JOIN [Matches] m ON r.[Id] = m.[RoundId]";
 
     #endregion
-
-    public RoundRepository(IDbConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
 
     #region Create
 

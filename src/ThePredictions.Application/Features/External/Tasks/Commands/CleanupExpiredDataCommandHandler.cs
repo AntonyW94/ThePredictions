@@ -4,40 +4,31 @@ using ThePredictions.Application.Repositories;
 
 namespace ThePredictions.Application.Features.External.Tasks.Commands;
 
-public class CleanupExpiredDataCommandHandler : IRequestHandler<CleanupExpiredDataCommand, CleanupResult>
+public class CleanupExpiredDataCommandHandler(
+    IPasswordResetTokenRepository passwordResetTokenRepository,
+    ILogger<CleanupExpiredDataCommandHandler> logger) : IRequestHandler<CleanupExpiredDataCommand, CleanupResult>
 {
     private const int PasswordResetTokenRetentionDays = 30;
 
-    private readonly IPasswordResetTokenRepository _passwordResetTokenRepository;
-    private readonly ILogger<CleanupExpiredDataCommandHandler> _logger;
-
-    public CleanupExpiredDataCommandHandler(
-        IPasswordResetTokenRepository passwordResetTokenRepository,
-        ILogger<CleanupExpiredDataCommandHandler> logger)
-    {
-        _passwordResetTokenRepository = passwordResetTokenRepository;
-        _logger = logger;
-    }
-
     public async Task<CleanupResult> Handle(CleanupExpiredDataCommand request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Starting scheduled cleanup task");
+        logger.LogInformation("Starting scheduled cleanup task");
 
         // Clean up password reset tokens older than 30 days
         var tokenCutoffDate = DateTime.UtcNow.AddDays(-PasswordResetTokenRetentionDays);
-        var tokensDeleted = await _passwordResetTokenRepository.DeleteTokensOlderThanAsync(
+        var tokensDeleted = await passwordResetTokenRepository.DeleteTokensOlderThanAsync(
             tokenCutoffDate,
             cancellationToken);
 
         if (tokensDeleted > 0)
         {
-            _logger.LogInformation(
+            logger.LogInformation(
                 "Deleted {TokensDeleted} password reset tokens older than {CutoffDate:yyyy-MM-dd}",
                 tokensDeleted,
                 tokenCutoffDate);
         }
 
-        _logger.LogInformation("Scheduled cleanup task completed");
+        logger.LogInformation("Scheduled cleanup task completed");
 
         return new CleanupResult(
             PasswordResetTokensDeleted: tokensDeleted

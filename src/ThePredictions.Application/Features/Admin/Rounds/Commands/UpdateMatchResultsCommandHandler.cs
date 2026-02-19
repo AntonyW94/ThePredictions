@@ -10,45 +10,24 @@ using ThePredictions.Domain.Models;
 
 namespace ThePredictions.Application.Features.Admin.Rounds.Commands;
 
-public class UpdateMatchResultsCommandHandler : IRequestHandler<UpdateMatchResultsCommand>
+public class UpdateMatchResultsCommandHandler(
+    IMediator mediator,
+    IBoostService boostService,
+    ILeagueRepository leagueRepository,
+    IRoundRepository roundRepository,
+    IUserPredictionRepository userPredictionRepository,
+    ILeagueStatsService statsService,
+    ICurrentUserService currentUserService,
+    IDateTimeProvider dateTimeProvider) : IRequestHandler<UpdateMatchResultsCommand>
 {
-    private readonly IMediator _mediator;
-    private readonly IBoostService _boostService;
-    private readonly ILeagueRepository _leagueRepository;
-    private readonly IRoundRepository _roundRepository;
-    private readonly IUserPredictionRepository _userPredictionRepository;
-    private readonly ILeagueStatsService _statsService;
-    private readonly ICurrentUserService _currentUserService;
-    private readonly IDateTimeProvider _dateTimeProvider;
-
-    public UpdateMatchResultsCommandHandler(
-        IMediator mediator,
-        IBoostService boostService,
-        ILeagueRepository leagueRepository,
-        IRoundRepository roundRepository,
-        IUserPredictionRepository userPredictionRepository,
-        ILeagueStatsService statsService,
-        ICurrentUserService currentUserService,
-        IDateTimeProvider dateTimeProvider)
-    {
-        _mediator = mediator;
-        _boostService = boostService;
-        _leagueRepository = leagueRepository;
-        _roundRepository = roundRepository;
-        _userPredictionRepository = userPredictionRepository;
-        _statsService = statsService;
-        _currentUserService = currentUserService;
-        _dateTimeProvider = dateTimeProvider;
-    }
-
     public async Task Handle(UpdateMatchResultsCommand request, CancellationToken cancellationToken)
     {
         // If user is authenticated (admin UI call), verify they're an administrator.
         // If not authenticated (scheduled task via API key), skip the check.
-        if (_currentUserService.IsAuthenticated)
-            _currentUserService.EnsureAdministrator();
+        if (currentUserService.IsAuthenticated)
+            currentUserService.EnsureAdministrator();
 
-        var round = await _roundRepository.GetByIdAsync(request.RoundId, cancellationToken);
+        var round = await roundRepository.GetByIdAsync(request.RoundId, cancellationToken);
         Guard.Against.EntityNotFound(request.RoundId, round, "Round");
         var wasRoundPublished = round.Status == RoundStatus.Published;
 
@@ -75,16 +54,16 @@ public class UpdateMatchResultsCommandHandler : IRequestHandler<UpdateMatchResul
         var isRoundStarting = wasRoundPublished && matchesToUpdate.Any(m => m.Status is MatchStatus.InProgress or MatchStatus.Completed);
         if (isRoundStarting)
         {
-            round.UpdateStatus(RoundStatus.InProgress, _dateTimeProvider);
-            await _roundRepository.UpdateAsync(round, cancellationToken);
-            await _statsService.TakeRoundStartSnapshotsAsync(round.Id, cancellationToken);
+            round.UpdateStatus(RoundStatus.InProgress, dateTimeProvider);
+            await roundRepository.UpdateAsync(round, cancellationToken);
+            await statsService.TakeRoundStartSnapshotsAsync(round.Id, cancellationToken);
         }
 
-        await _roundRepository.UpdateMatchScoresAsync(matchesToUpdate, cancellationToken);
+        await roundRepository.UpdateMatchScoresAsync(matchesToUpdate, cancellationToken);
 
         var matchIds = matchesToUpdate.Select(m => m.Id).ToList();
       
-        var predictionsToUpdate = (await _userPredictionRepository.GetByMatchIdsAsync(matchIds, cancellationToken)).ToList();
+        var predictionsToUpdate = (await userPredictionRepository.GetByMatchIdsAsync(matchIds, cancellationToken)).ToList();
         if (predictionsToUpdate.Any())
         {
             foreach (var prediction in predictionsToUpdate)
@@ -93,27 +72,27 @@ public class UpdateMatchResultsCommandHandler : IRequestHandler<UpdateMatchResul
                 if (match == null)
                     continue;
 
-                prediction.SetOutcome(match.Status, match.ActualHomeTeamScore, match.ActualAwayTeamScore, _dateTimeProvider);
+                prediction.SetOutcome(match.Status, match.ActualHomeTeamScore, match.ActualAwayTeamScore, dateTimeProvider);
             }
         }
         
-        await _userPredictionRepository.UpdateOutcomesAsync(predictionsToUpdate, cancellationToken);
-        await _roundRepository.UpdateRoundResultsAsync(round.Id, cancellationToken);
-        await _leagueRepository.UpdateLeagueRoundResultsAsync(round.Id, cancellationToken);
-        await _boostService.ApplyRoundBoostsAsync(round.Id, cancellationToken);
+        await userPredictionRepository.UpdateOutcomesAsync(predictionsToUpdate, cancellationToken);
+        await roundRepository.UpdateRoundResultsAsync(round.Id, cancellationToken);
+        await leagueRepository.UpdateLeagueRoundResultsAsync(round.Id, cancellationToken);
+        await boostService.ApplyRoundBoostsAsync(round.Id, cancellationToken);
         
         var hasNewCompletedMatch = matchesToUpdate.Any(m => m.Status == MatchStatus.Completed && !completedMatchIdsBefore.Contains(m.Id));
         if (hasNewCompletedMatch)
-            await _statsService.UpdateStableStatsAsync(round.Id, cancellationToken);
+            await statsService.UpdateStableStatsAsync(round.Id, cancellationToken);
         
-        await _statsService.UpdateLiveStatsAsync(round.Id, cancellationToken);
+        await statsService.UpdateLiveStatsAsync(round.Id, cancellationToken);
       
         if (round.Matches.All(m => m.Status == MatchStatus.Completed))
         {
-            round.UpdateStatus(RoundStatus.Completed, _dateTimeProvider);
-            await _roundRepository.UpdateAsync(round, cancellationToken);
+            round.UpdateStatus(RoundStatus.Completed, dateTimeProvider);
+            await roundRepository.UpdateAsync(round, cancellationToken);
 
-            var leagueIds = await _leagueRepository.GetLeagueIdsForSeasonAsync(round.SeasonId, cancellationToken);
+            var leagueIds = await leagueRepository.GetLeagueIdsForSeasonAsync(round.SeasonId, cancellationToken);
 
             foreach (var leagueId in leagueIds)
             {
@@ -122,7 +101,7 @@ public class UpdateMatchResultsCommandHandler : IRequestHandler<UpdateMatchResul
                     RoundId = round.Id,
                     LeagueId = leagueId
                 };
-                await _mediator.Send(processPrizesCommand, cancellationToken);
+                await mediator.Send(processPrizesCommand, cancellationToken);
             }
         }
     }

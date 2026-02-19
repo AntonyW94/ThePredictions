@@ -12,15 +12,8 @@ namespace ThePredictions.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [SwaggerTag("Account - Manage user profile and settings")]
-public class AccountController : ApiControllerBase
+public class AccountController(IMediator mediator) : ApiControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public AccountController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     [HttpGet("details")]
     [SwaggerOperation(
         Summary = "Get current user's account details",
@@ -31,7 +24,7 @@ public class AccountController : ApiControllerBase
     public async Task<ActionResult<UserDetails>> GetUserDetailsAsync(CancellationToken cancellationToken)
     {
         var query = new GetUserQuery(CurrentUserId);
-        var userDetails = await _mediator.Send(query, cancellationToken);
+        var userDetails = await mediator.Send(query, cancellationToken);
 
         if (userDetails == null)
             return NotFound();
@@ -51,7 +44,7 @@ public class AccountController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var command = new UpdateUserDetailsCommand(CurrentUserId, request.FirstName, request.LastName, request.PhoneNumber);
-        await _mediator.Send(command, cancellationToken);
+        await mediator.Send(command, cancellationToken);
 
         return NoContent();
     }

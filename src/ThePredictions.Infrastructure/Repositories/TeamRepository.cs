@@ -6,15 +6,9 @@ using System.Data;
 
 namespace ThePredictions.Infrastructure.Repositories;
 
-public class TeamRepository : ITeamRepository
+public class TeamRepository(IDbConnectionFactory connectionFactory) : ITeamRepository
 {
-    private readonly IDbConnectionFactory _connectionFactory;
-    private IDbConnection Connection => _connectionFactory.CreateConnection();
-
-    public TeamRepository(IDbConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
+    private IDbConnection Connection => connectionFactory.CreateConnection();
 
     #region Create
 

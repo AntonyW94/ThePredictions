@@ -6,15 +6,9 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace ThePredictions.Application.Features.Dashboard.Queries;
 
-public class GetActiveRoundsQueryHandler : IRequestHandler<GetActiveRoundsQuery, IEnumerable<ActiveRoundDto>>
+public class GetActiveRoundsQueryHandler(IApplicationReadDbConnection dbConnection)
+    : IRequestHandler<GetActiveRoundsQuery, IEnumerable<ActiveRoundDto>>
 {
-    private readonly IApplicationReadDbConnection _dbConnection;
-
-    public GetActiveRoundsQueryHandler(IApplicationReadDbConnection dbConnection)
-    {
-        _dbConnection = dbConnection;
-    }
-
     public async Task<IEnumerable<ActiveRoundDto>> Handle(GetActiveRoundsQuery request, CancellationToken cancellationToken)
     {
         // Query 1: Get active rounds (upcoming + in-progress)
@@ -59,7 +53,7 @@ public class GetActiveRoundsQueryHandler : IRequestHandler<GetActiveRoundsQuery,
             ApprovedStatus = nameof(LeagueMemberStatus.Approved)
         };
 
-        var rounds = (await _dbConnection.QueryAsync<ActiveRoundQueryResult>(
+        var rounds = (await dbConnection.QueryAsync<ActiveRoundQueryResult>(
             roundsSql,
             cancellationToken,
             parameters))
@@ -88,7 +82,7 @@ public class GetActiveRoundsQueryHandler : IRequestHandler<GetActiveRoundsQuery,
             WHERE m.[RoundId] IN @RoundIds
             ORDER BY m.[RoundId], m.[MatchDateTimeUtc] ASC, ht.[ShortName] ASC";
 
-        var matches = await _dbConnection.QueryAsync<ActiveRoundMatchQueryResult>(
+        var matches = await dbConnection.QueryAsync<ActiveRoundMatchQueryResult>(
             matchesSql,
             cancellationToken,
             new { request.UserId, RoundIds = roundIds });

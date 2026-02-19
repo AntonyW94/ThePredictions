@@ -3,17 +3,11 @@ using ThePredictions.Application.Repositories;
 
 namespace ThePredictions.Application.Features.Admin.Users.Queries;
 
-public class UserOwnsLeaguesQueryHandler : IRequestHandler<UserOwnsLeaguesQuery, bool>
+public class UserOwnsLeaguesQueryHandler(ILeagueRepository leagueRepository)
+    : IRequestHandler<UserOwnsLeaguesQuery, bool>
 {
-    private readonly ILeagueRepository _leagueRepository;
-
-    public UserOwnsLeaguesQueryHandler(ILeagueRepository leagueRepository)
-    {
-        _leagueRepository = leagueRepository;
-    }
-
     public async Task<bool> Handle(UserOwnsLeaguesQuery request, CancellationToken cancellationToken)
     {
-        return (await _leagueRepository.GetLeaguesByAdministratorIdAsync(request.UserId, cancellationToken)).Any();
+        return (await leagueRepository.GetLeaguesByAdministratorIdAsync(request.UserId, cancellationToken)).Any();
     }
 }

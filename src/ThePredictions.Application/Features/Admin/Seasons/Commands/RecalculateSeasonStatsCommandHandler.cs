@@ -6,28 +6,15 @@ using ThePredictions.Domain.Common.Enumerations;
 
 namespace ThePredictions.Application.Features.Admin.Seasons.Commands;
 
-public class RecalculateSeasonStatsCommandHandler : IRequestHandler<RecalculateSeasonStatsCommand>
+public class RecalculateSeasonStatsCommandHandler(
+    IRoundRepository roundRepository,
+    ILeagueRepository leagueRepository,
+    IBoostService boostService,
+    IMediator mediator) : IRequestHandler<RecalculateSeasonStatsCommand>
 {
-    private readonly IRoundRepository _roundRepository;
-    private readonly ILeagueRepository _leagueRepository;
-    private readonly IBoostService _boostService;
-    private readonly IMediator _mediator;
-
-    public RecalculateSeasonStatsCommandHandler(
-        IRoundRepository roundRepository,
-        ILeagueRepository leagueRepository,
-        IBoostService boostService,
-        IMediator mediator)
-    {
-        _roundRepository = roundRepository;
-        _leagueRepository = leagueRepository;
-        _boostService = boostService;
-        _mediator = mediator;
-    }
-
     public async Task Handle(RecalculateSeasonStatsCommand request, CancellationToken cancellationToken)
     {
-        var rounds = (await _roundRepository.GetAllForSeasonAsync(request.SeasonId, cancellationToken)).Values.ToList();
+        var rounds = (await roundRepository.GetAllForSeasonAsync(request.SeasonId, cancellationToken)).Values.ToList();
 
         var completedRounds = rounds
             .Where(r => r.Status == RoundStatus.Completed)
@@ -36,11 +23,11 @@ public class RecalculateSeasonStatsCommandHandler : IRequestHandler<RecalculateS
 
         foreach (var round in completedRounds)
         {
-            await _roundRepository.UpdateRoundResultsAsync(round.Id, cancellationToken);
-            await _leagueRepository.UpdateLeagueRoundResultsAsync(round.Id, cancellationToken);
-            await _boostService.ApplyRoundBoostsAsync(round.Id, cancellationToken);
+            await roundRepository.UpdateRoundResultsAsync(round.Id, cancellationToken);
+            await leagueRepository.UpdateLeagueRoundResultsAsync(round.Id, cancellationToken);
+            await boostService.ApplyRoundBoostsAsync(round.Id, cancellationToken);
 
-            var leagueIds = await _leagueRepository.GetLeagueIdsForSeasonAsync(round.SeasonId, cancellationToken);
+            var leagueIds = await leagueRepository.GetLeagueIdsForSeasonAsync(round.SeasonId, cancellationToken);
 
             foreach (var leagueId in leagueIds)
             {
@@ -50,7 +37,7 @@ public class RecalculateSeasonStatsCommandHandler : IRequestHandler<RecalculateS
                     LeagueId = leagueId
                 };
 
-                await _mediator.Send(processPrizesCommand, cancellationToken);
+                await mediator.Send(processPrizesCommand, cancellationToken);
             }
         }
     }

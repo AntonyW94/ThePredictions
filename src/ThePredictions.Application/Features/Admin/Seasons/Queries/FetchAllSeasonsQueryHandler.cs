@@ -4,15 +4,9 @@ using ThePredictions.Contracts.Admin.Seasons;
 
 namespace ThePredictions.Application.Features.Admin.Seasons.Queries;
 
-public class FetchAllSeasonsQueryHandler : IRequestHandler<FetchAllSeasonsQuery, IEnumerable<SeasonDto>>
+public class FetchAllSeasonsQueryHandler(IApplicationReadDbConnection dbConnection)
+    : IRequestHandler<FetchAllSeasonsQuery, IEnumerable<SeasonDto>>
 {
-    private readonly IApplicationReadDbConnection _dbConnection;
-
-    public FetchAllSeasonsQueryHandler(IApplicationReadDbConnection dbConnection)
-    {
-        _dbConnection = dbConnection;
-    }
-
     public async Task<IEnumerable<SeasonDto>> Handle(FetchAllSeasonsQuery request, CancellationToken cancellationToken)
     {
         const string sql = @"
@@ -24,11 +18,11 @@ public class FetchAllSeasonsQueryHandler : IRequestHandler<FetchAllSeasonsQuery,
                 s.[IsActive],
                 s.[NumberOfRounds],
                 (SELECT COUNT(*) FROM [Rounds] r WHERE r.[SeasonId] = s.[Id]) as RoundCount
-            FROM 
+            FROM
                 [Seasons] s
-            ORDER BY 
+            ORDER BY
                 s.[StartDateUtc] DESC;";
 
-        return await _dbConnection.QueryAsync<SeasonDto>(sql, cancellationToken);
+        return await dbConnection.QueryAsync<SeasonDto>(sql, cancellationToken);
     }
 }

@@ -9,34 +9,17 @@ using ThePredictions.Domain.Models;
 
 namespace ThePredictions.Application.Features.Admin.Seasons.Commands;
 
-public class SyncSeasonWithApiCommandHandler : IRequestHandler<SyncSeasonWithApiCommand>
+public class SyncSeasonWithApiCommandHandler(
+    ISeasonRepository seasonRepository,
+    ITeamRepository teamRepository,
+    IRoundRepository roundRepository,
+    IFootballDataService footballDataService,
+    IMediator mediator,
+    ILogger<SyncSeasonWithApiCommandHandler> logger) : IRequestHandler<SyncSeasonWithApiCommand>
 {
-    private readonly ISeasonRepository _seasonRepository;
-    private readonly ITeamRepository _teamRepository;
-    private readonly IRoundRepository _roundRepository;
-    private readonly IFootballDataService _footballDataService;
-    private readonly IMediator _mediator;
-    private readonly ILogger<SyncSeasonWithApiCommandHandler> _logger;
-
-    public SyncSeasonWithApiCommandHandler(
-        ISeasonRepository seasonRepository,
-        ITeamRepository teamRepository,
-        IRoundRepository roundRepository,
-        IFootballDataService footballDataService,
-        IMediator mediator,
-        ILogger<SyncSeasonWithApiCommandHandler> logger)
-    {
-        _seasonRepository = seasonRepository;
-        _teamRepository = teamRepository;
-        _roundRepository = roundRepository;
-        _footballDataService = footballDataService;
-        _mediator = mediator;
-        _logger = logger;
-    }
-
     public async Task Handle(SyncSeasonWithApiCommand request, CancellationToken cancellationToken)
     {
-        var season = await _seasonRepository.GetByIdAsync(request.SeasonId, cancellationToken);
+        var season = await seasonRepository.GetByIdAsync(request.SeasonId, cancellationToken);
         Guard.Against.EntityNotFound(request.SeasonId, season, "Season");
 
         if (season.ApiLeagueId == null)
@@ -44,11 +27,11 @@ public class SyncSeasonWithApiCommandHandler : IRequestHandler<SyncSeasonWithApi
 
         // Phase 0: Load all data upfront
         var seasonYear = season.StartDateUtc.Year;
-        var apiRoundNames = (await _footballDataService.GetRoundsForSeasonAsync(season.ApiLeagueId.Value, seasonYear, cancellationToken)).ToList();
-        var apiFixtures = (await _footballDataService.GetAllFixturesForSeasonAsync(season.ApiLeagueId.Value, seasonYear, cancellationToken)).ToList();
-        var allRounds = await _roundRepository.GetAllForSeasonAsync(season.Id, cancellationToken);
+        var apiRoundNames = (await footballDataService.GetRoundsForSeasonAsync(season.ApiLeagueId.Value, seasonYear, cancellationToken)).ToList();
+        var apiFixtures = (await footballDataService.GetAllFixturesForSeasonAsync(season.ApiLeagueId.Value, seasonYear, cancellationToken)).ToList();
+        var allRounds = await roundRepository.GetAllForSeasonAsync(season.Id, cancellationToken);
         var allApiTeamIds = apiFixtures.Where(f => f.Teams?.Home != null && f.Teams?.Away != null).SelectMany(f => new[] { f.Teams!.Home.Id, f.Teams!.Away.Id }).Distinct();
-        var teamsByApiId = await _teamRepository.GetByApiIdsAsync(allApiTeamIds, cancellationToken);
+        var teamsByApiId = await teamRepository.GetByApiIdsAsync(allApiTeamIds, cancellationToken);
         var matchesByExternalId = new Dictionary<int, (Round Round, Match Match)>();
     
         foreach (var round in allRounds.Values)
@@ -148,7 +131,7 @@ public class SyncSeasonWithApiCommandHandler : IRequestHandler<SyncSeasonWithApi
                     earliestMatchDateUtc.AddMinutes(-30),
                     window.ApiRoundName);
 
-                round = await _roundRepository.CreateAsync(newRound, cancellationToken);
+                round = await roundRepository.CreateAsync(newRound, cancellationToken);
                 allRounds[round.Id] = round;
             }
 
@@ -188,20 +171,20 @@ public class SyncSeasonWithApiCommandHandler : IRequestHandler<SyncSeasonWithApi
                 }
             }
 
-            if (round.Matches.Any())
-            {
-                var earliestMatchDateUtc = round.Matches.Min(m => m.MatchDateTimeUtc);
-                if (earliestMatchDateUtc != round.StartDateUtc)
-                {
-                    round.UpdateDetails(
-                        round.RoundNumber,
-                        earliestMatchDateUtc,
-                        earliestMatchDateUtc.AddMinutes(-30),
-                        round.Status,
-                        round.ApiRoundName);
-                    allChangedRoundIds.Add(round.Id);
-                }
-            }
+            if (!round.Matches.Any())
+                continue;
+
+            var roundEarliestMatchDateUtc = round.Matches.Min(m => m.MatchDateTimeUtc);
+            if (roundEarliestMatchDateUtc == round.StartDateUtc)
+                continue;
+
+            round.UpdateDetails(
+                round.RoundNumber,
+                roundEarliestMatchDateUtc,
+                roundEarliestMatchDateUtc.AddMinutes(-30),
+                round.Status,
+                round.ApiRoundName);
+            allChangedRoundIds.Add(round.Id);
         }
 
         // Phase 5: Delete stale matches
@@ -219,7 +202,7 @@ public class SyncSeasonWithApiCommandHandler : IRequestHandler<SyncSeasonWithApi
 
         if (staleMatchIds.Any())
         {
-            var matchIdsWithPredictions = (await _roundRepository.GetMatchIdsWithPredictionsAsync(staleMatchIds, cancellationToken)).ToHashSet();
+            var matchIdsWithPredictions = (await roundRepository.GetMatchIdsWithPredictionsAsync(staleMatchIds, cancellationToken)).ToHashSet();
 
             foreach (var round in allRounds.Values)
             {
@@ -230,7 +213,7 @@ public class SyncSeasonWithApiCommandHandler : IRequestHandler<SyncSeasonWithApi
 
                     if (matchIdsWithPredictions.Contains(match.Id))
                     {
-                        _logger.LogWarning("Stale Match (ID: {MatchId}, ExternalId: {ExternalId}) has user predictions and cannot be deleted from Round (ID: {RoundId})", match.Id, match.ExternalId, round.Id);
+                        logger.LogWarning("Stale Match (ID: {MatchId}, ExternalId: {ExternalId}) has user predictions and cannot be deleted from Round (ID: {RoundId})", match.Id, match.ExternalId, round.Id);
                         continue;
                     }
 
@@ -252,7 +235,7 @@ public class SyncSeasonWithApiCommandHandler : IRequestHandler<SyncSeasonWithApi
                 }
             }
 
-            _logger.LogError("Match (ExternalId: {ExternalId}) could not be allocated to any round window. Match date (Value: {MatchDateTimeUtc})", fixture.ExternalId, fixture.MatchDateTimeUtc);
+            logger.LogError("Match (ExternalId: {ExternalId}) could not be allocated to any round window. Match date (Value: {MatchDateTimeUtc})", fixture.ExternalId, fixture.MatchDateTimeUtc);
         }
 
         // Phase 7: Persist all changes
@@ -260,28 +243,30 @@ public class SyncSeasonWithApiCommandHandler : IRequestHandler<SyncSeasonWithApi
         // round's UpdateAsync runs. This prevents source rounds from deleting moved matches.
         foreach (var (targetRoundId, matchIds) in movedMatchesByTargetRound)
         {
-            await _roundRepository.MoveMatchesToRoundAsync(matchIds, targetRoundId, cancellationToken);
+            await roundRepository.MoveMatchesToRoundAsync(matchIds, targetRoundId, cancellationToken);
         }
 
         foreach (var roundId in allChangedRoundIds)
         {
             if (allRounds.TryGetValue(roundId, out var round))
-                await _roundRepository.UpdateAsync(round, cancellationToken);
+                await roundRepository.UpdateAsync(round, cancellationToken);
         }
 
         // Phase 8: Publish/unpublish rounds based on updated start dates
-        await _mediator.Send(new PublishUpcomingRoundsCommand(), cancellationToken);
+        await mediator.Send(new PublishUpcomingRoundsCommand(), cancellationToken);
     }
 
     private static List<RoundWindow> CalculateRoundWindows(List<RoundFixtureSummary> sortedSummaries)
     {
-        if (sortedSummaries.Count == 0)
-            return [];
-
-        if (sortedSummaries.Count == 1)
+        switch (sortedSummaries.Count)
         {
-            var only = sortedSummaries[0];
-            return [new RoundWindow(only.ApiRoundName, only.RoundNumber, DateTime.MinValue, DateTime.MaxValue)];
+            case 0:
+                return [];
+            case 1:
+            {
+                var only = sortedSummaries[0];
+                return [new RoundWindow(only.ApiRoundName, only.RoundNumber, DateTime.MinValue, DateTime.MaxValue)];
+            }
         }
 
         // Calculate boundaries as midpoints between consecutive round medians.

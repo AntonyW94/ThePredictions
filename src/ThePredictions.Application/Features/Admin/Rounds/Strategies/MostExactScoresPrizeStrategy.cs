@@ -7,38 +7,25 @@ using ThePredictions.Domain.Models;
 
 namespace ThePredictions.Application.Features.Admin.Rounds.Strategies;
 
-public class MostExactScoresPrizeStrategy : IPrizeStrategy
+public class MostExactScoresPrizeStrategy(
+    IWinningsRepository winningsRepository,
+    IRoundRepository roundRepository,
+    ILeagueRepository leagueRepository,
+    IDateTimeProvider dateTimeProvider) : IPrizeStrategy
 {
-    private readonly IWinningsRepository _winningsRepository;
-    private readonly IRoundRepository _roundRepository;
-    private readonly ILeagueRepository _leagueRepository;
-    private readonly IDateTimeProvider _dateTimeProvider;
-
-    public MostExactScoresPrizeStrategy(
-        IWinningsRepository winningsRepository,
-        IRoundRepository roundRepository,
-        ILeagueRepository leagueRepository,
-        IDateTimeProvider dateTimeProvider)
-    {
-        _winningsRepository = winningsRepository;
-        _roundRepository = roundRepository;
-        _leagueRepository = leagueRepository;
-        _dateTimeProvider = dateTimeProvider;
-    }
-
     public PrizeType PrizeType => PrizeType.MostExactScores;
 
     public async Task AwardPrizes(ProcessPrizesCommand command, CancellationToken cancellationToken)
     {
-        var currentRound = await _roundRepository.GetByIdAsync(command.RoundId, cancellationToken);
+        var currentRound = await roundRepository.GetByIdAsync(command.RoundId, cancellationToken);
         if (currentRound == null)
             return;
 
-        var isLastRoundOfSeason = await _roundRepository.IsLastRoundOfSeasonAsync(currentRound.Id, currentRound.SeasonId, cancellationToken);
+        var isLastRoundOfSeason = await roundRepository.IsLastRoundOfSeasonAsync(currentRound.Id, currentRound.SeasonId, cancellationToken);
         if (!isLastRoundOfSeason)
             return;
 
-        var league = await _leagueRepository.GetByIdWithAllDataAsync(command.LeagueId, cancellationToken);
+        var league = await leagueRepository.GetByIdWithAllDataAsync(command.LeagueId, cancellationToken);
 
         var exactScoresPrize = league?.PrizeSettings.FirstOrDefault(p => p.PrizeType == PrizeType.MostExactScores);
         if (exactScoresPrize == null)
@@ -46,7 +33,7 @@ public class MostExactScoresPrizeStrategy : IPrizeStrategy
 
         if (league != null)
         {
-            await _winningsRepository.DeleteWinningsForMostExactScoresAsync(league.Id, cancellationToken);
+            await winningsRepository.DeleteWinningsForMostExactScoresAsync(league.Id, cancellationToken);
 
             var exactScoresWinners = league.GetMostExactScoresWinners();
             if (!exactScoresWinners.Any())
@@ -70,12 +57,12 @@ public class MostExactScoresPrizeStrategy : IPrizeStrategy
                     prizeAmount,
                     null,
                     null,
-                    _dateTimeProvider
+                    dateTimeProvider
                 );
                 allNewWinnings.Add(newWinning);
             }
 
-            await _winningsRepository.AddWinningsAsync(allNewWinnings, cancellationToken);
+            await winningsRepository.AddWinningsAsync(allNewWinnings, cancellationToken);
         }
     }
 }

@@ -3,18 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace ThePredictions.API.Controllers;
 
 [ApiController]
-public abstract class AuthControllerBase : ApiControllerBase
+public abstract class AuthControllerBase(IConfiguration configuration) : ApiControllerBase
 {
-    private readonly IConfiguration _configuration;
-
-    protected AuthControllerBase(IConfiguration configuration)
-    {
-        _configuration = configuration;
-    }
-
     protected void SetTokenCookie(string token)
     {
-        var expiryDays = double.Parse(_configuration["JwtSettings:RefreshTokenExpiryDays"]!);
+        var expiryDays = double.Parse(configuration["JwtSettings:RefreshTokenExpiryDays"]!);
 
         var cookieOptions = new CookieOptions
         {

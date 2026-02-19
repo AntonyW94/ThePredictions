@@ -6,15 +6,8 @@ using ThePredictions.Domain.Common.Enumerations;
 
 namespace ThePredictions.Application.Features.Leagues.Queries;
 
-public class GetLeagueDashboardQueryHandler : IRequestHandler<GetLeagueDashboardQuery, LeagueDashboardDto?>
+public class GetLeagueDashboardQueryHandler(IApplicationReadDbConnection dbConnection) : IRequestHandler<GetLeagueDashboardQuery, LeagueDashboardDto?>
 {
-    private readonly IApplicationReadDbConnection _dbConnection;
-
-    public GetLeagueDashboardQueryHandler(IApplicationReadDbConnection dbConnection)
-    {
-        _dbConnection = dbConnection;
-    }
-
     public async Task<LeagueDashboardDto?> Handle(GetLeagueDashboardQuery request, CancellationToken cancellationToken)
     {
         if (!request.IsAdmin)
@@ -23,7 +16,7 @@ public class GetLeagueDashboardQueryHandler : IRequestHandler<GetLeagueDashboard
                 SELECT COUNT(1) FROM [LeagueMembers] 
                 WHERE [LeagueId] = @LeagueId AND [UserId] = @UserId AND [Status] = @ApprovedStatus;";
 
-            var isMember = await _dbConnection.QuerySingleOrDefaultAsync<bool>(authSql, cancellationToken, new
+            var isMember = await dbConnection.QuerySingleOrDefaultAsync<bool>(authSql, cancellationToken, new
             {
                 request.LeagueId,
                 request.UserId,
@@ -34,7 +27,7 @@ public class GetLeagueDashboardQueryHandler : IRequestHandler<GetLeagueDashboard
                 return null;
         }
         
-        var leagueName = await _dbConnection.QuerySingleOrDefaultAsync<string>("SELECT [Name] FROM [Leagues] WHERE [Id] = @LeagueId", cancellationToken, new { request.LeagueId });
+        var leagueName = await dbConnection.QuerySingleOrDefaultAsync<string>("SELECT [Name] FROM [Leagues] WHERE [Id] = @LeagueId", cancellationToken, new { request.LeagueId });
         if (leagueName == null) 
             return null;
 
@@ -65,7 +58,7 @@ public class GetLeagueDashboardQueryHandler : IRequestHandler<GetLeagueDashboard
             InProgressStatus = nameof(RoundStatus.InProgress),
             CompletedStatus = nameof(RoundStatus.Completed)
         };
-        var rounds = await _dbConnection.QueryAsync<RoundDto>(roundsSql, cancellationToken, parameters);
+        var rounds = await dbConnection.QueryAsync<RoundDto>(roundsSql, cancellationToken, parameters);
 
         return new LeagueDashboardDto
         {

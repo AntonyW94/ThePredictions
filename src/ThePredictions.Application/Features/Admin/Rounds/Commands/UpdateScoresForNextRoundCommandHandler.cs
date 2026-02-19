@@ -6,25 +6,14 @@ using ThePredictions.Domain.Common.Enumerations;
 
 namespace ThePredictions.Application.Features.Admin.Rounds.Commands;
 
-public class UpdateScoresForNextRoundCommandHandler : IRequestHandler<UpdateScoresForNextRoundCommand>
+public class UpdateScoresForNextRoundCommandHandler(
+    IRoundRepository roundRepository,
+    IFootballDataService footballDataService,
+    IMediator mediator) : IRequestHandler<UpdateScoresForNextRoundCommand>
 {
-    private readonly IRoundRepository _roundRepository;
-    private readonly IFootballDataService _footballDataService;
-    private readonly IMediator _mediator;
-
-    public UpdateScoresForNextRoundCommandHandler(
-        IRoundRepository roundRepository,
-        IFootballDataService footballDataService,
-        IMediator mediator)
-    {
-        _roundRepository = roundRepository;
-        _footballDataService = footballDataService;
-        _mediator = mediator;
-    }
-
     public async Task Handle(UpdateScoresForNextRoundCommand request, CancellationToken cancellationToken)
     {
-        var activeRound = await _roundRepository.GetOldestInProgressRoundAsync(request.SeasonId, cancellationToken);
+        var activeRound = await roundRepository.GetOldestInProgressRoundAsync(request.SeasonId, cancellationToken);
         if (activeRound == null || !activeRound.Matches.Any())
             return;
 
@@ -43,7 +32,7 @@ public class UpdateScoresForNextRoundCommandHandler : IRequestHandler<UpdateScor
         if (!externalIds.Any())
             return;
 
-        var liveFixtures = (await _footballDataService.GetFixturesByIdsAsync(externalIds, cancellationToken)).ToList();
+        var liveFixtures = (await footballDataService.GetFixturesByIdsAsync(externalIds, cancellationToken)).ToList();
         if (!liveFixtures.Any()) 
             return;
 
@@ -61,7 +50,7 @@ public class UpdateScoresForNextRoundCommandHandler : IRequestHandler<UpdateScor
         if (matchResults.Any())
         {
             var updateCommand = new UpdateMatchResultsCommand(activeRound.Id, matchResults);
-            await _mediator.Send(updateCommand, cancellationToken);
+            await mediator.Send(updateCommand, cancellationToken);
         }
     }
 

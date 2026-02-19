@@ -8,29 +8,18 @@ using ThePredictions.Domain.Models;
 
 namespace ThePredictions.Application.Features.Leagues.Commands;
 
-public class DefinePrizeStructureCommandHandler : IRequestHandler<DefinePrizeStructureCommand>
+public class DefinePrizeStructureCommandHandler(ILeagueRepository leagueRepository, ISeasonRepository seasonRepository, IUserManager userManager) : IRequestHandler<DefinePrizeStructureCommand>
 {
-    private readonly ILeagueRepository _leagueRepository;
-    private readonly ISeasonRepository _seasonRepository;
-    private readonly IUserManager _userManager;
-
-    public DefinePrizeStructureCommandHandler(ILeagueRepository leagueRepository, ISeasonRepository seasonRepository, IUserManager userManager)
-    {
-        _leagueRepository = leagueRepository;
-        _seasonRepository = seasonRepository;
-        _userManager = userManager;
-    }
-
     public async Task Handle(DefinePrizeStructureCommand request, CancellationToken cancellationToken)
     {
-        var league = await _leagueRepository.GetByIdAsync(request.LeagueId, cancellationToken);
+        var league = await leagueRepository.GetByIdAsync(request.LeagueId, cancellationToken);
         Guard.Against.EntityNotFound(request.LeagueId, league, "League");
 
-        var season = await _seasonRepository.GetByIdAsync(league.SeasonId, cancellationToken);
+        var season = await seasonRepository.GetByIdAsync(league.SeasonId, cancellationToken);
         Guard.Against.EntityNotFound(league.SeasonId, season, "Season");
        
-        var definingUser = await _userManager.FindByIdAsync(request.DefiningUserId);
-        var isSiteAdmin = definingUser != null && await _userManager.IsInRoleAsync(definingUser, RoleNames.Administrator);
+        var definingUser = await userManager.FindByIdAsync(request.DefiningUserId);
+        var isSiteAdmin = definingUser != null && await userManager.IsInRoleAsync(definingUser, RoleNames.Administrator);
 
         if (league.AdministratorUserId != request.DefiningUserId && !isSiteAdmin)
             throw new UnauthorizedAccessException("Only the league administrator can define the prize structure.");
@@ -53,6 +42,6 @@ public class DefinePrizeStructureCommandHandler : IRequestHandler<DefinePrizeStr
 
         league.DefinePrizes(prizeSettings);
 
-        await _leagueRepository.UpdateAsync(league, cancellationToken);
+        await leagueRepository.UpdateAsync(league, cancellationToken);
     }
 }

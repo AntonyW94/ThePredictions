@@ -5,15 +5,9 @@ using ThePredictions.Domain.Common.Enumerations;
 
 namespace ThePredictions.Application.Features.Dashboard.Queries;
 
-public class GetMyLeaguesQueryHandler : IRequestHandler<GetMyLeaguesQuery, IEnumerable<MyLeagueDto>>
+public class GetMyLeaguesQueryHandler(IApplicationReadDbConnection dbConnection)
+    : IRequestHandler<GetMyLeaguesQuery, IEnumerable<MyLeagueDto>>
 {
-    private readonly IApplicationReadDbConnection _dbConnection;
-
-    public GetMyLeaguesQueryHandler(IApplicationReadDbConnection dbConnection)
-    {
-        _dbConnection = dbConnection;
-    }
-
     public async Task<IEnumerable<MyLeagueDto>> Handle(GetMyLeaguesQuery request, CancellationToken cancellationToken)
     {
         const string sql = @"
@@ -146,7 +140,7 @@ public class GetMyLeaguesQueryHandler : IRequestHandler<GetMyLeaguesQuery, IEnum
             l.[Price] DESC,
             l.[LeagueName]";
 
-        return await _dbConnection.QueryAsync<MyLeagueDto>(
+        return await dbConnection.QueryAsync<MyLeagueDto>(
             sql, 
             cancellationToken, 
             new

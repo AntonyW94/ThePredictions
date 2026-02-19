@@ -998,11 +998,11 @@ public class LeagueManagementTests
         var member1 = new LeagueMember(leagueId: 1, userId: "user-1",
             status: LeagueMemberStatus.Approved, isAlertDismissed: false,
             joinedAtUtc: _dateTimeProvider.UtcNow, approvedAtUtc: _dateTimeProvider.UtcNow,
-            roundResults: new[] { roundResult1 });
+            roundResults: [roundResult1]);
         var member2 = new LeagueMember(leagueId: 1, userId: "user-2",
             status: LeagueMemberStatus.Approved, isAlertDismissed: false,
             joinedAtUtc: _dateTimeProvider.UtcNow, approvedAtUtc: _dateTimeProvider.UtcNow,
-            roundResults: new[] { roundResult2 });
+            roundResults: [roundResult2]);
 
         var league = new League(
             id: 1, name: "Test League", seasonId: 1,
@@ -1012,7 +1012,7 @@ public class LeagueManagementTests
             pointsForExactScore: 3, pointsForCorrectResult: 1,
             price: 0, isFree: true, hasPrizes: false,
             prizeFundOverride: null,
-            members: new[] { member1, member2 }, prizeSettings: null);
+            members: [member1, member2], prizeSettings: null);
 
         // Act
         var result = league.GetMostExactScoresWinners();
@@ -1033,11 +1033,11 @@ public class LeagueManagementTests
         var member1 = new LeagueMember(leagueId: 1, userId: "user-1",
             status: LeagueMemberStatus.Approved, isAlertDismissed: false,
             joinedAtUtc: _dateTimeProvider.UtcNow, approvedAtUtc: _dateTimeProvider.UtcNow,
-            roundResults: new[] { roundResult1 });
+            roundResults: [roundResult1]);
         var member2 = new LeagueMember(leagueId: 1, userId: "user-2",
             status: LeagueMemberStatus.Approved, isAlertDismissed: false,
             joinedAtUtc: _dateTimeProvider.UtcNow, approvedAtUtc: _dateTimeProvider.UtcNow,
-            roundResults: new[] { roundResult2 });
+            roundResults: [roundResult2]);
 
         var league = new League(
             id: 1, name: "Test League", seasonId: 1,
@@ -1047,7 +1047,7 @@ public class LeagueManagementTests
             pointsForExactScore: 3, pointsForCorrectResult: 1,
             price: 0, isFree: true, hasPrizes: false,
             prizeFundOverride: null,
-            members: new[] { member1, member2 }, prizeSettings: null);
+            members: [member1, member2], prizeSettings: null);
 
         // Act
         var result = league.GetMostExactScoresWinners();
@@ -1069,11 +1069,11 @@ public class LeagueManagementTests
         var member1 = new LeagueMember(leagueId: 1, userId: "user-1",
             status: LeagueMemberStatus.Approved, isAlertDismissed: false,
             joinedAtUtc: _dateTimeProvider.UtcNow, approvedAtUtc: _dateTimeProvider.UtcNow,
-            roundResults: new[] { roundResult1 });
+            roundResults: [roundResult1]);
         var member2 = new LeagueMember(leagueId: 1, userId: "user-2",
             status: LeagueMemberStatus.Approved, isAlertDismissed: false,
             joinedAtUtc: _dateTimeProvider.UtcNow, approvedAtUtc: _dateTimeProvider.UtcNow,
-            roundResults: new[] { roundResult2 });
+            roundResults: [roundResult2]);
 
         var league = new League(
             id: 1, name: "Test League", seasonId: 1,
@@ -1083,7 +1083,7 @@ public class LeagueManagementTests
             pointsForExactScore: 3, pointsForCorrectResult: 1,
             price: 0, isFree: true, hasPrizes: false,
             prizeFundOverride: null,
-            members: new[] { member1, member2 }, prizeSettings: null);
+            members: [member1, member2], prizeSettings: null);
 
         // Act
         var result = league.GetMostExactScoresWinners();
@@ -1107,11 +1107,11 @@ public class LeagueManagementTests
         var member1 = new LeagueMember(leagueId: 1, userId: "user-1",
             status: LeagueMemberStatus.Approved, isAlertDismissed: false,
             joinedAtUtc: _dateTimeProvider.UtcNow, approvedAtUtc: _dateTimeProvider.UtcNow,
-            roundResults: new[] { round1Result, round2Result });
+            roundResults: [round1Result, round2Result]);
         var member2 = new LeagueMember(leagueId: 1, userId: "user-2",
             status: LeagueMemberStatus.Approved, isAlertDismissed: false,
             joinedAtUtc: _dateTimeProvider.UtcNow, approvedAtUtc: _dateTimeProvider.UtcNow,
-            roundResults: new[] { otherResult });
+            roundResults: [otherResult]);
 
         var league = new League(
             id: 1, name: "Test League", seasonId: 1,
@@ -1121,7 +1121,7 @@ public class LeagueManagementTests
             pointsForExactScore: 3, pointsForCorrectResult: 1,
             price: 0, isFree: true, hasPrizes: false,
             prizeFundOverride: null,
-            members: new[] { member1, member2 }, prizeSettings: null);
+            members: [member1, member2], prizeSettings: null);
 
         // Act
         var result = league.GetMostExactScoresWinners();
@@ -1150,7 +1150,7 @@ public class LeagueManagementTests
             pointsForExactScore: 3, pointsForCorrectResult: 1,
             price: 10, isFree: false, hasPrizes: true,
             prizeFundOverride: null,
-            members: null, prizeSettings: new[] { prizeSetting });
+            members: null, prizeSettings: [prizeSetting]);
 
         // Assert
         league.PrizeSettings.Should().HaveCount(1);

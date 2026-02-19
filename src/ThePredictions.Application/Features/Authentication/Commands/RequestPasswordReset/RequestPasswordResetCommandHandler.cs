@@ -10,58 +10,44 @@ using ThePredictions.Domain.Models;
 
 namespace ThePredictions.Application.Features.Authentication.Commands.RequestPasswordReset;
 
-public class RequestPasswordResetCommandHandler : IRequestHandler<RequestPasswordResetCommand, Unit>
+public class RequestPasswordResetCommandHandler(
+    IUserManager userManager,
+    IPasswordResetTokenRepository tokenRepository,
+    IEmailService emailService,
+    IOptions<BrevoSettings> brevoSettings,
+    IDateTimeProvider dateTimeProvider,
+    ILogger<RequestPasswordResetCommandHandler> logger)
+    : IRequestHandler<RequestPasswordResetCommand, Unit>
 {
     private const int MaxRequestsPerHour = 3;
 
-    private readonly IUserManager _userManager;
-    private readonly IPasswordResetTokenRepository _tokenRepository;
-    private readonly IEmailService _emailService;
-    private readonly BrevoSettings _brevoSettings;
-    private readonly IDateTimeProvider _dateTimeProvider;
-    private readonly ILogger<RequestPasswordResetCommandHandler> _logger;
-
-    public RequestPasswordResetCommandHandler(
-        IUserManager userManager,
-        IPasswordResetTokenRepository tokenRepository,
-        IEmailService emailService,
-        IOptions<BrevoSettings> brevoSettings,
-        IDateTimeProvider dateTimeProvider,
-        ILogger<RequestPasswordResetCommandHandler> logger)
-    {
-        _userManager = userManager;
-        _tokenRepository = tokenRepository;
-        _emailService = emailService;
-        _brevoSettings = brevoSettings.Value;
-        _dateTimeProvider = dateTimeProvider;
-        _logger = logger;
-    }
+    private readonly BrevoSettings _brevoSettings = brevoSettings.Value;
 
     public async Task<Unit> Handle(RequestPasswordResetCommand request, CancellationToken cancellationToken)
     {
-        var user = await _userManager.FindByEmailAsync(request.Email);
+        var user = await userManager.FindByEmailAsync(request.Email);
 
         if (user == null)
         {
             // Security: Don't reveal that email doesn't exist
-            _logger.LogInformation("Password reset requested for non-existent email: {Email}", request.Email);
+            logger.LogInformation("Password reset requested for non-existent email: {Email}", request.Email);
             return Unit.Value;
         }
 
         // Check rate limit (3 requests per hour per user)
-        var recentRequestCount = await _tokenRepository.CountByUserIdSinceAsync(
+        var recentRequestCount = await tokenRepository.CountByUserIdSinceAsync(
             user.Id,
-            _dateTimeProvider.UtcNow.AddHours(-1),
+            dateTimeProvider.UtcNow.AddHours(-1),
             cancellationToken);
 
         if (recentRequestCount >= MaxRequestsPerHour)
         {
             // Rate limited - still return success to prevent enumeration
-            _logger.LogWarning("Password reset rate limit exceeded for User (ID: {UserId})", user.Id);
+            logger.LogWarning("Password reset rate limit exceeded for User (ID: {UserId})", user.Id);
             return Unit.Value;
         }
 
-        var hasPassword = await _userManager.HasPasswordAsync(user);
+        var hasPassword = await userManager.HasPasswordAsync(user);
 
         if (hasPassword)
         {
@@ -82,8 +68,8 @@ public class RequestPasswordResetCommandHandler : IRequestHandler<RequestPasswor
     {
         // Create and store the token
         var tokenString = GenerateUrlSafeToken();
-        var resetToken = PasswordResetToken.Create(tokenString, user.Id, _dateTimeProvider);
-        await _tokenRepository.CreateAsync(resetToken, cancellationToken);
+        var resetToken = PasswordResetToken.Create(tokenString, user.Id, dateTimeProvider);
+        await tokenRepository.CreateAsync(resetToken, cancellationToken);
 
         // Build the reset link (no email in URL for security)
         var resetLink = $"{resetUrlBase}?token={resetToken.Token}";
@@ -91,7 +77,7 @@ public class RequestPasswordResetCommandHandler : IRequestHandler<RequestPasswor
         var templateId = _brevoSettings.Templates?.PasswordReset
             ?? throw new InvalidOperationException("PasswordReset email template ID is not configured");
 
-        await _emailService.SendTemplatedEmailAsync(
+        await emailService.SendTemplatedEmailAsync(
             user.Email!,
             templateId,
             new
@@ -100,7 +86,7 @@ public class RequestPasswordResetCommandHandler : IRequestHandler<RequestPasswor
                 resetLink
             });
 
-        _logger.LogInformation("Password reset email sent to User (ID: {UserId})", user.Id);
+        logger.LogInformation("Password reset email sent to User (ID: {UserId})", user.Id);
     }
 
     private async Task SendGoogleUserEmailAsync(
@@ -114,7 +100,7 @@ public class RequestPasswordResetCommandHandler : IRequestHandler<RequestPasswor
         var templateId = _brevoSettings.Templates?.PasswordResetGoogleUser
             ?? throw new InvalidOperationException("PasswordResetGoogleUser email template ID is not configured");
 
-        await _emailService.SendTemplatedEmailAsync(
+        await emailService.SendTemplatedEmailAsync(
             user.Email!,
             templateId,
             new
@@ -123,7 +109,7 @@ public class RequestPasswordResetCommandHandler : IRequestHandler<RequestPasswor
                 loginLink
             });
 
-        _logger.LogInformation("Google sign-in reminder email sent to User (ID: {UserId})", user.Id);
+        logger.LogInformation("Google sign-in reminder email sent to User (ID: {UserId})", user.Id);
     }
 
     private static string GenerateUrlSafeToken()

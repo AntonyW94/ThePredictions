@@ -4,15 +4,8 @@ using ThePredictions.Contracts.Account;
 
 namespace ThePredictions.Application.Features.Account.Queries;
 
-public class GetUserQueryHandler : IRequestHandler<GetUserQuery, UserDetails?>
+public class GetUserQueryHandler(IApplicationReadDbConnection dbConnection) : IRequestHandler<GetUserQuery, UserDetails?>
 {
-    private readonly IApplicationReadDbConnection _dbConnection;
-
-    public GetUserQueryHandler(IApplicationReadDbConnection dbConnection)
-    {
-        _dbConnection = dbConnection;
-    }
-
     public async Task<UserDetails?> Handle(GetUserQuery request, CancellationToken cancellationToken)
     {
         const string sql = @"
@@ -24,6 +17,6 @@ public class GetUserQueryHandler : IRequestHandler<GetUserQuery, UserDetails?>
             FROM [AspNetUsers]
             WHERE [Id] = @UserId;";
 
-        return await _dbConnection.QuerySingleOrDefaultAsync<UserDetails>(sql, cancellationToken, new { request.UserId });
+        return await dbConnection.QuerySingleOrDefaultAsync<UserDetails>(sql, cancellationToken, new { request.UserId });
     }
 }

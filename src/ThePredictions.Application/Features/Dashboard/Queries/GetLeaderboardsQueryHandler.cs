@@ -6,15 +6,9 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace ThePredictions.Application.Features.Dashboard.Queries;
 
-public class GetLeaderboardsQueryHandler : IRequestHandler<GetLeaderboardsQuery, IEnumerable<LeagueLeaderboardDto>>
+public class GetLeaderboardsQueryHandler(IApplicationReadDbConnection connection)
+    : IRequestHandler<GetLeaderboardsQuery, IEnumerable<LeagueLeaderboardDto>>
 {
-    private readonly IApplicationReadDbConnection _connection;
-
-    public GetLeaderboardsQueryHandler(IApplicationReadDbConnection connection)
-    {
-        _connection = connection;
-    }
-
     public async Task<IEnumerable<LeagueLeaderboardDto>> Handle(GetLeaderboardsQuery request, CancellationToken cancellationToken)
     {
         const string sql = @"
@@ -86,7 +80,7 @@ public class GetLeaderboardsQueryHandler : IRequestHandler<GetLeaderboardsQuery,
                 alr.[Rank],
                 alr.[PlayerName];";
 
-        var flatResults = await _connection.QueryAsync<FlatLeaderboardEntry>(
+        var flatResults = await connection.QueryAsync<FlatLeaderboardEntry>(
             sql,
             cancellationToken,
             new

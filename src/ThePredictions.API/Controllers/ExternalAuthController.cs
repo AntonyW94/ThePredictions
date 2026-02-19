@@ -15,17 +15,8 @@ namespace ThePredictions.API.Controllers;
 [Route("external-auth")]
 [EnableRateLimiting("auth")]
 [SwaggerTag("Authentication - OAuth login with Google")]
-public class ExternalAuthController : AuthControllerBase
+public class ExternalAuthController(ILogger<ExternalAuthController> logger, IMediator mediator, IConfiguration configuration) : AuthControllerBase(configuration)
 {
-    private readonly ILogger<ExternalAuthController> _logger;
-    private readonly IMediator _mediator;
-
-    public ExternalAuthController(ILogger<ExternalAuthController> logger, IMediator mediator, IConfiguration configuration) : base(configuration)
-    {
-        _logger = logger;
-        _mediator = mediator;
-    }
-
     [HttpGet("google-login")]
     [AllowAnonymous]
     [SwaggerOperation(
@@ -36,7 +27,7 @@ public class ExternalAuthController : AuthControllerBase
         [FromQuery, SwaggerParameter("URL to redirect to after authentication completes")] string returnUrl,
         [FromQuery, SwaggerParameter("Source page for error redirects")] string source)
     {
-        _logger.LogInformation("Called google-login");
+        logger.LogInformation("Called google-login");
 
         // Validate and sanitise redirect URLs to prevent open redirect attacks
         var safeReturnUrl = GetSafeLocalPath(returnUrl, "/");
@@ -65,7 +56,7 @@ public class ExternalAuthController : AuthControllerBase
     [SwaggerResponse(400, "OAuth authentication failed")]
     public async Task<IActionResult> GoogleCallbackAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Called signin-google");
+        logger.LogInformation("Called signin-google");
 
         var authenticateResult = await HttpContext.AuthenticateAsync(IdentityConstants.ExternalScheme);
         var returnUrl = authenticateResult.Properties?.Items["returnUrl"] ?? "/";
@@ -76,16 +67,16 @@ public class ExternalAuthController : AuthControllerBase
         var safeSource = GetSafeLocalPath(source, "/login");
 
         if (safeReturnUrl != returnUrl)
-            _logger.LogWarning("Invalid returnUrl detected in callback: {ReturnUrl}", returnUrl);
+            logger.LogWarning("Invalid returnUrl detected in callback: {ReturnUrl}", returnUrl);
 
         if (safeSource != source)
-            _logger.LogWarning("Invalid source detected in callback: {Source}", source);
+            logger.LogWarning("Invalid source detected in callback: {Source}", source);
 
         returnUrl = safeReturnUrl;
         source = safeSource;
 
         var command = new LoginWithGoogleCommand(authenticateResult, source);
-        var result = await _mediator.Send(command, cancellationToken);
+        var result = await mediator.Send(command, cancellationToken);
 
         switch (result)
         {
@@ -97,7 +88,7 @@ public class ExternalAuthController : AuthControllerBase
                 return RedirectWithError(failure.Source, failure.Message);
 
             default:
-                _logger.LogError("Google Login result was ERROR");
+                logger.LogError("Google Login result was ERROR");
                 return RedirectWithError(source, "An unknown authentication error occurred.");
         }
     }
@@ -125,7 +116,7 @@ public class ExternalAuthController : AuthControllerBase
             var urlHost = NormaliseHost(uri.Host);
             if (!string.Equals(urlHost, requestHost, StringComparison.OrdinalIgnoreCase))
             {
-                _logger.LogWarning("Rejected external redirect URL: {Url}", url);
+                logger.LogWarning("Rejected external redirect URL: {Url}", url);
                 return fallback;
             }
 

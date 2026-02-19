@@ -8,22 +8,13 @@ using System.Globalization;
 
 namespace ThePredictions.Application.Features.Leagues.Queries;
 
-public class GetWinningsQueryHandler : IRequestHandler<GetWinningsQuery, WinningsDto>
+public class GetWinningsQueryHandler(
+    IApplicationReadDbConnection dbConnection,
+    ILeagueMembershipService membershipService) : IRequestHandler<GetWinningsQuery, WinningsDto>
 {
-    private readonly IApplicationReadDbConnection _dbConnection;
-    private readonly ILeagueMembershipService _membershipService;
-
-    public GetWinningsQueryHandler(
-        IApplicationReadDbConnection dbConnection,
-        ILeagueMembershipService membershipService)
-    {
-        _dbConnection = dbConnection;
-        _membershipService = membershipService;
-    }
-
     public async Task<WinningsDto> Handle(GetWinningsQuery request, CancellationToken cancellationToken)
     {
-        await _membershipService.EnsureApprovedMemberAsync(request.LeagueId, request.CurrentUserId, cancellationToken);
+        await membershipService.EnsureApprovedMemberAsync(request.LeagueId, request.CurrentUserId, cancellationToken);
 
         var leagueData = await GetLeagueDataAsync(request.LeagueId, cancellationToken);
         if (leagueData == null)
@@ -205,7 +196,7 @@ public class GetWinningsQueryHandler : IRequestHandler<GetWinningsQuery, Winning
             WHERE 
                 l.[Id] = @leagueId;";
 
-        var leagueData = await _dbConnection.QuerySingleOrDefaultAsync<LeagueData>(leagueDataSql, token, new { leagueId, ApprovedStatus = nameof(LeagueMemberStatus.Approved) });
+        var leagueData = await dbConnection.QuerySingleOrDefaultAsync<LeagueData>(leagueDataSql, token, new { leagueId, ApprovedStatus = nameof(LeagueMemberStatus.Approved) });
         if (leagueData == null) 
             return null;
 
@@ -220,7 +211,7 @@ public class GetWinningsQueryHandler : IRequestHandler<GetWinningsQuery, Winning
             WHERE 
                 [LeagueId] = @leagueId;";
 
-        leagueData.PrizeSettings = (await _dbConnection.QueryAsync<PrizeSettingQueryResult>(prizeSettingsSql, token, new { leagueId })).ToList();
+        leagueData.PrizeSettings = (await dbConnection.QueryAsync<PrizeSettingQueryResult>(prizeSettingsSql, token, new { leagueId })).ToList();
 
         const string winningsSql = @"
             SELECT 
@@ -241,7 +232,7 @@ public class GetWinningsQueryHandler : IRequestHandler<GetWinningsQuery, Winning
             WHERE 
                 lps.[LeagueId] = @leagueId;";
 
-        leagueData.Winnings = (await _dbConnection.QueryAsync<WinningsQueryResult>(winningsSql, token, new { leagueId })).ToList();
+        leagueData.Winnings = (await dbConnection.QueryAsync<WinningsQueryResult>(winningsSql, token, new { leagueId })).ToList();
 
         const string membersSql = @"
             SELECT
@@ -255,7 +246,7 @@ public class GetWinningsQueryHandler : IRequestHandler<GetWinningsQuery, Winning
                 lm.[LeagueId] = @leagueId
                 AND lm.[Status] = @ApprovedStatus";
 
-        leagueData.LeagueMembers = (await _dbConnection.QueryAsync<LeagueMemberQueryResult>(membersSql, token, new { leagueId, ApprovedStatus = nameof(LeagueMemberStatus.Approved) })).ToList();
+        leagueData.LeagueMembers = (await dbConnection.QueryAsync<LeagueMemberQueryResult>(membersSql, token, new { leagueId, ApprovedStatus = nameof(LeagueMemberStatus.Approved) })).ToList();
 
         return leagueData;
     }

@@ -13,7 +13,7 @@ public class JoinLeagueRequestValidator : AbstractValidator<JoinLeagueRequest>
         RuleFor(x => x.EntryCode)
             .NotEmpty().WithMessage("Please enter an entry code.")
             .Length(6).WithMessage("The entry code must be 6 characters long.")
-            .Matches(@"^[A-Z0-9]{6}$", RegexOptions.IgnoreCase)
+            .Matches("^[A-Z0-9]{6}$", RegexOptions.IgnoreCase)
                 .WithMessage("Entry code must contain only letters and numbers.");
     }
 }

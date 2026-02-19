@@ -3,18 +3,12 @@ using ThePredictions.Application.Repositories;
 
 namespace ThePredictions.Application.Features.Authentication.Commands.Logout;
 
-public class LogoutCommandHandler : IRequestHandler<LogoutCommand>
+public class LogoutCommandHandler(IRefreshTokenRepository refreshTokenRepository)
+    : IRequestHandler<LogoutCommand>
 {
-    private readonly IRefreshTokenRepository _refreshTokenRepository;
-
-    public LogoutCommandHandler(IRefreshTokenRepository refreshTokenRepository)
-    {
-        _refreshTokenRepository = refreshTokenRepository;
-    }
-
     public async Task Handle(LogoutCommand request, CancellationToken cancellationToken)
     {
-        await _refreshTokenRepository.RevokeAllForUserAsync(request.UserId, cancellationToken);
+        await refreshTokenRepository.RevokeAllForUserAsync(request.UserId, cancellationToken);
     }
 }
 

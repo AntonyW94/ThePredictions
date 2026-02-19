@@ -3,24 +3,15 @@ using ThePredictions.Application.Repositories;
 
 namespace ThePredictions.Application.Features.Admin.Seasons.Commands;
 
-public class SyncAllActiveSeasonsCommandHandler : IRequestHandler<SyncAllActiveSeasonsCommand>
+public class SyncAllActiveSeasonsCommandHandler(ISeasonRepository seasonRepository, IMediator mediator) : IRequestHandler<SyncAllActiveSeasonsCommand>
 {
-    private readonly ISeasonRepository _seasonRepository;
-    private readonly IMediator _mediator;
-
-    public SyncAllActiveSeasonsCommandHandler(ISeasonRepository seasonRepository, IMediator mediator)
-    {
-        _seasonRepository = seasonRepository;
-        _mediator = mediator;
-    }
-
     public async Task Handle(SyncAllActiveSeasonsCommand request, CancellationToken cancellationToken)
     {
-        var activeSeasons = await _seasonRepository.GetActiveSeasonsAsync(cancellationToken);
+        var activeSeasons = await seasonRepository.GetActiveSeasonsAsync(cancellationToken);
 
         foreach (var season in activeSeasons)
         {
-            await _mediator.Send(new SyncSeasonWithApiCommand(season.Id), cancellationToken);
+            await mediator.Send(new SyncSeasonWithApiCommand(season.Id), cancellationToken);
         }
     }
 }

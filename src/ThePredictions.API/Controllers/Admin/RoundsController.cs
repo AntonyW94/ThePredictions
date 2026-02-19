@@ -14,15 +14,8 @@ namespace ThePredictions.API.Controllers.Admin;
 [ApiController]
 [Route("api/admin/[controller]")]
 [SwaggerTag("Admin: Rounds - Manage gameweeks and matches (Admin only)")]
-public class RoundsController : ApiControllerBase
+public class RoundsController(IMediator mediator) : ApiControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public RoundsController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     #region Create
 
     [HttpPost("create")]
@@ -46,7 +39,7 @@ public class RoundsController : ApiControllerBase
             request.Matches
         );
 
-        var newRound = await _mediator.Send(command, cancellationToken);
+        var newRound = await mediator.Send(command, cancellationToken);
 
         return CreatedAtAction("GetRoundById", new { roundId = newRound.Id }, newRound);
     }
@@ -67,7 +60,7 @@ public class RoundsController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var query = new FetchRoundsForSeasonQuery(seasonId);
-        return Ok(await _mediator.Send(query, cancellationToken));
+        return Ok(await mediator.Send(query, cancellationToken));
     }
 
     [HttpGet("{roundId:int}")]
@@ -83,7 +76,7 @@ public class RoundsController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var query = new GetRoundByIdQuery(roundId);
-        var roundDetails = await _mediator.Send(query, cancellationToken);
+        var roundDetails = await mediator.Send(query, cancellationToken);
 
         if (roundDetails == null)
             return NotFound();
@@ -118,7 +111,7 @@ public class RoundsController : ApiControllerBase
             request.Status,
             request.Matches);
 
-        await _mediator.Send(command, cancellationToken);
+        await mediator.Send(command, cancellationToken);
 
         return NoContent();
     }
@@ -138,7 +131,7 @@ public class RoundsController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var command = new UpdateMatchResultsCommand(roundId, matches);
-        await _mediator.Send(command, cancellationToken);
+        await mediator.Send(command, cancellationToken);
 
         return NoContent();
     }

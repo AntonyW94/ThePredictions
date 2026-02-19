@@ -7,34 +7,21 @@ using ThePredictions.Domain.Models;
 
 namespace ThePredictions.Application.Features.Admin.Rounds.Strategies;
 
-public class RoundPrizeStrategy : IPrizeStrategy
+public class RoundPrizeStrategy(
+    IWinningsRepository winningsRepository,
+    IRoundRepository roundRepository,
+    ILeagueRepository leagueRepository,
+    IDateTimeProvider dateTimeProvider) : IPrizeStrategy
 {
-    private readonly IWinningsRepository _winningsRepository;
-    private readonly IRoundRepository _roundRepository;
-    private readonly ILeagueRepository _leagueRepository;
-    private readonly IDateTimeProvider _dateTimeProvider;
-
-    public RoundPrizeStrategy(
-        IWinningsRepository winningsRepository,
-        IRoundRepository roundRepository,
-        ILeagueRepository leagueRepository,
-        IDateTimeProvider dateTimeProvider)
-    {
-        _winningsRepository = winningsRepository;
-        _roundRepository = roundRepository;
-        _leagueRepository = leagueRepository;
-        _dateTimeProvider = dateTimeProvider;
-    }
-
     public PrizeType PrizeType => PrizeType.Round;
 
     public async Task AwardPrizes(ProcessPrizesCommand command, CancellationToken cancellationToken)
     {
-        var round = await _roundRepository.GetByIdAsync(command.RoundId, cancellationToken);
+        var round = await roundRepository.GetByIdAsync(command.RoundId, cancellationToken);
         if (round == null)
             return;
         
-        var league = await _leagueRepository.GetByIdWithAllDataAsync(command.LeagueId, cancellationToken);
+        var league = await leagueRepository.GetByIdWithAllDataAsync(command.LeagueId, cancellationToken);
 
         var roundPrize = league?.PrizeSettings.FirstOrDefault(p => p.PrizeType == PrizeType.Round);
         if (roundPrize == null)
@@ -42,7 +29,7 @@ public class RoundPrizeStrategy : IPrizeStrategy
 
         if (league != null)
         {
-            await _winningsRepository.DeleteWinningsForRoundAsync(league.Id, round.RoundNumber, cancellationToken);
+            await winningsRepository.DeleteWinningsForRoundAsync(league.Id, round.RoundNumber, cancellationToken);
 
             var roundWinners = league.GetRoundWinners(round.Id);
             if (!roundWinners.Any())
@@ -66,13 +53,13 @@ public class RoundPrizeStrategy : IPrizeStrategy
                     prizeAmount,
                     round.RoundNumber,
                     null,
-                    _dateTimeProvider
+                    dateTimeProvider
                 );
                 allNewWinnings.Add(newWinning);
             }
 
 
-            await _winningsRepository.AddWinningsAsync(allNewWinnings, cancellationToken);
+            await winningsRepository.AddWinningsAsync(allNewWinnings, cancellationToken);
         }
     }
 }

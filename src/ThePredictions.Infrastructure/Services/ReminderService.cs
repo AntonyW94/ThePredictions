@@ -6,15 +6,8 @@ using ThePredictions.Domain.Models;
 
 namespace ThePredictions.Infrastructure.Services;
 
-public class ReminderService : IReminderService
+public class ReminderService(IApplicationReadDbConnection dbConnection) : IReminderService
 {
-    private readonly IApplicationReadDbConnection _dbConnection;
-
-    public ReminderService(IApplicationReadDbConnection dbConnection)
-    {
-        _dbConnection = dbConnection;
-    }
-
     public Task<bool> ShouldSendReminderAsync(Round round, DateTime nowUtc)
     {
         var deadline = round.DeadlineUtc;
@@ -64,6 +57,6 @@ public class ReminderService : IReminderService
                     WHERE m.[RoundId] = r.[Id] AND up.[UserId] = u.[Id]
               );";
 
-        return (await _dbConnection.QueryAsync<ChaseUserDto>(sql, cancellationToken, new { RoundId = roundId, ApprovedStatus = nameof(LeagueMemberStatus.Approved) })).ToList();
+        return (await dbConnection.QueryAsync<ChaseUserDto>(sql, cancellationToken, new { RoundId = roundId, ApprovedStatus = nameof(LeagueMemberStatus.Approved) })).ToList();
     }
 }

@@ -5,26 +5,18 @@ using ThePredictions.Contracts.Boosts;
 
 namespace ThePredictions.Application.Features.Boosts.Queries;
 
-public class GetAvailableBoostsQueryHandler : IRequestHandler<GetAvailableBoostsQuery, List<BoostOptionDto>>
+public class GetAvailableBoostsQueryHandler(IBoostReadRepository boostReadRepository, IBoostService boostService)
+    : IRequestHandler<GetAvailableBoostsQuery, List<BoostOptionDto>>
 {
-    private readonly IBoostReadRepository _boostReadRepository;
-    private readonly IBoostService _boostService;
-
-    public GetAvailableBoostsQueryHandler(IBoostReadRepository boostReadRepository, IBoostService boostService)
-    {
-        _boostReadRepository = boostReadRepository;
-        _boostService = boostService;
-    }
-
     public async Task<List<BoostOptionDto>> Handle(GetAvailableBoostsQuery request, CancellationToken cancellationToken)
     {
-        var boostDefinitions = (await _boostReadRepository.GetBoostDefinitionsForLeagueAsync(request.LeagueId, cancellationToken)).ToList();
+        var boostDefinitions = (await boostReadRepository.GetBoostDefinitionsForLeagueAsync(request.LeagueId, cancellationToken)).ToList();
         if (boostDefinitions.Count == 0)
             return new List<BoostOptionDto>();
 
         var tasks = boostDefinitions.Select(async d =>
         {
-            var boostEligibility = await _boostService.GetEligibilityAsync(request.UserId, request.LeagueId, request.RoundId, d.BoostCode, cancellationToken);
+            var boostEligibility = await boostService.GetEligibilityAsync(request.UserId, request.LeagueId, request.RoundId, d.BoostCode, cancellationToken);
        
             return new BoostOptionDto
             {

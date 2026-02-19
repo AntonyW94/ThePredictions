@@ -94,7 +94,7 @@ public class FootballDataService : IFootballDataService
         var endpoint = $"leagues?id={apiLeagueId}&season={seasonYear}";
         var wrapper = await _httpClient.GetFromJsonAsync<LeagueDetailsResponseWrapper>(endpoint, cancellationToken);
 
-        var season = wrapper?.Response?.FirstOrDefault()?.Seasons?.FirstOrDefault();
+        var season = wrapper?.Response.FirstOrDefault()?.Seasons.FirstOrDefault();
         if (season == null)
         {
             _logger.LogWarning("Football API returned null season details for League (ID: {ApiLeagueId}), Season {SeasonYear}",

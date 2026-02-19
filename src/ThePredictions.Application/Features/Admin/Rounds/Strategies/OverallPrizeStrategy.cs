@@ -7,38 +7,25 @@ using ThePredictions.Domain.Models;
 
 namespace ThePredictions.Application.Features.Admin.Rounds.Strategies;
 
-public class OverallPrizeStrategy : IPrizeStrategy
+public class OverallPrizeStrategy(
+    IWinningsRepository winningsRepository,
+    IRoundRepository roundRepository,
+    ILeagueRepository leagueRepository,
+    IDateTimeProvider dateTimeProvider) : IPrizeStrategy
 {
-    private readonly IWinningsRepository _winningsRepository;
-    private readonly IRoundRepository _roundRepository;
-    private readonly ILeagueRepository _leagueRepository;
-    private readonly IDateTimeProvider _dateTimeProvider;
-
-    public OverallPrizeStrategy(
-        IWinningsRepository winningsRepository,
-        IRoundRepository roundRepository,
-        ILeagueRepository leagueRepository,
-        IDateTimeProvider dateTimeProvider)
-    {
-        _winningsRepository = winningsRepository;
-        _roundRepository = roundRepository;
-        _leagueRepository = leagueRepository;
-        _dateTimeProvider = dateTimeProvider;
-    }
-
     public PrizeType PrizeType => PrizeType.Overall;
 
     public async Task AwardPrizes(ProcessPrizesCommand command, CancellationToken cancellationToken)
     {
-        var currentRound = await _roundRepository.GetByIdAsync(command.RoundId, cancellationToken);
+        var currentRound = await roundRepository.GetByIdAsync(command.RoundId, cancellationToken);
         if (currentRound == null)
             return;
 
-        var isLastRoundOfSeason = await _roundRepository.IsLastRoundOfSeasonAsync(currentRound.Id, currentRound.SeasonId, cancellationToken);
+        var isLastRoundOfSeason = await roundRepository.IsLastRoundOfSeasonAsync(currentRound.Id, currentRound.SeasonId, cancellationToken);
         if (!isLastRoundOfSeason)
             return;
 
-        var league = await _leagueRepository.GetByIdWithAllDataAsync(command.LeagueId, cancellationToken);
+        var league = await leagueRepository.GetByIdWithAllDataAsync(command.LeagueId, cancellationToken);
         if (league == null)
             return;
 
@@ -49,7 +36,7 @@ public class OverallPrizeStrategy : IPrizeStrategy
 
         if (!overallPrizeSettings.Any()) return;
 
-        await _winningsRepository.DeleteWinningsForOverallAsync(league.Id, cancellationToken);
+        await winningsRepository.DeleteWinningsForOverallAsync(league.Id, cancellationToken);
 
         var overallRankings = league.GetOverallRankings();
         if (!overallRankings.Any())
@@ -81,13 +68,13 @@ public class OverallPrizeStrategy : IPrizeStrategy
                     prizeAmount,
                     null,
                     null,
-                    _dateTimeProvider
+                    dateTimeProvider
                 );
                 allNewWinnings.Add(newWinning);
             }
         }
 
         if (allNewWinnings.Any())
-            await _winningsRepository.AddWinningsAsync(allNewWinnings, cancellationToken);
+            await winningsRepository.AddWinningsAsync(allNewWinnings, cancellationToken);
     }
 }

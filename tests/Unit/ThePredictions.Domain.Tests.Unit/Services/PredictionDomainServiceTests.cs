@@ -104,7 +104,7 @@ public class PredictionDomainServiceTests
         var result = _sut.SubmitPredictions(round, "user-1", scores).ToList();
 
         // Assert
-        result.Select(p => p.MatchId).Should().BeEquivalentTo(new[] { 10, 20, 30 });
+        result.Select(p => p.MatchId).Should().BeEquivalentTo([10, 20, 30]);
     }
 
     [Fact]

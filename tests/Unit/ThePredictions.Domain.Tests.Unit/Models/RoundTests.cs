@@ -495,7 +495,7 @@ public class RoundTests
         var round = new Round(id: 5, seasonId: 1, roundNumber: 1,
             startDateUtc: ValidStartDate, deadlineUtc: ValidDeadline,
             status: RoundStatus.Draft, apiRoundName: null,
-            lastReminderSentUtc: null, matches: new[] { match });
+            lastReminderSentUtc: null, matches: [match]);
 
         // Act — try to accept the same match again
         var duplicateMatch = new Match(id: 10, roundId: 2, homeTeamId: 3, awayTeamId: 4,
@@ -548,7 +548,7 @@ public class RoundTests
         var round = new Round(id: 1, seasonId: 1, roundNumber: 1,
             startDateUtc: ValidStartDate, deadlineUtc: ValidDeadline,
             status: RoundStatus.Draft, apiRoundName: null, lastReminderSentUtc: null,
-            matches: new[] { match });
+            matches: [match]);
 
         // Act
         round.RemoveMatch(10);
@@ -568,7 +568,7 @@ public class RoundTests
         var round = new Round(id: 1, seasonId: 1, roundNumber: 1,
             startDateUtc: ValidStartDate, deadlineUtc: ValidDeadline,
             status: RoundStatus.Draft, apiRoundName: null, lastReminderSentUtc: null,
-            matches: new[] { match });
+            matches: [match]);
 
         // Act
         round.RemoveMatch(999);
@@ -592,7 +592,7 @@ public class RoundTests
         var round = new Round(id: 1, seasonId: 1, roundNumber: 1,
             startDateUtc: ValidStartDate, deadlineUtc: ValidDeadline,
             status: RoundStatus.Draft, apiRoundName: null, lastReminderSentUtc: null,
-            matches: new[] { match1, match2 });
+            matches: [match1, match2]);
 
         // Act
         round.RemoveMatch(10);

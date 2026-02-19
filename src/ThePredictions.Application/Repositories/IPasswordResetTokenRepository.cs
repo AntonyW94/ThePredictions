@@ -1,7 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
 using ThePredictions.Domain.Models;
 
 namespace ThePredictions.Application.Repositories;
 
+[SuppressMessage("ReSharper", "UnusedParameter.Global")]
 public interface IPasswordResetTokenRepository
 {
     #region Create

@@ -6,15 +6,8 @@ using ThePredictions.Domain.Common.Constants;
 
 namespace ThePredictions.Application.Features.Leagues.Queries;
 
-public class GetCreateLeaguePageDataQueryHandler : IRequestHandler<GetCreateLeaguePageDataQuery, CreateLeaguePageData>
+public class GetCreateLeaguePageDataQueryHandler(IApplicationReadDbConnection dbConnection) : IRequestHandler<GetCreateLeaguePageDataQuery, CreateLeaguePageData>
 {
-    private readonly IApplicationReadDbConnection _dbConnection;
-
-    public GetCreateLeaguePageDataQueryHandler(IApplicationReadDbConnection dbConnection)
-    {
-        _dbConnection = dbConnection;
-    }
-
     public async Task<CreateLeaguePageData> Handle(GetCreateLeaguePageDataQuery request, CancellationToken cancellationToken)
     {
         const string sql = @"
@@ -26,7 +19,7 @@ public class GetCreateLeaguePageDataQueryHandler : IRequestHandler<GetCreateLeag
             WHERE s.[IsActive] = 1
             ORDER BY s.[StartDateUtc] DESC;";
 
-        var seasons = await _dbConnection.QueryAsync<SeasonLookupDto>(sql, cancellationToken);
+        var seasons = await dbConnection.QueryAsync<SeasonLookupDto>(sql, cancellationToken);
 
         return new CreateLeaguePageData
         {

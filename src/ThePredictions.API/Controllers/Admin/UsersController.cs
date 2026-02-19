@@ -13,15 +13,8 @@ namespace ThePredictions.API.Controllers.Admin;
 [ApiController]
 [Route("api/admin/[controller]")]
 [SwaggerTag("Admin: Users - Manage user accounts and roles (Admin only)")]
-public class UsersController : ApiControllerBase
+public class UsersController(IMediator mediator) : ApiControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public UsersController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     #region Read
 
     [HttpGet]
@@ -34,7 +27,7 @@ public class UsersController : ApiControllerBase
     public async Task<ActionResult<IEnumerable<UserDto>>> GetAllAsync(CancellationToken cancellationToken)
     {
         var query = new GetAllUsersQuery();
-        return Ok(await _mediator.Send(query, cancellationToken));
+        return Ok(await mediator.Send(query, cancellationToken));
     }
 
     [HttpGet("{userId}/owns-leagues")]
@@ -49,7 +42,7 @@ public class UsersController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var query = new UserOwnsLeaguesQuery(userId);
-        return Ok(await _mediator.Send(query, cancellationToken));
+        return Ok(await mediator.Send(query, cancellationToken));
     }
 
     #endregion
@@ -70,7 +63,7 @@ public class UsersController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var command = new UpdateUserRoleCommand(userId, request.NewRole);
-        await _mediator.Send(command, cancellationToken);
+        await mediator.Send(command, cancellationToken);
         return NoContent();
     }
 
@@ -98,7 +91,7 @@ public class UsersController : ApiControllerBase
             request.NewAdministratorId
         );
 
-        await _mediator.Send(command, cancellationToken);
+        await mediator.Send(command, cancellationToken);
         return NoContent();
     }
 

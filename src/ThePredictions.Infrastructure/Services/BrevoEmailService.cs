@@ -8,16 +8,9 @@ using ThePredictions.Application.Services;
 
 namespace ThePredictions.Infrastructure.Services;
 
-public class BrevoEmailService : IEmailService
+public class BrevoEmailService(IOptions<BrevoSettings> settings, ILogger<BrevoEmailService> logger) : IEmailService
 {
-    private readonly ILogger<BrevoEmailService> _logger;
-    private readonly BrevoSettings _settings;
-
-    public BrevoEmailService(IOptions<BrevoSettings> settings, ILogger<BrevoEmailService> logger)
-    {
-        _settings = settings.Value;
-        _logger = logger;
-    }
+    private readonly BrevoSettings _settings = settings.Value;
 
     public async System.Threading.Tasks.Task SendTemplatedEmailAsync(string to, long templateId, object parameters)
     {
@@ -66,11 +59,11 @@ public class BrevoEmailService : IEmailService
             var apiInstance = GetApiInstance();
 
             var result = await apiInstance.SendTransacEmailAsync(sendSmtpEmail);
-            _logger.LogInformation("Successfully sent email to {Email} with message ID {MessageId}", string.Join(", ", sendSmtpEmail.To.Select(t => t.Email)), result?.MessageId ?? "UNKNOWN");
+            logger.LogInformation("Successfully sent email to {Email} with message ID {MessageId}", string.Join(", ", sendSmtpEmail.To.Select(t => t.Email)), result?.MessageId ?? "UNKNOWN");
         }
         catch (ApiException e)
         {
-            _logger.LogError(e, "Failed to send email via Brevo. Status Code: {StatusCode}, Body: {Body}", e.ErrorCode, e.Message);
+            logger.LogError(e, "Failed to send email via Brevo. Status Code: {StatusCode}, Body: {Body}", e.ErrorCode, e.Message);
         }
     }
 }

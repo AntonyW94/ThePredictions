@@ -6,15 +6,9 @@ using System.Data;
 
 namespace ThePredictions.Infrastructure.Repositories;
 
-public class UserPredictionRepository : IUserPredictionRepository
+public class UserPredictionRepository(IDbConnectionFactory connectionFactory) : IUserPredictionRepository
 {
-    private readonly IDbConnectionFactory _connectionFactory;
-    private IDbConnection Connection => _connectionFactory.CreateConnection();
-
-    public UserPredictionRepository(IDbConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
+    private IDbConnection Connection => connectionFactory.CreateConnection();
 
     #region Create
 

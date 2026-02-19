@@ -6,24 +6,16 @@ using ThePredictions.Domain.Models;
 
 namespace ThePredictions.Application.Features.Admin.Teams.Commands;
 
-public class CreateTeamCommandHandler : IRequestHandler<CreateTeamCommand, TeamDto>
+public class CreateTeamCommandHandler(ITeamRepository teamRepository, ICurrentUserService currentUserService)
+    : IRequestHandler<CreateTeamCommand, TeamDto>
 {
-    private readonly ITeamRepository _teamRepository;
-    private readonly ICurrentUserService _currentUserService;
-
-    public CreateTeamCommandHandler(ITeamRepository teamRepository, ICurrentUserService currentUserService)
-    {
-        _teamRepository = teamRepository;
-        _currentUserService = currentUserService;
-    }
-
     public async Task<TeamDto> Handle(CreateTeamCommand request, CancellationToken cancellationToken)
     {
-        _currentUserService.EnsureAdministrator();
+        currentUserService.EnsureAdministrator();
 
         var team = Team.Create(request.Name, request.ShortName, request.LogoUrl, request.Abbreviation, request.ApiTeamId);
 
-        var createdTeam = await _teamRepository.CreateAsync(team, cancellationToken);
+        var createdTeam = await teamRepository.CreateAsync(team, cancellationToken);
         return new TeamDto(createdTeam.Id, createdTeam.Name, request.ShortName, createdTeam.LogoUrl, request.Abbreviation, request.ApiTeamId);
     }
 }

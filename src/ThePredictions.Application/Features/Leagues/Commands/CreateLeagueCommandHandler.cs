@@ -8,22 +8,11 @@ using ThePredictions.Domain.Models;
 
 namespace ThePredictions.Application.Features.Leagues.Commands;
 
-public class CreateLeagueCommandHandler : IRequestHandler<CreateLeagueCommand, LeagueDto>
+public class CreateLeagueCommandHandler(ILeagueRepository leagueRepository, ISeasonRepository seasonRepository, IDateTimeProvider dateTimeProvider) : IRequestHandler<CreateLeagueCommand, LeagueDto>
 {
-    private readonly ILeagueRepository _leagueRepository;
-    private readonly ISeasonRepository _seasonRepository;
-    private readonly IDateTimeProvider _dateTimeProvider;
-
-    public CreateLeagueCommandHandler(ILeagueRepository leagueRepository, ISeasonRepository seasonRepository, IDateTimeProvider dateTimeProvider)
-    {
-        _leagueRepository = leagueRepository;
-        _seasonRepository = seasonRepository;
-        _dateTimeProvider = dateTimeProvider;
-    }
-
     public async Task<LeagueDto> Handle(CreateLeagueCommand request, CancellationToken cancellationToken)
     {
-        var season = await _seasonRepository.GetByIdAsync(request.SeasonId, cancellationToken);
+        var season = await seasonRepository.GetByIdAsync(request.SeasonId, cancellationToken);
         Guard.Against.EntityNotFound(request.SeasonId, season, "Season");
 
         var league = League.Create(
@@ -35,18 +24,18 @@ public class CreateLeagueCommandHandler : IRequestHandler<CreateLeagueCommand, L
              request.PointsForCorrectResult,
              request.Price,
              season,
-             _dateTimeProvider
+             dateTimeProvider
          );
 
         string entryCode;
         do
         {
             entryCode = GenerateRandomEntryCode();
-        } while (await _leagueRepository.GetByEntryCodeAsync(entryCode, cancellationToken) != null);
+        } while (await leagueRepository.GetByEntryCodeAsync(entryCode, cancellationToken) != null);
 
         league.SetEntryCode(entryCode);
 
-        var createdLeague = await _leagueRepository.CreateAsync(league, cancellationToken);
+        var createdLeague = await leagueRepository.CreateAsync(league, cancellationToken);
 
         return new LeagueDto(
             createdLeague.Id,

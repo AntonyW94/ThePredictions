@@ -8,27 +8,17 @@ using ThePredictions.Domain.Common.Guards;
 
 namespace ThePredictions.Application.Features.Admin.Seasons.Commands;
 
-public class UpdateSeasonCommandHandler : IRequestHandler<UpdateSeasonCommand>
+public class UpdateSeasonCommandHandler(
+    ISeasonRepository seasonRepository,
+    IFootballDataService footballDataService,
+    ICurrentUserService currentUserService) : IRequestHandler<UpdateSeasonCommand>
 {
-    private readonly ISeasonRepository _seasonRepository;
-    private readonly IFootballDataService _footballDataService;
-    private readonly ICurrentUserService _currentUserService;
-
-    public UpdateSeasonCommandHandler(
-        ISeasonRepository seasonRepository,
-        IFootballDataService footballDataService,
-        ICurrentUserService currentUserService)
-    {
-        _seasonRepository = seasonRepository;
-        _footballDataService = footballDataService;
-        _currentUserService = currentUserService;
-    }
 
     public async Task Handle(UpdateSeasonCommand request, CancellationToken cancellationToken)
     {
-        _currentUserService.EnsureAdministrator();
+        currentUserService.EnsureAdministrator();
 
-        var season = await _seasonRepository.GetByIdAsync(request.Id, cancellationToken);
+        var season = await seasonRepository.GetByIdAsync(request.Id, cancellationToken);
         Guard.Against.EntityNotFound(request.Id, season, "Season");
        
         await ValidateSeasonAgainstApiAsync(request, cancellationToken);
@@ -42,7 +32,7 @@ public class UpdateSeasonCommandHandler : IRequestHandler<UpdateSeasonCommand>
             request.ApiLeagueId
         );
 
-        await _seasonRepository.UpdateAsync(season, cancellationToken);
+        await seasonRepository.UpdateAsync(season, cancellationToken);
     }
 
     private async Task ValidateSeasonAgainstApiAsync(UpdateSeasonCommand request, CancellationToken cancellationToken)
@@ -55,7 +45,7 @@ public class UpdateSeasonCommandHandler : IRequestHandler<UpdateSeasonCommand>
 
         try
         {
-            var apiSeason = await _footballDataService.GetLeagueSeasonDetailsAsync(request.ApiLeagueId.Value, seasonYear, cancellationToken);
+            var apiSeason = await footballDataService.GetLeagueSeasonDetailsAsync(request.ApiLeagueId.Value, seasonYear, cancellationToken);
             if (apiSeason == null)
                 throw new ValidationException($"The API returned no season data for League ID {request.ApiLeagueId.Value} and Year {seasonYear}. Please verify the details.");
             
@@ -65,7 +55,7 @@ public class UpdateSeasonCommandHandler : IRequestHandler<UpdateSeasonCommand>
             if (request.EndDateUtc.Date != apiSeason.End.Date)
                 validationFailures.Add(new ValidationFailure(nameof(request.EndDateUtc), $"The End Date does not match the API. Expected: {apiSeason.End:yyyy-MM-dd}, but you entered: {request.EndDateUtc:yyyy-MM-dd}."));
             
-            var apiRoundNames = (await _footballDataService.GetRoundsForSeasonAsync(request.ApiLeagueId.Value, seasonYear, cancellationToken)).ToList();
+            var apiRoundNames = (await footballDataService.GetRoundsForSeasonAsync(request.ApiLeagueId.Value, seasonYear, cancellationToken)).ToList();
             if (request.NumberOfRounds != apiRoundNames.Count)
                 validationFailures.Add(new ValidationFailure(nameof(request.NumberOfRounds), $"The Number of Rounds does not match the API. Expected: {apiRoundNames.Count}, but you entered: {request.NumberOfRounds}."));
         }

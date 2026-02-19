@@ -660,7 +660,7 @@ public class BoostEligibilityEvaluatorTests
 
     private static List<BoostWindowSnapshot> CreateWindows(int start, int end, int maxUses) =>
     [
-        new BoostWindowSnapshot
+        new()
         {
             StartRoundNumber = start,
             EndRoundNumber = end,

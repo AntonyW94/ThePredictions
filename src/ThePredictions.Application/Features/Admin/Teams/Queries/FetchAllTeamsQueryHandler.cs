@@ -4,15 +4,9 @@ using ThePredictions.Contracts.Admin.Teams;
 
 namespace ThePredictions.Application.Features.Admin.Teams.Queries;
 
-public class FetchAllTeamsQueryHandler : IRequestHandler<FetchAllTeamsQuery, IEnumerable<TeamDto>>
+public class FetchAllTeamsQueryHandler(IApplicationReadDbConnection dbConnection)
+    : IRequestHandler<FetchAllTeamsQuery, IEnumerable<TeamDto>>
 {
-    private readonly IApplicationReadDbConnection _dbConnection;
-
-    public FetchAllTeamsQueryHandler(IApplicationReadDbConnection dbConnection)
-    {
-        _dbConnection = dbConnection;
-    }
-
     public async Task<IEnumerable<TeamDto>> Handle(FetchAllTeamsQuery request, CancellationToken cancellationToken)
     {
         const string sql = @"
@@ -26,6 +20,6 @@ public class FetchAllTeamsQueryHandler : IRequestHandler<FetchAllTeamsQuery, IEn
             FROM [Teams]
             ORDER BY [Name] ASC";
 
-        return await _dbConnection.QueryAsync<TeamDto>(sql, cancellationToken);
+        return await dbConnection.QueryAsync<TeamDto>(sql, cancellationToken);
     }
 }

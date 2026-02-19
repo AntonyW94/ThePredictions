@@ -6,21 +6,8 @@ using ThePredictions.Domain.Services.Boosts;
 
 namespace ThePredictions.Infrastructure.Services;
 
-public sealed class BoostService : IBoostService
+public sealed class BoostService(IBoostReadRepository boostReadRepository, IBoostWriteRepository boostWriteRepository, ILeagueRepository leagueRepository, IDateTimeProvider dateTimeProvider) : IBoostService
 {
-    private readonly IBoostReadRepository _boostReadRepository;
-    private readonly IBoostWriteRepository _boostWriteRepository;
-    private readonly ILeagueRepository _leagueRepository;
-    private readonly IDateTimeProvider _dateTimeProvider;
-
-    public BoostService(IBoostReadRepository boostReadRepository, IBoostWriteRepository boostWriteRepository, ILeagueRepository leagueRepository, IDateTimeProvider dateTimeProvider)
-    {
-        _boostReadRepository = boostReadRepository;
-        _boostWriteRepository = boostWriteRepository;
-        _leagueRepository = leagueRepository;
-        _dateTimeProvider = dateTimeProvider;
-    }
-
     public async Task<BoostEligibilityDto> GetEligibilityAsync(
         string userId,
         int leagueId,
@@ -28,10 +15,10 @@ public sealed class BoostService : IBoostService
         string boostCode,
         CancellationToken cancellationToken)
     {
-        var (seasonId, roundNumber, deadlineUtc) = await _boostReadRepository.GetRoundInfoAsync(roundId, cancellationToken);
+        var (seasonId, roundNumber, deadlineUtc) = await boostReadRepository.GetRoundInfoAsync(roundId, cancellationToken);
 
         // Check deadline first - cannot apply boost after round deadline has passed
-        if (deadlineUtc < _dateTimeProvider.UtcNow)
+        if (deadlineUtc < dateTimeProvider.UtcNow)
         {
             return new BoostEligibilityDto
             {
@@ -46,10 +33,10 @@ public sealed class BoostService : IBoostService
             };
         }
 
-        var leagueSeasonId = await _boostReadRepository.GetLeagueSeasonIdAsync(leagueId, cancellationToken);
+        var leagueSeasonId = await boostReadRepository.GetLeagueSeasonIdAsync(leagueId, cancellationToken);
         var isRoundInLeagueSeason = leagueSeasonId == seasonId;
-        var isUserMember = await _boostReadRepository.IsUserMemberOfLeagueAsync(userId, leagueId, cancellationToken);
-        var ruleSnapshot = await _boostReadRepository.GetLeagueBoostRuleAsync(leagueId, boostCode, cancellationToken);
+        var isUserMember = await boostReadRepository.IsUserMemberOfLeagueAsync(userId, leagueId, cancellationToken);
+        var ruleSnapshot = await boostReadRepository.GetLeagueBoostRuleAsync(leagueId, boostCode, cancellationToken);
 
         if (ruleSnapshot is null)
         {
@@ -66,7 +53,7 @@ public sealed class BoostService : IBoostService
             };
         }
 
-        var usageSnapshot = await _boostReadRepository.GetUserBoostUsageSnapshotAsync(
+        var usageSnapshot = await boostReadRepository.GetUserBoostUsageSnapshotAsync(
             userId,
             leagueId,
             seasonId,
@@ -116,9 +103,9 @@ public sealed class BoostService : IBoostService
             };
         }
 
-        var (seasonId, _, _) = await _boostReadRepository.GetRoundInfoAsync(roundId, cancellationToken);
+        var (seasonId, _, _) = await boostReadRepository.GetRoundInfoAsync(roundId, cancellationToken);
 
-        var (inserted, error) = await _boostWriteRepository.InsertUserBoostUsageAsync(
+        var (inserted, error) = await boostWriteRepository.InsertUserBoostUsageAsync(
             userId,
             leagueId,
             seasonId,
@@ -157,7 +144,7 @@ public sealed class BoostService : IBoostService
 
     public async Task<bool> DeleteUserBoostUsageAsync(string userId, int leagueId, int roundId, CancellationToken cancellationToken)
     {
-        return await _boostWriteRepository.DeleteUserBoostUsageAsync(userId, leagueId, roundId, cancellationToken);
+        return await boostWriteRepository.DeleteUserBoostUsageAsync(userId, leagueId, roundId, cancellationToken);
     }
 
     private static (bool IsRoundInActiveWindow, int? NextWindowStartRound) ComputeWindowStatus(
@@ -183,12 +170,12 @@ public sealed class BoostService : IBoostService
 
     public async Task ApplyRoundBoostsAsync(int roundId, CancellationToken cancellationToken)
     {
-        var leagueResults = (await _leagueRepository.GetLeagueRoundResultsAsync(roundId, cancellationToken)).ToList();
+        var leagueResults = (await leagueRepository.GetLeagueRoundResultsAsync(roundId, cancellationToken)).ToList();
 
         if (!leagueResults.Any())
             return;
 
-        var boosts = await _boostReadRepository.GetBoostsForRoundAsync(roundId, cancellationToken);
+        var boosts = await boostReadRepository.GetBoostsForRoundAsync(roundId, cancellationToken);
 
         var boostLookup = boosts.ToDictionary(
             b => (b.LeagueId, b.UserId),
@@ -214,6 +201,6 @@ public sealed class BoostService : IBoostService
         }
 
         if (updates.Any())
-            await _leagueRepository.UpdateLeagueRoundBoostsAsync(updates, cancellationToken);
+            await leagueRepository.UpdateLeagueRoundBoostsAsync(updates, cancellationToken);
     }
 }

@@ -4,10 +4,10 @@ namespace ThePredictions.Domain.Models;
 
 public class PasswordResetToken
 {
-    public string Token { get; private set; } = string.Empty;
-    public string UserId { get; private set; } = string.Empty;
+    public string Token { get; private set; }
+    public string UserId { get; private set; }
     public DateTime CreatedAtUtc { get; private set; }
-    public DateTime ExpiresAtUtc { get; private set; }
+    public DateTime ExpiresAtUtc { get; }
 
     /// <summary>
     /// Public constructor for loading from database (Dapper).

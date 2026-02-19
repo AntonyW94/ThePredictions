@@ -6,26 +6,18 @@ using ThePredictions.Domain.Common.Guards;
 
 namespace ThePredictions.Application.Features.Admin.Teams.Commands;
 
-public class UpdateTeamCommandHandler : IRequestHandler<UpdateTeamCommand>
+public class UpdateTeamCommandHandler(ITeamRepository teamRepository, ICurrentUserService currentUserService)
+    : IRequestHandler<UpdateTeamCommand>
 {
-    private readonly ITeamRepository _teamRepository;
-    private readonly ICurrentUserService _currentUserService;
-
-    public UpdateTeamCommandHandler(ITeamRepository teamRepository, ICurrentUserService currentUserService)
-    {
-        _teamRepository = teamRepository;
-        _currentUserService = currentUserService;
-    }
-
     public async Task Handle(UpdateTeamCommand request, CancellationToken cancellationToken)
     {
-        _currentUserService.EnsureAdministrator();
+        currentUserService.EnsureAdministrator();
 
-        var team = await _teamRepository.GetByIdAsync(request.Id, cancellationToken);
+        var team = await teamRepository.GetByIdAsync(request.Id, cancellationToken);
         Guard.Against.EntityNotFound(request.Id, team, "Team");
 
         team.UpdateDetails(request.Name, request.ShortName, request.LogoUrl, request.Abbreviation, request.ApiTeamId);
 
-        await _teamRepository.UpdateAsync(team, cancellationToken);
+        await teamRepository.UpdateAsync(team, cancellationToken);
     }
 }

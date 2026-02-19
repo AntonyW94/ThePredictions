@@ -19,17 +19,8 @@ namespace ThePredictions.API.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [EnableRateLimiting("auth")]
 [SwaggerTag("Authentication - Register, login, logout, and token refresh")]
-public class AuthenticationController : AuthControllerBase
+public class AuthenticationController(ILogger<AuthenticationController> logger, IConfiguration configuration, IMediator mediator) : AuthControllerBase(configuration)
 {
-    private readonly ILogger<AuthenticationController> _logger;
-    private readonly IMediator _mediator;
-
-    public AuthenticationController(ILogger<AuthenticationController> logger, IConfiguration configuration, IMediator mediator) : base(configuration)
-    {
-        _logger = logger;
-        _mediator = mediator;
-    }
-
     [HttpPost("register")]
     [AllowAnonymous]
     [SwaggerOperation(
@@ -42,7 +33,7 @@ public class AuthenticationController : AuthControllerBase
         CancellationToken cancellationToken)
     {
         var command = new RegisterCommand(request.FirstName, request.LastName, request.Email, request.Password);
-        var result = await _mediator.Send(command, cancellationToken);
+        var result = await mediator.Send(command, cancellationToken);
 
         if (result is not SuccessfulAuthenticationResponse success)
             return result.IsSuccess ? Ok(result) : BadRequest(result);
@@ -64,7 +55,7 @@ public class AuthenticationController : AuthControllerBase
         CancellationToken cancellationToken)
     {
         var command = new LoginCommand(request.Email, request.Password);
-        var result = await _mediator.Send(command, cancellationToken);
+        var result = await mediator.Send(command, cancellationToken);
 
         if (result is not SuccessfulAuthenticationResponse success)
             return Unauthorized(result);
@@ -85,7 +76,7 @@ public class AuthenticationController : AuthControllerBase
         [FromBody, SwaggerParameter("Refresh token request (token can also be read from cookie)", Required = false)] RefreshTokenRequest request,
         CancellationToken cancellationToken)
     {
-        _logger.LogInformation("--- Refresh-Token Endpoint Called ---");
+        logger.LogInformation("--- Refresh-Token Endpoint Called ---");
 
         var refreshToken = request.Token;
         string tokenSource;
@@ -93,33 +84,33 @@ public class AuthenticationController : AuthControllerBase
         if (!string.IsNullOrEmpty(refreshToken))
         {
             tokenSource = "RequestBody";
-            _logger.LogInformation("Refresh token found in request body.");
+            logger.LogInformation("Refresh token found in request body.");
         }
         else
         {
             refreshToken = Request.Cookies["refreshToken"];
             tokenSource = "Cookie";
-            _logger.LogInformation("Refresh token not found in body, checking cookie.");
+            logger.LogInformation("Refresh token not found in body, checking cookie.");
         }
 
         if (string.IsNullOrEmpty(refreshToken))
         {
-            _logger.LogWarning("Refresh token is missing from both request body and cookie. Cannot authenticate.");
+            logger.LogWarning("Refresh token is missing from both request body and cookie. Cannot authenticate.");
             return BadRequest(new { message = "Refresh token is missing." });
         }
 
-        _logger.LogInformation("Processing refresh token from {TokenSource}", tokenSource);
+        logger.LogInformation("Processing refresh token from {TokenSource}", tokenSource);
 
         var command = new RefreshTokenCommand(refreshToken);
-        var result = await _mediator.Send(command, cancellationToken);
+        var result = await mediator.Send(command, cancellationToken);
 
         if (result is not SuccessfulAuthenticationResponse success)
         {
-            _logger.LogError("Refresh Token Command failed. Result: {@Result}", result);
+            logger.LogError("Refresh Token Command failed. Result: {@Result}", result);
             return BadRequest(result);
         }
 
-        _logger.LogInformation("Refresh Token Command was successful. Setting new refresh token cookie for user.");
+        logger.LogInformation("Refresh Token Command was successful. Setting new refresh token cookie for user.");
 
         SetTokenCookie(success.RefreshTokenForCookie);
         return Ok(success);
@@ -135,7 +126,7 @@ public class AuthenticationController : AuthControllerBase
     public async Task<IActionResult> LogoutAsync(CancellationToken cancellationToken)
     {
         var command = new LogoutCommand(CurrentUserId);
-        await _mediator.Send(command, cancellationToken);
+        await mediator.Send(command, cancellationToken);
 
         Response.Cookies.Delete("refreshToken");
 
@@ -159,7 +150,7 @@ public class AuthenticationController : AuthControllerBase
         var resetUrlBase = $"{Request.Headers["Origin"]}/authentication/reset-password";
 
         var command = new RequestPasswordResetCommand(request.Email, resetUrlBase);
-        await _mediator.Send(command, cancellationToken);
+        await mediator.Send(command, cancellationToken);
 
         // Always return OK to prevent email enumeration
         return Ok(new { message = "If an account exists with that email, you'll receive a password reset link shortly." });
@@ -182,7 +173,7 @@ public class AuthenticationController : AuthControllerBase
             request.NewPassword
         );
 
-        var result = await _mediator.Send(command, cancellationToken);
+        var result = await mediator.Send(command, cancellationToken);
 
         if (result is not SuccessfulResetPasswordResponse success)
             return BadRequest(result);

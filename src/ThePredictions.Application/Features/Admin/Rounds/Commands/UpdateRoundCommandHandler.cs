@@ -6,22 +6,13 @@ using ThePredictions.Domain.Common.Guards;
 
 namespace ThePredictions.Application.Features.Admin.Rounds.Commands;
 
-public class UpdateRoundCommandHandler : IRequestHandler<UpdateRoundCommand>
+public class UpdateRoundCommandHandler(IRoundRepository roundRepository, ICurrentUserService currentUserService) : IRequestHandler<UpdateRoundCommand>
 {
-    private readonly IRoundRepository _roundRepository;
-    private readonly ICurrentUserService _currentUserService;
-
-    public UpdateRoundCommandHandler(IRoundRepository roundRepository, ICurrentUserService currentUserService)
-    {
-        _roundRepository = roundRepository;
-        _currentUserService = currentUserService;
-    }
-
     public async Task Handle(UpdateRoundCommand request, CancellationToken cancellationToken)
     {
-        _currentUserService.EnsureAdministrator();
+        currentUserService.EnsureAdministrator();
 
-        var round = await _roundRepository.GetByIdAsync(request.RoundId, cancellationToken);
+        var round = await roundRepository.GetByIdAsync(request.RoundId, cancellationToken);
         Guard.Against.EntityNotFound(request.RoundId, round, "Round");
 
         round.UpdateDetails(
@@ -54,7 +45,7 @@ public class UpdateRoundCommandHandler : IRequestHandler<UpdateRoundCommand>
         {
             var matchIdsToDelete = matchesToDelete.Select(m => m.Id).ToList();
           
-            var matchesWithPredictions = await _roundRepository.GetMatchIdsWithPredictionsAsync(matchIdsToDelete, cancellationToken);
+            var matchesWithPredictions = await roundRepository.GetMatchIdsWithPredictionsAsync(matchIdsToDelete, cancellationToken);
             if (matchesWithPredictions.Any())
                 throw new InvalidOperationException("Cannot delete a match that already has user predictions.");
             
@@ -64,6 +55,6 @@ public class UpdateRoundCommandHandler : IRequestHandler<UpdateRoundCommand>
             }
         }
 
-        await _roundRepository.UpdateAsync(round, cancellationToken);
+        await roundRepository.UpdateAsync(round, cancellationToken);
     }
 }

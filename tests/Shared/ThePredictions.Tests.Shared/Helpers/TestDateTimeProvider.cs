@@ -2,14 +2,9 @@ using ThePredictions.Domain.Common;
 
 namespace ThePredictions.Tests.Shared.Helpers;
 
-public class TestDateTimeProvider : IDateTimeProvider
+public class TestDateTimeProvider(DateTime utcNow) : IDateTimeProvider
 {
-    public TestDateTimeProvider(DateTime utcNow)
-    {
-        UtcNow = utcNow;
-    }
-
-    public DateTime UtcNow { get; set; }
+    public DateTime UtcNow { get; set; } = utcNow;
 
     public void AdvanceBy(TimeSpan duration)
     {

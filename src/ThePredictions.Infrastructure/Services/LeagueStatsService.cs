@@ -3,27 +3,20 @@ using ThePredictions.Application.Services;
 
 namespace ThePredictions.Infrastructure.Services;
 
-public class LeagueStatsService : ILeagueStatsService
+public class LeagueStatsService(ILeagueStatsRepository statsRepository) : ILeagueStatsService
 {
-    private readonly ILeagueStatsRepository _statsRepository;
-
-    public LeagueStatsService(ILeagueStatsRepository statsRepository)
-    {
-        _statsRepository = statsRepository;
-    }
-
     public async Task TakeRoundStartSnapshotsAsync(int roundId, CancellationToken cancellationToken)
     {
-        await _statsRepository.SnapshotRanksForRoundStartAsync(roundId, cancellationToken);
+        await statsRepository.SnapshotRanksForRoundStartAsync(roundId, cancellationToken);
     }
 
     public async Task UpdateLiveStatsAsync(int roundId, CancellationToken cancellationToken)
     {
-        await _statsRepository.UpdateLiveStatsAsync(roundId, cancellationToken);
+        await statsRepository.UpdateLiveStatsAsync(roundId, cancellationToken);
     }
 
     public async Task UpdateStableStatsAsync(int roundId, CancellationToken cancellationToken)
     {
-        await _statsRepository.UpdateStableStatsAsync(roundId, cancellationToken);
+        await statsRepository.UpdateStableStatsAsync(roundId, cancellationToken);
     }
 }

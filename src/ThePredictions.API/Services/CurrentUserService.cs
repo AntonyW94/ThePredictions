@@ -4,20 +4,13 @@ using ThePredictions.Domain.Common.Constants;
 
 namespace ThePredictions.API.Services;
 
-public class CurrentUserService : ICurrentUserService
+public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICurrentUserService
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    public string? UserId => httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-    public CurrentUserService(IHttpContextAccessor httpContextAccessor)
-    {
-        _httpContextAccessor = httpContextAccessor;
-    }
+    public bool IsAuthenticated => httpContextAccessor.HttpContext?.User.Identity?.IsAuthenticated ?? false;
 
-    public string? UserId => _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-    public bool IsAuthenticated => _httpContextAccessor.HttpContext?.User.Identity?.IsAuthenticated ?? false;
-
-    public bool IsAdministrator => _httpContextAccessor.HttpContext?.User.IsInRole(RoleNames.Administrator) ?? false;
+    public bool IsAdministrator => httpContextAccessor.HttpContext?.User.IsInRole(RoleNames.Administrator) ?? false;
 
     public void EnsureAdministrator()
     {

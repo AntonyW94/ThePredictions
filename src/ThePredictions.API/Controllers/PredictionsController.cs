@@ -12,15 +12,8 @@ namespace ThePredictions.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [SwaggerTag("Predictions - Submit and retrieve match predictions")]
-public class PredictionsController : ApiControllerBase
+public class PredictionsController(IMediator mediator) : ApiControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public PredictionsController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     [HttpGet("{roundId:int}")]
     [SwaggerOperation(
         Summary = "Get prediction page data for a round",
@@ -32,7 +25,7 @@ public class PredictionsController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var query = new GetPredictionPageDataQuery(roundId, CurrentUserId);
-        return Ok(await _mediator.Send(query, cancellationToken));
+        return Ok(await mediator.Send(query, cancellationToken));
     }
 
     [HttpPost("submit")]
@@ -53,7 +46,7 @@ public class PredictionsController : ApiControllerBase
             request.Predictions
         );
 
-        await _mediator.Send(command, cancellationToken);
+        await mediator.Send(command, cancellationToken);
 
         return NoContent();
     }

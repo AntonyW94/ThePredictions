@@ -6,18 +6,11 @@ using ThePredictions.Domain.Common.Guards;
 
 namespace ThePredictions.Application.Features.Leagues.Commands;
 
-public class DismissRejectedNotificationCommandHandler : IRequestHandler<DismissRejectedNotificationCommand>
+public class DismissRejectedNotificationCommandHandler(ILeagueMemberRepository leagueMemberRepository) : IRequestHandler<DismissRejectedNotificationCommand>
 {
-    private readonly ILeagueMemberRepository _leagueMemberRepository;
-
-    public DismissRejectedNotificationCommandHandler(ILeagueMemberRepository leagueMemberRepository)
-    {
-        _leagueMemberRepository = leagueMemberRepository;
-    }
-
     public async Task Handle(DismissRejectedNotificationCommand request, CancellationToken cancellationToken)
     {
-        var member = await _leagueMemberRepository.GetAsync(request.LeagueId, request.UserId, cancellationToken);
+        var member = await leagueMemberRepository.GetAsync(request.LeagueId, request.UserId, cancellationToken);
         Guard.Against.EntityNotFound(request.UserId, member, "League Notification");
 
         if (member.Status != LeagueMemberStatus.Rejected)
@@ -25,6 +18,6 @@ public class DismissRejectedNotificationCommandHandler : IRequestHandler<Dismiss
 
         member.DismissAlert();
 
-        await _leagueMemberRepository.UpdateAsync(member, cancellationToken);
+        await leagueMemberRepository.UpdateAsync(member, cancellationToken);
     }
 }

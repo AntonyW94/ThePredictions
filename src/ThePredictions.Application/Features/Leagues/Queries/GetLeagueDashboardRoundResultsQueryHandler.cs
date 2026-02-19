@@ -7,26 +7,17 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace ThePredictions.Application.Features.Leagues.Queries;
 
-public class GetLeagueDashboardRoundResultsQueryHandler : IRequestHandler<GetLeagueDashboardRoundResultsQuery, IEnumerable<PredictionResultDto>?>
+public class GetLeagueDashboardRoundResultsQueryHandler(
+    IApplicationReadDbConnection dbConnection,
+    ILeagueMembershipService membershipService) : IRequestHandler<GetLeagueDashboardRoundResultsQuery, IEnumerable<PredictionResultDto>?>
 {
-    private readonly IApplicationReadDbConnection _dbConnection;
-    private readonly ILeagueMembershipService _membershipService;
-
-    public GetLeagueDashboardRoundResultsQueryHandler(
-        IApplicationReadDbConnection dbConnection,
-        ILeagueMembershipService membershipService)
-    {
-        _dbConnection = dbConnection;
-        _membershipService = membershipService;
-    }
-
     public async Task<IEnumerable<PredictionResultDto>?> Handle(GetLeagueDashboardRoundResultsQuery request, CancellationToken cancellationToken)
     {
-        await _membershipService.EnsureApprovedMemberAsync(request.LeagueId, request.CurrentUserId, cancellationToken);
+        await membershipService.EnsureApprovedMemberAsync(request.LeagueId, request.CurrentUserId, cancellationToken);
 
         const string roundStatusSql = "SELECT [Status] FROM [Rounds] WHERE [Id] = @RoundId;";
       
-        var roundStatus = await _dbConnection.QuerySingleOrDefaultAsync<string>(roundStatusSql, cancellationToken, new { request.RoundId });
+        var roundStatus = await dbConnection.QuerySingleOrDefaultAsync<string>(roundStatusSql, cancellationToken, new { request.RoundId });
         if (roundStatus == null || Enum.Parse<RoundStatus>(roundStatus) == RoundStatus.Draft)
             return null;
 
@@ -91,7 +82,7 @@ public class GetLeagueDashboardRoundResultsQueryHandler : IRequestHandler<GetLea
             Approved = nameof(LeagueMemberStatus.Approved)
         };
 
-        var queryResult = await _dbConnection.QueryAsync<PredictionQueryResult>(sql, cancellationToken, parameters);
+        var queryResult = await dbConnection.QueryAsync<PredictionQueryResult>(sql, cancellationToken, parameters);
 
         var groupedResults = queryResult
              .GroupBy(r => new { r.UserId, r.PlayerName, r.Rank, r.TotalPoints })

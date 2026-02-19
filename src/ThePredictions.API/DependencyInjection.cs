@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.RateLimiting;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -16,6 +17,7 @@ namespace ThePredictions.API;
 
 public static class DependencyInjection
 {
+    [SuppressMessage("ReSharper", "UnusedMethodReturnValue.Global")]
     public static IServiceCollection AddApiServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddControllers();
@@ -170,7 +172,7 @@ public static class DependencyInjection
             return services;
         }
 
-        private static IServiceCollection AddAppAuthentication(this IServiceCollection services, IConfiguration configuration)
+        private static void AddAppAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
             var jwtSettings = configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>()!;
             var googleSettings = configuration.GetSection(GoogleAuthSettings.SectionName).Get<GoogleAuthSettings>()!;
@@ -203,11 +205,9 @@ public static class DependencyInjection
                 });
 
             services.AddAuthorization();
-
-            return services;
         }
 
-        private static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
+        private static void AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>();
             services.AddHttpContextAccessor();
@@ -223,11 +223,9 @@ public static class DependencyInjection
                 if (!string.IsNullOrEmpty(mediatRKey))
                     cfg.LicenseKey = mediatRKey;
             });
-
-            return services;
         }
 
-        private static IServiceCollection AddRateLimiting(this IServiceCollection services)
+        private static void AddRateLimiting(this IServiceCollection services)
         {
             services.AddRateLimiter(options =>
             {
@@ -276,8 +274,6 @@ public static class DependencyInjection
                     await context.HttpContext.Response.WriteAsync("Too many requests. Please try again later.", cancellationToken);
                 };
             });
-
-            return services;
         }
 
     private static string GetClientIpAddress(HttpContext context)

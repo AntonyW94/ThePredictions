@@ -4,15 +4,9 @@ using ThePredictions.Contracts.Admin.Seasons;
 
 namespace ThePredictions.Application.Features.Admin.Seasons.Queries;
 
-public class GetSeasonByIdQueryHandler : IRequestHandler<GetSeasonByIdQuery, SeasonDto?>
+public class GetSeasonByIdQueryHandler(IApplicationReadDbConnection dbConnection)
+    : IRequestHandler<GetSeasonByIdQuery, SeasonDto?>
 {
-    private readonly IApplicationReadDbConnection _dbConnection;
-
-    public GetSeasonByIdQueryHandler(IApplicationReadDbConnection dbConnection)
-    {
-        _dbConnection = dbConnection;
-    }
-
     public async Task<SeasonDto?> Handle(GetSeasonByIdQuery request, CancellationToken cancellationToken)
     {
         const string sql = @"
@@ -24,11 +18,11 @@ public class GetSeasonByIdQueryHandler : IRequestHandler<GetSeasonByIdQuery, Sea
                 s.[IsActive],
                 s.[NumberOfRounds],
                 (SELECT COUNT(*) FROM [Rounds] r WHERE r.[SeasonId] = s.[Id]) as 'RoundCount'
-            FROM 
+            FROM
                 [Seasons] s
             WHERE
                 s.[Id] = @Id";
 
-        return await _dbConnection.QuerySingleOrDefaultAsync<SeasonDto>(sql, cancellationToken, new { request.Id });
+        return await dbConnection.QuerySingleOrDefaultAsync<SeasonDto>(sql, cancellationToken, new { request.Id });
     }
 }

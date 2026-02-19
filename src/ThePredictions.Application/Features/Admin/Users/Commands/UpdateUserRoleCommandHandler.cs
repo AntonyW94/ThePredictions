@@ -5,28 +5,20 @@ using ThePredictions.Domain.Common.Guards;
 
 namespace ThePredictions.Application.Features.Admin.Users.Commands;
 
-public class UpdateUserRoleCommandHandler : IRequestHandler<UpdateUserRoleCommand>
+public class UpdateUserRoleCommandHandler(IUserManager userManager, ICurrentUserService currentUserService)
+    : IRequestHandler<UpdateUserRoleCommand>
 {
-    private readonly IUserManager _userManager;
-    private readonly ICurrentUserService _currentUserService;
-
-    public UpdateUserRoleCommandHandler(IUserManager userManager, ICurrentUserService currentUserService)
-    {
-        _userManager = userManager;
-        _currentUserService = currentUserService;
-    }
-
     public async Task Handle(UpdateUserRoleCommand request, CancellationToken cancellationToken)
     {
-        _currentUserService.EnsureAdministrator();
+        currentUserService.EnsureAdministrator();
 
-        var user = await _userManager.FindByIdAsync(request.UserId);
+        var user = await userManager.FindByIdAsync(request.UserId);
         Guard.Against.EntityNotFound(request.UserId, user, "User");
 
-        var currentRoles = await _userManager.GetRolesAsync(user);
-        await _userManager.RemoveFromRolesAsync(user, currentRoles);
+        var currentRoles = await userManager.GetRolesAsync(user);
+        await userManager.RemoveFromRolesAsync(user, currentRoles);
 
-        var result = await _userManager.AddToRoleAsync(user, request.NewRole);
+        var result = await userManager.AddToRoleAsync(user, request.NewRole);
         if (!result.Succeeded)
             throw new Exception($"Failed to update role: {string.Join(", ", result.Errors)}");
     }

@@ -9,65 +9,48 @@ using ThePredictions.Domain.Common;
 
 namespace ThePredictions.Application.Features.Admin.Rounds.Commands;
 
-public class SendScheduledRemindersCommandHandler : IRequestHandler<SendScheduledRemindersCommand>
+public class SendScheduledRemindersCommandHandler(
+    IRoundRepository roundRepository,
+    IEmailService emailService,
+    IReminderService reminderService,
+    IEmailDateFormatter dateFormatter,
+    IOptions<BrevoSettings> brevoSettings,
+    IDateTimeProvider dateTimeProvider,
+    ILogger<SendScheduledRemindersCommandHandler> logger) : IRequestHandler<SendScheduledRemindersCommand>
 {
-    private readonly IRoundRepository _roundRepository;
-    private readonly IEmailService _emailService;
-    private readonly IReminderService _reminderService;
-    private readonly IEmailDateFormatter _dateFormatter;
-    private readonly BrevoSettings _brevoSettings;
-    private readonly IDateTimeProvider _dateTimeProvider;
-    private readonly ILogger<SendScheduledRemindersCommandHandler> _logger;
-
-    public SendScheduledRemindersCommandHandler(
-        IRoundRepository roundRepository,
-        IEmailService emailService,
-        IReminderService reminderService,
-        IEmailDateFormatter dateFormatter,
-        IOptions<BrevoSettings> brevoSettings,
-        IDateTimeProvider dateTimeProvider,
-        ILogger<SendScheduledRemindersCommandHandler> logger)
-    {
-        _roundRepository = roundRepository;
-        _emailService = emailService;
-        _reminderService = reminderService;
-        _dateFormatter = dateFormatter;
-        _brevoSettings = brevoSettings.Value;
-        _dateTimeProvider = dateTimeProvider;
-        _logger = logger;
-    }
+    private readonly BrevoSettings _brevoSettings = brevoSettings.Value;
 
     public async Task Handle(SendScheduledRemindersCommand request, CancellationToken cancellationToken)
     {
-        var nowUtc = _dateTimeProvider.UtcNow;
+        var nowUtc = dateTimeProvider.UtcNow;
 
-        var nextRound = await _roundRepository.GetNextRoundForReminderAsync(cancellationToken);
+        var nextRound = await roundRepository.GetNextRoundForReminderAsync(cancellationToken);
         if (nextRound == null)
         {
-            _logger.LogInformation("Sending Email Reminders: No Active Round.");
+            logger.LogInformation("Sending Email Reminders: No Active Round.");
             return;
         }
 
-        var shouldSend = await _reminderService.ShouldSendReminderAsync(nextRound, nowUtc);
+        var shouldSend = await reminderService.ShouldSendReminderAsync(nextRound, nowUtc);
         if (!shouldSend)
         {
-            _logger.LogInformation("Sending Email Reminders: Active Round Not Due.");
+            logger.LogInformation("Sending Email Reminders: Active Round Not Due.");
             return;
         }
 
-        _logger.LogInformation("Sending Email Reminders: Sending for Round (ID: {RoundId})", nextRound.Id);
+        logger.LogInformation("Sending Email Reminders: Sending for Round (ID: {RoundId})", nextRound.Id);
 
-        var usersToChase = await _reminderService.GetUsersMissingPredictionsAsync(nextRound.Id, cancellationToken);
+        var usersToChase = await reminderService.GetUsersMissingPredictionsAsync(nextRound.Id, cancellationToken);
         if (!usersToChase.Any())
         {
-            _logger.LogInformation("Sending Email Reminders: No Users to Chase for Round (ID: {RoundId})", nextRound.Id);
+            logger.LogInformation("Sending Email Reminders: No Users to Chase for Round (ID: {RoundId})", nextRound.Id);
             return;
         }
 
         var templateId = _brevoSettings.Templates?.PredictionsMissing;
         if (!templateId.HasValue || templateId.Value == 0)
         {
-            _logger.LogError("Sending Email Reminders: Email Template ID Not Configured.");
+            logger.LogError("Sending Email Reminders: Email Template ID Not Configured.");
             return;
         }
 
@@ -77,16 +60,16 @@ public class SendScheduledRemindersCommandHandler : IRequestHandler<SendSchedule
             {
                 FIRST_NAME = user.FirstName,
                 ROUND_NAME = user.RoundName,
-                DEADLINE = _dateFormatter.FormatDeadline(user.DeadlineUtc)
+                DEADLINE = dateFormatter.FormatDeadline(user.DeadlineUtc)
             };
-            await _emailService.SendTemplatedEmailAsync(user.Email, templateId.Value, parameters);
+            await emailService.SendTemplatedEmailAsync(user.Email, templateId.Value, parameters);
 
-            _logger.LogInformation("Sent chase notification for Round (ID: {RoundId}) to User (ID: {UserId})", nextRound.Id, user.UserId);
+            logger.LogInformation("Sent chase notification for Round (ID: {RoundId}) to User (ID: {UserId})", nextRound.Id, user.UserId);
         }
 
-        nextRound.UpdateLastReminderSent(_dateTimeProvider);
-        await _roundRepository.UpdateLastReminderSentAsync(nextRound, cancellationToken);
+        nextRound.UpdateLastReminderSent(dateTimeProvider);
+        await roundRepository.UpdateLastReminderSentAsync(nextRound, cancellationToken);
 
-        _logger.LogInformation("Sending Email Reminders: Successfully Sent {Count} Reminders and Updated LastReminderSent for Round (ID: {RoundId})", usersToChase.Count, nextRound.Id);
+        logger.LogInformation("Sending Email Reminders: Successfully Sent {Count} Reminders and Updated LastReminderSent for Round (ID: {RoundId})", usersToChase.Count, nextRound.Id);
     }
 }

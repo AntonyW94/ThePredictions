@@ -7,38 +7,25 @@ using ThePredictions.Domain.Models;
 
 namespace ThePredictions.Application.Features.Admin.Rounds.Strategies;
 
-public class MonthlyPrizeStrategy : IPrizeStrategy
+public class MonthlyPrizeStrategy(
+    IWinningsRepository winningsRepository,
+    IRoundRepository roundRepository,
+    ILeagueRepository leagueRepository,
+    IDateTimeProvider dateTimeProvider) : IPrizeStrategy
 {
-    private readonly IWinningsRepository _winningsRepository;
-    private readonly IRoundRepository _roundRepository;
-    private readonly ILeagueRepository _leagueRepository;
-    private readonly IDateTimeProvider _dateTimeProvider;
-
-    public MonthlyPrizeStrategy(
-        IWinningsRepository winningsRepository,
-        IRoundRepository roundRepository,
-        ILeagueRepository leagueRepository,
-        IDateTimeProvider dateTimeProvider)
-    {
-        _winningsRepository = winningsRepository;
-        _roundRepository = roundRepository;
-        _leagueRepository = leagueRepository;
-        _dateTimeProvider = dateTimeProvider;
-    }
-
     public PrizeType PrizeType => PrizeType.Monthly;
 
     public async Task AwardPrizes(ProcessPrizesCommand command, CancellationToken cancellationToken)
     {
-        var currentRound = await _roundRepository.GetByIdAsync(command.RoundId, cancellationToken);
+        var currentRound = await roundRepository.GetByIdAsync(command.RoundId, cancellationToken);
         if (currentRound == null)
             return;
 
-        var league = await _leagueRepository.GetByIdWithAllDataAsync(command.LeagueId, cancellationToken);
+        var league = await leagueRepository.GetByIdWithAllDataAsync(command.LeagueId, cancellationToken);
         if (league == null)
             return;
 
-        var isLastRoundOfMonth = await _roundRepository.IsLastRoundOfMonthAsync(currentRound.Id, currentRound.SeasonId, cancellationToken);
+        var isLastRoundOfMonth = await roundRepository.IsLastRoundOfMonthAsync(currentRound.Id, currentRound.SeasonId, cancellationToken);
         if (!isLastRoundOfMonth)
             return;
 
@@ -47,9 +34,9 @@ public class MonthlyPrizeStrategy : IPrizeStrategy
             return;
 
         var month = currentRound.StartDateUtc.Month;
-        await _winningsRepository.DeleteWinningsForMonthAsync(league.Id, month, cancellationToken);
+        await winningsRepository.DeleteWinningsForMonthAsync(league.Id, month, cancellationToken);
 
-        var roundIdsInMonth = await _roundRepository.GetRoundsIdsForMonthAsync(month, currentRound.SeasonId, cancellationToken);
+        var roundIdsInMonth = await roundRepository.GetRoundsIdsForMonthAsync(month, currentRound.SeasonId, cancellationToken);
        
         var monthlyWinners = league.GetPeriodWinners(roundIdsInMonth);
         if (!monthlyWinners.Any())
@@ -73,11 +60,11 @@ public class MonthlyPrizeStrategy : IPrizeStrategy
                 prizeAmount,
                 null,
                 month,
-                _dateTimeProvider
+                dateTimeProvider
             );
             allNewWinnings.Add(newWinning);
         }
 
-        await _winningsRepository.AddWinningsAsync(allNewWinnings, cancellationToken);
+        await winningsRepository.AddWinningsAsync(allNewWinnings, cancellationToken);
     }
 }

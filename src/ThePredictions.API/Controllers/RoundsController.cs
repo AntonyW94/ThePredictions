@@ -11,15 +11,8 @@ namespace ThePredictions.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [SwaggerTag("Rounds - View round and match information")]
-public class RoundsController : ApiControllerBase
+public class RoundsController(IMediator mediator) : ApiControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public RoundsController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     [HttpGet("{roundId:int}/matches-data")]
     [SwaggerOperation(
         Summary = "Get matches for a round",
@@ -31,6 +24,6 @@ public class RoundsController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var query = new GetMatchesForRoundQuery(roundId);
-        return Ok(await _mediator.Send(query, cancellationToken));
+        return Ok(await mediator.Send(query, cancellationToken));
     }
 }

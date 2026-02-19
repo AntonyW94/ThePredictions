@@ -3,20 +3,13 @@ using ThePredictions.Application.Data;
 
 namespace ThePredictions.Infrastructure.Data;
 
-public class DapperReadDbConnection : IApplicationReadDbConnection
+public class DapperReadDbConnection(IDbConnectionFactory connectionFactory) : IApplicationReadDbConnection
 {
-    private readonly IDbConnectionFactory _connectionFactory;
-
-    public DapperReadDbConnection(IDbConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
-
     public async Task<IEnumerable<T>> QueryAsync<T>(string sql, CancellationToken cancellationToken, object? param = null)
     {
         var command = new CommandDefinition(commandText: sql, parameters: param, cancellationToken: cancellationToken);
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
         return await connection.QueryAsync<T>(command);
     }
    
@@ -24,7 +17,7 @@ public class DapperReadDbConnection : IApplicationReadDbConnection
     {
         var command = new CommandDefinition(commandText: sql, parameters: param, cancellationToken: cancellationToken);
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
         return await connection.QuerySingleOrDefaultAsync<T>(command);
     }
 }

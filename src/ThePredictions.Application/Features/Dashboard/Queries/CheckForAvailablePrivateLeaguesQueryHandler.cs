@@ -3,15 +3,9 @@ using ThePredictions.Application.Data;
 
 namespace ThePredictions.Application.Features.Dashboard.Queries;
 
-public class CheckForAvailablePrivateLeaguesQueryHandler : IRequestHandler<CheckForAvailablePrivateLeaguesQuery, bool>
+public class CheckForAvailablePrivateLeaguesQueryHandler(IApplicationReadDbConnection dbConnection)
+    : IRequestHandler<CheckForAvailablePrivateLeaguesQuery, bool>
 {
-    private readonly IApplicationReadDbConnection _dbConnection;
-
-    public CheckForAvailablePrivateLeaguesQueryHandler(IApplicationReadDbConnection dbConnection)
-    {
-        _dbConnection = dbConnection;
-    }
-
     public async Task<bool> Handle(CheckForAvailablePrivateLeaguesQuery request, CancellationToken cancellationToken)
     {
         const string sql = @"
@@ -29,6 +23,6 @@ public class CheckForAvailablePrivateLeaguesQueryHandler : IRequestHandler<Check
             THEN CAST(1 AS BIT)
             ELSE CAST(0 AS BIT) END";
 
-        return await _dbConnection.QuerySingleOrDefaultAsync<bool>(sql, cancellationToken, new { request.UserId });
+        return await dbConnection.QuerySingleOrDefaultAsync<bool>(sql, cancellationToken, new { request.UserId });
     }
 }
