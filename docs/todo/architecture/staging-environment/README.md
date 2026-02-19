@@ -42,7 +42,7 @@ Create this file in the API project:
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=sql.fasthosts.co.uk;Database=PredictionLeague_Dev;User Id=xxx;Password=xxx;TrustServerCertificate=True"
+    "DefaultConnection": "Server=sql.fasthosts.co.uk;Database=ThePredictions_Dev;User Id=xxx;Password=xxx;TrustServerCertificate=True"
   },
   "Logging": {
     "LogLevel": {
