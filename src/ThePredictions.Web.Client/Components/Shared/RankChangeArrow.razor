@@ -1,6 +1,6 @@
 ﻿@if (ShouldDisplay)
 {
-    <div class="@ColorClass d-flex flex-column align-items-center leading-none">
+    <div class="@ColourClass d-flex flex-column align-items-center leading-none">
         <i class="bi @IconClass fs-5"></i>
         <small class="fw-bold text-sm">@Math.Abs(Diff)</small>
     </div>
@@ -14,6 +14,6 @@
     private long Diff => (PreviousRank ?? 0) - CurrentRank;
     private bool ShouldDisplay => IsVisible && PreviousRank > 0;
     private bool IsUp => Diff > 0;
-    private string ColorClass => Diff == 0 ? "text-white-50" : IsUp ? "text-green-600" : "text-red";
+    private string ColourClass => Diff == 0 ? "text-white-50" : IsUp ? "text-green-600" : "text-red";
     private string IconClass => Diff == 0 ? "bi-dash" : IsUp ? "bi-caret-up-fill" : "bi-caret-down-fill";
 }

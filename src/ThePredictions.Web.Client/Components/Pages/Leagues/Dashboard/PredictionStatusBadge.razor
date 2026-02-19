@@ -31,9 +31,9 @@
     [Parameter]
     public bool IsHidden { get; set; }
 
-    private string BadgeClass => $"prediction-badge badge-group {GetColorClass()} {(Status == MatchStatus.InProgress ? GetPulsingClass() : "")}";
+    private string BadgeClass => $"prediction-badge badge-group {GetColourClass()} {(Status == MatchStatus.InProgress ? GetPulsingClass() : "")}";
 
-    private string GetColorClass() => Outcome switch
+    private string GetColourClass() => Outcome switch
     {
         PredictionOutcome.Incorrect => "badge-group--red",
         PredictionOutcome.CorrectResult => "badge-group--yellow",

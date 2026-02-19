@@ -13,7 +13,6 @@ public class UpdateSeasonCommandHandler(
     IFootballDataService footballDataService,
     ICurrentUserService currentUserService) : IRequestHandler<UpdateSeasonCommand>
 {
-
     public async Task Handle(UpdateSeasonCommand request, CancellationToken cancellationToken)
     {
         currentUserService.EnsureAdministrator();

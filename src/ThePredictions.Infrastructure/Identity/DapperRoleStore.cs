@@ -1,21 +1,13 @@
 using Dapper;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using ThePredictions.Application.Data;
 using System.Data;
 
 namespace ThePredictions.Infrastructure.Identity;
 
-public class DapperRoleStore : IRoleStore<IdentityRole>
+public class DapperRoleStore(IDbConnectionFactory connectionFactory) : IRoleStore<IdentityRole>
 {
-    private readonly IDbConnectionFactory _connectionFactory;
-
-    public DapperRoleStore(IConfiguration configuration, IDbConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
-
-    private IDbConnection Connection => _connectionFactory.CreateConnection();
+    private IDbConnection Connection => connectionFactory.CreateConnection();
 
     public async Task<IdentityResult> CreateAsync(IdentityRole role, CancellationToken cancellationToken)
     {
@@ -85,8 +77,6 @@ public class DapperRoleStore : IRoleStore<IdentityRole>
         role.NormalizedName = normalizedName;
         return Task.CompletedTask;
     }
-
-
 
     public Task SetRoleNameAsync(IdentityRole role, string? roleName, CancellationToken cancellationToken)
     {

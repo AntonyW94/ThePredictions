@@ -94,11 +94,11 @@ public class ApiAuthenticationStateProvider(HttpClient httpClient, ILocalStorage
         var authResponse = await response.Content.ReadFromJsonAsync<SuccessfulAuthenticationResponse>();
         if (authResponse == null)
         {
-            logger.LogError("Failed to deserialize successful authentication response.");
+            logger.LogError("Failed to deserialise successful authentication response.");
             return false;
         }
 
-        logger.LogInformation("Successfully deserialized authentication response. Storing access token.");
+        logger.LogInformation("Successfully deserialised authentication response. Storing access token.");
         await localStorage.SetItemAsync("accessToken", authResponse.AccessToken);
 
         logger.LogInformation("Notifying authentication state changed.");

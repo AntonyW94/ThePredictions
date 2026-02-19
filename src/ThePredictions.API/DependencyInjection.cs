@@ -142,7 +142,7 @@ public static class DependencyInjection
                 // ===========================================
                 // OPERATION FILTERS (Optional enhancements)
                 // ===========================================
-                // Tag endpoints by controller for better organization in Swagger UI
+                // Tag endpoints by controller for better organisation in Swagger UI
                 options.TagActionsBy(api =>
                 {
                     if (api.GroupName != null)

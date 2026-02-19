@@ -41,7 +41,7 @@
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><NavLink class="dropdown-item" href="account/details"><span class="bi bi-person-badge me-2 fw-bold"></span>My Details</NavLink></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><button class="dropdown-item d-flex align-items-center" type="button" @onclick="LogoutUser"><span class="bi bi-box-arrow-right me-2 fw-bold"></span>Logout</button></li>
+                                <li><button class="dropdown-item d-flex align-items-center" type="button" @onclick="LogoutUser"><span class="bi bi-box-arrow-right me-2 fw-bold"></span>Log out</button></li>
                             </ul>
                         </li>
                     </ul>
@@ -57,7 +57,7 @@
                         @if (_isUserMenuOpen)
                         {
                             <li class="nav-item"><NavLink class="nav-link mobile-nav-sub-item" href="account/details">My Details</NavLink></li>
-                            <li class="nav-item"><button class="btn nav-link mobile-nav-sub-item text-start" @onclick="LogoutUser">Logout</button></li>
+                            <li class="nav-item"><button class="btn nav-link mobile-nav-sub-item text-start" @onclick="LogoutUser">Log out</button></li>
                         }
 
                         @if (context.User.IsInRole(RoleNames.Administrator))
@@ -85,7 +85,7 @@
                 <NotAuthorized>
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item mx-1">
-                            <NavLink class="nav-link" href="authentication/login">Login</NavLink>
+                            <NavLink class="nav-link" href="authentication/login">Log in</NavLink>
                         </li>
                         <li class="nav-item mx-1">
                             <NavLink class="nav-link" href="authentication/register">Register</NavLink>

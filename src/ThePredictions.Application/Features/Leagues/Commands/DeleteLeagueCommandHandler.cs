@@ -14,7 +14,7 @@ public class DeleteLeagueCommandHandler(ILeagueRepository leagueRepository) : IR
         Guard.Against.EntityNotFound(request.LeagueId, league, "League");
        
         if (league.AdministratorUserId != request.DeletingUserId && !request.IsAdmin)
-            throw new AuthenticationException("You are not authorized to delete this league.");
+            throw new AuthenticationException("You are not authorised to delete this league.");
         
         await leagueRepository.DeleteAsync(request.LeagueId, cancellationToken);
     }

@@ -41,7 +41,7 @@ public class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandling
         catch (UnauthorizedAccessException ex)
         {
             logger.LogWarning("Authorization Error: {Message}", ex.Message);
-            await HandleKnownExceptionAsync(context, HttpStatusCode.Unauthorized, new { message = "You are not authorized to perform this action." });
+            await HandleKnownExceptionAsync(context, HttpStatusCode.Unauthorized, new { message = "You are not authorised to perform this action." });
         }
         catch (IOException ex) when (ex.Message.Contains("The client reset the request stream"))
         {
