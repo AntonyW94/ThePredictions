@@ -1,0 +1,92 @@
+@inject ILeagueService LeagueService
+
+@inherits BaseLeaderboardComponent
+
+@using ThePredictions.Contracts.Leaderboards
+@using ThePredictions.Web.Client.Services.Leagues
+
+<div class="section w-100 mh-600">
+    <h5 class="text-white fw-bold mb-3 text-center text-md-start">Overall Leaderboard</h5>
+    <div class="body no-padding justify-start">
+        @if (_isLoading)
+        {
+            <div class="d-flex justify-content-center align-items-center h-100">
+                <div class="spinner-border text-white" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            <div class="p-3">
+                <ApiError Message="@_errorMessage" />
+            </div>
+        }
+        else if (_leaderboardEntries != null && _leaderboardEntries.Any())
+        {
+            <div class="table-responsive rounded">
+                <table class="leaderboard-table table-striped-purple text-white">
+                    <thead>
+                        <tr>
+                            @if (_leaderboardEntries.First().IsRoundInProgress)
+                            {
+                                <th class="rank-change-col"></th>
+                            }
+                            <th class="rank-col">#</th>
+                            <th class="player-name-col">Player</th>
+                            <th class="points-col">Pts</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var entry in _leaderboardEntries)
+                        {
+                            <tr class="@(GetUserHighlightClass(entry.UserId)) @entry.UserId">
+                                @if (entry.IsRoundInProgress)
+                                {
+                                    <td class="rank-change-col">
+                                        <RankChangeArrow PreviousRank="@entry.SnapshotRank"
+                                                         CurrentRank="@entry.Rank"
+                                                         IsVisible="@entry.IsRoundInProgress" />
+                                    </td>
+                                }
+                                <td class="rank-col"><span class="fw-bold">@entry.Rank</span></td>
+                                <td class="player-name-col fw-bold">@entry.PlayerName</td>
+                                <td class="points-col fw-bold">@entry.TotalPoints</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="text-center text-white-50 mt-4">No predictions have been scored yet.</p>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public int LeagueId { get; set; }
+
+    private IEnumerable<LeaderboardEntryDto>? _leaderboardEntries;
+    private bool _isLoading = true;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await base.OnInitializedAsync();
+            _leaderboardEntries = await LeagueService.GetOverallLeaderboardAsync(LeagueId);
+        }
+        catch (Exception)
+        {
+            _errorMessage = "Could not load the leaderboard. Please try again later.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+}

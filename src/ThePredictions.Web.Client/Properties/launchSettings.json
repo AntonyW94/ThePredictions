@@ -1,0 +1,19 @@
+//{
+//  "profiles": {
+//    "ThePredictions.Web.Client": {
+//      "commandName": "Project"
+//    },
+//    "WSL": {
+//      "commandName": "WSL2",
+//      "distributionName": ""
+//    }
+//  }
+//}
+
+{
+  "profiles": {
+    "ThePredictions.Web.Client": {
+      "commandName": "Project"
+    }
+  }
+}

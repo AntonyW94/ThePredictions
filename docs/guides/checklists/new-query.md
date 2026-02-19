@@ -4,9 +4,9 @@ Use this checklist when creating a new query (read operation).
 
 ## Files to Create
 
-- [ ] `src/PredictionLeague.Application/Features/{Area}/Queries/{QueryName}/{QueryName}Query.cs`
-- [ ] `src/PredictionLeague.Application/Features/{Area}/Queries/{QueryName}/{QueryName}QueryHandler.cs`
-- [ ] `src/PredictionLeague.Contracts/{Area}/{ResultDto}.cs`
+- [ ] `src/ThePredictions.Application/Features/{Area}/Queries/{QueryName}/{QueryName}Query.cs`
+- [ ] `src/ThePredictions.Application/Features/{Area}/Queries/{QueryName}/{QueryName}QueryHandler.cs`
+- [ ] `src/ThePredictions.Contracts/{Area}/{ResultDto}.cs`
 
 ## Query Definition
 

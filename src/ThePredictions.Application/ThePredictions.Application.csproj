@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1">
+      <TreatAsUsed>true</TreatAsUsed>
+    </PackageReference>
+    <PackageReference Include="MediatR" Version="14.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ThePredictions.Contracts\ThePredictions.Contracts.csproj" />
+    <ProjectReference Include="..\ThePredictions.Domain\ThePredictions.Domain.csproj" />
+    <ProjectReference Include="..\ThePredictions.Validators\ThePredictions.Validators.csproj" />
+  </ItemGroup>
+
+</Project>

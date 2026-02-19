@@ -1,0 +1,25 @@
+using FluentValidation;
+using ThePredictions.Contracts.Admin.Rounds;
+using ThePredictions.Validators.Admin.Matches;
+using System.Diagnostics.CodeAnalysis;
+
+namespace ThePredictions.Validators.Admin.Rounds;
+
+[SuppressMessage("ReSharper", "UnusedType.Global")]
+public class UpdateRoundRequestValidator : AbstractValidator<UpdateRoundRequest>
+{
+    public UpdateRoundRequestValidator()
+    {
+        RuleFor(x => x.StartDateUtc)
+            .NotEmpty().WithMessage("Please provide a start date for the round.");
+
+        RuleFor(x => x.DeadlineUtc)
+            .NotEmpty().WithMessage("Please provide a prediction deadline.")
+            .GreaterThan(x => x.StartDateUtc).WithMessage("The prediction deadline must be after the round's start date.");
+
+        RuleFor(x => x.Matches)
+            .NotEmpty().WithMessage("A round must contain at least one match.");
+
+        RuleForEach(x => x.Matches).SetValidator(new UpdateMatchRequestValidator());
+    }
+}

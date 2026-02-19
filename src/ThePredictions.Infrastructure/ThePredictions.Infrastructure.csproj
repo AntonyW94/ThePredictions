@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- ReSharper disable once VulnerablePackage -->
+        <PackageReference Include="brevo_csharp" Version="1.1.1" />
+        <PackageReference Include="Dapper" Version="2.1.66" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.14" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.14">
+          <TreatAsUsed>true</TreatAsUsed>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.4" />
+        <PackageReference Include="Serilog.AspNetCore" Version="8.0.3">
+          <TreatAsUsed>true</TreatAsUsed>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\ThePredictions.Application\ThePredictions.Application.csproj" />
+        <ProjectReference Include="..\ThePredictions.Contracts\ThePredictions.Contracts.csproj" />
+    </ItemGroup>
+
+</Project>

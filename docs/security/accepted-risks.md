@@ -15,7 +15,7 @@ These findings have been reviewed and accepted as intentional trade-offs.
 
 | Attribute | Value |
 |-----------|-------|
-| **File** | `src/PredictionLeague.API/Middleware/ErrorHandlingMiddleware.cs` |
+| **File** | `src/ThePredictions.API/Middleware/ErrorHandlingMiddleware.cs` |
 | **Finding** | Raw exception messages returned for `KeyNotFoundException`, `ArgumentException`, `InvalidOperationException` |
 | **CWE** | CWE-209 (Information Exposure Through Error Message) |
 | **Decision** | **Accepted** |
@@ -27,7 +27,7 @@ These findings have been reviewed and accepted as intentional trade-offs.
 
 | Attribute | Value |
 |-----------|-------|
-| **File** | `src/PredictionLeague.API/Middleware/SecurityHeadersMiddleware.cs` |
+| **File** | `src/ThePredictions.API/Middleware/SecurityHeadersMiddleware.cs` |
 | **Finding** | Deprecated `X-XSS-Protection: 1; mode=block` header included |
 | **Decision** | **Accepted** |
 | **Rationale** | Kept for backwards compatibility with older browsers. Modern browsers ignore it. |
@@ -38,7 +38,7 @@ These findings have been reviewed and accepted as intentional trade-offs.
 
 | Attribute | Value |
 |-----------|-------|
-| **Files** | Multiple DTOs in `src/PredictionLeague.Contracts/` |
+| **Files** | Multiple DTOs in `src/ThePredictions.Contracts/` |
 | **Finding** | Internal user IDs exposed in leaderboard and prediction response DTOs |
 | **CWE** | CWE-200 (Exposure of Sensitive Information) |
 | **Decision** | **Accepted** |
@@ -56,7 +56,7 @@ These items are known constraints of the current architecture. Each has a remedi
 
 | Attribute | Value |
 |-----------|-------|
-| **File** | `src/PredictionLeague.Web.Client/` (Blazor WASM) |
+| **File** | `src/ThePredictions.Web.Client/` (Blazor WASM) |
 | **Finding** | JWT access tokens stored in browser localStorage |
 | **CWE** | CWE-922 (Insecure Storage of Sensitive Information) |
 | **Decision** | **Deferred** - Blazor WASM architectural constraint |
@@ -69,7 +69,7 @@ These items are known constraints of the current architecture. Each has a remedi
 
 | Attribute | Value |
 |-----------|-------|
-| **File** | `src/PredictionLeague.API/Controllers/ExternalAuthController.cs` |
+| **File** | `src/ThePredictions.API/Controllers/ExternalAuthController.cs` |
 | **Finding** | Refresh token passed in URL during Google OAuth callback |
 | **CWE** | CWE-598 (Information Exposure Through Query Strings) |
 | **Decision** | **Deferred** - Mobile browser compatibility |
@@ -82,7 +82,7 @@ These items are known constraints of the current architecture. Each has a remedi
 
 | Attribute | Value |
 |-----------|-------|
-| **File** | `src/PredictionLeague.Infrastructure/Authentication/` |
+| **File** | `src/ThePredictions.Infrastructure/Authentication/` |
 | **Finding** | Refresh token cookies set with `SameSite=None` |
 | **Decision** | **Deferred** - Required for cross-site authentication |
 | **Rationale** | Necessary for the OAuth flow where the API and client may be on different subdomains. |
@@ -94,7 +94,7 @@ These items are known constraints of the current architecture. Each has a remedi
 
 | Attribute | Value |
 |-----------|-------|
-| **Files** | `src/PredictionLeague.Validators/` validators vs MediatR Commands/Queries |
+| **Files** | `src/ThePredictions.Validators/` validators vs MediatR Commands/Queries |
 | **Finding** | FluentValidation validators defined for Request DTOs are not automatically triggered; MediatR's `ValidationBehaviour` looks for Command/Query validators |
 | **CWE** | CWE-20 (Improper Input Validation) |
 | **Decision** | **Deferred** - FluentValidation.AspNetCore deprecated |

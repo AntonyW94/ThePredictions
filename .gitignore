@@ -365,9 +365,9 @@ MigrationBackup/
 FodyWeavers.xsd
 /tree.txt
 
-**/PredictionLeague.Web/appsettings.Production.Secrets.json
-**/PredictionLeague.Web/appsettings.Development.Secrets.json
-/src/PredictionLeague.Web/keys/*
+**/ThePredictions.Web/appsettings.Production.Secrets.json
+**/ThePredictions.Web/appsettings.Development.Secrets.json
+/src/ThePredictions.Web/keys/*
 
 # BuildBundlerMinifier output (generated during Release builds)
 **/wwwroot/css/app.min.css

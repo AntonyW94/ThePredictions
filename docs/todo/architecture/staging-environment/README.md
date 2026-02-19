@@ -6,7 +6,7 @@
 
 ## Overview
 
-This document covers the setup of a staging environment for PredictionLeague, including subdomain configuration, SSL, and deployment configuration.
+This document covers the setup of a staging environment for ThePredictions, including subdomain configuration, SSL, and deployment configuration.
 
 | Component | Value |
 |-----------|-------|

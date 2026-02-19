@@ -14,10 +14,10 @@ Create the core `ScenarioCalculator` service that performs elimination checks an
 
 | File | Action | Purpose |
 |------|--------|---------|
-| `PredictionLeague.Application/Features/Leagues/Services/IScenarioCalculator.cs` | Create | Interface for scenario calculation |
-| `PredictionLeague.Application/Features/Leagues/Services/ScenarioCalculator.cs` | Create | Main implementation |
-| `PredictionLeague.Application/Features/Leagues/Services/ScenarioModels.cs` | Create | Internal models for calculation |
-| `PredictionLeague.Application/DependencyInjection.cs` | Modify | Register service |
+| `ThePredictions.Application/Features/Leagues/Services/IScenarioCalculator.cs` | Create | Interface for scenario calculation |
+| `ThePredictions.Application/Features/Leagues/Services/ScenarioCalculator.cs` | Create | Main implementation |
+| `ThePredictions.Application/Features/Leagues/Services/ScenarioModels.cs` | Create | Internal models for calculation |
+| `ThePredictions.Application/DependencyInjection.cs` | Modify | Register service |
 
 ## Implementation Steps
 
@@ -26,8 +26,8 @@ Create the core `ScenarioCalculator` service that performs elimination checks an
 These models are internal to the service, not exposed via API.
 
 ```csharp
-// PredictionLeague.Application/Features/Leagues/Services/ScenarioModels.cs
-namespace PredictionLeague.Application.Features.Leagues.Services;
+// ThePredictions.Application/Features/Leagues/Services/ScenarioModels.cs
+namespace ThePredictions.Application.Features.Leagues.Services;
 
 /// <summary>
 /// Internal model representing a league member during calculation.
@@ -94,10 +94,10 @@ internal class ScenarioResult
 ### Step 2: Create Interface
 
 ```csharp
-// PredictionLeague.Application/Features/Leagues/Services/IScenarioCalculator.cs
-using PredictionLeague.Contracts.Leagues.Insights;
+// ThePredictions.Application/Features/Leagues/Services/IScenarioCalculator.cs
+using ThePredictions.Contracts.Leagues.Insights;
 
-namespace PredictionLeague.Application.Features.Leagues.Services;
+namespace ThePredictions.Application.Features.Leagues.Services;
 
 public interface IScenarioCalculator
 {
@@ -122,12 +122,12 @@ public interface IScenarioCalculator
 ### Step 3: Create Main Service Implementation
 
 ```csharp
-// PredictionLeague.Application/Features/Leagues/Services/ScenarioCalculator.cs
+// ThePredictions.Application/Features/Leagues/Services/ScenarioCalculator.cs
 using Microsoft.Extensions.Logging;
-using PredictionLeague.Application.Common.Interfaces;
-using PredictionLeague.Contracts.Leagues.Insights;
+using ThePredictions.Application.Common.Interfaces;
+using ThePredictions.Contracts.Leagues.Insights;
 
-namespace PredictionLeague.Application.Features.Leagues.Services;
+namespace ThePredictions.Application.Features.Leagues.Services;
 
 public class ScenarioCalculator : IScenarioCalculator
 {

@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\PredictionLeague.Domain\PredictionLeague.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\ThePredictions.Domain\ThePredictions.Domain.csproj" />
     <ProjectReference Include="..\..\Shared\ThePredictions.Tests.Shared\ThePredictions.Tests.Shared.csproj" />
   </ItemGroup>
 </Project>

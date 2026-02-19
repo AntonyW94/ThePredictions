@@ -1,6 +1,6 @@
 # Security Audit History
 
-Historical record of security audits and fixes for PredictionLeague. For current accepted risks and deferred items, see [`accepted-risks.md`](accepted-risks.md).
+Historical record of security audits and fixes for ThePredictions. For current accepted risks and deferred items, see [`accepted-risks.md`](accepted-risks.md).
 
 ## Audit Summary
 

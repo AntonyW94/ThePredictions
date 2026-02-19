@@ -1,0 +1,106 @@
+@page "/account/details"
+
+@attribute [Authorize]
+
+@inject HttpClient Http
+
+@using ThePredictions.Contracts.Account
+@using ThePredictions.Web.Client.ViewModels.Account
+
+<PageTitle>My Details</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <div class="page-container">
+            <div class="form-container">
+                <h3 class="text-center fw-bold text-white mb-4">My Details</h3>
+
+                @if (_isLoading)
+                {
+                    <p class="text-center text-white"><em>Loading your details...</em></p>
+                }
+                else if (_model != null)
+                {
+                    <BaseFormComponent TModel="UserDetailsViewModel"
+                                       Model = "_model"
+                                       SubmitAction="HandleUpdateDetailsAsync"
+                                       SuccessRedirectUrl="/dashboard"
+                                       BackUrl="/dashboard"
+                                       SuccessAlertMessage="Your details have been successfully updated"
+                                       ErrorAlertMessage="There was an error updating your details."
+                                       BusyText="Saving...">
+                        <ChildContent>
+                            <div class="mb-3">
+                                <label for="email" class="form-label text-white">Email Address</label>
+                                <input id="email" class="form-control" value="@_model.Email" readonly disabled />
+                                <small class="form-text text-white-50">Your email address cannot be changed.</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="firstName" class="form-label text-white">First Name</label>
+                                <InputText id="firstName" class="form-control" @bind-Value="_model.FirstName" />
+                                <StyledValidationMessage For="@(() => _model.FirstName)" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="lastName" class="form-label text-white">Last Name</label>
+                                <InputText id="lastName" class="form-control" @bind-Value="_model.LastName" />
+                                <StyledValidationMessage For="@(() => _model.LastName)" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="phoneNumber" class="form-label text-white">Phone Number (UK Mobile)</label>
+                                <InputText id="phoneNumber" class="form-control" @bind-Value="_model.PhoneNumber" />
+                                <StyledValidationMessage For="@(() => _model.PhoneNumber!)" />
+                            </div>
+                        </ChildContent>
+                    </BaseFormComponent>
+                } 
+                else
+                {
+                    <ApiError Message="@_errorMessage" />
+                }
+            </div>
+        </div>
+    </Authorized>
+
+    <NotAuthorized>
+        <p class="p-4">You must be logged in to view this page.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private UserDetailsViewModel? _model;
+    private bool _isLoading = true;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var userDetailsDto = await Http.GetFromJsonAsync<UserDetails>("api/account/details");
+            if (userDetailsDto != null)
+                _model = new UserDetailsViewModel(userDetailsDto);
+        }
+        catch (Exception)
+        {
+            _errorMessage = "Could not load user details.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private Task<HttpResponseMessage> HandleUpdateDetailsAsync()
+    {  
+        var request = new UpdateUserDetailsRequest
+        {
+            FirstName = _model!.FirstName,
+            LastName = _model!.LastName,
+            PhoneNumber = _model.PhoneNumber
+        };
+
+        return Http.PutAsJsonAsync("api/account/details", request);
+    }
+}

@@ -14,7 +14,7 @@ Add API endpoints to expose league insights and contender scenarios to the front
 
 | File | Action | Purpose |
 |------|--------|---------|
-| `PredictionLeague.API/Controllers/LeaguesController.cs` | Modify | Add insights endpoints |
+| `ThePredictions.API/Controllers/LeaguesController.cs` | Modify | Add insights endpoints |
 
 ## Implementation Steps
 
@@ -89,8 +89,8 @@ public async Task<ActionResult<ContenderInsights>> GetContenderScenarios(
 
 ```csharp
 // Add at top of LeaguesController.cs
-using PredictionLeague.Application.Features.Leagues.Queries;
-using PredictionLeague.Contracts.Leagues.Insights;
+using ThePredictions.Application.Features.Leagues.Queries;
+using ThePredictions.Contracts.Leagues.Insights;
 ```
 
 ### Step 3: Update Swagger Documentation (if needed)

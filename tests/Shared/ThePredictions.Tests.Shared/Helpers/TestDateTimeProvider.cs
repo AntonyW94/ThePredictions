@@ -1,4 +1,4 @@
-using PredictionLeague.Domain.Common;
+using ThePredictions.Domain.Common;
 
 namespace ThePredictions.Tests.Shared.Helpers;
 

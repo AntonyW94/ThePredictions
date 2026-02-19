@@ -32,19 +32,19 @@ Harden JWT configuration including SameSite cookie settings, clock skew, and alg
 
 ### 1. SameSite=None on Refresh Token Cookies (CRITICAL)
 
-**File:** `PredictionLeague.API/Controllers/AuthControllerBase.cs:24`
+**File:** `ThePredictions.API/Controllers/AuthControllerBase.cs:24`
 
 Current code uses `SameSite = SameSiteMode.None` which allows cross-site request forgery on token refresh endpoint.
 
 ### 2. No ClockSkew Configured (MEDIUM)
 
-**File:** `PredictionLeague.API/DependencyInjection.cs:46-55`
+**File:** `ThePredictions.API/DependencyInjection.cs:46-55`
 
 Using default 5-minute ClockSkew without explicit configuration.
 
 ### 3. No ValidateAlgorithm Whitelist (MEDIUM)
 
-**File:** `PredictionLeague.API/DependencyInjection.cs:46-55`
+**File:** `ThePredictions.API/DependencyInjection.cs:46-55`
 
 No explicit algorithm whitelist; could allow algorithm confusion attacks.
 

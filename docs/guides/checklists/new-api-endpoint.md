@@ -10,7 +10,7 @@ Follow the appropriate checklist:
 
 ## Step 2: Create the API Controller Method
 
-**Location:** `src/PredictionLeague.API/Controllers/{Area}Controller.cs`
+**Location:** `src/ThePredictions.API/Controllers/{Area}Controller.cs`
 
 ### For Commands (POST/PUT/DELETE)
 
@@ -138,7 +138,7 @@ public async Task<ActionResult<IEnumerable<LeagueSummaryDto>>> GetMyLeagues(Canc
 
 ## Step 3: Create Request DTOs (if needed)
 
-**Location:** `src/PredictionLeague.Contracts/Requests/{Area}/{RequestName}.cs`
+**Location:** `src/ThePredictions.Contracts/Requests/{Area}/{RequestName}.cs`
 
 ```csharp
 public record CreateLeagueRequest(
@@ -153,13 +153,13 @@ public record UpdateLeagueNameRequest(
 
 - [ ] Use `record` type
 - [ ] One file per request
-- [ ] Located in `src/PredictionLeague.Contracts/Requests/`
+- [ ] Located in `src/ThePredictions.Contracts/Requests/`
 - [ ] No validation attributes (use FluentValidation)
 - [ ] UK English spelling
 
 ## Step 4: Create Request Validators (if needed)
 
-**Location:** `src/PredictionLeague.Validators/Requests/{RequestName}Validator.cs`
+**Location:** `src/ThePredictions.Validators/Requests/{RequestName}Validator.cs`
 
 ```csharp
 public class CreateLeagueRequestValidator : AbstractValidator<CreateLeagueRequest>

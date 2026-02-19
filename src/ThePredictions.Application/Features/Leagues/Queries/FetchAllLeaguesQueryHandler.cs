@@ -1,0 +1,51 @@
+using MediatR;
+using ThePredictions.Application.Data;
+using ThePredictions.Contracts.Leagues;
+
+namespace ThePredictions.Application.Features.Leagues.Queries;
+
+public class FetchAllLeaguesQueryHandler : IRequestHandler<FetchAllLeaguesQuery, IEnumerable<LeagueDto>>
+{
+    private readonly IApplicationReadDbConnection _dbConnection;
+
+    public FetchAllLeaguesQueryHandler(IApplicationReadDbConnection dbConnection)
+    {
+        _dbConnection = dbConnection;
+    }
+
+    public async Task<IEnumerable<LeagueDto>> Handle(FetchAllLeaguesQuery request, CancellationToken cancellationToken)
+    {
+        const string sql = @"
+            SELECT
+                l.[Id],
+                l.[Name],
+                s.[Name] AS SeasonName,
+                COUNT(lm.[UserId]) AS MemberCount,
+                l.[Price],
+                ISNULL(l.[EntryCode], 'Public') AS EntryCode,
+                l.[EntryDeadlineUtc],
+                l.[PointsForExactScore],
+                l.[PointsForCorrectResult]
+            FROM
+                [Leagues] l
+            JOIN
+                [Seasons] s ON l.[SeasonId] = s.[Id]
+            LEFT JOIN
+                [LeagueMembers] lm ON l.[Id] = lm.[LeagueId]
+            GROUP BY
+                l.[Id],
+                l.[Name],
+                s.[Name],
+                l.[Price],
+                ISNULL(l.[EntryCode], 'Public'),
+                l.[EntryDeadlineUtc],
+                l.[PointsForExactScore],
+                l.[PointsForCorrectResult],
+                s.[StartDateUtc]
+            ORDER BY
+                s.[StartDateUtc] DESC,
+                l.[Name] ASC;";
+
+        return await _dbConnection.QueryAsync<LeagueDto>(sql, cancellationToken);
+    }
+}

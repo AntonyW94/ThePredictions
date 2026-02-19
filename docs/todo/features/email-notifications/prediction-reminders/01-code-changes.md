@@ -12,7 +12,7 @@ Add `PREDICTIONS_URL`, `URGENCY`, and `TIME_REMAINING` parameters to the predict
 
 ### 1. Add `SiteBaseUrl` to `BrevoSettings`
 
-**File:** `PredictionLeague.Application/Configuration/BrevoSettings.cs`
+**File:** `ThePredictions.Application/Configuration/BrevoSettings.cs`
 
 ```csharp
 public class BrevoSettings
@@ -27,7 +27,7 @@ public class BrevoSettings
 
 ### 2. Add `SiteBaseUrl` to appsettings
 
-**File:** `PredictionLeague.Web/PredictionLeague.Web/appsettings.json`
+**File:** `ThePredictions.Web/ThePredictions.Web/appsettings.json`
 
 ```json
 "Brevo": {
@@ -42,13 +42,13 @@ public class BrevoSettings
 }
 ```
 
-**File:** `PredictionLeague.Web/PredictionLeague.Web/appsettings.Development.json`
+**File:** `ThePredictions.Web/ThePredictions.Web/appsettings.Development.json`
 
 Add `SiteBaseUrl` pointing to `https://localhost:7132` (or whatever the local dev URL is).
 
 ### 3. Update `SendScheduledRemindersCommandHandler`
 
-**File:** `PredictionLeague.Application/Features/Admin/Rounds/Commands/SendScheduledRemindersCommandHandler.cs`
+**File:** `ThePredictions.Application/Features/Admin/Rounds/Commands/SendScheduledRemindersCommandHandler.cs`
 
 Replace the parameters block in the `foreach` loop:
 

@@ -1,0 +1,86 @@
+@inject ILeagueService LeagueService
+@inject IDashboardStateService DashboardState
+
+@using ThePredictions.Contracts.Leagues
+@using ThePredictions.Web.Client.Services.Dashboard
+@using ThePredictions.Web.Client.Services.Leagues
+
+<div class="modal fade" id="joinPrivateLeagueModal" tabindex="-1" aria-labelledby="joinPrivateLeagueModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-purple-600 text-white">
+            <div class="modal-header border-purple-900">
+                <h5 class="modal-title fw-bold text-white" id="joinPrivateLeagueModalLabel">Join Private League</h5>
+                <button type="button" class="btn-close btn-close-white" @onclick="Close" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ApiError Message="@_errorMessage" />
+                <EditForm Model="_model" OnValidSubmit="HandleJoinAsync">
+                    <FluentValidationValidator />
+                    <div class="mb-3">
+                        <label for="entryCode" class="form-label">Entry Code</label>
+                        <InputText id="entryCode" class="form-control" @bind-Value="_model.EntryCode" placeholder="Enter 6-character code" />
+                        <StyledValidationMessage For="@(() => _model.EntryCode)" />
+                    </div>
+
+                    <div class="d-flex justify-content-end align-items-center mt-4">
+                        <button type="button" class="btn red-button me-2" @onclick="Close">
+                            <span class="bi bi-x-circle me-2"></span>Cancel
+                        </button>
+                        <button type="submit" class="btn green-button" disabled="@_isBusy">
+                            @if (_isBusy)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2"></span>
+                                <span>Joining...</span>
+                            }
+                            else
+                            {
+                                <span class="bi bi-check-circle me-2"></span>
+                                <span>Join League</span>
+                            }
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private readonly JoinLeagueRequest _model = new()
+    {
+        EntryCode = string.Empty
+    };
+
+    private bool _isBusy;
+    private string? _errorMessage;
+
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private async Task HandleJoinAsync()
+    {
+        _isBusy = true;
+        _errorMessage = null;
+
+        var (success, errorMessage) = await LeagueService.JoinPrivateLeagueAsync(_model.EntryCode);
+
+        if (success)
+        {
+            await DashboardState.LoadMyLeaguesAsync();
+            await Close();
+        }
+        else
+        {
+            _errorMessage = errorMessage;
+        }
+
+        _isBusy = false;
+    }
+
+    private async Task Close()
+    {
+        _model.EntryCode = string.Empty;
+        _errorMessage = null;
+        _isBusy = false;
+        await OnClose.InvokeAsync();
+    }
+}

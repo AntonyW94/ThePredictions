@@ -1,0 +1,86 @@
+@using ThePredictions.Contracts.Leagues
+@using System.Globalization
+
+@if (Leagues == null || !Leagues.Any())
+{
+    <p class="text-white">There are no leagues in this category.</p>
+}
+else
+{
+    <div>
+        @foreach (var league in Leagues)
+        {
+            <div class="card">
+                <div class="header">
+                    <h5 class="fw-bold text-white">@league.Name</h5>
+                    <small class="text-white-50 fw-bold">@league.SeasonName</small>
+                </div>
+                <div class="body">
+                    <dl class="mb-0 detail-list">
+                        <div class="detail-row centered">
+                            <div class="badge-group badge-group--red">
+                                <span class="badge-icon"><i class="bi bi-alarm"></i></span>
+                                <LocalTime UtcDate="@league.EntryDeadlineUtc" />
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="badge-group badge-group--green">
+                                <span class="badge-icon">
+                                    <i class="bi bi-cash-stack"></i>
+                                </span>
+                                <span>@(league.Price > 0 ? league.Price.ToString("C", new CultureInfo("en-GB")) : "FREE")</span>
+                            </div>
+                            <div class="badge-group badge-group--blue">
+                                <span class="badge-icon">
+                                    <i class="bi bi-key-fill"></i>
+                                </span>
+                                <span>
+                                    @if (league.EntryCode == "Public")
+                                    {
+                                        @league.EntryCode.ToUpper()
+                                    }
+                                    else
+                                    {
+                                        <code>@league.EntryCode</code>
+                                    }
+                                </span>
+                            </div>
+                        </div>
+                    </dl>
+                </div>
+                <div class="footer columns-2">
+                    <a class="btn purple-accent-button" title="Edit Prizes" href="@($"/leagues/{league.Id}/prizes")">
+                        <span class="bi bi-trophy-fill"></span>
+                        <span class="d-none d-md-inline">Prizes</span>
+                    </a>
+
+                    <a class="btn blue-light-button" href="/leagues/@league.Id/members">
+                        <span class="bi bi-people-fill"></span>
+                        <span class="d-none d-md-inline">@league.MemberCount @(league.MemberCount == 1 ? "Member" : "Members")</span>
+                    </a>
+
+                    <button class="btn green-button" @onclick="() => OnEditLeague.InvokeAsync(league.Id)">
+                        <span class="bi bi-pencil-fill"></span>
+                        <span class="d-none d-md-inline">Edit</span>
+                    </button>
+
+                    <button class="btn red-button" @onclick="() => OnDeleteLeague.InvokeAsync((league.Id, league.Name))">
+                        <span class="bi bi-trash-fill"></span>
+                        <span class="d-none d-md-inline">Delete</span>
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public List<LeagueDto>? Leagues { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnEditLeague { get; set; }
+
+    [Parameter]
+    public EventCallback<(int leagueId, string leagueName)> OnDeleteLeague { get; set; }
+}

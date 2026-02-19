@@ -86,25 +86,25 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore PredictionLeague.sln
+        run: dotnet restore ThePredictions.sln
 
       - name: Build solution
-        run: dotnet build PredictionLeague.sln --no-restore --configuration Release /p:TreatWarningsAsErrors=true
+        run: dotnet build ThePredictions.sln --no-restore --configuration Release /p:TreatWarningsAsErrors=true
 
       - name: Run Domain tests
-        run: dotnet test tests/PredictionLeague.Domain.Tests --no-build --configuration Release --verbosity normal --logger "trx;LogFileName=domain-results.trx"
+        run: dotnet test tests/ThePredictions.Domain.Tests --no-build --configuration Release --verbosity normal --logger "trx;LogFileName=domain-results.trx"
 
       - name: Run Validator tests
-        run: dotnet test tests/PredictionLeague.Validators.Tests --no-build --configuration Release --verbosity normal --logger "trx;LogFileName=validator-results.trx"
+        run: dotnet test tests/ThePredictions.Validators.Tests --no-build --configuration Release --verbosity normal --logger "trx;LogFileName=validator-results.trx"
 
       - name: Run Application tests
-        run: dotnet test tests/PredictionLeague.Application.Tests --no-build --configuration Release --verbosity normal --logger "trx;LogFileName=application-results.trx"
+        run: dotnet test tests/ThePredictions.Application.Tests --no-build --configuration Release --verbosity normal --logger "trx;LogFileName=application-results.trx"
 
       - name: Run Infrastructure tests
-        run: dotnet test tests/PredictionLeague.Infrastructure.Tests --no-build --configuration Release --verbosity normal --logger "trx;LogFileName=infrastructure-results.trx"
+        run: dotnet test tests/ThePredictions.Infrastructure.Tests --no-build --configuration Release --verbosity normal --logger "trx;LogFileName=infrastructure-results.trx"
 
       - name: Run API tests
-        run: dotnet test tests/PredictionLeague.API.Tests --no-build --configuration Release --verbosity normal --logger "trx;LogFileName=api-results.trx"
+        run: dotnet test tests/ThePredictions.API.Tests --no-build --configuration Release --verbosity normal --logger "trx;LogFileName=api-results.trx"
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
@@ -166,20 +166,20 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore PredictionLeague.sln
+        run: dotnet restore ThePredictions.sln
 
       - name: Build solution
-        run: dotnet build PredictionLeague.sln --no-restore --configuration Release
+        run: dotnet build ThePredictions.sln --no-restore --configuration Release
 
       - name: Run all tests
-        run: dotnet test PredictionLeague.sln --no-build --configuration Release --verbosity normal
+        run: dotnet test ThePredictions.sln --no-build --configuration Release --verbosity normal
 
       - name: Publish Web application
         run: |
           if [ "${{ github.event.inputs.environment }}" = "production" ]; then
-            dotnet publish src/PredictionLeague.Web/PredictionLeague.Web.csproj --configuration Release --output ./publish --no-build -p:PublishProfile="Publish to Production"
+            dotnet publish src/ThePredictions.Web/ThePredictions.Web.csproj --configuration Release --output ./publish --no-build -p:PublishProfile="Publish to Production"
           else
-            dotnet publish src/PredictionLeague.Web/PredictionLeague.Web.csproj --configuration Release --output ./publish --no-build -p:PublishProfile="Publish to Development"
+            dotnet publish src/ThePredictions.Web/ThePredictions.Web.csproj --configuration Release --output ./publish --no-build -p:PublishProfile="Publish to Development"
           fi
 
       - name: Deploy to Fasthosts via FTP
@@ -303,7 +303,7 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Build solution
-        run: dotnet build PredictionLeague.sln --configuration Release
+        run: dotnet build ThePredictions.sln --configuration Release
 
       # Cache Playwright browsers
       - name: Cache Playwright browsers
@@ -311,7 +311,7 @@ jobs:
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('**/PredictionLeague.E2E.Tests.csproj') }}
+          key: playwright-${{ runner.os }}-${{ hashFiles('**/ThePredictions.E2E.Tests.csproj') }}
 
       - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
@@ -327,19 +327,19 @@ jobs:
 
       # Setup test database
       - name: Setup test database
-        run: dotnet run --project tools/PredictionLeague.TestDbSeeder --configuration Release
+        run: dotnet run --project tools/ThePredictions.TestDbSeeder --configuration Release
         env:
           TEST_DB_PATH: ./test-e2e.db
           TEST_ACCOUNT_PASSWORD: ${{ secrets.TEST_ACCOUNT_PASSWORD }}
 
       # Publish and start application
       - name: Publish application
-        run: dotnet publish src/PredictionLeague.Web/PredictionLeague.Web.csproj --configuration Release --output ./publish
+        run: dotnet publish src/ThePredictions.Web/ThePredictions.Web.csproj --configuration Release --output ./publish
 
       - name: Start application
         run: |
           cd ./publish
-          nohup dotnet PredictionLeague.Web.dll --urls "http://localhost:5000" > ../app.log 2>&1 &
+          nohup dotnet ThePredictions.Web.dll --urls "http://localhost:5000" > ../app.log 2>&1 &
           echo $! > ../app.pid
         env:
           ASPNETCORE_ENVIRONMENT: Testing
@@ -362,7 +362,7 @@ jobs:
 
       # Run E2E tests
       - name: Run E2E tests
-        run: dotnet test tests/PredictionLeague.E2E.Tests --configuration Release --logger "trx;LogFileName=e2e-results.trx"
+        run: dotnet test tests/ThePredictions.E2E.Tests --configuration Release --logger "trx;LogFileName=e2e-results.trx"
         env:
           E2E_BASE_URL: http://localhost:5000
           E2E_TEST_USER_EMAIL: testplayer@dev.local
@@ -386,8 +386,8 @@ jobs:
         with:
           name: playwright-traces
           path: |
-            tests/PredictionLeague.E2E.Tests/bin/Release/net8.0/playwright-traces/
-            tests/PredictionLeague.E2E.Tests/screenshots/
+            tests/ThePredictions.E2E.Tests/bin/Release/net8.0/playwright-traces/
+            tests/ThePredictions.E2E.Tests/screenshots/
           retention-days: 7
 
       - name: Show application logs on failure
@@ -465,9 +465,9 @@ tools/
 │   ├── Program.cs
 │   └── ThePredictions.DatabaseTools.csproj
 │
-└── PredictionLeague.TestDbSeeder/   ← To create (E2E test seeder)
+└── ThePredictions.TestDbSeeder/   ← To create (E2E test seeder)
     ├── Program.cs
-    └── PredictionLeague.TestDbSeeder.csproj
+    └── ThePredictions.TestDbSeeder.csproj
 ```
 
 ### Step 4: Verify Setup
@@ -619,4 +619,4 @@ If you had started with the Azure DevOps plan:
 | `.github/workflows/backup-prod-db.yml` | Production backup workflow | ✅ Implemented |
 | `.github/workflows/e2e.yml` | E2E test workflow | Not started |
 | `tools/ThePredictions.DatabaseTools/` | Database tools (refresh/backup) | ✅ Implemented |
-| `tools/PredictionLeague.TestDbSeeder/` | E2E test database seeder | Not started |
+| `tools/ThePredictions.TestDbSeeder/` | E2E test database seeder | Not started |

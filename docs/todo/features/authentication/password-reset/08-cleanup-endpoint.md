@@ -14,16 +14,16 @@ Create a scheduled task endpoint for cleaning up expired data. Initially this wi
 
 | File | Action | Purpose |
 |------|--------|---------|
-| `PredictionLeague.Application/Features/Admin/Tasks/Commands/CleanupExpiredDataCommand.cs` | Create | Command record |
-| `PredictionLeague.Application/Features/Admin/Tasks/Commands/CleanupExpiredDataCommandHandler.cs` | Create | Command handler |
+| `ThePredictions.Application/Features/Admin/Tasks/Commands/CleanupExpiredDataCommand.cs` | Create | Command record |
+| `ThePredictions.Application/Features/Admin/Tasks/Commands/CleanupExpiredDataCommandHandler.cs` | Create | Command handler |
 
 ## Files to Modify
 
 | File | Action | Purpose |
 |------|--------|---------|
-| `PredictionLeague.Application/Repositories/IPasswordResetTokenRepository.cs` | Modify | Add `DeleteTokensOlderThanAsync` method |
-| `PredictionLeague.Infrastructure/Repositories/PasswordResetTokenRepository.cs` | Modify | Implement `DeleteTokensOlderThanAsync` |
-| `PredictionLeague.API/Controllers/TasksController.cs` | Modify | Add cleanup endpoint |
+| `ThePredictions.Application/Repositories/IPasswordResetTokenRepository.cs` | Modify | Add `DeleteTokensOlderThanAsync` method |
+| `ThePredictions.Infrastructure/Repositories/PasswordResetTokenRepository.cs` | Modify | Implement `DeleteTokensOlderThanAsync` |
+| `ThePredictions.API/Controllers/TasksController.cs` | Modify | Add cleanup endpoint |
 
 ## Implementation Steps
 
@@ -60,7 +60,7 @@ public async Task<int> DeleteTokensOlderThanAsync(DateTime olderThanUtc, Cancell
 
 using MediatR;
 
-namespace PredictionLeague.Application.Features.Admin.Tasks.Commands;
+namespace ThePredictions.Application.Features.Admin.Tasks.Commands;
 
 public record CleanupExpiredDataCommand : IRequest<CleanupResult>;
 
@@ -77,9 +77,9 @@ public record CleanupResult(
 
 using MediatR;
 using Microsoft.Extensions.Logging;
-using PredictionLeague.Application.Repositories;
+using ThePredictions.Application.Repositories;
 
-namespace PredictionLeague.Application.Features.Admin.Tasks.Commands;
+namespace ThePredictions.Application.Features.Admin.Tasks.Commands;
 
 public class CleanupExpiredDataCommandHandler : IRequestHandler<CleanupExpiredDataCommand, CleanupResult>
 {
@@ -152,7 +152,7 @@ public async Task<IActionResult> CleanupExpiredDataAsync(CancellationToken cance
 Add the required using statement:
 
 ```csharp
-using PredictionLeague.Application.Features.Admin.Tasks.Commands;
+using ThePredictions.Application.Features.Admin.Tasks.Commands;
 ```
 
 ### Step 5: Update Cron Job

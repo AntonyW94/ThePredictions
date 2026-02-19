@@ -4,7 +4,7 @@ Use this checklist when adding a new domain entity to the project.
 
 ## Step 1: Create the Entity Class
 
-**Location:** `src/PredictionLeague.Domain/Entities/{EntityName}.cs`
+**Location:** `src/ThePredictions.Domain/Entities/{EntityName}.cs`
 
 ```csharp
 public class Match
@@ -85,7 +85,7 @@ public class Match
 
 ## Step 2: Create the Repository Interface
 
-**Location:** `src/PredictionLeague.Domain/Interfaces/I{EntityName}Repository.cs`
+**Location:** `src/ThePredictions.Domain/Interfaces/I{EntityName}Repository.cs`
 
 ```csharp
 public interface IMatchRepository
@@ -108,7 +108,7 @@ public interface IMatchRepository
 
 ## Step 3: Create the Repository Implementation
 
-**Location:** `src/PredictionLeague.Infrastructure/Repositories/{EntityName}Repository.cs`
+**Location:** `src/ThePredictions.Infrastructure/Repositories/{EntityName}Repository.cs`
 
 ```csharp
 public class MatchRepository : IMatchRepository
@@ -194,7 +194,7 @@ public class MatchRepository : IMatchRepository
 
 ## Step 4: Register the Repository
 
-**Location:** `src/PredictionLeague.Infrastructure/DependencyInjection.cs`
+**Location:** `src/ThePredictions.Infrastructure/DependencyInjection.cs`
 
 ```csharp
 services.AddScoped<IMatchRepository, MatchRepository>();
@@ -202,7 +202,7 @@ services.AddScoped<IMatchRepository, MatchRepository>();
 
 ## Step 5: Create Database Migration (if needed)
 
-**Location:** `src/PredictionLeague.Infrastructure/Migrations/`
+**Location:** `src/ThePredictions.Infrastructure/Migrations/`
 
 ```sql
 CREATE TABLE [Matches] (
@@ -231,9 +231,9 @@ CREATE TABLE [Matches] (
 
 ## Verification Checklist
 
-- [ ] Entity class in `src/PredictionLeague.Domain/Entities/`
-- [ ] Repository interface in `src/PredictionLeague.Domain/Interfaces/`
-- [ ] Repository implementation in `src/PredictionLeague.Infrastructure/Repositories/`
+- [ ] Entity class in `src/ThePredictions.Domain/Entities/`
+- [ ] Repository interface in `src/ThePredictions.Domain/Interfaces/`
+- [ ] Repository implementation in `src/ThePredictions.Infrastructure/Repositories/`
 - [ ] Repository registered in DI container
 - [ ] Database migration created (if needed)
 - [ ] All DateTime properties end with `Utc`

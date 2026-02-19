@@ -54,7 +54,7 @@ Add concrete JSON examples so developers can see exactly what to send and receiv
 
 ### 1.1 Install Swashbuckle.AspNetCore.Filters
 
-**File:** `PredictionLeague.API/PredictionLeague.API.csproj`
+**File:** `ThePredictions.API/ThePredictions.API.csproj`
 
 ```xml
 <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="8.0.2" />
@@ -62,7 +62,7 @@ Add concrete JSON examples so developers can see exactly what to send and receiv
 
 ### 1.2 Configure Example Filters
 
-**File:** `PredictionLeague.API/DependencyInjection.cs`
+**File:** `ThePredictions.API/DependencyInjection.cs`
 
 Add to the `AddSwaggerGen` configuration:
 
@@ -81,16 +81,16 @@ services.AddSwaggerExamplesFromAssemblyOf<Program>();
 
 ### 1.3 Create Example Classes
 
-Create folder: `PredictionLeague.API/Swagger/Examples/`
+Create folder: `ThePredictions.API/Swagger/Examples/`
 
 **Example structure:**
 
 ```csharp
-// File: PredictionLeague.API/Swagger/Examples/Auth/LoginRequestExample.cs
-using PredictionLeague.Contracts.Authentication;
+// File: ThePredictions.API/Swagger/Examples/Auth/LoginRequestExample.cs
+using ThePredictions.Contracts.Authentication;
 using Swashbuckle.AspNetCore.Filters;
 
-namespace PredictionLeague.API.Swagger.Examples.Auth;
+namespace ThePredictions.API.Swagger.Examples.Auth;
 
 public class LoginRequestExample : IExamplesProvider<LoginRequest>
 {
@@ -126,7 +126,7 @@ public class AuthenticationResponseExample : IExamplesProvider<AuthenticationRes
 
 ### 1.4 Apply Examples to Endpoints
 
-**File:** `PredictionLeague.API/Controllers/AuthController.cs`
+**File:** `ThePredictions.API/Controllers/AuthController.cs`
 
 ```csharp
 [HttpPost("login")]
@@ -161,10 +161,10 @@ Document what error responses look like so developers can handle them properly.
 
 ### 2.1 Create Standard Error Response DTO
 
-**File:** `PredictionLeague.Contracts/Common/ApiErrorResponse.cs`
+**File:** `ThePredictions.Contracts/Common/ApiErrorResponse.cs`
 
 ```csharp
-namespace PredictionLeague.Contracts.Common;
+namespace ThePredictions.Contracts.Common;
 
 /// <summary>
 /// Standard error response returned by all API endpoints.
@@ -195,10 +195,10 @@ public record ApiErrorResponse
 
 ### 2.2 Create Error Response Examples
 
-**File:** `PredictionLeague.API/Swagger/Examples/Common/ErrorResponseExamples.cs`
+**File:** `ThePredictions.API/Swagger/Examples/Common/ErrorResponseExamples.cs`
 
 ```csharp
-namespace PredictionLeague.API.Swagger.Examples.Common;
+namespace ThePredictions.API.Swagger.Examples.Common;
 
 public class ValidationErrorExample : IExamplesProvider<ApiErrorResponse>
 {
@@ -281,7 +281,7 @@ Add a quick reference guide directly in Swagger UI for easy onboarding.
 
 ### 3.1 Update API Description
 
-**File:** `PredictionLeague.API/DependencyInjection.cs`
+**File:** `ThePredictions.API/DependencyInjection.cs`
 
 Update the SwaggerDoc description to include a quick start:
 
@@ -348,13 +348,13 @@ Access tokens expire after **15 minutes**. Use `/api/auth/refresh-token` to get 
 
 | File | Purpose |
 |------|---------|
-| `PredictionLeague.API/Swagger/Examples/Auth/*.cs` | Auth request/response examples |
-| `PredictionLeague.API/Swagger/Examples/Leagues/*.cs` | League request/response examples |
-| `PredictionLeague.API/Swagger/Examples/Predictions/*.cs` | Prediction examples |
-| `PredictionLeague.API/Swagger/Examples/Boosts/*.cs` | Boost examples |
-| `PredictionLeague.API/Swagger/Examples/Admin/*.cs` | Admin endpoint examples |
-| `PredictionLeague.API/Swagger/Examples/Common/*.cs` | Error response examples |
-| `PredictionLeague.Contracts/Common/ApiErrorResponse.cs` | Standard error DTO |
+| `ThePredictions.API/Swagger/Examples/Auth/*.cs` | Auth request/response examples |
+| `ThePredictions.API/Swagger/Examples/Leagues/*.cs` | League request/response examples |
+| `ThePredictions.API/Swagger/Examples/Predictions/*.cs` | Prediction examples |
+| `ThePredictions.API/Swagger/Examples/Boosts/*.cs` | Boost examples |
+| `ThePredictions.API/Swagger/Examples/Admin/*.cs` | Admin endpoint examples |
+| `ThePredictions.API/Swagger/Examples/Common/*.cs` | Error response examples |
+| `ThePredictions.Contracts/Common/ApiErrorResponse.cs` | Standard error DTO |
 
 ---
 

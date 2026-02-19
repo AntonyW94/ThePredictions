@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\PredictionLeague.Domain\PredictionLeague.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\ThePredictions.Domain\ThePredictions.Domain.csproj" />
   </ItemGroup>
 
 </Project>

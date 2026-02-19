@@ -41,13 +41,13 @@ Create the `ThePredictions.Validators.Tests.Unit` test project and the `ThePredi
 | `tests/Shared/ThePredictions.Tests.Builders/Admin/Users/DeleteUserRequestBuilder.cs` | Create | Builder |
 | `tests/Shared/ThePredictions.Tests.Builders/Admin/Users/UpdateUserRoleRequestBuilder.cs` | Create | Builder |
 | `tests/Shared/ThePredictions.Tests.Builders/Account/UpdateUserDetailsRequestBuilder.cs` | Create | Builder |
-| `PredictionLeague.sln` | Modify | Add both projects to solution |
+| `ThePredictions.sln` | Modify | Add both projects to solution |
 
 ## Implementation Steps
 
 ### Step 1: Create the Builders Project
 
-Create `tests/Shared/ThePredictions.Tests.Builders/ThePredictions.Tests.Builders.csproj`. This project only references `PredictionLeague.Contracts`:
+Create `tests/Shared/ThePredictions.Tests.Builders/ThePredictions.Tests.Builders.csproj`. This project only references `ThePredictions.Contracts`:
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -58,7 +58,7 @@ Create `tests/Shared/ThePredictions.Tests.Builders/ThePredictions.Tests.Builders
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\PredictionLeague.Contracts\PredictionLeague.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\src\ThePredictions.Contracts\ThePredictions.Contracts.csproj" />
   </ItemGroup>
 </Project>
 ```
@@ -88,7 +88,7 @@ Create `tests/Unit/ThePredictions.Validators.Tests.Unit/ThePredictions.Validator
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\PredictionLeague.Validators\PredictionLeague.Validators.csproj" />
+    <ProjectReference Include="..\..\..\src\ThePredictions.Validators\ThePredictions.Validators.csproj" />
     <ProjectReference Include="..\..\Shared\ThePredictions.Tests.Builders\ThePredictions.Tests.Builders.csproj" />
   </ItemGroup>
 </Project>
@@ -99,8 +99,8 @@ Create `tests/Unit/ThePredictions.Validators.Tests.Unit/ThePredictions.Validator
 ### Step 3: Add Both Projects to Solution
 
 ```bash
-dotnet sln PredictionLeague.sln add tests/Shared/ThePredictions.Tests.Builders/ThePredictions.Tests.Builders.csproj --solution-folder "Tests\Shared"
-dotnet sln PredictionLeague.sln add tests/Unit/ThePredictions.Validators.Tests.Unit/ThePredictions.Validators.Tests.Unit.csproj --solution-folder "Tests\Unit"
+dotnet sln ThePredictions.sln add tests/Shared/ThePredictions.Tests.Builders/ThePredictions.Tests.Builders.csproj --solution-folder "Tests\Shared"
+dotnet sln ThePredictions.sln add tests/Unit/ThePredictions.Validators.Tests.Unit/ThePredictions.Validators.Tests.Unit.csproj --solution-folder "Tests\Unit"
 ```
 
 ### Step 4: Create Folder Structures
@@ -321,7 +321,7 @@ All remaining builders follow the same pattern. The table below lists each build
 ### Step 6: Verify Build
 
 ```bash
-dotnet build PredictionLeague.sln
+dotnet build ThePredictions.sln
 ```
 
 Confirm both new projects compile with all dependencies resolved.
@@ -352,13 +352,13 @@ Match the existing domain test project for package versions:
 - [ ] All folder directories are created in both projects
 - [ ] `new CreateLeagueRequestBuilder().Build()` produces a valid `CreateLeagueRequest`
 - [ ] `tools\Test Coverage\coverage-unit.bat` discovers the new test project
-- [ ] Builders project does NOT reference `PredictionLeague.Domain`
+- [ ] Builders project does NOT reference `ThePredictions.Domain`
 - [ ] `ThePredictions.Tests.Shared` is NOT modified (remains Domain-only)
 
 ## Notes
 
 - The `FluentValidation.TestHelper` namespace is built into the main FluentValidation package (12.1.1). No separate NuGet package is needed — it comes transitively via the Validators project reference.
-- The builders project references `PredictionLeague.Contracts` only. The existing `ThePredictions.Tests.Shared` project continues to reference `PredictionLeague.Domain` only. This separation keeps dependencies clean.
+- The builders project references `ThePredictions.Contracts` only. The existing `ThePredictions.Tests.Shared` project continues to reference `ThePredictions.Domain` only. This separation keeps dependencies clean.
 - The builders folder structure mirrors the Contracts project (where the request/DTO types live). The test folder structure mirrors the Validators project (where the validators live). Both projects now use `Admin/Matches/` for all match-related types including `MatchResultDto`/`MatchResultDtoValidator`.
 - Coverlet will automatically measure the Validators assembly because the test project has a `ProjectReference` to it via the Validators project reference. No changes to `coverage.runsettings` are needed.
 - No `[ExcludeFromCodeCoverage]` should be needed — all validator code is testable through the public API.

@@ -1,6 +1,6 @@
 # CSS Reference
 
-This file contains detailed CSS reference material for the PredictionLeague application. For rules and conventions, see the main [CLAUDE.md](../CLAUDE.md) file.
+This file contains detailed CSS reference material for the ThePredictions application. For rules and conventions, see the main [CLAUDE.md](../CLAUDE.md) file.
 
 ## Design Tokens (variables.css)
 

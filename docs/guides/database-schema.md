@@ -1,6 +1,6 @@
 # Database Schema - ThePredictions
 
-This document describes the SQL Server database schema for the PredictionLeague application.
+This document describes the SQL Server database schema for the ThePredictions application.
 
 ## Entity Relationship Overview
 

@@ -14,10 +14,10 @@ Create a Blazor page where users can enter their email to request a password res
 
 | File | Action | Purpose |
 |------|--------|---------|
-| `PredictionLeague.Web.Client/Components/Pages/Authentication/ForgotPassword.razor` | Create | Forgot password page |
-| `PredictionLeague.Web.Client/Services/IAuthenticationService.cs` | Modify | Add forgot password method |
-| `PredictionLeague.Web.Client/Services/AuthenticationService.cs` | Modify | Implement forgot password method |
-| `PredictionLeague.Web.Client/Components/Pages/Authentication/Login.razor` | Modify | Add "Forgot password?" link |
+| `ThePredictions.Web.Client/Components/Pages/Authentication/ForgotPassword.razor` | Create | Forgot password page |
+| `ThePredictions.Web.Client/Services/IAuthenticationService.cs` | Modify | Add forgot password method |
+| `ThePredictions.Web.Client/Services/AuthenticationService.cs` | Modify | Implement forgot password method |
+| `ThePredictions.Web.Client/Components/Pages/Authentication/Login.razor` | Modify | Add "Forgot password?" link |
 
 ## Implementation Steps
 

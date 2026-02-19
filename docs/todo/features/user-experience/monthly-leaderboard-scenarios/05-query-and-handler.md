@@ -14,21 +14,21 @@ Create MediatR query and handler to expose the scenario calculation logic throug
 
 | File | Action | Purpose |
 |------|--------|---------|
-| `PredictionLeague.Application/Features/Leagues/Queries/GetLeagueInsightsQuery.cs` | Create | Query request definition |
-| `PredictionLeague.Application/Features/Leagues/Queries/GetLeagueInsightsQueryHandler.cs` | Create | Handler implementation |
-| `PredictionLeague.Application/Features/Leagues/Queries/GetContenderScenariosQuery.cs` | Create | Query for detailed user scenarios |
-| `PredictionLeague.Application/Features/Leagues/Queries/GetContenderScenariosQueryHandler.cs` | Create | Handler for detailed scenarios |
+| `ThePredictions.Application/Features/Leagues/Queries/GetLeagueInsightsQuery.cs` | Create | Query request definition |
+| `ThePredictions.Application/Features/Leagues/Queries/GetLeagueInsightsQueryHandler.cs` | Create | Handler implementation |
+| `ThePredictions.Application/Features/Leagues/Queries/GetContenderScenariosQuery.cs` | Create | Query for detailed user scenarios |
+| `ThePredictions.Application/Features/Leagues/Queries/GetContenderScenariosQueryHandler.cs` | Create | Handler for detailed scenarios |
 
 ## Implementation Steps
 
 ### Step 1: Create GetLeagueInsightsQuery
 
 ```csharp
-// PredictionLeague.Application/Features/Leagues/Queries/GetLeagueInsightsQuery.cs
+// ThePredictions.Application/Features/Leagues/Queries/GetLeagueInsightsQuery.cs
 using MediatR;
-using PredictionLeague.Contracts.Leagues.Insights;
+using ThePredictions.Contracts.Leagues.Insights;
 
-namespace PredictionLeague.Application.Features.Leagues.Queries;
+namespace ThePredictions.Application.Features.Leagues.Queries;
 
 /// <summary>
 /// Gets insights for a league's current in-progress round,
@@ -40,14 +40,14 @@ public record GetLeagueInsightsQuery(int LeagueId) : IRequest<LeagueInsightsSumm
 ### Step 2: Create GetLeagueInsightsQueryHandler
 
 ```csharp
-// PredictionLeague.Application/Features/Leagues/Queries/GetLeagueInsightsQueryHandler.cs
+// ThePredictions.Application/Features/Leagues/Queries/GetLeagueInsightsQueryHandler.cs
 using MediatR;
 using Microsoft.Extensions.Logging;
-using PredictionLeague.Application.Common.Interfaces;
-using PredictionLeague.Application.Features.Leagues.Services;
-using PredictionLeague.Contracts.Leagues.Insights;
+using ThePredictions.Application.Common.Interfaces;
+using ThePredictions.Application.Features.Leagues.Services;
+using ThePredictions.Contracts.Leagues.Insights;
 
-namespace PredictionLeague.Application.Features.Leagues.Queries;
+namespace ThePredictions.Application.Features.Leagues.Queries;
 
 public class GetLeagueInsightsQueryHandler
     : IRequestHandler<GetLeagueInsightsQuery, LeagueInsightsSummary?>
@@ -139,11 +139,11 @@ public class GetLeagueInsightsQueryHandler
 ### Step 3: Create GetContenderScenariosQuery
 
 ```csharp
-// PredictionLeague.Application/Features/Leagues/Queries/GetContenderScenariosQuery.cs
+// ThePredictions.Application/Features/Leagues/Queries/GetContenderScenariosQuery.cs
 using MediatR;
-using PredictionLeague.Contracts.Leagues.Insights;
+using ThePredictions.Contracts.Leagues.Insights;
 
-namespace PredictionLeague.Application.Features.Leagues.Queries;
+namespace ThePredictions.Application.Features.Leagues.Queries;
 
 /// <summary>
 /// Gets detailed winning scenarios for a specific contender,
@@ -158,14 +158,14 @@ public record GetContenderScenariosQuery(
 ### Step 4: Create GetContenderScenariosQueryHandler
 
 ```csharp
-// PredictionLeague.Application/Features/Leagues/Queries/GetContenderScenariosQueryHandler.cs
+// ThePredictions.Application/Features/Leagues/Queries/GetContenderScenariosQueryHandler.cs
 using MediatR;
 using Microsoft.Extensions.Logging;
-using PredictionLeague.Application.Common.Interfaces;
-using PredictionLeague.Application.Features.Leagues.Services;
-using PredictionLeague.Contracts.Leagues.Insights;
+using ThePredictions.Application.Common.Interfaces;
+using ThePredictions.Application.Features.Leagues.Services;
+using ThePredictions.Contracts.Leagues.Insights;
 
-namespace PredictionLeague.Application.Features.Leagues.Queries;
+namespace ThePredictions.Application.Features.Leagues.Queries;
 
 public class GetContenderScenariosQueryHandler
     : IRequestHandler<GetContenderScenariosQuery, ContenderInsights?>
@@ -270,11 +270,11 @@ public class GetContenderScenariosQueryHandler
 ### Step 5: Add Validators (Optional but Recommended)
 
 ```csharp
-// PredictionLeague.Validators/Leagues/GetLeagueInsightsQueryValidator.cs
+// ThePredictions.Validators/Leagues/GetLeagueInsightsQueryValidator.cs
 using FluentValidation;
-using PredictionLeague.Application.Features.Leagues.Queries;
+using ThePredictions.Application.Features.Leagues.Queries;
 
-namespace PredictionLeague.Validators.Leagues;
+namespace ThePredictions.Validators.Leagues;
 
 public class GetLeagueInsightsQueryValidator : AbstractValidator<GetLeagueInsightsQuery>
 {
@@ -288,11 +288,11 @@ public class GetLeagueInsightsQueryValidator : AbstractValidator<GetLeagueInsigh
 ```
 
 ```csharp
-// PredictionLeague.Validators/Leagues/GetContenderScenariosQueryValidator.cs
+// ThePredictions.Validators/Leagues/GetContenderScenariosQueryValidator.cs
 using FluentValidation;
-using PredictionLeague.Application.Features.Leagues.Queries;
+using ThePredictions.Application.Features.Leagues.Queries;
 
-namespace PredictionLeague.Validators.Leagues;
+namespace ThePredictions.Validators.Leagues;
 
 public class GetContenderScenariosQueryValidator : AbstractValidator<GetContenderScenariosQuery>
 {

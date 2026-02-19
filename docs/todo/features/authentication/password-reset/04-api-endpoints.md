@@ -14,7 +14,7 @@ Add two new endpoints to `AuthController` for requesting password reset and rese
 
 | File | Action | Purpose |
 |------|--------|---------|
-| `PredictionLeague.API/Controllers/AuthController.cs` | Modify | Add two new endpoints |
+| `ThePredictions.API/Controllers/AuthController.cs` | Modify | Add two new endpoints |
 
 ## Implementation Steps
 
@@ -86,9 +86,9 @@ public async Task<IActionResult> ResetPasswordAsync(
 Ensure these using statements are at the top of `AuthController.cs`:
 
 ```csharp
-using PredictionLeague.Application.Features.Authentication.Commands.RequestPasswordReset;
-using PredictionLeague.Application.Features.Authentication.Commands.ResetPassword;
-using PredictionLeague.Contracts.Authentication;
+using ThePredictions.Application.Features.Authentication.Commands.RequestPasswordReset;
+using ThePredictions.Application.Features.Authentication.Commands.ResetPassword;
+using ThePredictions.Contracts.Authentication;
 ```
 
 ## Code Patterns to Follow

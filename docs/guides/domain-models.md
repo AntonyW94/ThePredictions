@@ -100,7 +100,7 @@ This project uses TWO validation mechanisms with distinct purposes:
 Use for validating **user input** at the application boundary. Collects all errors and returns user-friendly messages.
 
 ```csharp
-// Location: PredictionLeague.Validators/CreateLeagueCommandValidator.cs
+// Location: ThePredictions.Validators/CreateLeagueCommandValidator.cs
 public class CreateLeagueCommandValidator : AbstractValidator<CreateLeagueCommand>
 {
     public CreateLeagueCommandValidator()
@@ -126,7 +126,7 @@ public class CreateLeagueCommandValidator : AbstractValidator<CreateLeagueComman
 Use for protecting **domain invariants** in entity construction. Throws immediately on first violation.
 
 ```csharp
-// Location: PredictionLeague.Domain/Entities/League.cs
+// Location: ThePredictions.Domain/Entities/League.cs
 public static League Create(int seasonId, string name, string administratorUserId)
 {
     // Guard clauses protect domain invariants

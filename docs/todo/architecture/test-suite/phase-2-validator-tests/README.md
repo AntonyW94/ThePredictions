@@ -8,7 +8,7 @@
 
 ## Summary
 
-Create unit tests for all 27 validators in the `PredictionLeague.Validators` project. Validators use FluentValidation and can be tested with `TestValidate()` making them quick wins with high confidence. This phase covers all validation rules across authentication, leagues, predictions, boosts, admin operations, and account management.
+Create unit tests for all 27 validators in the `ThePredictions.Validators` project. Validators use FluentValidation and can be tested with `TestValidate()` making them quick wins with high confidence. This phase covers all validation rules across authentication, leagues, predictions, boosts, admin operations, and account management.
 
 ## Scope
 
@@ -88,15 +88,15 @@ The custom validation extensions (`MustBeASafeName`, `MustBeASafeLeagueName`) ar
 ## Dependencies
 
 - [x] Phase 1: Domain Unit Tests (complete - 462 tests)
-- [x] `PredictionLeague.Validators` project exists with all 27 validators
-- [x] `PredictionLeague.Contracts` project exists with all request/DTO classes
+- [x] `ThePredictions.Validators` project exists with all 27 validators
+- [x] `ThePredictions.Contracts` project exists with all request/DTO classes
 - [ ] `FluentValidation.TestHelper` namespace available (built into FluentValidation 12.1.1, comes transitively via Validators reference)
 
 ## Coverage
 
 ### How Coverage Works
 
-The `tools/Test Coverage/coverage-unit.bat` script discovers and runs **all** `.csproj` files under `tests/Unit/`. The `coverage.runsettings` file has no assembly inclusion/exclusion filters — coverlet measures whatever assemblies each test project references. Adding `ThePredictions.Validators.Tests.Unit` with a `ProjectReference` to `PredictionLeague.Validators` will automatically include the Validators assembly in coverage reports.
+The `tools/Test Coverage/coverage-unit.bat` script discovers and runs **all** `.csproj` files under `tests/Unit/`. The `coverage.runsettings` file has no assembly inclusion/exclusion filters — coverlet measures whatever assemblies each test project references. Adding `ThePredictions.Validators.Tests.Unit` with a `ProjectReference` to `ThePredictions.Validators` will automatically include the Validators assembly in coverage reports.
 
 ### Coverage Target
 
@@ -162,8 +162,8 @@ The builders live in `tests/Shared/ThePredictions.Tests.Builders/`, separate fro
 
 | Project | References | Contains |
 |---------|-----------|----------|
-| `ThePredictions.Tests.Builders` | `PredictionLeague.Contracts` only | Fluent request/DTO builders |
-| `ThePredictions.Tests.Shared` | `PredictionLeague.Domain` only | Test doubles (`TestDateTimeProvider`, etc.) |
+| `ThePredictions.Tests.Builders` | `ThePredictions.Contracts` only | Fluent request/DTO builders |
+| `ThePredictions.Tests.Shared` | `ThePredictions.Domain` only | Test doubles (`TestDateTimeProvider`, etc.) |
 
 Benefits:
 - **Cross-project reuse:** Validator tests need them now; Application handler tests and API controller tests will reuse them in later phases
