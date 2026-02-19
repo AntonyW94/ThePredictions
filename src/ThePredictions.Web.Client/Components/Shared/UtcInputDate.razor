@@ -33,7 +33,7 @@
             {
                 var isoDate = Value.ToString("yyyy-MM-ddTHH:mm:ssZ");
                 _timezoneOffsetMinutes = await JsRuntime.InvokeAsync<int>("blazorInterop.getTimezoneOffset", isoDate);
-                _localDateTime = Value != default ? Value.AddMinutes(-_timezoneOffsetMinutes) : DateTime.UtcNow;
+                _localDateTime = Value != default ? Value.AddMinutes(-_timezoneOffsetMinutes) : DateTime.Now;
                 _initialized = true;
 
                 StateHasChanged();
