@@ -104,6 +104,23 @@ app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseHttpsRedirection();
 app.UseCors(corsName);
 app.UseBlazorFrameworkFiles();
+
+// Prevent browser caching of index.html so CSS cache-busting versions are always fresh
+app.Use(async (context, next) =>
+{
+    context.Response.OnStarting(() =>
+    {
+        if (context.Response.ContentType?.StartsWith("text/html", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            context.Response.Headers.CacheControl = "no-cache, no-store";
+            context.Response.Headers.Pragma = "no-cache";
+        }
+
+        return Task.CompletedTask;
+    });
+    await next();
+});
+
 app.UseStaticFiles();
 app.UseCookiePolicy();
 app.UseRouting();
