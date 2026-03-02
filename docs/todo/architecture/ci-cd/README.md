@@ -51,8 +51,10 @@ Configure in: **Repository → Settings → Secrets and variables → Actions �
 | `FTP_SERVER` | Variable | `ftp.fasthosts.co.uk` | Deploy |
 | `DEV_FTP_USERNAME` | Secret | FTP username for dev site (`dev.thepredictions.co.uk`) | Deploy |
 | `DEV_FTP_PASSWORD` | Secret | FTP password for dev site | Deploy |
+| `DEV_APPSETTINGS_SECRETS` | Secret | Content of `appsettings.Development.Secrets.json` | Deploy |
 | `PROD_FTP_USERNAME` | Secret | FTP username for production site (`thepredictions.co.uk`) | Deploy |
 | `PROD_FTP_PASSWORD` | Secret | FTP password for production site | Deploy |
+| `PROD_APPSETTINGS_SECRETS` | Secret | Content of `appsettings.Production.Secrets.json` | Deploy |
 
 **Note:** `FTP_SERVER` is a GitHub Actions **variable** (not a secret) since the hostname is not sensitive. Configure variables in: **Repository → Settings → Secrets and variables → Actions → Variables**.
 
@@ -128,7 +130,7 @@ Separate workflows for each environment. Dev is implemented; production will be 
 **Deployment strategy:**
 - Uses `app_offline.htm` to gracefully take the site offline before deployment (IIS stops the app and serves a maintenance page)
 - Uses `dangerous-clean-slate: true` to wipe all files and upload a fresh set (prevents stale DLL issues)
-- Uses `exclude` to protect `appsettings.Development.Secrets.json` from the clean-slate wipe (this file is gitignored and manually placed on the server)
+- Writes `appsettings.*.Secrets.json` into the publish output from GitHub Secrets (the `.pubxml` files are gitignored and not available in CI, so `-p:EnvironmentName` and `rm -f` are used instead of publish profiles)
 - Once deployment completes, the absence of `app_offline.htm` in the publish output causes IIS to restart the app with the new files
 
 See the actual file (`deploy-dev.yml`) for the current dev implementation.

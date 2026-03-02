@@ -47,6 +47,9 @@ jobs:
           rm -f ./publish/appsettings.Production.json
           rm -f ./publish/appsettings.Local.json
 
+      - name: Write appsettings secrets
+        run: echo '${{ secrets.DEV_APPSETTINGS_SECRETS }}' > ./publish/appsettings.Development.Secrets.json
+
       - name: Create app_offline.htm
         run: |
           cat > app_offline.htm << 'EOF'
@@ -86,8 +89,6 @@ jobs:
           local-dir: ./publish/
           server-dir: /htdocs/
           dangerous-clean-slate: true
-          exclude: |
-            appsettings.Development.Secrets.json
 
       - name: Deployment complete
         run: |
