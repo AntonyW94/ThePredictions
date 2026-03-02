@@ -48,6 +48,37 @@ jobs:
       - name: Write appsettings secrets
         run: echo '${{ secrets.DEV_APPSETTINGS_SECRETS }}' > ./publish/appsettings.Development.Secrets.json
 
+      - name: Clear server files
+        run: |
+          python3 << 'SCRIPT'
+          import ftplib, sys
+
+          def delete_recursive(ftp, path):
+              try:
+                  items = ftp.nlst(path)
+              except ftplib.error_perm:
+                  return
+              for item in items:
+                  if item in ('.', '..') or item.endswith('/.') or item.endswith('/..'):
+                      continue
+                  try:
+                      ftp.delete(item)
+                      print(f"  Deleted file: {item}")
+                  except ftplib.error_perm:
+                      delete_recursive(ftp, item)
+                      ftp.rmd(item)
+                      print(f"  Deleted dir:  {item}")
+
+          ftp = ftplib.FTP("${{ vars.FTP_SERVER }}")
+          ftp.login("${{ secrets.DEV_FTP_USERNAME }}", "${{ secrets.DEV_FTP_PASSWORD }}")
+          ftp.set_pasv(True)
+
+          print("Clearing /htdocs/...")
+          delete_recursive(ftp, "/htdocs")
+          print("Server files cleared.")
+          ftp.quit()
+          SCRIPT
+
       - name: Deploy to dev site via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
