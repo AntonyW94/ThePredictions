@@ -5,9 +5,9 @@
 <div class="section">
     <div class="section-header-collapsible" @onclick="ToggleExpanded">
         <h5 class="text-white fw-bold text-center text-md-start">End of Season Prizes</h5>
-        <i class="bi bi-chevron-down text-white collapse-icon @(_isExpanded ? "rotated" : "")"></i>
+        <i class="bi bi-chevron-down text-white collapse-icon @(IsExpanded ? "rotated" : "")"></i>
     </div>
-    <div class="section-body-collapsible @(_isExpanded ? "" : "collapsed")">
+    <div class="section-body-collapsible @(IsExpanded ? "" : "collapsed")">
         <div class="body no-padding justify-start">
             @if (IsLoading)
             {
@@ -53,17 +53,11 @@
 @code {
     [Parameter] public List<PrizeDto>? Prizes { get; set; }
     [Parameter] public bool IsLoading { get; set; }
-    [Parameter] public bool IsExpandedByDefault { get; set; }
+    [Parameter] public bool IsExpanded { get; set; }
+    [Parameter] public EventCallback OnToggleExpanded { get; set; }
 
-    private bool _isExpanded;
-
-    protected override void OnInitialized()
+    private async Task ToggleExpanded()
     {
-        _isExpanded = IsExpandedByDefault;
-    }
-
-    private void ToggleExpanded()
-    {
-        _isExpanded = !_isExpanded;
+        await OnToggleExpanded.InvokeAsync();
     }
 }

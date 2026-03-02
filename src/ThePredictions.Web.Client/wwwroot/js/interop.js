@@ -156,6 +156,18 @@ window.blazorInterop = {
             delete countdownTimers[timerId];
         }
     },
+    registerResizeCallback: function (dotNetHelper, methodName) {
+        window._resizeHandler = () => {
+            dotNetHelper.invokeMethodAsync(methodName, window.innerWidth);
+        };
+        window.addEventListener('resize', window._resizeHandler);
+    },
+    unregisterResizeCallback: function () {
+        if (window._resizeHandler) {
+            window.removeEventListener('resize', window._resizeHandler);
+            delete window._resizeHandler;
+        }
+    },
     scrollToUserRow: function (containerId) {
         const container = document.getElementById(containerId);
         if (!container) return;

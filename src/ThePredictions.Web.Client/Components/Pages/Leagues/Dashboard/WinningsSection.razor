@@ -1,6 +1,8 @@
 @inject ILeagueService LeagueService
+@inject IJSRuntime JS
 @using ThePredictions.Contracts.Leagues
 @using ThePredictions.Web.Client.Services.Leagues
+@implements IAsyncDisposable
 @if (_isLoading)
 {
     <div class="section">
@@ -25,15 +27,18 @@ else if (_winningsData != null)
                 </div>
 
                 <div class="col-lg-4 mb-4 d-flex">
-                    <RoundPrizesTile Prizes="@_winningsData?.RoundPrizes" IsLoading="@_isLoading" />
+                    <RoundPrizesTile Prizes="@_winningsData?.RoundPrizes" IsLoading="@_isLoading"
+                                     IsExpanded="@IsRoundExpanded" OnToggleExpanded="@ToggleRoundPrizes" />
                 </div>
 
                 <div class="col-lg-4 mb-4 d-flex">
-                    <MonthlyPrizesTile Prizes="@_winningsData?.MonthlyPrizes" IsLoading="@_isLoading" />
+                    <MonthlyPrizesTile Prizes="@_winningsData?.MonthlyPrizes" IsLoading="@_isLoading"
+                                       IsExpanded="@IsMonthlyExpanded" OnToggleExpanded="@ToggleMonthlyPrizes" />
                 </div>
 
                 <div class="col-lg-4 mb-4 d-flex">
-                    <EndOfSeasonPrizesTile Prizes="@_winningsData?.EndOfSeasonPrizes" IsLoading="@_isLoading" />
+                    <EndOfSeasonPrizesTile Prizes="@_winningsData?.EndOfSeasonPrizes" IsLoading="@_isLoading"
+                                           IsExpanded="@IsEndOfSeasonExpanded" OnToggleExpanded="@ToggleEndOfSeasonPrizes" />
                 </div>
             </div>
         }
@@ -55,11 +60,62 @@ else
 }
 
 @code {
+    private const int DesktopBreakpoint = 992;
+
     [Parameter, EditorRequired]
     public int LeagueId { get; set; }
 
     private WinningsDto? _winningsData;
     private bool _isLoading = true;
+    private DotNetObjectReference<WinningsSection>? _dotNetRef;
+
+    // Shared state for desktop (tiles on same row)
+    private bool _sharedExpanded;
+
+    // Individual state for mobile (tiles stacked)
+    private bool _roundExpanded;
+    private bool _monthlyExpanded;
+    private bool _endOfSeasonExpanded;
+
+    private bool _isDesktopLayout;
+
+    private bool IsRoundExpanded => _isDesktopLayout ? _sharedExpanded : _roundExpanded;
+    private bool IsMonthlyExpanded => _isDesktopLayout ? _sharedExpanded : _monthlyExpanded;
+    private bool IsEndOfSeasonExpanded => _isDesktopLayout ? _sharedExpanded : _endOfSeasonExpanded;
+
+    private void ToggleRoundPrizes()
+    {
+        if (_isDesktopLayout)
+            _sharedExpanded = !_sharedExpanded;
+        else
+            _roundExpanded = !_roundExpanded;
+    }
+
+    private void ToggleMonthlyPrizes()
+    {
+        if (_isDesktopLayout)
+            _sharedExpanded = !_sharedExpanded;
+        else
+            _monthlyExpanded = !_monthlyExpanded;
+    }
+
+    private void ToggleEndOfSeasonPrizes()
+    {
+        if (_isDesktopLayout)
+            _sharedExpanded = !_sharedExpanded;
+        else
+            _endOfSeasonExpanded = !_endOfSeasonExpanded;
+    }
+
+    [JSInvokable]
+    public void OnWindowResized(int width)
+    {
+        var wasDesktop = _isDesktopLayout;
+        _isDesktopLayout = width >= DesktopBreakpoint;
+
+        if (wasDesktop != _isDesktopLayout)
+            StateHasChanged();
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -75,5 +131,25 @@ else
         {
             _isLoading = false;
         }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var width = await JS.InvokeAsync<int>("blazorInterop.getWindowWidth");
+            _isDesktopLayout = width >= DesktopBreakpoint;
+
+            _dotNetRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("blazorInterop.registerResizeCallback", _dotNetRef, nameof(OnWindowResized));
+
+            StateHasChanged();
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await JS.InvokeVoidAsync("blazorInterop.unregisterResizeCallback");
+        _dotNetRef?.Dispose();
     }
 }
