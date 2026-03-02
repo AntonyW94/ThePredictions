@@ -48,36 +48,6 @@ jobs:
       - name: Write appsettings secrets
         run: echo '${{ secrets.DEV_APPSETTINGS_SECRETS }}' > ./publish/appsettings.Development.Secrets.json
 
-      - name: Add app_offline.htm to publish output
-        run: |
-          cat > ./publish/app_offline.htm << 'EOF'
-          <!DOCTYPE html>
-          <html>
-          <head>
-              <title>The Predictions - Maintenance</title>
-              <style>
-                  body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f5f5f5; }
-                  h1 { color: #333; }
-                  p { color: #666; }
-              </style>
-          </head>
-          <body>
-              <h1>We'll be right back</h1>
-              <p>The Predictions is being updated. Please try again in a few minutes.</p>
-          </body>
-          </html>
-          EOF
-
-      - name: Take site offline
-        run: |
-          curl -T ./publish/app_offline.htm \
-            "ftp://${{ vars.FTP_SERVER }}/htdocs/app_offline.htm" \
-            --user "${{ secrets.DEV_FTP_USERNAME }}:${{ secrets.DEV_FTP_PASSWORD }}" \
-            --ftp-pasv
-
-      - name: Wait for IIS to release DLL locks
-        run: sleep 10
-
       - name: Deploy to dev site via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -87,13 +57,6 @@ jobs:
           local-dir: ./publish/
           server-dir: /htdocs/
           dangerous-clean-slate: true
-
-      - name: Bring site online
-        run: |
-          curl "ftp://${{ vars.FTP_SERVER }}/htdocs/" \
-            --user "${{ secrets.DEV_FTP_USERNAME }}:${{ secrets.DEV_FTP_PASSWORD }}" \
-            --ftp-pasv \
-            -Q "DELE /htdocs/app_offline.htm"
 
       - name: Warm up site
         run: |
