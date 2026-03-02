@@ -38,7 +38,14 @@ jobs:
         run: dotnet test ThePredictions.sln --no-build --configuration Release --verbosity normal
 
       - name: Publish Web application
-        run: dotnet publish src/ThePredictions.Web/ThePredictions.Web.csproj --configuration Release --output ./publish --no-build -p:PublishProfile="src/ThePredictions.Web/Properties/PublishProfiles/Publish to Development.pubxml"
+        run: |
+          dotnet publish src/ThePredictions.Web/ThePredictions.Web.csproj \
+            --configuration Release \
+            --output ./publish \
+            --no-build \
+            -p:EnvironmentName=Development
+          rm -f ./publish/appsettings.Production.json
+          rm -f ./publish/appsettings.Local.json
 
       - name: Create app_offline.htm
         run: |

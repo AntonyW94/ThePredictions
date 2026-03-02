@@ -40,8 +40,6 @@
         <PropertyGroup>
             <CssVersion>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</CssVersion>
             <PublishWwwRoot>$(PublishDir)wwwroot\</PublishWwwRoot>
-            <PSCommand Condition="'$(OS)' == 'Windows_NT'">powershell</PSCommand>
-            <PSCommand Condition="'$(OS)' != 'Windows_NT'">pwsh</PSCommand>
             <PublishCssDir>$(PublishWwwRoot)css\</PublishCssDir>
             <TargetCss>$(PublishCssDir)app.css</TargetCss>
             <IndexHtmlPath>$(PublishWwwRoot)index.html</IndexHtmlPath>
@@ -92,7 +90,10 @@
         </ItemGroup>
 
         <!-- Concatenate all CSS files with Google Fonts import at the top -->
-        <Exec Command="$(PSCommand) -NoProfile -Command &quot;$googleFonts = '@import url(''https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&amp;display=swap'');'; $files = @('@(CssFilesToBundle)'.Split(';')); $content = $files | ForEach-Object { if (Test-Path $_) { Get-Content -Raw $_ } } | Out-String; Set-Content -Path '$(TargetCss)' -Value ($googleFonts + [Environment]::NewLine + $content) -NoNewline&quot;" />
+        <!-- Windows: use PowerShell (cmd.exe doesn't expand $ variables) -->
+        <Exec Condition="'$(OS)' == 'Windows_NT'" Command="powershell -NoProfile -Command &quot;$googleFonts = '@import url(''https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&amp;display=swap'');'; $files = @('@(CssFilesToBundle)'.Split(';')); $content = $files | ForEach-Object { if (Test-Path $_) { Get-Content -Raw $_ } } | Out-String; Set-Content -Path '$(TargetCss)' -Value ($googleFonts + [Environment]::NewLine + $content) -NoNewline&quot;" />
+        <!-- Linux: use bash (avoids $ variable expansion issue with PowerShell via sh) -->
+        <Exec Condition="'$(OS)' != 'Windows_NT'" Command="printf '%s\n' &quot;@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&amp;display=swap');&quot; > '$(TargetCss)' &amp;&amp; cat @(CssFilesToBundle -> '&quot;%(Identity)&quot;', ' ') >> '$(TargetCss)'" />
 
         <!-- Delete individual CSS files and their compressed versions -->
         <ItemGroup>
@@ -113,7 +114,10 @@
 
         <!-- Add cache busting version to index.html -->
         <Message Importance="high" Text="Adding CSS cache busting version: $(CssVersion)" />
-        <Exec Command="$(PSCommand) -NoProfile -Command &quot;(Get-Content '$(IndexHtmlPath)') -replace 'href=\&quot;css/app\.css\&quot;', 'href=\&quot;css/app.css?v=$(CssVersion)\&quot;' | Set-Content '$(IndexHtmlPath)'&quot;" />
+        <!-- Windows -->
+        <Exec Condition="'$(OS)' == 'Windows_NT'" Command="powershell -NoProfile -Command &quot;(Get-Content '$(IndexHtmlPath)') -replace 'href=\&quot;css/app\.css\&quot;', 'href=\&quot;css/app.css?v=$(CssVersion)\&quot;' | Set-Content '$(IndexHtmlPath)'&quot;" />
+        <!-- Linux -->
+        <Exec Condition="'$(OS)' != 'Windows_NT'" Command="sed -i 's|href=&quot;css/app\.css&quot;|href=&quot;css/app.css?v=$(CssVersion)&quot;|' '$(IndexHtmlPath)'" />
 
         <Message Importance="high" Text="CSS processing complete. Cache version: $(CssVersion)" />
     </Target>
