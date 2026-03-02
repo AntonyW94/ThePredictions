@@ -125,12 +125,12 @@ jobs:
 
 Separate workflows for each environment. Dev is implemented; production will be added after successful testing.
 
-**Important:** The publish profile exclusions (which prevent production config appearing in dev output and vice versa) are handled by the `.pubxml` files. The deploy workflow must use the correct publish profile for each environment via the `-p:PublishProfile` argument.
+**Important:** The `.pubxml` publish profiles are tracked in git and define per-environment settings: `EnvironmentName` (written to `web.config`), and `CopyToPublishDirectory="Never"` exclusions for wrong-environment config files. The deploy workflow uses `-p:PublishProfile=Development` (or `Production`) so these settings are the single source of truth.
 
 **Deployment strategy:**
 - Uses `app_offline.htm` to gracefully take the site offline before deployment (IIS stops the app and serves a maintenance page)
 - Uses `dangerous-clean-slate: true` to wipe all files and upload a fresh set (prevents stale DLL issues)
-- Writes `appsettings.*.Secrets.json` into the publish output from GitHub Secrets (the `.pubxml` files are gitignored and not available in CI, so `-p:EnvironmentName` and `rm -f` are used instead of publish profiles)
+- Writes `appsettings.*.Secrets.json` into the publish output from a GitHub Secret (since `dangerous-clean-slate` deletes all server files including Secrets.json)
 - Once deployment completes, the absence of `app_offline.htm` in the publish output causes IIS to restart the app with the new files
 
 See the actual file (`deploy-dev.yml`) for the current dev implementation.
@@ -191,9 +191,9 @@ jobs:
       - name: Publish Web application
         run: |
           if [ "${{ github.event.inputs.environment }}" = "production" ]; then
-            dotnet publish src/ThePredictions.Web/ThePredictions.Web.csproj --configuration Release --output ./publish --no-build -p:PublishProfile="Publish to Production"
+            dotnet publish src/ThePredictions.Web/ThePredictions.Web.csproj --configuration Release --output ./publish --no-build -p:PublishProfile=Production
           else
-            dotnet publish src/ThePredictions.Web/ThePredictions.Web.csproj --configuration Release --output ./publish --no-build -p:PublishProfile="Publish to Development"
+            dotnet publish src/ThePredictions.Web/ThePredictions.Web.csproj --configuration Release --output ./publish --no-build -p:PublishProfile=Development
           fi
 
       - name: Deploy to Fasthosts via FTP
@@ -219,7 +219,7 @@ jobs:
           fi
 ```
 
-**Note:** The `*.Secrets.json` files are gitignored and not in the repository, so they won't be included in CI/CD deployments. These must be manually placed on each Fasthosts site via FTP.
+**Note:** The `*.Secrets.json` files are gitignored and not in the repository. The deploy workflows write them from GitHub Secrets (`DEV_APPSETTINGS_SECRETS` / `PROD_APPSETTINGS_SECRETS`) into the publish output before FTP upload.
 
 ---
 
@@ -469,8 +469,9 @@ Create the remaining workflow files:
 └── workflows/
     ├── backup-prod-db.yml   ← ✅ Already exists
     ├── refresh-dev-db.yml   ← ✅ Already exists
-    ├── ci.yml               ← To create
-    ├── deploy.yml           ← To create
+    ├── ci.yml               ← ✅ Already exists
+    ├── deploy-dev.yml       ← ✅ Already exists
+    ├── deploy-prod.yml      ← To create
     └── e2e.yml              ← To create
 ```
 

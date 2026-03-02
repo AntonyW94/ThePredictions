@@ -43,9 +43,7 @@ jobs:
             --configuration Release \
             --output ./publish \
             --no-build \
-            -p:EnvironmentName=Development
-          rm -f ./publish/appsettings.Production.json
-          rm -f ./publish/appsettings.Local.json
+            -p:PublishProfile=Development
 
       - name: Write appsettings secrets
         run: echo '${{ secrets.DEV_APPSETTINGS_SECRETS }}' > ./publish/appsettings.Development.Secrets.json
