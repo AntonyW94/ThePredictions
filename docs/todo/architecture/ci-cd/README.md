@@ -119,9 +119,9 @@ jobs:
 
 ---
 
-### 2. Deploy Workflow (`.github/workflows/deploy.yml`) ✅ IMPLEMENTED (dev only)
+### 2. Deploy Workflows (`.github/workflows/deploy-dev.yml`, `deploy-prod.yml`) ✅ Dev IMPLEMENTED
 
-Manual trigger with confirmation required. Currently deploys to development only — production support will be added after successful testing.
+Separate workflows for each environment. Dev is implemented; production will be added after successful testing.
 
 **Important:** The publish profile exclusions (which prevent production config appearing in dev output and vice versa) are handled by the `.pubxml` files. The deploy workflow must use the correct publish profile for each environment via the `-p:PublishProfile` argument.
 
@@ -131,9 +131,9 @@ Manual trigger with confirmation required. Currently deploys to development only
 - Uses `exclude` to protect `appsettings.Development.Secrets.json` from the clean-slate wipe (this file is gitignored and manually placed on the server)
 - Once deployment completes, the absence of `app_offline.htm` in the publish output causes IIS to restart the app with the new files
 
-See the actual file (`deploy.yml`) for the current implementation.
+See the actual file (`deploy-dev.yml`) for the current dev implementation.
 
-The original plan below will be updated to include production support and the `app_offline.htm` strategy once dev testing is complete:
+The plan below shows the future production workflow (`deploy-prod.yml`):
 
 ```yaml
 # .github/workflows/deploy.yml (future: production + development)
@@ -426,7 +426,8 @@ jobs:
 | Workflow | Automatic Trigger | Manual Trigger | Schedule | Status |
 |----------|-------------------|----------------|----------|--------|
 | **CI** | Push/PR to main | - | - | ✅ Implemented |
-| **Deploy** | - | ✅ (requires "deploy" confirmation) | - | ✅ Dev only |
+| **Deploy to Dev** | - | ✅ (requires "deploy" confirmation) | - | ✅ Implemented |
+| **Deploy to Production** | - | ✅ (requires "deploy" confirmation) | - | Not started |
 | **DB Refresh** | - | ✅ (requires "refresh" confirmation) | - | ✅ Implemented |
 | **Prod Backup** | - | ✅ | Daily 2am UTC | ✅ Implemented |
 | **E2E Tests** | After CI success on main | ✅ | - | Not started |
@@ -628,7 +629,8 @@ If you had started with the Azure DevOps plan:
 | File | Description | Status |
 |------|-------------|--------|
 | `.github/workflows/ci.yml` | CI workflow | ✅ Implemented |
-| `.github/workflows/deploy.yml` | Deployment workflow (dev only, prod to follow) | ✅ Dev only |
+| `.github/workflows/deploy-dev.yml` | Deploy to dev site | ✅ Implemented |
+| `.github/workflows/deploy-prod.yml` | Deploy to production site | Not started |
 | `.github/workflows/refresh-dev-db.yml` | Database refresh workflow | ✅ Implemented |
 | `.github/workflows/backup-prod-db.yml` | Production backup workflow | ✅ Implemented |
 | `.github/workflows/e2e.yml` | E2E test workflow | Not started |

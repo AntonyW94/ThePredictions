@@ -1,5 +1,5 @@
-# .github/workflows/deploy.yml
-name: Deploy
+# .github/workflows/deploy-dev.yml
+name: Deploy to Dev
 
 on:
   workflow_dispatch:
