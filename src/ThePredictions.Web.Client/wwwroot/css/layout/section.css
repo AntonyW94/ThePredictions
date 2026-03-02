@@ -57,7 +57,30 @@
     opacity: 1;
 }
 
+.section-body-collapsible:not(.collapsed) {
+    overflow-y: auto;
+}
+
 .section-body-collapsible.collapsed {
     max-height: 0;
     opacity: 0;
+}
+
+/* Custom scrollbar styling for collapsible sections */
+.section-body-collapsible::-webkit-scrollbar {
+    width: 0.5rem;
+}
+
+.section-body-collapsible::-webkit-scrollbar-track {
+    background: var(--purple-900);
+    border-radius: 0.25rem;
+}
+
+.section-body-collapsible::-webkit-scrollbar-thumb {
+    background: var(--purple-300);
+    border-radius: 0.25rem;
+}
+
+.section-body-collapsible::-webkit-scrollbar-thumb:hover {
+    background: var(--purple-200);
 }
