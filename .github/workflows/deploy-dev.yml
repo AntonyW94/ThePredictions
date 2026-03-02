@@ -48,8 +48,10 @@ jobs:
       - name: Write appsettings secrets
         run: echo '${{ secrets.DEV_APPSETTINGS_SECRETS }}' > ./publish/appsettings.Development.Secrets.json
 
-      - name: Remove debug proxy from publish
-        run: rm -rf ./publish/BlazorDebugProxy
+      - name: Clean unnecessary files from publish
+        run: |
+          rm -rf ./publish/BlazorDebugProxy
+          find ./publish -name "*.pdb" -delete
 
       - name: Clear server files
         run: |
