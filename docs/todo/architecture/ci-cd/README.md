@@ -46,13 +46,15 @@ Configure in: **Repository → Settings → Secrets and variables → Actions �
 
 ### Still needed (for deploy and E2E workflows)
 
-| Secret Name | Description | Used by |
-|-------------|-------------|---------|
-| `FTP_SERVER` | `ftp.fasthosts.co.uk` | Deploy |
-| `PROD_FTP_USERNAME` | FTP username for production site (`thepredictions.co.uk`) | Deploy |
-| `PROD_FTP_PASSWORD` | FTP password for production site | Deploy |
-| `DEV_FTP_USERNAME` | FTP username for dev site (`dev.thepredictions.co.uk`) | Deploy |
-| `DEV_FTP_PASSWORD` | FTP password for dev site | Deploy |
+| Name | Type | Description | Used by |
+|------|------|-------------|---------|
+| `FTP_SERVER` | Variable | `ftp.fasthosts.co.uk` | Deploy |
+| `DEV_FTP_USERNAME` | Secret | FTP username for dev site (`dev.thepredictions.co.uk`) | Deploy |
+| `DEV_FTP_PASSWORD` | Secret | FTP password for dev site | Deploy |
+| `PROD_FTP_USERNAME` | Secret | FTP username for production site (`thepredictions.co.uk`) | Deploy |
+| `PROD_FTP_PASSWORD` | Secret | FTP password for production site | Deploy |
+
+**Note:** `FTP_SERVER` is a GitHub Actions **variable** (not a secret) since the hostname is not sensitive. Configure variables in: **Repository → Settings → Secrets and variables → Actions → Variables**.
 
 ---
 
@@ -117,14 +119,24 @@ jobs:
 
 ---
 
-### 2. Deploy Workflow (`.github/workflows/deploy.yml`)
+### 2. Deploy Workflow (`.github/workflows/deploy.yml`) ✅ IMPLEMENTED (dev only)
 
-Manual trigger with environment selection and confirmation required. Supports deploying to both production and development sites.
+Manual trigger with confirmation required. Currently deploys to development only — production support will be added after successful testing.
 
 **Important:** The publish profile exclusions (which prevent production config appearing in dev output and vice versa) are handled by the `.pubxml` files. The deploy workflow must use the correct publish profile for each environment via the `-p:PublishProfile` argument.
 
+**Deployment strategy:**
+- Uses `app_offline.htm` to gracefully take the site offline before deployment (IIS stops the app and serves a maintenance page)
+- Uses `dangerous-clean-slate: true` to wipe all files and upload a fresh set (prevents stale DLL issues)
+- Uses `exclude` to protect `appsettings.Development.Secrets.json` from the clean-slate wipe (this file is gitignored and manually placed on the server)
+- Once deployment completes, the absence of `app_offline.htm` in the publish output causes IIS to restart the app with the new files
+
+See the actual file (`deploy.yml`) for the current implementation.
+
+The original plan below will be updated to include production support and the `app_offline.htm` strategy once dev testing is complete:
+
 ```yaml
-# .github/workflows/deploy.yml
+# .github/workflows/deploy.yml (future: production + development)
 name: Deploy
 
 on:
@@ -185,12 +197,14 @@ jobs:
       - name: Deploy to Fasthosts via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ${{ secrets.FTP_SERVER }}
+          server: ${{ vars.FTP_SERVER }}
           username: ${{ github.event.inputs.environment == 'production' && secrets.PROD_FTP_USERNAME || secrets.DEV_FTP_USERNAME }}
           password: ${{ github.event.inputs.environment == 'production' && secrets.PROD_FTP_PASSWORD || secrets.DEV_FTP_PASSWORD }}
           local-dir: ./publish/
           server-dir: /htdocs/
-          dangerous-clean-slate: false
+          dangerous-clean-slate: true
+          exclude: |
+            appsettings.${{ github.event.inputs.environment == 'production' && 'Production' || 'Development' }}.Secrets.json
 
       - name: Deployment complete
         run: |
@@ -411,8 +425,8 @@ jobs:
 
 | Workflow | Automatic Trigger | Manual Trigger | Schedule | Status |
 |----------|-------------------|----------------|----------|--------|
-| **CI** | Push/PR to main | - | - | Not started |
-| **Deploy** | - | ✅ (requires "deploy" confirmation + environment choice) | - | Not started |
+| **CI** | Push/PR to main | - | - | ✅ Implemented |
+| **Deploy** | - | ✅ (requires "deploy" confirmation) | - | ✅ Dev only |
 | **DB Refresh** | - | ✅ (requires "refresh" confirmation) | - | ✅ Implemented |
 | **Prod Backup** | - | ✅ | Daily 2am UTC | ✅ Implemented |
 | **E2E Tests** | After CI success on main | ✅ | - | Not started |
@@ -613,8 +627,8 @@ If you had started with the Azure DevOps plan:
 
 | File | Description | Status |
 |------|-------------|--------|
-| `.github/workflows/ci.yml` | CI workflow | Not started |
-| `.github/workflows/deploy.yml` | Deployment workflow (prod + dev) | Not started |
+| `.github/workflows/ci.yml` | CI workflow | ✅ Implemented |
+| `.github/workflows/deploy.yml` | Deployment workflow (dev only, prod to follow) | ✅ Dev only |
 | `.github/workflows/refresh-dev-db.yml` | Database refresh workflow | ✅ Implemented |
 | `.github/workflows/backup-prod-db.yml` | Production backup workflow | ✅ Implemented |
 | `.github/workflows/e2e.yml` | E2E test workflow | Not started |
