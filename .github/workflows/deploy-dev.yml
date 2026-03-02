@@ -78,6 +78,16 @@ jobs:
       - name: Wait for IIS to release DLL locks
         run: sleep 10
 
+      - name: Clear server files (keep app_offline.htm)
+        run: |
+          lftp -u "${{ secrets.DEV_FTP_USERNAME }},${{ secrets.DEV_FTP_PASSWORD }}" \
+            "ftp://${{ vars.FTP_SERVER }}" -e "
+              set ftp:passive-mode yes;
+              rm -rf /htdocs/*;
+              put app_offline.htm -o /htdocs/app_offline.htm;
+              bye
+            "
+
       - name: Deploy to dev site via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -86,7 +96,20 @@ jobs:
           password: ${{ secrets.DEV_FTP_PASSWORD }}
           local-dir: ./publish/
           server-dir: /htdocs/
-          dangerous-clean-slate: true
+
+      - name: Bring site online
+        run: |
+          curl "ftp://${{ vars.FTP_SERVER }}/htdocs/" \
+            --user "${{ secrets.DEV_FTP_USERNAME }}:${{ secrets.DEV_FTP_PASSWORD }}" \
+            --ftp-pasv \
+            -Q "DELE /htdocs/app_offline.htm"
+
+      - name: Warm up site
+        run: |
+          echo "Warming up site to avoid cold-start delay..."
+          curl --retry 5 --retry-delay 10 --retry-all-errors \
+            --max-time 120 -o /dev/null -s -w "HTTP %{http_code} in %{time_total}s\n" \
+            "https://dev.thepredictions.co.uk"
 
       - name: Deployment complete
         run: |
