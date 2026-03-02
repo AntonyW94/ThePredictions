@@ -40,6 +40,8 @@
         <PropertyGroup>
             <CssVersion>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</CssVersion>
             <PublishWwwRoot>$(PublishDir)wwwroot\</PublishWwwRoot>
+            <PSCommand Condition="'$(OS)' == 'Windows_NT'">powershell</PSCommand>
+            <PSCommand Condition="'$(OS)' != 'Windows_NT'">pwsh</PSCommand>
             <PublishCssDir>$(PublishWwwRoot)css\</PublishCssDir>
             <TargetCss>$(PublishCssDir)app.css</TargetCss>
             <IndexHtmlPath>$(PublishWwwRoot)index.html</IndexHtmlPath>
@@ -90,7 +92,7 @@
         </ItemGroup>
 
         <!-- Concatenate all CSS files with Google Fonts import at the top -->
-        <Exec Command="powershell -NoProfile -Command &quot;$googleFonts = '@import url(''https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&amp;display=swap'');'; $files = @('@(CssFilesToBundle)'.Split(';')); $content = $files | ForEach-Object { if (Test-Path $_) { Get-Content -Raw $_ } } | Out-String; Set-Content -Path '$(TargetCss)' -Value ($googleFonts + [Environment]::NewLine + $content) -NoNewline&quot;" />
+        <Exec Command="$(PSCommand) -NoProfile -Command &quot;$googleFonts = '@import url(''https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&amp;display=swap'');'; $files = @('@(CssFilesToBundle)'.Split(';')); $content = $files | ForEach-Object { if (Test-Path $_) { Get-Content -Raw $_ } } | Out-String; Set-Content -Path '$(TargetCss)' -Value ($googleFonts + [Environment]::NewLine + $content) -NoNewline&quot;" />
 
         <!-- Delete individual CSS files and their compressed versions -->
         <ItemGroup>
@@ -111,7 +113,7 @@
 
         <!-- Add cache busting version to index.html -->
         <Message Importance="high" Text="Adding CSS cache busting version: $(CssVersion)" />
-        <Exec Command="powershell -NoProfile -Command &quot;(Get-Content '$(IndexHtmlPath)') -replace 'href=\&quot;css/app\.css\&quot;', 'href=\&quot;css/app.css?v=$(CssVersion)\&quot;' | Set-Content '$(IndexHtmlPath)'&quot;" />
+        <Exec Command="$(PSCommand) -NoProfile -Command &quot;(Get-Content '$(IndexHtmlPath)') -replace 'href=\&quot;css/app\.css\&quot;', 'href=\&quot;css/app.css?v=$(CssVersion)\&quot;' | Set-Content '$(IndexHtmlPath)'&quot;" />
 
         <Message Importance="high" Text="CSS processing complete. Cache version: $(CssVersion)" />
     </Target>
