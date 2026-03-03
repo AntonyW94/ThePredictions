@@ -68,8 +68,25 @@ jobs:
             -e "set ftp:passive-mode yes; \
                 set ftp:ssl-allow no; \
                 set mirror:parallel-directories yes; \
-                mirror --reverse --delete --parallel=10 --verbose ./publish/ /htdocs/; \
+                mirror --reverse --delete --overwrite --parallel=10 --verbose ./publish/ /htdocs/; \
                 quit"
+
+      - name: Verify deployment file count
+        run: |
+          LOCAL_COUNT=$(find ./publish -type f | wc -l)
+          REMOTE_COUNT=$(lftp -u "${{ secrets.DEV_FTP_USERNAME }},${{ secrets.DEV_FTP_PASSWORD }}" \
+            "ftp://${{ vars.FTP_SERVER }}" \
+            -e "set ftp:passive-mode yes; \
+                set ftp:ssl-allow no; \
+                find /htdocs/ -type f; \
+                quit" | wc -l)
+          echo "Local files:  $LOCAL_COUNT"
+          echo "Remote files: $REMOTE_COUNT"
+          if [ "$LOCAL_COUNT" -ne "$REMOTE_COUNT" ]; then
+            echo "ERROR: File count mismatch! Expected $LOCAL_COUNT but found $REMOTE_COUNT on server."
+            exit 1
+          fi
+          echo "File counts match."
 
       - name: Warm up site
         run: |
