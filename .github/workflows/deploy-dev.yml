@@ -28,6 +28,13 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+
       - name: Restore dependencies
         run: dotnet restore ThePredictions.sln
 
@@ -53,63 +60,16 @@ jobs:
           rm -rf ./publish/BlazorDebugProxy
           find ./publish -name "*.pdb" -delete
 
-      - name: Clear server files
-        run: |
-          python3 << 'SCRIPT'
-          import ftplib, sys
-
-          def delete_recursive(ftp, path):
-              try:
-                  items = ftp.nlst(path)
-              except ftplib.error_perm:
-                  return
-
-              for item in items:
-                  # Extract the basename to reliably detect . and .. entries
-                  basename = item.rsplit('/', 1)[-1] if '/' in item else item
-                  if basename in ('.', '..', ''):
-                      continue
-
-                  # Build full path — nlst may return relative or absolute paths
-                  if not item.startswith('/'):
-                      full_path = path.rstrip('/') + '/' + item
-                  else:
-                      full_path = item
-
-                  # Skip if nlst returned the directory itself
-                  if full_path.rstrip('/') == path.rstrip('/'):
-                      continue
-
-                  try:
-                      ftp.delete(full_path)
-                      print(f"  Deleted file: {full_path}")
-                  except ftplib.error_perm:
-                      try:
-                          delete_recursive(ftp, full_path)
-                          ftp.rmd(full_path)
-                          print(f"  Deleted dir:  {full_path}")
-                      except ftplib.error_perm as e:
-                          print(f"  Warning: Could not remove {full_path}: {e}")
-
-          ftp = ftplib.FTP("${{ vars.FTP_SERVER }}")
-          ftp.login("${{ secrets.DEV_FTP_USERNAME }}", "${{ secrets.DEV_FTP_PASSWORD }}")
-          ftp.set_pasv(True)
-
-          print("Clearing /htdocs/...")
-          delete_recursive(ftp, "/htdocs")
-          print("Server files cleared.")
-          ftp.quit()
-          SCRIPT
-
       - name: Deploy to dev site via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ vars.FTP_SERVER }}
-          username: ${{ secrets.DEV_FTP_USERNAME }}
-          password: ${{ secrets.DEV_FTP_PASSWORD }}
-          local-dir: ./publish/
-          server-dir: /htdocs/
-          dangerous-clean-slate: true
+        run: |
+          sudo apt-get install -y -qq lftp > /dev/null 2>&1
+          lftp -u "${{ secrets.DEV_FTP_USERNAME }},${{ secrets.DEV_FTP_PASSWORD }}" \
+            "ftp://${{ vars.FTP_SERVER }}" \
+            -e "set ftp:passive-mode yes; \
+                set ftp:ssl-allow no; \
+                set mirror:parallel-directories yes; \
+                mirror --reverse --delete --parallel=10 --verbose ./publish/ /htdocs/; \
+                quit"
 
       - name: Warm up site
         run: |
