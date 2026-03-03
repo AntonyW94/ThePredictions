@@ -1,0 +1,101 @@
+# .github/workflows/deploy-prod.yml
+name: Deploy to Prod
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "deploy" to confirm deployment'
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate confirmation
+        if: github.event.inputs.confirm != 'deploy'
+        run: |
+          echo "Deployment cancelled. You must type 'deploy' to confirm."
+          exit 1
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Restore dependencies
+        run: dotnet restore ThePredictions.sln
+
+      - name: Build solution
+        run: dotnet build ThePredictions.sln --no-restore --configuration Release /p:TreatWarningsAsErrors=true
+
+      - name: Run all tests
+        run: dotnet test ThePredictions.sln --no-build --configuration Release --verbosity normal
+
+      - name: Publish Web application
+        run: |
+          dotnet publish src/ThePredictions.Web/ThePredictions.Web.csproj \
+            --configuration Release \
+            --output ./publish \
+            --no-build \
+            -p:PublishProfile=Production
+
+      - name: Write appsettings secrets
+        run: echo '${{ secrets.PROD_APPSETTINGS_SECRETS }}' > ./publish/appsettings.Production.Secrets.json
+
+      - name: Clean unnecessary files from publish
+        run: |
+          rm -rf ./publish/BlazorDebugProxy
+          find ./publish -name "*.pdb" -delete
+
+      - name: Deploy to prod site via FTP
+        run: |
+          sudo apt-get install -y -qq lftp > /dev/null 2>&1
+          lftp -u "${{ secrets.PROD_FTP_USERNAME }},${{ secrets.PROD_FTP_PASSWORD }}" \
+            "ftp://${{ vars.FTP_SERVER }}" \
+            -e "set ftp:passive-mode yes; \
+                set ftp:ssl-allow no; \
+                set mirror:parallel-directories yes; \
+                mirror --reverse --delete --parallel=10 --verbose ./publish/ /htdocs/; \
+                quit"
+
+      - name: Verify deployment file count
+        run: |
+          LOCAL_COUNT=$(find ./publish -type f | wc -l)
+          REMOTE_COUNT=$(lftp -u "${{ secrets.PROD_FTP_USERNAME }},${{ secrets.PROD_FTP_PASSWORD }}" \
+            "ftp://${{ vars.FTP_SERVER }}" \
+            -e "set ftp:passive-mode yes; \
+                set ftp:ssl-allow no; \
+                find /htdocs/; \
+                quit" | grep -v '/$' | wc -l)
+          echo "Local files:  $LOCAL_COUNT"
+          echo "Remote files: $REMOTE_COUNT"
+          if [ "$LOCAL_COUNT" -ne "$REMOTE_COUNT" ]; then
+            echo "ERROR: File count mismatch! Expected $LOCAL_COUNT but found $REMOTE_COUNT on server."
+            exit 1
+          fi
+          echo "File counts match."
+
+      - name: Warm up site
+        run: |
+          echo "Warming up site to avoid cold-start delay..."
+          curl --retry 5 --retry-delay 10 --retry-all-errors \
+            --max-time 120 -o /dev/null -s -w "HTTP %{http_code} in %{time_total}s\n" \
+            "https://thepredictions.co.uk"
+
+      - name: Deployment complete
+        run: |
+          echo "Deployment to production complete!"
+          echo "Site: https://thepredictions.co.uk"
