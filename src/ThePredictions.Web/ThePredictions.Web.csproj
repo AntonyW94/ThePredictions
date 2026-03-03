@@ -35,7 +35,55 @@
     2. Prepends Google Fonts import
     3. Deletes individual CSS files
     4. Adds cache busting version to index.html
+
+    Uses cross-platform C# inline tasks instead of platform-specific shell commands
+    to ensure identical output on Windows (local publish) and Linux (CI/CD).
     -->
+    <UsingTask TaskName="ConcatenateFiles" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+        <ParameterGroup>
+            <SourceFiles ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+            <OutputFile ParameterType="System.String" Required="true" />
+            <Header ParameterType="System.String" />
+        </ParameterGroup>
+        <Task>
+            <Code Type="Fragment" Language="cs"><![CDATA[
+var sb = new System.Text.StringBuilder();
+if (!string.IsNullOrEmpty(Header))
+{
+    sb.AppendLine(Header);
+}
+foreach (var item in SourceFiles)
+{
+    var path = item.ItemSpec;
+    if (System.IO.File.Exists(path))
+    {
+        sb.Append(System.IO.File.ReadAllText(path));
+    }
+    else
+    {
+        Log.LogWarning("CSS file not found: " + path);
+    }
+}
+System.IO.File.WriteAllText(OutputFile, sb.ToString());
+            ]]></Code>
+        </Task>
+    </UsingTask>
+
+    <UsingTask TaskName="ReplaceInFile" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+        <ParameterGroup>
+            <FilePath ParameterType="System.String" Required="true" />
+            <Find ParameterType="System.String" Required="true" />
+            <ReplaceWith ParameterType="System.String" Required="true" />
+        </ParameterGroup>
+        <Task>
+            <Code Type="Fragment" Language="cs"><![CDATA[
+var content = System.IO.File.ReadAllText(FilePath);
+content = content.Replace(Find, ReplaceWith);
+System.IO.File.WriteAllText(FilePath, content);
+            ]]></Code>
+        </Task>
+    </UsingTask>
+
     <Target Name="BundleCssAndAddCacheBusting" AfterTargets="Publish">
         <PropertyGroup>
             <CssVersion>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</CssVersion>
@@ -47,7 +95,7 @@
 
         <Message Importance="high" Text="Bundling CSS files..." />
 
-        <!-- Define CSS files in bundle order (matching previous bundleconfig.json) -->
+        <!-- Define CSS files in bundle order (matching @imports in app.css) -->
         <ItemGroup>
             <CssFilesToBundle Include="$(PublishCssDir)variables.css" />
             <CssFilesToBundle Include="$(PublishCssDir)utilities\typography.css" />
@@ -90,10 +138,7 @@
         </ItemGroup>
 
         <!-- Concatenate all CSS files with Google Fonts import at the top -->
-        <!-- Windows: use PowerShell (cmd.exe doesn't expand $ variables) -->
-        <Exec Condition="'$(OS)' == 'Windows_NT'" Command="powershell -NoProfile -Command &quot;$googleFonts = '@import url(''https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&amp;display=swap'');'; $files = @('@(CssFilesToBundle)'.Split(';')); $content = $files | ForEach-Object { if (Test-Path $_) { Get-Content -Raw $_ } } | Out-String; Set-Content -Path '$(TargetCss)' -Value ($googleFonts + [Environment]::NewLine + $content) -NoNewline&quot;" />
-        <!-- Linux: use bash (avoids $ variable expansion issue with PowerShell via sh) -->
-        <Exec Condition="'$(OS)' != 'Windows_NT'" Command="printf '%s\n' &quot;@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&amp;display=swap');&quot; > '$(TargetCss)' &amp;&amp; cat @(CssFilesToBundle -> '&quot;%(Identity)&quot;', ' ') >> '$(TargetCss)'" />
+        <ConcatenateFiles SourceFiles="@(CssFilesToBundle)" OutputFile="$(TargetCss)" Header="@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&amp;display=swap');" />
 
         <!-- Delete individual CSS files and their compressed versions -->
         <ItemGroup>
@@ -114,10 +159,7 @@
 
         <!-- Add cache busting version to index.html -->
         <Message Importance="high" Text="Adding CSS cache busting version: $(CssVersion)" />
-        <!-- Windows -->
-        <Exec Condition="'$(OS)' == 'Windows_NT'" Command="powershell -NoProfile -Command &quot;(Get-Content '$(IndexHtmlPath)') -replace 'href=\&quot;css/app\.css\&quot;', 'href=\&quot;css/app.css?v=$(CssVersion)\&quot;' | Set-Content '$(IndexHtmlPath)'&quot;" />
-        <!-- Linux -->
-        <Exec Condition="'$(OS)' != 'Windows_NT'" Command="sed -i 's|href=&quot;css/app\.css&quot;|href=&quot;css/app.css?v=$(CssVersion)&quot;|' '$(IndexHtmlPath)'" />
+        <ReplaceInFile FilePath="$(IndexHtmlPath)" Find="href=&quot;css/app.css&quot;" ReplaceWith="href=&quot;css/app.css?v=$(CssVersion)&quot;" />
 
         <Message Importance="high" Text="CSS processing complete. Cache version: $(CssVersion)" />
     </Target>
