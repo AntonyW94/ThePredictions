@@ -63,18 +63,21 @@ jobs:
       - name: Deploy to prod site via FTP
         run: |
           sudo apt-get install -y -qq lftp > /dev/null 2>&1
-          lftp -u "${{ secrets.PROD_FTP_USERNAME }},${{ secrets.PROD_FTP_PASSWORD }}" \
+          LFTP_PASSWORD="$FTP_PASS" lftp -u "$FTP_USER" \
             "ftp://${{ vars.FTP_SERVER }}" \
             -e "set ftp:passive-mode yes; \
                 set ftp:ssl-allow no; \
                 set mirror:parallel-directories yes; \
                 mirror --reverse --delete --parallel=10 --verbose ./publish/ /htdocs/; \
                 quit"
+        env:
+          FTP_USER: ${{ secrets.PROD_FTP_USERNAME }}
+          FTP_PASS: ${{ secrets.PROD_FTP_PASSWORD }}
 
       - name: Verify deployment file count
         run: |
           LOCAL_COUNT=$(find ./publish -type f | wc -l)
-          REMOTE_COUNT=$(lftp -u "${{ secrets.PROD_FTP_USERNAME }},${{ secrets.PROD_FTP_PASSWORD }}" \
+          REMOTE_COUNT=$(LFTP_PASSWORD="$FTP_PASS" lftp -u "$FTP_USER" \
             "ftp://${{ vars.FTP_SERVER }}" \
             -e "set ftp:passive-mode yes; \
                 set ftp:ssl-allow no; \
@@ -87,6 +90,9 @@ jobs:
             exit 1
           fi
           echo "File counts match."
+        env:
+          FTP_USER: ${{ secrets.PROD_FTP_USERNAME }}
+          FTP_PASS: ${{ secrets.PROD_FTP_PASSWORD }}
 
       - name: Warm up site
         run: |
