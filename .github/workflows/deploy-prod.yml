@@ -80,7 +80,7 @@ jobs:
             -e "set ftp:passive-mode yes; \
                 set ftp:ssl-allow no; \
                 find /htdocs/; \
-                quit" | grep -v '/$' | wc -l)
+                quit" | grep -v '/$' | grep -v '/logs/' | wc -l)
           echo "Local files:  $LOCAL_COUNT"
           echo "Remote files: $REMOTE_COUNT"
           if [ "$LOCAL_COUNT" -ne "$REMOTE_COUNT" ]; then
