@@ -68,7 +68,7 @@ jobs:
             -e "set ftp:passive-mode yes; \
                 set ftp:ssl-allow no; \
                 set mirror:parallel-directories yes; \
-                mirror --reverse --delete --parallel=10 --verbose ./publish/ /htdocs/; \
+                mirror --reverse --delete --exclude logs/ --parallel=10 --verbose ./publish/ /htdocs/; \
                 quit"
 
       - name: Verify deployment file count
