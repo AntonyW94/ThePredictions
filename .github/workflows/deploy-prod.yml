@@ -67,6 +67,7 @@ jobs:
             "ftp://${{ vars.FTP_SERVER }}" \
             -e "set ftp:passive-mode yes; \
                 set ftp:ssl-allow no; \
+                set ftp:chmod no; \
                 set mirror:parallel-directories yes; \
                 mirror --reverse --delete --exclude logs/ --parallel=10 --verbose ./publish/ /htdocs/; \
                 quit"
