@@ -63,21 +63,18 @@ jobs:
       - name: Deploy to dev site via FTP
         run: |
           sudo apt-get install -y -qq lftp > /dev/null 2>&1
-          LFTP_PASSWORD="$FTP_PASS" lftp -u "$FTP_USER" \
+          lftp -u "${{ secrets.DEV_FTP_USERNAME }},${{ secrets.DEV_FTP_PASSWORD }}" \
             "ftp://${{ vars.FTP_SERVER }}" \
             -e "set ftp:passive-mode yes; \
                 set ftp:ssl-allow no; \
                 set mirror:parallel-directories yes; \
                 mirror --reverse --delete --parallel=10 --verbose ./publish/ /htdocs/; \
                 quit"
-        env:
-          FTP_USER: ${{ secrets.DEV_FTP_USERNAME }}
-          FTP_PASS: ${{ secrets.DEV_FTP_PASSWORD }}
 
       - name: Verify deployment file count
         run: |
           LOCAL_COUNT=$(find ./publish -type f | wc -l)
-          REMOTE_COUNT=$(LFTP_PASSWORD="$FTP_PASS" lftp -u "$FTP_USER" \
+          REMOTE_COUNT=$(lftp -u "${{ secrets.DEV_FTP_USERNAME }},${{ secrets.DEV_FTP_PASSWORD }}" \
             "ftp://${{ vars.FTP_SERVER }}" \
             -e "set ftp:passive-mode yes; \
                 set ftp:ssl-allow no; \
@@ -90,9 +87,6 @@ jobs:
             exit 1
           fi
           echo "File counts match."
-        env:
-          FTP_USER: ${{ secrets.DEV_FTP_USERNAME }}
-          FTP_PASS: ${{ secrets.DEV_FTP_PASSWORD }}
 
       - name: Warm up site
         run: |
