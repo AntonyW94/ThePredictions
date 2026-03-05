@@ -94,6 +94,25 @@ jobs:
       - name: Warm up site
         run: |
           echo "Warming up site to avoid cold-start delay..."
+          HTTP_STATUS=$(curl --retry 5 --retry-delay 10 --retry-all-errors \
+            --max-time 120 -o /dev/null -s -w "%{http_code}" \
+            "https://dev.thepredictions.co.uk")
+          echo "HTTP status: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" = "200" ]; then
+            echo "Site is up."
+            exit 0
+          fi
+          echo "Site returned $HTTP_STATUS - forcing app pool recycle via web.config touch..."
+          echo "" >> ./publish/web.config
+          lftp -u "${{ secrets.DEV_FTP_USERNAME }},${{ secrets.DEV_FTP_PASSWORD }}" \
+            "ftp://${{ vars.FTP_SERVER }}" \
+            -e "set ftp:passive-mode yes; \
+                set ftp:ssl-allow no; \
+                put ./publish/web.config -o /htdocs/web.config; \
+                quit"
+          echo "Waiting for app pool to recycle..."
+          sleep 15
+          echo "Retrying warm up..."
           curl --retry 5 --retry-delay 10 --retry-all-errors \
             --max-time 120 -o /dev/null -s -w "HTTP %{http_code} in %{time_total}s\n" \
             "https://dev.thepredictions.co.uk"
