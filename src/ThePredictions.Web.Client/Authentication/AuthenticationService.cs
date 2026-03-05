@@ -58,8 +58,17 @@ public class AuthenticationService(HttpClient httpClient, AuthenticationStatePro
             return successResponse;
         }
 
-        var failureResponse = await response.Content.ReadFromJsonAsync<FailedAuthenticationResponse>();
-        return failureResponse ?? new FailedAuthenticationResponse("Failed to process server response.");
+        try
+        {
+            var failureResponse = await response.Content.ReadFromJsonAsync<FailedAuthenticationResponse>();
+            if (failureResponse != null && !string.IsNullOrEmpty(failureResponse.Message))
+                return failureResponse;
+        }
+        catch (JsonException)
+        {
+        }
+
+        return new FailedAuthenticationResponse("An unexpected error occurred during login.");
     }
     
     public async Task LogoutAsync()
@@ -102,8 +111,17 @@ public class AuthenticationService(HttpClient httpClient, AuthenticationStatePro
             }
         }
 
-        var error = await response.Content.ReadFromJsonAsync<FailedResetPasswordResponse>();
-        return error ?? new FailedResetPasswordResponse("An error occurred. Please try again.");
+        try
+        {
+            var error = await response.Content.ReadFromJsonAsync<FailedResetPasswordResponse>();
+            if (error != null && !string.IsNullOrEmpty(error.Message))
+                return error;
+        }
+        catch (JsonException)
+        {
+        }
+
+        return new FailedResetPasswordResponse("An error occurred. Please try again.");
     }
 
     private class IdentityErrorResponse
