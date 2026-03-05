@@ -68,6 +68,9 @@ jobs:
             -e "set ftp:passive-mode yes; \
                 set ftp:ssl-allow no; \
                 set mirror:parallel-directories yes; \
+                echo 'Pass 1: Uploading new and changed files...'; \
+                mirror --reverse --parallel=10 --verbose ./publish/ /htdocs/; \
+                echo 'Pass 2: Removing stale files...'; \
                 mirror --reverse --delete --parallel=10 --verbose ./publish/ /htdocs/; \
                 quit"
 
