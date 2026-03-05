@@ -69,7 +69,10 @@ jobs:
                 set ftp:ssl-allow no; \
                 set ftp:chmod no; \
                 set mirror:parallel-directories yes; \
-                mirror --reverse --delete --exclude logs/ --parallel=10 --verbose ./publish/ /htdocs/; \
+                echo 'Pass 1: Uploading new and changed files...'; \
+                mirror --reverse --exclude logs/ --exclude ShadowCopyDirectory/ --exclude keys/ --parallel=10 --verbose ./publish/ /htdocs/; \
+                echo 'Pass 2: Removing stale files...'; \
+                mirror --reverse --delete --exclude logs/ --exclude ShadowCopyDirectory/ --exclude keys/ --parallel=10 --verbose ./publish/ /htdocs/; \
                 quit"
 
       - name: Verify deployment file count
@@ -80,7 +83,7 @@ jobs:
             -e "set ftp:passive-mode yes; \
                 set ftp:ssl-allow no; \
                 find /htdocs/; \
-                quit" | grep -v '/$' | grep -v '/logs/' | wc -l)
+                quit" | grep -v '/$' | grep -v '/logs/' | grep -v '/ShadowCopyDirectory/' | grep -v '/keys/' | wc -l)
           echo "Local files:  $LOCAL_COUNT"
           echo "Remote files: $REMOTE_COUNT"
           if [ "$LOCAL_COUNT" -ne "$REMOTE_COUNT" ]; then
@@ -92,6 +95,25 @@ jobs:
       - name: Warm up site
         run: |
           echo "Warming up site to avoid cold-start delay..."
+          HTTP_STATUS=$(curl --retry 5 --retry-delay 10 --retry-all-errors \
+            --max-time 120 -o /dev/null -s -w "%{http_code}" \
+            "https://thepredictions.co.uk" || true)
+          echo "HTTP status: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" = "200" ]; then
+            echo "Site is up."
+            exit 0
+          fi
+          echo "Site returned $HTTP_STATUS - forcing app pool recycle via web.config touch..."
+          echo "" >> ./publish/web.config
+          lftp -u "${{ secrets.PROD_FTP_USERNAME }},${{ secrets.PROD_FTP_PASSWORD }}" \
+            "ftp://${{ vars.FTP_SERVER }}" \
+            -e "set ftp:passive-mode yes; \
+                set ftp:ssl-allow no; \
+                put ./publish/web.config -o /htdocs/web.config; \
+                quit"
+          echo "Waiting for app pool to recycle..."
+          sleep 15
+          echo "Retrying warm up..."
           curl --retry 5 --retry-delay 10 --retry-all-errors \
             --max-time 120 -o /dev/null -s -w "HTTP %{http_code} in %{time_total}s\n" \
             "https://thepredictions.co.uk"

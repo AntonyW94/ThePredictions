@@ -69,9 +69,9 @@ jobs:
                 set ftp:ssl-allow no; \
                 set mirror:parallel-directories yes; \
                 echo 'Pass 1: Uploading new and changed files...'; \
-                mirror --reverse --parallel=10 --verbose ./publish/ /htdocs/; \
+                mirror --reverse --exclude logs/ --exclude ShadowCopyDirectory/ --exclude keys/ --parallel=10 --verbose ./publish/ /htdocs/; \
                 echo 'Pass 2: Removing stale files...'; \
-                mirror --reverse --delete --parallel=10 --verbose ./publish/ /htdocs/; \
+                mirror --reverse --delete --exclude logs/ --exclude ShadowCopyDirectory/ --exclude keys/ --parallel=10 --verbose ./publish/ /htdocs/; \
                 quit"
 
       - name: Verify deployment file count
@@ -82,7 +82,7 @@ jobs:
             -e "set ftp:passive-mode yes; \
                 set ftp:ssl-allow no; \
                 find /htdocs/; \
-                quit" | grep -v '/$' | wc -l)
+                quit" | grep -v '/$' | grep -v '/logs/' | grep -v '/ShadowCopyDirectory/' | grep -v '/keys/' | wc -l)
           echo "Local files:  $LOCAL_COUNT"
           echo "Remote files: $REMOTE_COUNT"
           if [ "$LOCAL_COUNT" -ne "$REMOTE_COUNT" ]; then
