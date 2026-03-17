@@ -284,6 +284,128 @@ public class MatchTests
         match.Status.Should().Be(MatchStatus.InProgress);
     }
 
+    [Fact]
+    public void UpdateScore_ShouldClearScores_WhenStatusIsPostponed()
+    {
+        // Arrange
+        var match = CreateMatchViaFactory();
+        match.UpdateScore(2, 1, MatchStatus.Completed);
+
+        // Act
+        match.UpdateScore(2, 1, MatchStatus.Postponed);
+
+        // Assert
+        match.ActualHomeTeamScore.Should().BeNull();
+        match.ActualAwayTeamScore.Should().BeNull();
+        match.Status.Should().Be(MatchStatus.Postponed);
+    }
+
+    [Fact]
+    public void UpdateScore_ShouldIgnoreScoreValues_WhenStatusIsPostponed()
+    {
+        // Arrange
+        var match = CreateMatchViaFactory();
+
+        // Act
+        match.UpdateScore(5, 3, MatchStatus.Postponed);
+
+        // Assert
+        match.ActualHomeTeamScore.Should().BeNull();
+        match.ActualAwayTeamScore.Should().BeNull();
+    }
+
+    #endregion
+
+    #region Postpone
+
+    [Fact]
+    public void Postpone_ShouldSetStatusToPostponed_WhenCalled()
+    {
+        // Arrange
+        var match = CreateMatchViaFactory();
+
+        // Act
+        match.Postpone();
+
+        // Assert
+        match.Status.Should().Be(MatchStatus.Postponed);
+    }
+
+    [Fact]
+    public void Postpone_ShouldClearScores_WhenMatchHadScores()
+    {
+        // Arrange
+        var match = CreateMatchViaFactory();
+        match.UpdateScore(2, 1, MatchStatus.InProgress);
+
+        // Act
+        match.Postpone();
+
+        // Assert
+        match.ActualHomeTeamScore.Should().BeNull();
+        match.ActualAwayTeamScore.Should().BeNull();
+    }
+
+    [Fact]
+    public void Postpone_ShouldNotThrow_WhenAlreadyPostponed()
+    {
+        // Arrange
+        var match = CreateMatchViaFactory();
+        match.Postpone();
+
+        // Act
+        var act = () => match.Postpone();
+
+        // Assert
+        act.Should().NotThrow();
+        match.Status.Should().Be(MatchStatus.Postponed);
+    }
+
+    #endregion
+
+    #region Reschedule
+
+    [Fact]
+    public void Reschedule_ShouldSetStatusToScheduled_WhenPostponed()
+    {
+        // Arrange
+        var match = CreateMatchViaFactory();
+        match.Postpone();
+
+        // Act
+        match.Reschedule();
+
+        // Assert
+        match.Status.Should().Be(MatchStatus.Scheduled);
+    }
+
+    [Fact]
+    public void Reschedule_ShouldNotChangeStatus_WhenNotPostponed()
+    {
+        // Arrange
+        var match = CreateMatchViaFactory();
+        match.UpdateScore(1, 0, MatchStatus.InProgress);
+
+        // Act
+        match.Reschedule();
+
+        // Assert
+        match.Status.Should().Be(MatchStatus.InProgress);
+    }
+
+    [Fact]
+    public void Reschedule_ShouldNotChangeStatus_WhenScheduled()
+    {
+        // Arrange
+        var match = CreateMatchViaFactory();
+
+        // Act
+        match.Reschedule();
+
+        // Assert
+        match.Status.Should().Be(MatchStatus.Scheduled);
+    }
+
     #endregion
 
     #region UpdateDetails

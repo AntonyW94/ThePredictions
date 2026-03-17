@@ -87,7 +87,7 @@ public class UpdateMatchResultsCommandHandler(
         
         await statsService.UpdateLiveStatsAsync(round.Id, cancellationToken);
       
-        if (round.Matches.All(m => m.Status == MatchStatus.Completed))
+        if (round.Matches.All(m => m.Status is MatchStatus.Completed or MatchStatus.Postponed))
         {
             round.UpdateStatus(RoundStatus.Completed, dateTimeProvider);
             await roundRepository.UpdateAsync(round, cancellationToken);

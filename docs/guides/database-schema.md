@@ -94,7 +94,7 @@ Individual fixtures within a round.
 | RoundId | int | NO | | FK to Rounds |
 | HomeTeamId | int | YES | | FK to Teams (null for placeholder) |
 | AwayTeamId | int | YES | | FK to Teams (null for placeholder) |
-| Status | nvarchar(50) | NO | 'Scheduled' | Scheduled, InProgress, Completed, etc. |
+| Status | nvarchar(50) | NO | 'Scheduled' | Scheduled, InProgress, Completed, Postponed |
 | ActualHomeTeamScore | int | YES | | Final home score |
 | ActualAwayTeamScore | int | YES | | Final away score |
 | ExternalId | int | YES | | External API match ID |

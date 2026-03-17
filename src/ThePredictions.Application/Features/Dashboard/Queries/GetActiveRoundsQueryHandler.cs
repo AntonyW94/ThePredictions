@@ -80,12 +80,13 @@ public class GetActiveRoundsQueryHandler(IApplicationReadDbConnection dbConnecti
             INNER JOIN [Teams] at ON m.[AwayTeamId] = at.[Id]
             LEFT JOIN [UserPredictions] up ON up.[MatchId] = m.[Id] AND up.[UserId] = @UserId
             WHERE m.[RoundId] IN @RoundIds
+                AND m.[Status] <> @PostponedStatus
             ORDER BY m.[RoundId], m.[MatchDateTimeUtc] ASC, ht.[ShortName] ASC";
 
         var matches = await dbConnection.QueryAsync<ActiveRoundMatchQueryResult>(
             matchesSql,
             cancellationToken,
-            new { request.UserId, RoundIds = roundIds });
+            new { request.UserId, RoundIds = roundIds, PostponedStatus = nameof(MatchStatus.Postponed) });
 
         // Group matches by RoundId for efficient lookup
         var matchesByRound = matches

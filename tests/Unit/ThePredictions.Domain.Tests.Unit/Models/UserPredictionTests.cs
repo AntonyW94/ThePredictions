@@ -151,6 +151,19 @@ public class UserPredictionTests
     }
 
     [Fact]
+    public void SetOutcome_ShouldReturnPending_WhenStatusIsPostponed()
+    {
+        // Arrange
+        var prediction = UserPrediction.Create("user-1", 1, 2, 1, _dateTimeProvider);
+
+        // Act
+        prediction.SetOutcome(MatchStatus.Postponed, 2, 1, _dateTimeProvider);
+
+        // Assert
+        prediction.Outcome.Should().Be(PredictionOutcome.Pending);
+    }
+
+    [Fact]
     public void SetOutcome_ShouldReturnPending_WhenHomeScoreIsNull()
     {
         // Arrange

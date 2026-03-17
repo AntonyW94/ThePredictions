@@ -42,7 +42,7 @@ public class UserPrediction
 
     public void SetOutcome(MatchStatus status, int? actualHomeScore, int? actualAwayScore, IDateTimeProvider dateTimeProvider)
     {
-        if (status == MatchStatus.Scheduled || actualHomeScore == null || actualAwayScore == null)
+        if (status is MatchStatus.Scheduled or MatchStatus.Postponed || actualHomeScore == null || actualAwayScore == null)
         {
             Outcome = PredictionOutcome.Pending;
             UpdatedAtUtc = dateTimeProvider.UtcNow;

@@ -11,5 +11,7 @@ public enum MatchStatus
     [Description("In Progress")]
     InProgress,
     [Description("Completed")]
-    Completed
+    Completed,
+    [Description("Postponed")]
+    Postponed
 }

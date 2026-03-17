@@ -37,6 +37,7 @@ public class GetPredictionPageDataQueryHandler(IApplicationReadDbConnection dbCo
             LEFT JOIN [Teams] at ON m.[AwayTeamId] = at.[Id]
             LEFT JOIN [UserPredictions] up ON m.[Id] = up.[MatchId] AND up.[UserId] = @UserId
             WHERE r.[Id] = @RoundId
+                AND (m.[Status] IS NULL OR m.[Status] <> @PostponedStatus)
             ORDER BY m.[MatchDateTimeUtc];";
 
         var queryResult = await dbConnection.QueryAsync<PredictionPageQueryResult>(
@@ -45,7 +46,8 @@ public class GetPredictionPageDataQueryHandler(IApplicationReadDbConnection dbCo
             new
             {
                 request.UserId,
-                request.RoundId
+                request.RoundId,
+                PostponedStatus = nameof(MatchStatus.Postponed)
             }
         );
 

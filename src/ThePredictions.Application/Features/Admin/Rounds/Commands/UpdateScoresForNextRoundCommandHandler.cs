@@ -18,7 +18,7 @@ public class UpdateScoresForNextRoundCommandHandler(
             return;
 
         var matchesToCheck = activeRound.Matches
-            .Where(m => m.MatchDateTimeUtc < DateTime.UtcNow && m.Status != MatchStatus.Completed)
+            .Where(m => m.MatchDateTimeUtc < DateTime.UtcNow && m.Status is not (MatchStatus.Completed or MatchStatus.Postponed))
             .ToList();
 
         if (!matchesToCheck.Any())
@@ -58,6 +58,7 @@ public class UpdateScoresForNextRoundCommandHandler(
     {
         "FT" => MatchStatus.Completed,
         "HT" or "1H" or "2H" => MatchStatus.InProgress,
+        "PST" => MatchStatus.Postponed,
         _ => MatchStatus.Scheduled
     };
 }

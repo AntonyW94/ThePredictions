@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using ThePredictions.Application.Features.Admin.Rounds.Commands;
 using ThePredictions.Application.Repositories;
 using ThePredictions.Application.Services;
+using ThePredictions.Domain.Common.Enumerations;
 using ThePredictions.Domain.Common.Guards;
 using ThePredictions.Domain.Models;
 
@@ -60,7 +61,8 @@ public class SyncSeasonWithApiCommandHandler(
                 fixture.Fixture.Date.UtcDateTime,
                 homeTeam.Id,
                 awayTeam.Id,
-                fixture.League.RoundName));
+                fixture.League.RoundName,
+                fixture.Fixture.Status.Short));
         }
 
         // Phase 2: Calculate round date windows using gap-based boundaries
@@ -72,7 +74,7 @@ public class SyncSeasonWithApiCommandHandler(
                 continue;
 
             var fixturesInApiRound = validFixtures
-                .Where(f => f.ApiRoundName == apiRoundName)
+                .Where(f => f.ApiRoundName == apiRoundName && f.ApiStatus != "PST")
                 .OrderBy(f => f.MatchDateTimeUtc)
                 .ToList();
 
@@ -171,10 +173,11 @@ public class SyncSeasonWithApiCommandHandler(
                 }
             }
 
-            if (!round.Matches.Any())
+            var activeMatches = round.Matches.Where(m => m.Status != MatchStatus.Postponed).ToList();
+            if (!activeMatches.Any())
                 continue;
 
-            var roundEarliestMatchDateUtc = round.Matches.Min(m => m.MatchDateTimeUtc);
+            var roundEarliestMatchDateUtc = activeMatches.Min(m => m.MatchDateTimeUtc);
             if (roundEarliestMatchDateUtc == round.StartDateUtc)
                 continue;
 
@@ -185,6 +188,24 @@ public class SyncSeasonWithApiCommandHandler(
                 round.Status,
                 round.ApiRoundName);
             allChangedRoundIds.Add(round.Id);
+        }
+
+        // Phase 4b: Update match statuses for postponed/rescheduled fixtures
+        foreach (var fixture in validFixtures)
+        {
+            if (!matchesByExternalId.TryGetValue(fixture.ExternalId, out var existing))
+                continue;
+
+            if (fixture.ApiStatus == "PST" && existing.Match.Status != MatchStatus.Postponed)
+            {
+                existing.Match.Postpone();
+                allChangedRoundIds.Add(existing.Round.Id);
+            }
+            else if (fixture.ApiStatus != "PST" && existing.Match.Status == MatchStatus.Postponed)
+            {
+                existing.Match.Reschedule();
+                allChangedRoundIds.Add(existing.Round.Id);
+            }
         }
 
         // Phase 5: Delete stale matches
@@ -301,7 +322,7 @@ public class SyncSeasonWithApiCommandHandler(
         return parts.Length > 1 && int.TryParse(parts[^1], out roundNumber);
     }
 
-    private record ValidFixture(int ExternalId, DateTime MatchDateTimeUtc, int HomeTeamId, int AwayTeamId, string ApiRoundName);
+    private record ValidFixture(int ExternalId, DateTime MatchDateTimeUtc, int HomeTeamId, int AwayTeamId, string ApiRoundName, string ApiStatus);
 
     private record RoundFixtureSummary(string ApiRoundName, int RoundNumber, DateTime MedianDateUtc);
 

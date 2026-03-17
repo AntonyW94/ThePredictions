@@ -64,7 +64,7 @@ public class Match
         Guard.Against.Negative(homeScore);
         Guard.Against.Negative(awayScore);
 
-        if (status == MatchStatus.Scheduled)
+        if (status is MatchStatus.Scheduled or MatchStatus.Postponed)
         {
             ActualHomeTeamScore = null;
             ActualAwayTeamScore = null;
@@ -91,6 +91,19 @@ public class Match
     public void UpdateDate(DateTime newDateUtc)
     {
         MatchDateTimeUtc = newDateUtc;
+    }
+
+    public void Postpone()
+    {
+        Status = MatchStatus.Postponed;
+        ActualHomeTeamScore = null;
+        ActualAwayTeamScore = null;
+    }
+
+    public void Reschedule()
+    {
+        if (Status == MatchStatus.Postponed)
+            Status = MatchStatus.Scheduled;
     }
 
     public void MoveToRound(int newRoundId)
