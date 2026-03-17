@@ -351,7 +351,8 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
                     [HomeTeamId] = @HomeTeamId,
                     [AwayTeamId] = @AwayTeamId,
                     [MatchDateTimeUtc] = @MatchDateTimeUtc,
-                    [ExternalId] = @ExternalId
+                    [ExternalId] = @ExternalId,
+                    [Status] = @Status
                 WHERE
                     [Id] = @Id;";
 
