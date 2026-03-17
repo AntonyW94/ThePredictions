@@ -105,12 +105,20 @@ app.UseHttpsRedirection();
 app.UseCors(corsName);
 app.UseBlazorFrameworkFiles();
 
-// Prevent browser caching of index.html so CSS cache-busting versions are always fresh
+// Prevent browser caching of index.html and blazor.boot.json so deployments are always picked up.
+// Mobile browsers aggressively cache framework files which can cause integrity check failures
+// (yellow error banner) when blazor.boot.json expects new hashes but stale DLLs are served from cache.
 app.Use(async (context, next) =>
 {
     context.Response.OnStarting(() =>
     {
-        if (context.Response.ContentType?.StartsWith("text/html", StringComparison.OrdinalIgnoreCase) == true)
+        var contentType = context.Response.ContentType;
+        var path = context.Request.Path.Value;
+
+        var isHtml = contentType?.StartsWith("text/html", StringComparison.OrdinalIgnoreCase) == true;
+        var isBlazorBoot = path?.EndsWith("blazor.boot.json", StringComparison.OrdinalIgnoreCase) == true;
+
+        if (isHtml || isBlazorBoot)
         {
             context.Response.Headers.CacheControl = "no-cache, no-store";
             context.Response.Headers.Pragma = "no-cache";

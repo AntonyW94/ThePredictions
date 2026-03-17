@@ -8,19 +8,24 @@
             <NavLayout class="@_navLayoutClass" />
 
             <article class="content">
-                @Body
+                <LoggingErrorBoundary @ref="_errorBoundary">
+                    <ChildContent>
+                        @Body
+                    </ChildContent>
+                    <ErrorContent Context="exception">
+                        <div class="text-center py-5">
+                            <p class="text-white">Something went wrong. Please try refreshing the page.</p>
+                            <button class="btn btn-outline-light mt-2" @onclick="RecoverFromError">Try Again</button>
+                        </div>
+                    </ErrorContent>
+                </LoggingErrorBoundary>
             </article>
         </main>
     </CascadingAuthenticationState>
 </div>
 
-<div id="blazor-error-ui">
-    An unhandled error has occurred.
-    <a href="">Reload</a>
-    <a class="dismiss">🗙</a>
-</div>
-
 @code {
+    private LoggingErrorBoundary? _errorBoundary;
     private string _navLayoutClass = "";
     private string _backgroundClass = "";
 
@@ -32,8 +37,14 @@
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
+        _errorBoundary?.Recover();
         SetLayoutClasses();
         StateHasChanged();
+    }
+
+    private void RecoverFromError()
+    {
+        _errorBoundary?.Recover();
     }
 
     private void SetLayoutClasses()
