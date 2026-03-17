@@ -356,7 +356,16 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
                 WHERE
                     [Id] = @Id;";
 
-            var updateMatchesCommand = new CommandDefinition(updateSql, matchesToUpdate, cancellationToken: cancellationToken);
+            var updateMatchesCommand = new CommandDefinition(updateSql, matchesToUpdate.Select(m => new
+            {
+                m.Id,
+                m.RoundId,
+                m.HomeTeamId,
+                m.AwayTeamId,
+                m.MatchDateTimeUtc,
+                m.ExternalId,
+                Status = m.Status.ToString()
+            }), cancellationToken: cancellationToken);
             await Connection.ExecuteAsync(updateMatchesCommand);
         }
 
