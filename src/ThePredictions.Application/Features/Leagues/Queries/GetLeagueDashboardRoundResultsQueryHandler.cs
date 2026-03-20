@@ -69,6 +69,7 @@ public class GetLeagueDashboardRoundResultsQueryHandler(
                                 lm.[LeagueId] = @LeagueId 
                                 AND lm.[Status] = @Approved
                                 AND m.[RoundId] = @RoundId
+                                AND m.[Status] IN (@Scheduled, @InProgress, @Completed)
                             ORDER BY 
                                 rr.[Rank], 
                                 PlayerName, 
@@ -76,10 +77,13 @@ public class GetLeagueDashboardRoundResultsQueryHandler(
 
         var parameters = new
         {
-            request.LeagueId, 
-            request.RoundId, 
+            request.LeagueId,
+            request.RoundId,
             request.CurrentUserId,
-            Approved = nameof(LeagueMemberStatus.Approved)
+            Approved = nameof(LeagueMemberStatus.Approved),
+            Scheduled = nameof(MatchStatus.Scheduled),
+            InProgress = nameof(MatchStatus.InProgress),
+            Completed = nameof(MatchStatus.Completed)
         };
 
         var queryResult = await dbConnection.QueryAsync<PredictionQueryResult>(sql, cancellationToken, parameters);

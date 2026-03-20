@@ -1,6 +1,7 @@
 using MediatR;
 using ThePredictions.Application.Data;
 using ThePredictions.Contracts.Admin.Rounds;
+using ThePredictions.Domain.Common.Enumerations;
 
 namespace ThePredictions.Application.Features.Dashboard.Queries;
 
@@ -32,11 +33,18 @@ public class GetMatchesForRoundQueryHandler(IApplicationReadDbConnection dbConne
                 [Teams] ht ON m.[HomeTeamId] = ht.[Id]
             JOIN 
                 [Teams] at ON m.[AwayTeamId] = at.[Id]
-            WHERE 
+            WHERE
                 m.[RoundId] = @RoundId
+                AND m.[Status] IN (@Scheduled, @InProgress, @Completed)
             ORDER BY 
                 m.[MatchDateTimeUtc];";
 
-        return await dbConnection.QueryAsync<MatchInRoundDto>(sql, cancellationToken, new { request.RoundId });
+        return await dbConnection.QueryAsync<MatchInRoundDto>(sql, cancellationToken, new
+            {
+                request.RoundId,
+                Scheduled = nameof(MatchStatus.Scheduled),
+                InProgress = nameof(MatchStatus.InProgress),
+                Completed = nameof(MatchStatus.Completed)
+            });
     }
 }
