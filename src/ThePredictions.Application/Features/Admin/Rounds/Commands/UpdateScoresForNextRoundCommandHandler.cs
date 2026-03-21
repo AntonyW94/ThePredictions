@@ -18,7 +18,7 @@ public class UpdateScoresForNextRoundCommandHandler(
             return;
 
         var matchesToCheck = activeRound.Matches
-            .Where(m => m.MatchDateTimeUtc < DateTime.UtcNow && m.Status is not (MatchStatus.Completed or MatchStatus.Postponed))
+            .Where(m => m.MatchDateTimeUtc < DateTime.UtcNow && m.Status != MatchStatus.Completed)
             .ToList();
 
         if (!matchesToCheck.Any())

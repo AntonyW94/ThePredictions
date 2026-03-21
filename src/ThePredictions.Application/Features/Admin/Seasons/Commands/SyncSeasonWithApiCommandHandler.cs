@@ -196,7 +196,7 @@ public class SyncSeasonWithApiCommandHandler(
             if (!matchesByExternalId.TryGetValue(fixture.ExternalId, out var existing))
                 continue;
 
-            if (fixture.ApiStatus == "PST" && existing.Match.Status != MatchStatus.Postponed)
+            if (fixture.ApiStatus == "PST" && existing.Match.Status is not (MatchStatus.Postponed or MatchStatus.Completed))
             {
                 existing.Match.Postpone();
                 allChangedRoundIds.Add(existing.Round.Id);
