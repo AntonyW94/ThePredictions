@@ -8,4 +8,5 @@ public class BaseSeasonRequest
     public DateTime EndDateUtc { get; set; }
     public bool IsActive { get; set; }
     public int NumberOfRounds { get; set; }
+    public int CompetitionType { get; set; }
 }

@@ -28,7 +28,8 @@ public class UpdateSeasonCommandHandler(
             request.EndDateUtc,
             request.IsActive,
             request.NumberOfRounds,
-            request.ApiLeagueId
+            request.ApiLeagueId,
+            request.CompetitionType
         );
 
         await seasonRepository.UpdateAsync(season, cancellationToken);

@@ -18,7 +18,7 @@ public class PredictionDomainServiceTests
     }
 
     private Round CreateRoundWithFutureDeadline() =>
-        new(id: 1, seasonId: 1, roundNumber: 1,
+        new(id: 1, seasonId: 1, roundNumber: 1, displayName: "Gameweek 1",
             startDateUtc: _dateTimeProvider.UtcNow.AddDays(2),
             deadlineUtc: _dateTimeProvider.UtcNow.AddDays(1),
             status: RoundStatus.Published,
@@ -27,7 +27,7 @@ public class PredictionDomainServiceTests
             matches: null);
 
     private Round CreateRoundWithPastDeadline() =>
-        new(id: 1, seasonId: 1, roundNumber: 1,
+        new(id: 1, seasonId: 1, roundNumber: 1, displayName: "Gameweek 1",
             startDateUtc: _dateTimeProvider.UtcNow.AddDays(-1),
             deadlineUtc: _dateTimeProvider.UtcNow.AddDays(-2),
             status: RoundStatus.InProgress,

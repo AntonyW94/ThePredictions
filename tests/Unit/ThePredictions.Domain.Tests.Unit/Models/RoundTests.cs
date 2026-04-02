@@ -17,6 +17,7 @@ public class RoundTests
     private static Round CreateRoundViaFactory(
         int seasonId = 1,
         int roundNumber = 1,
+        string displayName = "Gameweek 1",
         DateTime? startDateUtc = null,
         DateTime? deadlineUtc = null,
         string? apiRoundName = null)
@@ -24,6 +25,7 @@ public class RoundTests
         return Round.Create(
             seasonId,
             roundNumber,
+            displayName,
             startDateUtc ?? ValidStartDate,
             deadlineUtc ?? ValidDeadline,
             apiRoundName);
@@ -36,7 +38,7 @@ public class RoundTests
     private static Round CreateRoundWithId(int id = 1)
     {
         return new Round(
-            id: id, seasonId: 1, roundNumber: 1,
+            id: id, seasonId: 1, roundNumber: 1, displayName: "Gameweek 1",
             startDateUtc: ValidStartDate, deadlineUtc: ValidDeadline,
             status: RoundStatus.Draft, apiRoundName: null,
             lastReminderSentUtc: null, matches: null);
@@ -447,14 +449,14 @@ public class RoundTests
     public void AcceptMatch_ShouldAddMatchToRound_WhenMatchIsValid()
     {
         // Arrange
-        var round = new Round(id: 5, seasonId: 1, roundNumber: 1,
+        var round = new Round(id: 5, seasonId: 1, roundNumber: 1, displayName: "Gameweek 1",
             startDateUtc: ValidStartDate, deadlineUtc: ValidDeadline,
             status: RoundStatus.Draft, apiRoundName: null,
             lastReminderSentUtc: null, matches: null);
         var match = new Match(id: 10, roundId: 1, homeTeamId: 1, awayTeamId: 2,
             matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: null, placeholderAwayName: null);
+            externalId: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
 
         // Act
         round.AcceptMatch(match);
@@ -468,14 +470,14 @@ public class RoundTests
     public void AcceptMatch_ShouldUpdateMatchRoundId_WhenAccepted()
     {
         // Arrange
-        var round = new Round(id: 5, seasonId: 1, roundNumber: 1,
+        var round = new Round(id: 5, seasonId: 1, roundNumber: 1, displayName: "Gameweek 1",
             startDateUtc: ValidStartDate, deadlineUtc: ValidDeadline,
             status: RoundStatus.Draft, apiRoundName: null,
             lastReminderSentUtc: null, matches: null);
         var match = new Match(id: 10, roundId: 1, homeTeamId: 1, awayTeamId: 2,
             matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: null, placeholderAwayName: null);
+            externalId: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
 
         // Act
         round.AcceptMatch(match);
@@ -491,8 +493,8 @@ public class RoundTests
         var match = new Match(id: 10, roundId: 1, homeTeamId: 1, awayTeamId: 2,
             matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: null, placeholderAwayName: null);
-        var round = new Round(id: 5, seasonId: 1, roundNumber: 1,
+            externalId: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
+        var round = new Round(id: 5, seasonId: 1, roundNumber: 1, displayName: "Gameweek 1",
             startDateUtc: ValidStartDate, deadlineUtc: ValidDeadline,
             status: RoundStatus.Draft, apiRoundName: null,
             lastReminderSentUtc: null, matches: [match]);
@@ -501,7 +503,7 @@ public class RoundTests
         var duplicateMatch = new Match(id: 10, roundId: 2, homeTeamId: 3, awayTeamId: 4,
             matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: null, placeholderAwayName: null);
+            externalId: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
         var act = () => round.AcceptMatch(duplicateMatch);
 
         // Assert
@@ -512,18 +514,18 @@ public class RoundTests
     public void AcceptMatch_ShouldAcceptMultipleMatches_WhenDifferentIds()
     {
         // Arrange
-        var round = new Round(id: 5, seasonId: 1, roundNumber: 1,
+        var round = new Round(id: 5, seasonId: 1, roundNumber: 1, displayName: "Gameweek 1",
             startDateUtc: ValidStartDate, deadlineUtc: ValidDeadline,
             status: RoundStatus.Draft, apiRoundName: null,
             lastReminderSentUtc: null, matches: null);
         var match1 = new Match(id: 10, roundId: 1, homeTeamId: 1, awayTeamId: 2,
             matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: null, placeholderAwayName: null);
+            externalId: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
         var match2 = new Match(id: 11, roundId: 2, homeTeamId: 3, awayTeamId: 4,
             matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: null, placeholderAwayName: null);
+            externalId: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
 
         // Act
         round.AcceptMatch(match1);
@@ -544,8 +546,8 @@ public class RoundTests
         var match = new Match(id: 10, roundId: 1, homeTeamId: 1, awayTeamId: 2,
             matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: null, placeholderAwayName: null);
-        var round = new Round(id: 1, seasonId: 1, roundNumber: 1,
+            externalId: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
+        var round = new Round(id: 1, seasonId: 1, roundNumber: 1, displayName: "Gameweek 1",
             startDateUtc: ValidStartDate, deadlineUtc: ValidDeadline,
             status: RoundStatus.Draft, apiRoundName: null, lastReminderSentUtc: null,
             matches: [match]);
@@ -564,8 +566,8 @@ public class RoundTests
         var match = new Match(id: 10, roundId: 1, homeTeamId: 1, awayTeamId: 2,
             matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: null, placeholderAwayName: null);
-        var round = new Round(id: 1, seasonId: 1, roundNumber: 1,
+            externalId: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
+        var round = new Round(id: 1, seasonId: 1, roundNumber: 1, displayName: "Gameweek 1",
             startDateUtc: ValidStartDate, deadlineUtc: ValidDeadline,
             status: RoundStatus.Draft, apiRoundName: null, lastReminderSentUtc: null,
             matches: [match]);
@@ -584,12 +586,12 @@ public class RoundTests
         var match1 = new Match(id: 10, roundId: 1, homeTeamId: 1, awayTeamId: 2,
             matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: null, placeholderAwayName: null);
+            externalId: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
         var match2 = new Match(id: 11, roundId: 1, homeTeamId: 3, awayTeamId: 4,
             matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: null, placeholderAwayName: null);
-        var round = new Round(id: 1, seasonId: 1, roundNumber: 1,
+            externalId: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
+        var round = new Round(id: 1, seasonId: 1, roundNumber: 1, displayName: "Gameweek 1",
             startDateUtc: ValidStartDate, deadlineUtc: ValidDeadline,
             status: RoundStatus.Draft, apiRoundName: null, lastReminderSentUtc: null,
             matches: [match1, match2]);
@@ -615,10 +617,11 @@ public class RoundTests
         var newDeadline = ValidDeadline.AddDays(7);
 
         // Act
-        round.UpdateDetails(2, newStart, newDeadline, RoundStatus.Published, "GW2");
+        round.UpdateDetails(2, "Gameweek 2", newStart, newDeadline, RoundStatus.Published, "GW2");
 
         // Assert
         round.RoundNumber.Should().Be(2);
+        round.DisplayName.Should().Be("Gameweek 2");
         round.StartDateUtc.Should().Be(newStart);
         round.DeadlineUtc.Should().Be(newDeadline);
         round.Status.Should().Be(RoundStatus.Published);
@@ -632,7 +635,7 @@ public class RoundTests
         var round = CreateRoundViaFactory(seasonId: 5);
 
         // Act
-        round.UpdateDetails(2, ValidStartDate, ValidDeadline, RoundStatus.Published, "GW2");
+        round.UpdateDetails(2, "Gameweek 2", ValidStartDate, ValidDeadline, RoundStatus.Published, "GW2");
 
         // Assert
         round.SeasonId.Should().Be(5);
@@ -645,7 +648,7 @@ public class RoundTests
         var round = CreateRoundViaFactory();
 
         // Act
-        var act = () => round.UpdateDetails(0, ValidStartDate, ValidDeadline, RoundStatus.Published, null);
+        var act = () => round.UpdateDetails(0, "Gameweek 1", ValidStartDate, ValidDeadline, RoundStatus.Published, null);
 
         // Assert
         act.Should().Throw<ArgumentException>();
@@ -658,7 +661,7 @@ public class RoundTests
         var round = CreateRoundViaFactory();
 
         // Act
-        var act = () => round.UpdateDetails(-1, ValidStartDate, ValidDeadline, RoundStatus.Published, null);
+        var act = () => round.UpdateDetails(-1, "Gameweek 1", ValidStartDate, ValidDeadline, RoundStatus.Published, null);
 
         // Assert
         act.Should().Throw<ArgumentException>();
@@ -671,7 +674,7 @@ public class RoundTests
         var round = CreateRoundViaFactory();
 
         // Act
-        var act = () => round.UpdateDetails(1, default, ValidDeadline, RoundStatus.Published, null);
+        var act = () => round.UpdateDetails(1, "Gameweek 1", default, ValidDeadline, RoundStatus.Published, null);
 
         // Assert
         act.Should().Throw<ArgumentException>();
@@ -684,7 +687,7 @@ public class RoundTests
         var round = CreateRoundViaFactory();
 
         // Act
-        var act = () => round.UpdateDetails(1, ValidStartDate, default, RoundStatus.Published, null);
+        var act = () => round.UpdateDetails(1, "Gameweek 1", ValidStartDate, default, RoundStatus.Published, null);
 
         // Assert
         act.Should().Throw<ArgumentException>();
@@ -697,7 +700,7 @@ public class RoundTests
         var round = CreateRoundViaFactory();
 
         // Act
-        var act = () => round.UpdateDetails(1, ValidStartDate, ValidStartDate.AddHours(1), RoundStatus.Published, null);
+        var act = () => round.UpdateDetails(1, "Gameweek 1", ValidStartDate, ValidStartDate.AddHours(1), RoundStatus.Published, null);
 
         // Assert
         act.Should().Throw<ArgumentException>();
@@ -710,7 +713,7 @@ public class RoundTests
         var round = CreateRoundViaFactory();
 
         // Act
-        var act = () => round.UpdateDetails(1, ValidStartDate, ValidStartDate, RoundStatus.Published, null);
+        var act = () => round.UpdateDetails(1, "Gameweek 1", ValidStartDate, ValidStartDate, RoundStatus.Published, null);
 
         // Assert
         act.Should().Throw<ArgumentException>();
@@ -747,6 +750,53 @@ public class RoundTests
 
         // Assert
         round.LastReminderSentUtc.Should().Be(_dateTimeProvider.UtcNow);
+    }
+
+    #endregion
+
+    #region DisplayName
+
+    [Fact]
+    public void Create_ShouldSetDisplayName()
+    {
+        // Act
+        var round = CreateRoundViaFactory(displayName: "Round of 16");
+
+        // Assert
+        round.DisplayName.Should().Be("Round of 16");
+    }
+
+    [Fact]
+    public void Create_ShouldThrow_WhenDisplayNameIsEmpty()
+    {
+        // Act
+        var act = () => CreateRoundViaFactory(displayName: "");
+
+        // Assert
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void Create_ShouldThrow_WhenDisplayNameIsWhitespace()
+    {
+        // Act
+        var act = () => CreateRoundViaFactory(displayName: " ");
+
+        // Assert
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void UpdateDetails_ShouldUpdateDisplayName()
+    {
+        // Arrange
+        var round = CreateRoundViaFactory(displayName: "Gameweek 1");
+
+        // Act
+        round.UpdateDetails(1, "Quarter-Final", ValidStartDate, ValidDeadline, RoundStatus.Draft, null);
+
+        // Assert
+        round.DisplayName.Should().Be("Quarter-Final");
     }
 
     #endregion

@@ -105,6 +105,15 @@
     transition: all 0.18s ease;
 }
 
+select.form-control {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='white' d='M6 8.825L0.575 3.4L1.4 2.575L6 7.175L10.6 2.575L11.425 3.4L6 8.825Z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 18px center;
+    padding-right: 48px;
+}
+
 .form-control::placeholder {
     color: var(--white);
 }
@@ -112,6 +121,7 @@
 .form-control:focus {
     background: var(--purple-800);
     color: var(--white);
+    border-width: 2px;
     border-color: var(--white);
     box-shadow: none;
     outline: none;

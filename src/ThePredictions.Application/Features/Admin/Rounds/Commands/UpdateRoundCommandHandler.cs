@@ -17,6 +17,7 @@ public class UpdateRoundCommandHandler(IRoundRepository roundRepository, ICurren
 
         round.UpdateDetails(
             request.RoundNumber,
+            round.DisplayName,
             request.StartDateUtc,
             request.DeadlineUtc,
             request.Status,

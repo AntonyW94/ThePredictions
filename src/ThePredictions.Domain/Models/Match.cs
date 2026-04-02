@@ -19,11 +19,14 @@ public class Match
     public int? ExternalId { get; private set; }
     public string? PlaceholderHomeName { get; private set; }
     public string? PlaceholderAwayName { get; private set; }
+    public string? ApiRoundName { get; private set; }
+
+    public bool AreTeamsConfirmed => HomeTeamId.HasValue && AwayTeamId.HasValue;
 
     private Match() { }
 
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
-    public Match(int id, int roundId, int homeTeamId, int awayTeamId, DateTime matchDateTimeUtc, DateTime? customLockTimeUtc, MatchStatus status, int? actualHomeTeamScore, int? actualAwayTeamScore, int? externalId, string? placeholderHomeName, string? placeholderAwayName)
+    public Match(int id, int roundId, int? homeTeamId, int? awayTeamId, DateTime matchDateTimeUtc, DateTime? customLockTimeUtc, MatchStatus status, int? actualHomeTeamScore, int? actualAwayTeamScore, int? externalId, string? placeholderHomeName, string? placeholderAwayName, string? apiRoundName)
     {
         Id = id;
         RoundId = roundId;
@@ -37,6 +40,7 @@ public class Match
         ExternalId = externalId;
         PlaceholderHomeName = placeholderHomeName;
         PlaceholderAwayName = placeholderAwayName;
+        ApiRoundName = apiRoundName;
     }
     
     public static Match Create(int roundId, int homeTeamId, int awayTeamId, DateTime matchDateTimeUtc, int? externalId)
@@ -110,5 +114,25 @@ public class Match
     {
         Guard.Against.NegativeOrZero(newRoundId);
         RoundId = newRoundId;
+    }
+
+    public DateTime GetEffectiveDeadline(DateTime roundDeadline)
+    {
+        return CustomLockTimeUtc ?? roundDeadline;
+    }
+
+    public bool IsPredictionLocked(DateTime utcNow, DateTime roundDeadline)
+    {
+        return utcNow >= GetEffectiveDeadline(roundDeadline);
+    }
+
+    public void AssignTeams(int homeTeamId, int awayTeamId)
+    {
+        Guard.Against.Expression(h => h == awayTeamId, homeTeamId, "A team cannot play against itself.");
+
+        HomeTeamId = homeTeamId;
+        AwayTeamId = awayTeamId;
+        PlaceholderHomeName = null;
+        PlaceholderAwayName = null;
     }
 }

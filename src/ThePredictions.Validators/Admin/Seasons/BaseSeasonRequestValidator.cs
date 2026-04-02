@@ -23,5 +23,8 @@ public abstract class BaseSeasonRequestValidator<T> : AbstractValidator<T> where
    
         RuleFor(x => x.NumberOfRounds)
             .InclusiveBetween(1, 52).WithMessage("Number of rounds must be between 1 and 52.");
+
+        RuleFor(x => x.CompetitionType)
+            .InclusiveBetween(0, 1).WithMessage("Competition type must be League (0) or Tournament (1).");
     }
 }

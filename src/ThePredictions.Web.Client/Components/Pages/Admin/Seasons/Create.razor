@@ -49,10 +49,20 @@
                     </div>
                 </div>
 
-                <div class="mb-3">
-                    <label for="apiLeagueId" class="form-label text-white">API League ID</label>
-                    <InputNumber id="apiLeagueId" class="form-control" @bind-Value="_model.ApiLeagueId" />
-                    <StyledValidationMessage For="@(() => _model.ApiLeagueId)" />
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="competitionType" class="form-label text-white">Competition Type</label>
+                        <InputSelect id="competitionType" class="form-control" @bind-Value="_model.CompetitionType">
+                            <option value="0">League</option>
+                            <option value="1">Tournament</option>
+                        </InputSelect>
+                        <StyledValidationMessage For="@(() => _model.CompetitionType)" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="apiLeagueId" class="form-label text-white">API League ID</label>
+                        <InputNumber id="apiLeagueId" class="form-control" @bind-Value="_model.ApiLeagueId" />
+                        <StyledValidationMessage For="@(() => _model.ApiLeagueId)" />
+                    </div>
                 </div>
             </ChildContent>
         </BaseFormComponent>

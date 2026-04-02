@@ -93,7 +93,8 @@ public class CreateSeasonCommandHandler(
             request.EndDateUtc,
             request.IsActive,
             request.NumberOfRounds,
-            request.ApiLeagueId);
+            request.ApiLeagueId,
+            request.CompetitionType);
     }
 
     private League CreatePublicLeagueEntity(CreateSeasonCommand request, Season createdSeason)
@@ -118,6 +119,7 @@ public class CreateSeasonCommandHandler(
             createdSeason.EndDateUtc,
             createdSeason.IsActive,
             createdSeason.NumberOfRounds,
+            (int)createdSeason.CompetitionType,
             0
         );
     }

@@ -1,4 +1,5 @@
 using Ardalis.GuardClauses;
+using ThePredictions.Domain.Common.Enumerations;
 using ThePredictions.Domain.Common.Guards.Season;
 
 namespace ThePredictions.Domain.Models;
@@ -12,10 +13,13 @@ public class Season
     public bool IsActive { get; private set; }
     public int NumberOfRounds { get; private set; }
     public int? ApiLeagueId { get; private set; }
+    public CompetitionType CompetitionType { get; private set; }
+
+    public bool IsTournament => CompetitionType == CompetitionType.Tournament;
 
     private Season() { }
 
-    public Season(int id, string name, DateTime startDateUtc, DateTime endDateUtc, bool isActive, int numberOfRounds, int? apiLeagueId)
+    public Season(int id, string name, DateTime startDateUtc, DateTime endDateUtc, bool isActive, int numberOfRounds, int? apiLeagueId, CompetitionType competitionType)
     {
         Id = id;
         Name = name;
@@ -24,9 +28,10 @@ public class Season
         IsActive = isActive;
         NumberOfRounds = numberOfRounds;
         ApiLeagueId = apiLeagueId;
+        CompetitionType = competitionType;
     }
 
-    public static Season Create(string name, DateTime startDateUtc, DateTime endDateUtc, bool isActive, int numberOfRounds, int? apiLeagueId)
+    public static Season Create(string name, DateTime startDateUtc, DateTime endDateUtc, bool isActive, int numberOfRounds, int? apiLeagueId, CompetitionType competitionType)
     {
         Validate(name, startDateUtc, endDateUtc, numberOfRounds);
 
@@ -37,22 +42,24 @@ public class Season
             EndDateUtc = endDateUtc,
             IsActive = isActive,
             NumberOfRounds = numberOfRounds,
-            ApiLeagueId = apiLeagueId
+            ApiLeagueId = apiLeagueId,
+            CompetitionType = competitionType
         };
 
         return season;
     }
 
-    public void UpdateDetails(string name, DateTime startDateUtc, DateTime endDateUtc, bool isActive, int numberOfRounds, int? apiLeagueId)
+    public void UpdateDetails(string name, DateTime startDateUtc, DateTime endDateUtc, bool isActive, int numberOfRounds, int? apiLeagueId, CompetitionType competitionType)
     {
         Validate(name, startDateUtc, endDateUtc, numberOfRounds);
 
         Name = name;
         StartDateUtc = startDateUtc;
         EndDateUtc = endDateUtc;
-        IsActive = isActive; 
+        IsActive = isActive;
         NumberOfRounds = numberOfRounds;
         ApiLeagueId = apiLeagueId;
+        CompetitionType = competitionType;
     }
 
     public void SetIsActive(bool isActive)

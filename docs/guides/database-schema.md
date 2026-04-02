@@ -52,7 +52,7 @@ Represents a football season or competition period.
 | ApiLeagueId | int | YES | | External API league identifier |
 | StartDateUtc | datetime2 | NO | | Season start date |
 | EndDateUtc | datetime2 | NO | | Season end date |
-| CompetitionType | int | NO | 0 | Type of competition (0 = League, etc.) |
+| CompetitionType | int | NO | 0 | Type of competition (0 = League, 1 = Tournament) |
 
 **Constraints:**
 - PK: `Id`
@@ -69,6 +69,7 @@ Represents a gameweek within a season.
 | Id | int | NO | IDENTITY | Primary key |
 | SeasonId | int | NO | | FK to Seasons |
 | RoundNumber | int | NO | | Round number within season |
+| DisplayName | nvarchar(200) | NO | '' | User-facing round name (e.g., "Gameweek 1", "Quarter-finals") |
 | Status | nvarchar(50) | NO | 'Draft' | Draft, Published, InProgress, Completed |
 | ApiRoundName | nvarchar(128) | YES | | External API round name |
 | StartDateUtc | datetime2 | NO | | Round start date |
@@ -102,6 +103,7 @@ Individual fixtures within a round.
 | CustomLockTimeUtc | datetime2 | YES | | Per-match lock time (for tournaments) |
 | PlaceholderHomeName | nvarchar(100) | YES | | e.g., "Winner Group A" |
 | PlaceholderAwayName | nvarchar(100) | YES | | e.g., "Runner-up Group B" |
+| ApiRoundName | nvarchar(128) | YES | | Original API round name for this match (e.g., "Group Stage - 1") |
 
 **Constraints:**
 - PK: `Id`

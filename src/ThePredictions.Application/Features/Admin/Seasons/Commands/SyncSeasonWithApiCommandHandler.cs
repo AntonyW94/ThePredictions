@@ -129,6 +129,7 @@ public class SyncSeasonWithApiCommandHandler(
                 var newRound = Round.Create(
                     season.Id,
                     window.RoundNumber,
+                    $"Gameweek {window.RoundNumber}",
                     earliestMatchDateUtc,
                     earliestMatchDateUtc.AddMinutes(-30),
                     window.ApiRoundName);
@@ -183,6 +184,7 @@ public class SyncSeasonWithApiCommandHandler(
 
             round.UpdateDetails(
                 round.RoundNumber,
+                round.DisplayName,
                 roundEarliestMatchDateUtc,
                 roundEarliestMatchDateUtc.AddMinutes(-30),
                 round.Status,

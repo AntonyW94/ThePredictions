@@ -15,6 +15,7 @@ public class CreateRoundCommandHandler(IRoundRepository roundRepository, ICurren
         var round = Round.Create(
             request.SeasonId,
             request.RoundNumber,
+            $"Gameweek {request.RoundNumber}",
             request.StartDateUtc,
             request.DeadlineUtc,
             request.ApiRoundName);

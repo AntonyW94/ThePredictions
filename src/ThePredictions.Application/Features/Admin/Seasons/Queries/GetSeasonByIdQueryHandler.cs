@@ -17,6 +17,7 @@ public class GetSeasonByIdQueryHandler(IApplicationReadDbConnection dbConnection
                 s.[EndDateUtc],
                 s.[IsActive],
                 s.[NumberOfRounds],
+                s.[CompetitionType],
                 (SELECT COUNT(*) FROM [Rounds] r WHERE r.[SeasonId] = s.[Id]) as 'RoundCount'
             FROM
                 [Seasons] s
