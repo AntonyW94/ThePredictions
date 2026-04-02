@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 
 namespace ThePredictions.Domain.Common.Enumerations;
@@ -5,8 +6,15 @@ namespace ThePredictions.Domain.Common.Enumerations;
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 public enum RoundStatus
 {
-    Draft,      
-    Published, 
+    [Description("Draft")]
+    Draft,
+
+    [Description("Published")]
+    Published,
+
+    [Description("In Progress")]
     InProgress,
-    Completed 
+
+    [Description("Completed")]
+    Completed
 }
