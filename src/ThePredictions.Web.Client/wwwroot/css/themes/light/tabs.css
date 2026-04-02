@@ -1,0 +1,32 @@
+/* Light Theme - Tabs */
+
+.admin-tabs {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-1);
+    margin-bottom: var(--space-6);
+    border-bottom: 2px solid var(--grey-200);
+}
+
+.admin-tab {
+    padding: var(--space-3) var(--space-6);
+    border: none;
+    background: transparent;
+    color: var(--grey-500);
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
+.admin-tab:hover {
+    color: var(--purple-300);
+}
+
+.admin-tab.active {
+    color: var(--purple-1000);
+    border-bottom-color: var(--purple-300);
+}

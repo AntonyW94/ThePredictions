@@ -43,6 +43,15 @@
 @import url('components/modals.css');
 @import url('components/rank-display.css');
 
+/* Light theme overrides (scoped under .admin-light) */
+@import url('themes/light/layout.css');
+@import url('themes/light/forms.css');
+@import url('themes/light/cards.css');
+@import url('themes/light/buttons.css');
+@import url('themes/light/badges.css');
+@import url('themes/light/tabs.css');
+@import url('themes/light/match-editor.css');
+
 /* Page-specific styles */
 @import url('pages/dashboard.css');
 @import url('pages/home.css');

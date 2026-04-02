@@ -12,18 +12,28 @@
 
 <PageTitle>Manage Prizes - @_pageData?.LeagueName</PageTitle>
 
-<div class="page-container">
+<div class="page-container admin-light">
     <div class="form-container extra-wide">
         @if (_isLoading)
         {
-            <p class="text-center text-white"><em>Loading prize information...</em></p>
+            <p class="text-center"><em>Loading prize information...</em></p>
         }
         else if (_pageData != null)
         {
-            <h3 class="text-center fw-bold text-white mb-2">
-                @(_pageData.PrizeSettings.Any() ? "Confirmed Winnings" : "Prize Structure")
-            </h3>
-            <h5 class="text-center form-sub-header mb-4">@_pageData.LeagueName</h5>
+            <div class="prize-hero">
+                <span class="bi bi-trophy-fill prize-hero-icon"></span>
+                <h3 class="fw-bold mb-1">
+                    @(_pageData.PrizeSettings.Any() ? "Confirmed Winnings" : "Prize Structure")
+                </h3>
+                <p class="prize-hero-league">@_pageData.LeagueName</p>
+                @if (_pageData.PrizeSettings.Any())
+                {
+                    <div class="prize-hero-total">
+                        @((_pageData.PrizeSettings.Sum(p => p.PrizeAmount)).ToString("C", new CultureInfo("en-GB")))
+                    </div>
+                    <p class="prize-hero-subtitle">Total Prize Pool</p>
+                }
+            </div>
 
             <ApiError Message="@_errorMessage" />
 
@@ -63,13 +73,15 @@
                 <div class="card-grid">
                     <div class="card w-100">
                         <div class="header">
-                            <h5 class="text-white text-center fw-bold mb-0">Overall Prizes</h5>
+                            <h5 class="text-center fw-bold mb-0">Overall Prizes</h5>
                         </div>
                         <div class="body">
                             @foreach (var prize in _pageData.PrizeSettings.Where(p => p.PrizeType == PrizeType.Overall).OrderBy(p => p.Rank))
                             {
-                                <div class="prize-row">
-                                    <div class="prize-icon"><span class="bi bi-trophy-fill"></span></div>
+                                <div class="prize-row prize-row--placement">
+                                    <div class="prize-medal @GetMedalClass(prize.Rank)">
+                                        <span class="bi bi-trophy-fill"></span>
+                                    </div>
                                     <span class="prize-description">@prize.Rank<span>@FormattingUtilities.GetOrdinal(prize.Rank)</span><span class="d-none d-md-inline"> Place</span></span>
                                     <span class="prize-amount">@prize.PrizeAmount.ToString("C", new CultureInfo("en-GB"))</span>
                                 </div>
@@ -79,7 +91,7 @@
 
                     <div class="card w-100">
                         <div class="header">
-                            <h5 class="text-white text-center fw-bold mb-0">Other Prizes</h5>
+                            <h5 class="text-center fw-bold mb-0">Other Prizes</h5>
                         </div>
                         <div class="body">
                             @foreach (var prize in _pageData.PrizeSettings.Where(p => p.PrizeType == PrizeType.Round))
@@ -120,8 +132,8 @@
             {
                 <div class="card">
                     <div class="body no-padding">
-                        <div class="text-center text-white mb-4">
-                            <h5 class="text-white">Total Prize Pot to Allocate: @_model.PrizePot.ToString("C", new CultureInfo("en-GB"))</h5>
+                        <div class="text-center mb-4">
+                            <h5>Total Prize Pot to Allocate: @_model.PrizePot.ToString("C", new CultureInfo("en-GB"))</h5>
                         </div>
 
                         <BaseFormComponent TModel="DefinePrizesViewModel"
@@ -135,7 +147,7 @@
                                 <div class="row">
                                     <div class="col-md-4 mb-4">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <h5 class="text-white mb-0">Overall Prizes</h5>
+                                            <h5 class="mb-0">Overall Prizes</h5>
                                             <button type="button" class="btn btn-sm purple-accent-button" @onclick="_model.AddOverallPrize">
                                                 <span class="bi bi-plus-circle-fill me-1"></span>Add
                                             </button>
@@ -154,7 +166,7 @@
                                     </div>
 
                                     <div class="col-md-4 mb-4">
-                                        <h5 class="text-white">Recurring Prizes</h5>
+                                        <h5>Recurring Prizes</h5>
                                         <div class="input-group mb-2">
                                             <span class="input-group-text prize-label"><span class="bi bi-calendar-month"></span></span>
                                             <span class="input-group-text prize-label prize-label-fixed-width">Monthly<span class="d-none d-md-inline">&nbsp;Winner</span></span>
@@ -170,7 +182,7 @@
                                     </div>
 
                                     <div class="col-md-4">
-                                        <h5 class="text-white">Special Prizes</h5>
+                                        <h5>Special Prizes</h5>
                                         @foreach (var prize in _model.PrizeSettings.Where(p => p.PrizeType == PrizeType.MostExactScores))
                                         {
                                             <div class="input-group mb-2">
@@ -239,4 +251,12 @@
     }
 
     private void Back() => NavigationManager.NavigateTo("/leagues");
+
+    private static string GetMedalClass(int rank) => rank switch
+    {
+        1 => "medal-gold",
+        2 => "medal-silver",
+        3 => "medal-bronze",
+        _ => ""
+    };
 }

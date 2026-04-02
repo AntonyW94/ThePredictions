@@ -13,17 +13,17 @@
 
 <PageTitle>User Management</PageTitle>
 
-<div class="page-container">
+<div class="page-container admin-light">
     <div class="admin-table-container">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="fw-bold text-white mb-0">User Management</h3>
+            <h3 class="fw-bold mb-0">User Management</h3>
         </div>
 
         <ApiError Message="@_errorMessage" />
 
         @if (_users == null)
         {
-            <p class="text-center text-white"><em>Loading users...</em></p>
+            <p class="text-center"><em>Loading users...</em></p>
         }
         else
         {
@@ -33,8 +33,8 @@
                     <div class="card">
 
                         <div class="header">
-                            <h5 class="fw-bold text-white">@user.FullName</h5>
-                            <small class="text-white-50 fw-bold">
+                            <h5 class="fw-bold">@user.FullName</h5>
+                            <small class="text-muted fw-bold">
                                 <div class="d-flex align-items-center">
                                     @{
                                         var iconCount = 0;

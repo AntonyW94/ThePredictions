@@ -3,17 +3,21 @@
 
 @if (Leagues == null || !Leagues.Any())
 {
-    <p class="text-white">There are no leagues in this category.</p>
+    <div class="empty-state">
+        <span class="bi bi-trophy empty-state-icon"></span>
+        <p class="empty-state-title">No leagues yet</p>
+        <p class="empty-state-text">Leagues in this category will appear here.</p>
+    </div>
 }
 else
 {
-    <div>
+    <div class="card-grid">
         @foreach (var league in Leagues)
         {
             <div class="card">
                 <div class="header">
-                    <h5 class="fw-bold text-white">@league.Name</h5>
-                    <small class="text-white-50 fw-bold">@league.SeasonName</small>
+                    <h5 class="fw-bold">@league.Name</h5>
+                    <small class="text-muted fw-bold">@league.SeasonName</small>
                 </div>
                 <div class="body">
                     <dl class="mb-0 detail-list">

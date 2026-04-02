@@ -1,0 +1,192 @@
+/* Light Theme - Cards & Detail Lists */
+/* Scoped under .admin-light */
+
+/* Generic cards */
+.admin-light .card {
+    background: var(--white);
+    border: 1px solid var(--grey-200);
+    box-shadow: 0 1px 3px var(--black-alpha-15);
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+.admin-light .card:hover {
+    box-shadow: 0 4px 12px var(--black-alpha-20);
+}
+
+.admin-light .card .header h5 {
+    color: var(--purple-1000);
+}
+
+.admin-light .card .body {
+    color: var(--purple-1000);
+}
+
+.admin-light .card .footer {
+    border-top: 1px solid var(--grey-200);
+    padding-top: var(--space-4);
+}
+
+/* Detail list */
+.admin-light .detail-list dt {
+    color: var(--purple-300);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.admin-light .detail-list dd {
+    color: var(--purple-1000);
+    font-weight: 600;
+}
+
+.admin-light .detail-row {
+    border-bottom-color: var(--grey-200);
+}
+
+/* Team cards */
+.admin-light .card.thumbnail {
+    background: var(--white);
+    border: 1px solid var(--grey-200);
+}
+
+.admin-light .card.thumbnail:hover .team-card-logo-bg {
+    background-color: var(--purple-100);
+}
+
+.admin-light .team-card-name {
+    color: var(--purple-1000);
+}
+
+/* Filter cards (teams page) */
+.admin-light .filter-card {
+    background: var(--white);
+    color: var(--purple-1000);
+    border: 1px solid var(--grey-200);
+}
+
+.admin-light .filter-card:hover {
+    background: var(--purple-100);
+    border-color: var(--purple-300);
+}
+
+.admin-light .filter-card.active {
+    background: var(--purple-300);
+    color: var(--white);
+    border-color: var(--purple-300);
+}
+
+/* Member status column (leagues page) */
+.admin-light .member-status-column {
+    background-color: var(--white);
+    border: 1px solid var(--grey-200);
+    box-shadow: 0 1px 3px var(--black-alpha-15);
+}
+
+.admin-light .member-status-column h4 {
+    color: var(--purple-1000);
+}
+
+/* Empty state */
+/* Prize hero banner */
+.prize-hero {
+    text-align: center;
+    padding: var(--space-8) var(--space-6) var(--space-6);
+}
+
+.prize-hero-icon {
+    font-size: 2.5rem;
+    color: var(--gold);
+    display: block;
+    margin-bottom: var(--space-3);
+}
+
+.prize-hero-league {
+    color: var(--purple-300);
+    font-weight: 500;
+    margin-bottom: var(--space-4);
+}
+
+.prize-hero-total {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--green-600);
+    line-height: 1;
+    margin-bottom: var(--space-1);
+}
+
+.prize-hero-subtitle {
+    color: var(--grey-500);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0;
+}
+
+/* Medal colours for placement prizes */
+.prize-medal {
+    flex: 0 0 40px;
+    font-size: 1.5rem;
+}
+
+.prize-medal.medal-gold {
+    color: var(--gold);
+}
+
+.prize-medal.medal-silver {
+    color: var(--silver);
+}
+
+.prize-medal.medal-bronze {
+    color: var(--bronze);
+}
+
+/* Larger prize amounts */
+.admin-light .prize-amount {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--purple-1000);
+}
+
+.admin-light .prize-description {
+    color: var(--purple-1000);
+}
+
+.admin-light .prize-row {
+    padding: var(--space-4) 0;
+    border-bottom: 1px solid var(--grey-200);
+}
+
+.admin-light .prize-row:last-child {
+    border-bottom: none;
+}
+
+/* Empty state */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-16) var(--space-6);
+    text-align: center;
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    color: var(--grey-300);
+    margin-bottom: var(--space-4);
+}
+
+.empty-state-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--purple-1000);
+    margin-bottom: var(--space-2);
+}
+
+.empty-state-text {
+    font-size: 0.9rem;
+    color: var(--grey-500);
+    margin-bottom: 0;
+}

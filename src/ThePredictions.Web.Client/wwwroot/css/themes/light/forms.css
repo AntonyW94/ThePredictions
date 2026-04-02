@@ -1,0 +1,136 @@
+/* Light Theme - Forms & Inputs */
+/* Scoped under .admin-light */
+
+/* Read-only display fields */
+.admin-light .readonly-field {
+    background: var(--purple-100);
+    color: var(--purple-1000);
+    font-weight: 600;
+    cursor: default;
+    display: flex;
+    align-items: center;
+}
+
+/* Entry code pin display */
+.entry-code-display {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.entry-code-display .pin-digits {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.entry-code-display .pin-digit {
+    width: 36px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--purple-1000);
+    color: var(--white);
+    font-family: monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 8px;
+    letter-spacing: 0;
+    flex-shrink: 1;
+}
+
+.admin-light .form-label {
+    color: var(--purple-300);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.admin-light .form-control {
+    background: var(--white);
+    border: 1px solid var(--grey-200);
+    color: var(--purple-1000);
+    border-radius: 12px;
+}
+
+.admin-light .form-control:focus {
+    background: var(--white);
+    color: var(--purple-1000);
+    border-color: var(--purple-300);
+    border-width: 2px;
+}
+
+.admin-light .form-control::placeholder {
+    color: var(--grey-500);
+}
+
+/* Calendar/date input icons */
+.admin-light input[type="date"]::-webkit-calendar-picker-indicator,
+.admin-light input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    filter: invert(0);
+}
+
+/* Select dropdown arrow */
+.admin-light select,
+.admin-light select.form-control {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236C757D' d='M6 8.825L0.575 3.4L1.4 2.575L6 7.175L10.6 2.575L11.425 3.4L6 8.825Z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 18px center;
+    padding-right: 48px;
+}
+
+/* Purple pill toggle */
+.admin-light .form-check-input {
+    background-color: var(--grey-300);
+    border-color: var(--grey-300);
+}
+
+.admin-light .form-check-input:checked {
+    background-color: var(--purple-300);
+    border-color: var(--purple-300);
+}
+
+.admin-light .form-check-input:focus {
+    box-shadow: 0 0 0 0.2rem rgba(117, 85, 157, 0.25);
+    border-color: var(--purple-300);
+}
+
+/* Status select pills (enter results) */
+.admin-light .status-select-pill {
+    border: 1px solid var(--grey-200);
+}
+
+.admin-light .status-select-pill.scheduled {
+    background: var(--grey-200);
+    color: var(--grey-500);
+}
+
+.admin-light .status-select-pill.in-progress {
+    background: var(--yellow);
+    color: var(--black);
+}
+
+.admin-light .status-select-pill.completed {
+    background: var(--green-600);
+    color: var(--white);
+}
+
+/* Score steppers (enter results) */
+.admin-light .score-stepper {
+    background: var(--white);
+    border: 1px solid var(--grey-200);
+    color: var(--purple-1000);
+}
+
+.admin-light .score-stepper:hover {
+    background: var(--purple-100);
+}
+
+.admin-light .score-display {
+    background: var(--white);
+    border: 1px solid var(--grey-200);
+    color: var(--purple-1000);
+}

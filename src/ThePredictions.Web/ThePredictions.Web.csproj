@@ -136,6 +136,13 @@ System.IO.File.WriteAllText(FilePath, content);
             <CssFilesToBundle Include="$(PublishCssDir)pages\prizes.css" />
             <CssFilesToBundle Include="$(PublishCssDir)pages\results-grid.css" />
             <CssFilesToBundle Include="$(PublishCssDir)pages\boost-usage.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)themes\light\layout.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)themes\light\forms.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)themes\light\cards.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)themes\light\buttons.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)themes\light\badges.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)themes\light\tabs.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)themes\light\match-editor.css" />
             <CssFilesToBundle Include="$(PublishCssDir)app-base.css" />
         </ItemGroup>
 
@@ -156,6 +163,8 @@ System.IO.File.WriteAllText(FilePath, content);
         <RemoveDir Directories="$(PublishCssDir)components\cards" Condition="Exists('$(PublishCssDir)components\cards')" />
         <RemoveDir Directories="$(PublishCssDir)components" Condition="Exists('$(PublishCssDir)components')" />
         <RemoveDir Directories="$(PublishCssDir)pages" Condition="Exists('$(PublishCssDir)pages')" />
+        <RemoveDir Directories="$(PublishCssDir)themes\light" Condition="Exists('$(PublishCssDir)themes\light')" />
+        <RemoveDir Directories="$(PublishCssDir)themes" Condition="Exists('$(PublishCssDir)themes')" />
 
         <Message Importance="high" Text="CSS bundled successfully!" />
 

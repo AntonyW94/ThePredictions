@@ -1,0 +1,130 @@
+/* Light Theme - Layout & Page Structure */
+/* Scoped under .admin-light */
+
+.admin-light {
+    background: var(--purple-100);
+    border-radius: 0;
+    min-height: 100vh;
+    padding: 0 var(--space-6);
+    align-items: flex-start;
+}
+
+.admin-light .form-container {
+    background: var(--white);
+    border: 1px solid var(--grey-200);
+    border-radius: var(--bs-border-radius);
+    box-shadow: 0 1px 3px var(--black-alpha-15);
+    padding: var(--space-8) var(--space-6);
+    margin-top: var(--space-6);
+}
+
+/* Edit Round page has its own card structure, so make container transparent */
+.admin-light .form-container.extra-wide {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: var(--space-6) 0;
+}
+
+.admin-light .admin-table-container {
+    background: transparent;
+    padding: var(--space-6) 0;
+    width: 100%;
+    max-width: 87.5rem;
+    margin: 0 auto;
+}
+
+.admin-light .admin-content-container {
+    padding-top: 40px;
+}
+
+/* Light mode navbar */
+main:has(.admin-light) {
+    background: var(--purple-100);
+}
+
+main:has(.admin-light) .navbar {
+    background: var(--purple-100) !important;
+    border-bottom: 1px solid var(--grey-200);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+main:has(.admin-light) .navbar .navbar-brand span,
+main:has(.admin-light) .navbar-nav .nav-item .nav-link,
+main:has(.admin-light) .navbar-nav .nav-item .navbar-text {
+    color: var(--purple-1000) !important;
+}
+
+main:has(.admin-light) .navbar-nav > .nav-item:not(.no-hover):hover {
+    background-color: var(--white);
+}
+
+main:has(.admin-light) .navbar-nav > .nav-item:hover .nav-link,
+main:has(.admin-light) .navbar-nav > .nav-item:hover .navbar-text,
+main:has(.admin-light) .navbar-nav > .nav-item:hover .bi-person-fill {
+    color: var(--purple-800) !important;
+}
+
+main:has(.admin-light) .navbar-toggler-icon {
+    filter: invert(1) brightness(0.3);
+}
+
+main:has(.admin-light) .navbar-logo {
+    filter: drop-shadow(0 1px 3px var(--black-alpha-25));
+}
+
+/* Text colour overrides */
+.admin-light h3,
+.admin-light h4,
+.admin-light h5 {
+    color: var(--purple-1000);
+}
+
+.admin-light .text-white {
+    color: var(--purple-1000) !important;
+}
+
+.admin-light .text-white-50 {
+    color: var(--grey-500) !important;
+}
+
+/* Light mode spinner */
+.admin-light .spinner-border {
+    color: var(--purple-300) !important;
+}
+
+/* Fixed action bar for Back/Save buttons */
+.admin-light form > .d-flex:last-child {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--white);
+    border-top: 1px solid var(--grey-200);
+    padding: var(--space-3) var(--space-6);
+    margin-top: 0;
+    z-index: 100;
+    box-shadow: 0 -2px 8px var(--black-alpha-15);
+    max-width: 75rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--space-6);
+    padding-right: var(--space-6);
+}
+
+/* Page header card */
+.admin-light-header {
+    background: var(--white);
+    border: 1px solid var(--grey-200);
+    border-radius: var(--bs-border-radius);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+    box-shadow: 0 1px 3px var(--black-alpha-15);
+}
+
+.admin-light-header h3 {
+    margin-bottom: var(--space-4);
+    font-size: 1.5rem;
+}
