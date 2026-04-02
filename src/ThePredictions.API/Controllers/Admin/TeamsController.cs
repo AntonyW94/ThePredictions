@@ -49,13 +49,15 @@ public class TeamsController(IMediator mediator) : ApiControllerBase
     [HttpGet]
     [SwaggerOperation(
         Summary = "Get all teams",
-        Description = "Returns all football teams in the system.")]
+        Description = "Returns all football teams in the system. Optionally filter by season to show only teams with matches in that season.")]
     [SwaggerResponse(200, "Teams retrieved successfully", typeof(IEnumerable<TeamDto>))]
     [SwaggerResponse(401, "Not authenticated")]
     [SwaggerResponse(403, "Not authorised - admin role required")]
-    public async Task<ActionResult<IEnumerable<TeamDto>>> FetchAllTeamsAsync(CancellationToken cancellationToken)
+    public async Task<ActionResult<IEnumerable<TeamDto>>> FetchAllTeamsAsync(
+        [FromQuery, SwaggerParameter("Optional season ID to filter teams")] int? seasonId,
+        CancellationToken cancellationToken)
     {
-        var query = new FetchAllTeamsQuery();
+        var query = new FetchAllTeamsQuery(seasonId);
         return Ok(await mediator.Send(query, cancellationToken));
     }
 

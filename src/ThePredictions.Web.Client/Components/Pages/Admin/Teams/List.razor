@@ -6,6 +6,7 @@
 @inject NavigationManager NavigationManager
 
 @using ThePredictions.Contracts.Admin.Teams
+@using ThePredictions.Contracts.Admin.Seasons
 
 <PageTitle>Manage Teams</PageTitle>
 
@@ -18,6 +19,22 @@
                 <span class="d-none d-md-inline ms-2">Create Team</span>
             </button>
         </div>
+
+        @if (_seasons != null)
+        {
+            <div class="filter-row">
+                <button class="filter-card @(_selectedSeasonId == null ? "active" : "")" @onclick="() => FilterBySeasonAsync(null)">
+                    All
+                </button>
+
+                @foreach (var season in _seasons)
+                {
+                    <button class="filter-card @(_selectedSeasonId == season.Id ? "active" : "")" @onclick="() => FilterBySeasonAsync(season.Id)">
+                        @season.Name
+                    </button>
+                }
+            </div>
+        }
 
         @if (_teams == null)
         {
@@ -46,10 +63,24 @@
 
 @code {
     private List<TeamDto>? _teams;
+    private List<SeasonDto>? _seasons;
+    private int? _selectedSeasonId;
 
     protected override async Task OnInitializedAsync()
     {
+        _seasons = await Http.GetFromJsonAsync<List<SeasonDto>>("api/admin/seasons");
         _teams = await Http.GetFromJsonAsync<List<TeamDto>>("api/admin/teams");
+    }
+
+    private async Task FilterBySeasonAsync(int? seasonId)
+    {
+        _selectedSeasonId = seasonId;
+
+        var url = seasonId.HasValue
+            ? $"api/admin/teams?seasonId={seasonId}"
+            : "api/admin/teams";
+
+        _teams = await Http.GetFromJsonAsync<List<TeamDto>>(url);
     }
 
     private void EditTeam(int teamId)
