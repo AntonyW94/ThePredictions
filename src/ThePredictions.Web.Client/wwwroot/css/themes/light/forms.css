@@ -98,39 +98,77 @@
     border-color: var(--purple-300);
 }
 
-/* Status select pills (enter results) */
-.admin-light .status-select-pill {
+/* Enter Results - Light mode overrides */
+.admin-light .prediction-grid {
+    margin-bottom: 100px;
+}
+
+.admin-light .prediction-card {
+    background-color: var(--white);
+    color: var(--purple-1000);
+    box-shadow: 0 1px 3px var(--black-alpha-15);
     border: 1px solid var(--grey-200);
 }
 
-.admin-light .status-select-pill.scheduled {
-    background: var(--grey-200);
+.admin-light .prediction-card-header {
+    background-color: var(--white);
+    color: var(--purple-1000);
+    border-bottom: 1px solid var(--grey-200);
+}
+
+.admin-light .prediction-card-header h6 {
+    color: var(--purple-1000);
+}
+
+.admin-light .prediction-card-body {
+    background-color: var(--white);
+}
+
+.admin-light .team-display .team-name {
+    color: var(--purple-1000);
+}
+
+.admin-light .team-display .match-logo {
+    filter: drop-shadow(0 1px 2px var(--black-alpha-25));
+}
+
+.admin-light .score-value {
+    border-color: var(--grey-200);
+    color: var(--purple-1000);
+    background-color: var(--white);
+}
+
+.admin-light .stepper-btn {
+    color: var(--purple-300);
+}
+
+.admin-light .stepper-btn:hover {
+    color: var(--green-600);
+}
+
+.admin-light .score-input-group .vs-separator {
     color: var(--grey-500);
 }
 
+/* Status select pills - light mode */
+.admin-light .status-select-pill {
+    border: none;
+}
+
+.admin-light .status-select-pill.scheduled {
+    background-color: var(--grey-200);
+    color: var(--grey-500);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%236C757D' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+}
+
 .admin-light .status-select-pill.in-progress {
-    background: var(--yellow);
+    background-color: var(--yellow);
     color: var(--black);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%231f1f1f' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
 }
 
 .admin-light .status-select-pill.completed {
-    background: var(--green-600);
+    background-color: var(--green-600);
     color: var(--white);
-}
-
-/* Score steppers (enter results) */
-.admin-light .score-stepper {
-    background: var(--white);
-    border: 1px solid var(--grey-200);
-    color: var(--purple-1000);
-}
-
-.admin-light .score-stepper:hover {
-    background: var(--purple-100);
-}
-
-.admin-light .score-display {
-    background: var(--white);
-    border: 1px solid var(--grey-200);
-    color: var(--purple-1000);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
 }

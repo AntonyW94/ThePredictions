@@ -156,6 +156,21 @@
     min-width: 0;
 }
 
+.match-card-mobile .match-logo-large {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    flex-shrink: 0;
+    filter: drop-shadow(0 1px 2px var(--black-alpha-25));
+}
+
+.match-card-mobile .vs-badge {
+    color: var(--purple-300);
+    font-weight: 700;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+}
+
 /* Desktop refinements */
 @media (min-width: 768px) {
     .match-card {

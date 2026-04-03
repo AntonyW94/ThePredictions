@@ -5,8 +5,14 @@
     background: var(--purple-100);
     border-radius: 0;
     min-height: 100vh;
-    padding: 0 var(--space-6);
+    padding: 0 var(--space-3);
     align-items: flex-start;
+}
+
+@media (min-width: 768px) {
+    .admin-light {
+        padding: 0 var(--space-6);
+    }
 }
 
 .admin-light .form-container {
@@ -103,15 +109,19 @@ main:has(.admin-light) .navbar-logo {
     right: 0;
     background: var(--white);
     border-top: 1px solid var(--grey-200);
-    padding: var(--space-3) var(--space-6);
+    padding: var(--space-3) var(--space-4);
     margin-top: 0;
     z-index: 100;
     box-shadow: 0 -2px 8px var(--black-alpha-15);
     max-width: 75rem;
     margin-left: auto;
     margin-right: auto;
-    padding-left: var(--space-6);
-    padding-right: var(--space-6);
+}
+
+@media (min-width: 768px) {
+    .admin-light form > .d-flex:last-child {
+        padding: var(--space-3) var(--space-6);
+    }
 }
 
 /* Page header card */

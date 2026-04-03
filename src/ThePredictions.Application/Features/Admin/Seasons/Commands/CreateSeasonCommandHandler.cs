@@ -120,7 +120,8 @@ public class CreateSeasonCommandHandler(
             createdSeason.IsActive,
             createdSeason.NumberOfRounds,
             (int)createdSeason.CompetitionType,
-            0
+            createdSeason.ApiLeagueId,
+            0, 0, 0, 0, 0
         );
     }
 }

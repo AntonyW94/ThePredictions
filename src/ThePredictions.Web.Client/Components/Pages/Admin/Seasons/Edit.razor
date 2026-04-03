@@ -72,22 +72,34 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Rounds</label>
-                        <div class="d-flex align-items-center">
-                            <span class="badge fs-6 me-3 bg-green-600">@_roundCount</span>
-                            <button type="button" class="btn btn-sm purple-accent-button me-2" @onclick="() => ViewRounds(SeasonId)" title="View Rounds">
-                                <span class="bi bi-eye-fill"></span>
-                            </button>
-                            <button type="button" class="btn btn-sm blue-light-button" @onclick="() => AddRound(SeasonId)" title="Add Round">
-                                <span class="bi bi-plus-circle-fill"></span>
-                            </button>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Rounds</label>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="fw-bold" style="color: var(--purple-1000)">@_roundCount / @_model.NumberOfRounds</span>
+                                <button type="button" class="btn btn-sm purple-accent-button" @onclick="() => ViewRounds(SeasonId)">
+                                    <span class="bi bi-calendar3-range me-1"></span>Manage
+                                </button>
+                                @if (_roundCount < _model.NumberOfRounds)
+                                {
+                                    <button type="button" class="btn btn-sm blue-light-button" @onclick="() => AddRound(SeasonId)">
+                                        <span class="bi bi-plus-circle-fill me-1"></span>Add
+                                    </button>
+                                }
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="mb-3 form-check">
-                        <InputCheckbox id="isActive" class="form-check-input" @bind-Value="_model.IsActive" />
-                        <label for="isActive" class="form-check-label">Active</label>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Status</label>
+                            <div class="d-flex align-items-center" style="height: 40px;">
+                                <div class="form-check form-switch mb-0">
+                                    <InputCheckbox id="isActive" class="form-check-input" @bind-Value="_model.IsActive" />
+                                    <label for="isActive" class="form-check-label fw-bold" style="color: var(--purple-1000)">
+                                        @(_model.IsActive ? "Active" : "Inactive")
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </ChildContent>
             </BaseFormComponent>
@@ -112,7 +124,8 @@
                 EndDateUtc = seasonDto.EndDateUtc,
                 IsActive = seasonDto.IsActive,
                 NumberOfRounds = seasonDto.NumberOfRounds,
-                CompetitionType = seasonDto.CompetitionType
+                CompetitionType = seasonDto.CompetitionType,
+                ApiLeagueId = seasonDto.ApiLeagueId
             };
             _roundCount = seasonDto.RoundCount;
         }

@@ -34,6 +34,7 @@ public class GetActiveRoundsQueryHandler(IApplicationReadDbConnection dbConnecti
                 [Seasons] s ON r.[SeasonId] = s.[Id]
             WHERE
                 r.[Status] NOT IN (@DraftStatus, @CompletedStatus)
+                AND s.[IsActive] = 1
                 AND r.[SeasonId] IN (
                     SELECT l.[SeasonId]
                     FROM [Leagues] l
