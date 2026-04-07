@@ -29,6 +29,14 @@
         {
             <ApiError Message="@_errorMessage" />
 
+            <div class="admin-tabs-mobile">
+                <select @onchange="OnMobileTabChanged" value="@_activeTab">
+                    <option value="approved">Approved (@_approvedMembers.Count)</option>
+                    <option value="pending">Pending (@_pendingMembers.Count)</option>
+                    <option value="rejected">Rejected (@_rejectedMembers.Count)</option>
+                </select>
+            </div>
+
             <div class="admin-tabs">
                 <button class="admin-tab @(_activeTab == "approved" ? "active" : "")" @onclick='() => _activeTab = "approved"'>
                     Approved
@@ -169,6 +177,11 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadMembersAsync();
+    }
+
+    private void OnMobileTabChanged(ChangeEventArgs e)
+    {
+        _activeTab = e.Value?.ToString() ?? "approved";
     }
 
     private async Task LoadMembersAsync()

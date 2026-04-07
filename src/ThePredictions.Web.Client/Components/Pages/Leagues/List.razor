@@ -31,6 +31,14 @@
         {
             @if (_isAdmin)
             {
+                <div class="admin-tabs-mobile">
+                    <select @onchange="OnMobileTabChanged" value="@_activeTab">
+                        <option value="public">Public Leagues (@_leaguesData.PublicLeagues.Count)</option>
+                        <option value="my-private">My Private Leagues (@_leaguesData.MyPrivateLeagues.Count)</option>
+                        <option value="other-private">Other Private Leagues (@_leaguesData.OtherPrivateLeagues.Count)</option>
+                    </select>
+                </div>
+
                 <div class="admin-tabs">
                     <button class="admin-tab @(_activeTab == "public" ? "active" : "")" @onclick='() => SetActiveTab("public")'>Public Leagues</button>
                     <button class="admin-tab @(_activeTab == "my-private" ? "active" : "")" @onclick='() => SetActiveTab("my-private")'>My Private Leagues</button>
@@ -77,6 +85,11 @@
     private void SetActiveTab(string tab)
     {
         _activeTab = tab;
+    }
+
+    private void OnMobileTabChanged(ChangeEventArgs e)
+    {
+        _activeTab = e.Value?.ToString() ?? "my-private";
     }
 
     private async Task LoadLeagues()

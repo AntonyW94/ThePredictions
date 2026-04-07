@@ -31,6 +31,14 @@
         }
         else
         {
+            <div class="admin-tabs-mobile">
+                <select @onchange="OnMobileTabChanged" value="@_activeTab">
+                    <option value="in-progress">In Progress (@_inProgressSeasons.Count)</option>
+                    <option value="upcoming">Upcoming (@_upcomingSeasons.Count)</option>
+                    <option value="past">Past (@_pastSeasons.Count)</option>
+                </select>
+            </div>
+
             <div class="admin-tabs">
                 <button class="admin-tab @(_activeTab == "in-progress" ? "active" : "")" @onclick='() => _activeTab = "in-progress"'>
                     In Progress
@@ -131,6 +139,11 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadSeasons();
+    }
+
+    private void OnMobileTabChanged(ChangeEventArgs e)
+    {
+        _activeTab = e.Value?.ToString() ?? "in-progress";
     }
 
     private async Task LoadSeasons()
