@@ -9,4 +9,5 @@ public class BaseSeasonRequest
     public bool IsActive { get; set; }
     public int NumberOfRounds { get; set; }
     public int CompetitionType { get; set; }
+    public List<TournamentRoundMappingDto> TournamentRoundMappings { get; set; } = [];
 }

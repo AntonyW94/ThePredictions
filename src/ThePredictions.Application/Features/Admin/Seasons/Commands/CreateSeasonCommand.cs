@@ -13,4 +13,5 @@ public record CreateSeasonCommand(
     bool IsActive,
     int NumberOfRounds,
     int? ApiLeagueId,
-    CompetitionType CompetitionType) : IRequest<SeasonDto>, ITransactionalRequest;
+    CompetitionType CompetitionType,
+    List<TournamentRoundMappingDto> TournamentRoundMappings) : IRequest<SeasonDto>, ITransactionalRequest;

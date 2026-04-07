@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ThePredictions.Application.Features.Admin.Seasons.Commands;
 using ThePredictions.Application.Features.Admin.Seasons.Queries;
+using ThePredictions.Application.Services;
 using ThePredictions.Contracts.Admin.Seasons;
+using ThePredictions.Domain.Common;
 using ThePredictions.Domain.Common.Enumerations;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -13,7 +15,7 @@ namespace ThePredictions.API.Controllers.Admin;
 [ApiController]
 [Route("api/admin/[controller]")]
 [SwaggerTag("Admin: Seasons - Manage competition seasons (Admin only)")]
-public class SeasonsController(IMediator mediator) : ApiControllerBase
+public class SeasonsController(IMediator mediator, IFootballDataService footballDataService) : ApiControllerBase
 {
     #region Create
 
@@ -37,7 +39,8 @@ public class SeasonsController(IMediator mediator) : ApiControllerBase
             request.IsActive,
             request.NumberOfRounds,
             request.ApiLeagueId,
-            (CompetitionType)request.CompetitionType
+            (CompetitionType)request.CompetitionType,
+            request.TournamentRoundMappings
         );
 
         var newSeasonDto = await mediator.Send(command, cancellationToken);
@@ -83,6 +86,40 @@ public class SeasonsController(IMediator mediator) : ApiControllerBase
         return Ok(season);
     }
 
+    [HttpGet("api-rounds")]
+    [SwaggerOperation(
+        Summary = "Get available API round names",
+        Description = "Fetches round names from the football API and parses them into tournament stages. Used to auto-populate the tournament structure.")]
+    [SwaggerResponse(200, "Stages retrieved successfully")]
+    [SwaggerResponse(400, "Could not fetch round names")]
+    public async Task<IActionResult> GetApiRoundsAsync(
+        [FromQuery, SwaggerParameter("API League ID")] int apiLeagueId,
+        [FromQuery, SwaggerParameter("Season year")] int seasonYear,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var apiRoundNames = await footballDataService.GetRoundsForSeasonAsync(apiLeagueId, seasonYear, cancellationToken);
+
+            var stages = apiRoundNames
+                .Where(name => TournamentRoundNameParser.TryParseStage(name, out _))
+                .Select(name =>
+                {
+                    TournamentRoundNameParser.TryParseStage(name, out var stage);
+                    return stage;
+                })
+                .Distinct()
+                .OrderBy(s => s)
+                .ToList();
+
+            return Ok(stages);
+        }
+        catch (HttpRequestException)
+        {
+            return BadRequest("Could not fetch round names from the football API.");
+        }
+    }
+
     #endregion
 
     #region Update
@@ -109,7 +146,8 @@ public class SeasonsController(IMediator mediator) : ApiControllerBase
             request.IsActive,
             request.NumberOfRounds,
             request.ApiLeagueId,
-            (CompetitionType)request.CompetitionType);
+            (CompetitionType)request.CompetitionType,
+            request.TournamentRoundMappings);
 
         await mediator.Send(command, cancellationToken);
 
