@@ -134,6 +134,53 @@ public class SeasonsController(IMediator mediator, IFootballDataService football
         }
     }
 
+    [HttpGet("api-league-lookup")]
+    [SwaggerOperation(
+        Summary = "Look up league/season details from API",
+        Description = "Fetches season dates, round count, and detects competition type from the football API. Used to auto-populate the season creation form.")]
+    [SwaggerResponse(200, "Lookup successful", typeof(ApiLeagueLookupResult))]
+    [SwaggerResponse(400, "Could not fetch league details")]
+    public async Task<IActionResult> LookupApiLeagueAsync(
+        [FromQuery, SwaggerParameter("API League ID")] int apiLeagueId,
+        [FromQuery, SwaggerParameter("Season year")] int seasonYear,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var (leagueName, apiSeason) = await footballDataService.GetLeagueInfoAsync(apiLeagueId, seasonYear, cancellationToken);
+            var apiRoundNames = (await footballDataService.GetRoundsForSeasonAsync(apiLeagueId, seasonYear, cancellationToken)).ToList();
+            var apiTeams = (await footballDataService.GetTeamsForSeasonAsync(apiLeagueId, seasonYear, cancellationToken)).ToList();
+
+            var tournamentStages = apiRoundNames
+                .Where(name => TournamentRoundNameParser.TryParseStage(name, out _))
+                .Select(name =>
+                {
+                    TournamentRoundNameParser.TryParseStage(name, out var stage);
+                    return stage;
+                })
+                .Distinct()
+                .OrderBy(s => s)
+                .ToList();
+
+            var isTournament = tournamentStages.Count > 0;
+
+            return Ok(new ApiLeagueLookupResult
+            {
+                LeagueName = leagueName,
+                StartDateUtc = apiSeason.Start,
+                EndDateUtc = apiSeason.End,
+                RoundCount = apiRoundNames.Count,
+                TeamCount = apiTeams.Count,
+                CompetitionType = isTournament ? 1 : 0,
+                TournamentStages = tournamentStages
+            });
+        }
+        catch (HttpRequestException)
+        {
+            return BadRequest("Could not fetch league details from the football API. Check the League ID and Season Year.");
+        }
+    }
+
     #endregion
 
     #region Update

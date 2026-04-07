@@ -6,6 +6,16 @@
     border-top: 1px solid var(--grey-200);
 }
 
+.tournament-structure-section .btn-text {
+    display: none;
+}
+
+@media (min-width: 576px) {
+    .tournament-structure-section .btn-text {
+        display: inline;
+    }
+}
+
 .tournament-round-row {
     margin-bottom: var(--space-3);
     background: var(--purple-100);

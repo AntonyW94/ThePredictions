@@ -7,9 +7,9 @@ public class MatchViewModel(MatchInRoundDto match)
 {
     public int MatchId { get; } = match.Id;
     public DateTime MatchDateTimeUtc { get; } = match.MatchDateTimeUtc;
-    public string HomeTeamName { get; } = match.HomeTeamName;
+    public string HomeTeamName { get; } = match.HomeTeamName ?? "TBC";
     public string? HomeTeamLogoUrl { get; } = match.HomeTeamLogoUrl;
-    public string AwayTeamName { get; } = match.AwayTeamName;
+    public string AwayTeamName { get; } = match.AwayTeamName ?? "TBC";
     public string? AwayTeamLogoUrl { get; } = match.AwayTeamLogoUrl;
     public int HomeScore { get; private set; } = match.ActualHomeTeamScore ?? 0;
     public int AwayScore { get; private set; } = match.ActualAwayTeamScore ?? 0;

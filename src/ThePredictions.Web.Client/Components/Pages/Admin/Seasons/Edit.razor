@@ -32,34 +32,34 @@
                                BusyText="Saving...">
                 <ChildContent>
                     <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="apiLeagueId" class="form-label">API League ID</label>
+                            <InputNumber id="apiLeagueId" class="form-control" @bind-Value="_model.ApiLeagueId" />
+                            <StyledValidationMessage For="@(() => _model.ApiLeagueId)" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="seasonYear" class="form-label">Season Year</label>
+                            <InputNumber id="seasonYear" class="form-control" @bind-Value="_seasonYear" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">&nbsp;</label>
+                            <div>
+                                <button type="button" class="btn purple-accent-button w-100" @onclick="LookupApiLeagueAsync" disabled="@(_isLookingUp || !_model.ApiLeagueId.HasValue)">
+                                    <span class="bi bi-cloud-download me-1"></span>@(_isLookingUp ? "Looking up..." : "Lookup")
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ApiError Message="@_lookupError" />
+
+                    <div class="row">
                         <div class="col-md-8 mb-3">
                             <label for="name" class="form-label">Season Name</label>
                             <InputText id="name" class="form-control" @bind-Value="_model.Name" />
                             <StyledValidationMessage For="@(() => _model.Name)" />
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label for="numberOfRounds" class="form-label">Rounds</label>
-                            <InputNumber id="numberOfRounds" class="form-control" @bind-Value="_model.NumberOfRounds" />
-                            <StyledValidationMessage For="@(() => _model.NumberOfRounds)" />
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="startDate" class="form-label">Start Date</label>
-                            <InputDate id="startDate" Type="InputDateType.Date" class="form-control" @bind-Value="_model.StartDateUtc" />
-                            <StyledValidationMessage For="@(() => _model.StartDateUtc)" />
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label for="endDate" class="form-label">End Date</label>
-                            <InputDate id="endDate" Type="InputDateType.Date" class="form-control" @bind-Value="_model.EndDateUtc" />
-                            <StyledValidationMessage For="@(() => _model.EndDateUtc)" />
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
                             <label for="competitionType" class="form-label">Competition Type</label>
                             <InputSelect id="competitionType" class="form-control" @bind-Value="_model.CompetitionType">
                                 <option value="0">League</option>
@@ -67,11 +67,31 @@
                             </InputSelect>
                             <StyledValidationMessage For="@(() => _model.CompetitionType)" />
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="apiLeagueId" class="form-label">API League ID</label>
-                            <InputNumber id="apiLeagueId" class="form-control" @bind-Value="_model.ApiLeagueId" />
-                            <StyledValidationMessage For="@(() => _model.ApiLeagueId)" />
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="startDate" class="form-label">Start Date</label>
+                            <InputDate id="startDate" Type="InputDateType.Date" class="form-control" @bind-Value="_model.StartDateUtc" />
+                            <StyledValidationMessage For="@(() => _model.StartDateUtc)" />
                         </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="endDate" class="form-label">End Date</label>
+                            <InputDate id="endDate" Type="InputDateType.Date" class="form-control" @bind-Value="_model.EndDateUtc" />
+                            <StyledValidationMessage For="@(() => _model.EndDateUtc)" />
+                        </div>
+                        <div class="@(_model.CompetitionType == 1 ? "col-md-2" : "col-md-4") mb-3">
+                            <label for="numberOfRounds" class="form-label">Rounds</label>
+                            <InputNumber id="numberOfRounds" class="form-control" @bind-Value="_model.NumberOfRounds" />
+                            <StyledValidationMessage For="@(() => _model.NumberOfRounds)" />
+                        </div>
+                        @if (_model.CompetitionType == 1)
+                        {
+                            <div class="col-md-2 mb-3">
+                                <label for="teamCount" class="form-label">Teams</label>
+                                <InputNumber id="teamCount" class="form-control" @bind-Value="_teamCount" />
+                            </div>
+                        }
                     </div>
 
                     <div class="row">
@@ -113,11 +133,11 @@
                                     @if (_model.ApiLeagueId.HasValue)
                                     {
                                         <button type="button" class="btn btn-sm purple-accent-button" @onclick="FetchApiRoundsAsync" disabled="@_isFetchingRounds">
-                                            <span class="bi bi-cloud-download me-1"></span>@(_isFetchingRounds ? "Fetching..." : "Fetch from API")
+                                            <span class="bi bi-cloud-download me-1"></span><span class="btn-text">@(_isFetchingRounds ? "Fetching..." : "Fetch from API")</span>
                                         </button>
                                     }
                                     <button type="button" class="btn btn-sm green-button" @onclick="AddRoundMapping">
-                                        <span class="bi bi-plus-circle-fill me-1"></span>Add Round
+                                        <span class="bi bi-plus-circle-fill me-1"></span><span class="btn-text">Add Round</span>
                                     </button>
                                 </div>
                             </div>
@@ -202,9 +222,13 @@
     [Parameter] public int SeasonId { get; set; }
     private UpdateSeasonRequest? _model;
     private int _roundCount;
+    private int _seasonYear = DateTime.UtcNow.Year;
+    private int _teamCount;
     private readonly Dictionary<int, TournamentStage?> _selectedStageForRow = new();
     private bool _isFetchingRounds;
     private string? _fetchRoundsError;
+    private bool _isLookingUp;
+    private string? _lookupError;
 
     protected override async Task OnInitializedAsync()
     {
@@ -222,6 +246,7 @@
                 ApiLeagueId = seasonDto.ApiLeagueId
             };
             _roundCount = seasonDto.RoundCount;
+            _seasonYear = seasonDto.StartDateUtc.Year;
 
             if (seasonDto.CompetitionType == 1)
             {
@@ -250,11 +275,84 @@
 
     private Task<HttpResponseMessage> HandleUpdateSeasonAsync()
     {
-        // Re-number rounds sequentially before submitting
         for (var i = 0; i < _model!.TournamentRoundMappings.Count; i++)
             _model.TournamentRoundMappings[i].RoundNumber = i + 1;
 
         return Http.PutAsJsonAsync($"api/admin/seasons/{SeasonId}/update", _model);
+    }
+
+    private async Task LookupApiLeagueAsync()
+    {
+        if (_model?.ApiLeagueId == null)
+            return;
+
+        _isLookingUp = true;
+        _lookupError = null;
+        StateHasChanged();
+
+        try
+        {
+            var result = await Http.GetFromJsonAsync<ApiLeagueLookupResult>(
+                $"api/admin/seasons/api-league-lookup?apiLeagueId={_model.ApiLeagueId.Value}&seasonYear={_seasonYear}");
+
+            if (result != null)
+            {
+                if (!string.IsNullOrWhiteSpace(result.LeagueName))
+                    _model.Name = result.LeagueName;
+
+                _model.StartDateUtc = result.StartDateUtc;
+                _model.EndDateUtc = result.EndDateUtc;
+                _model.NumberOfRounds = result.RoundCount;
+                _model.CompetitionType = result.CompetitionType;
+                _teamCount = result.TeamCount;
+
+                if (result.CompetitionType == 1)
+                {
+                    PopulateTournamentStructure(result.TournamentStages);
+                }
+            }
+        }
+        catch
+        {
+            _lookupError = "Could not look up league details. Check the API League ID and Season Year.";
+        }
+        finally
+        {
+            _isLookingUp = false;
+        }
+    }
+
+    private void PopulateTournamentStructure(List<TournamentStage> stages)
+    {
+        _model!.TournamentRoundMappings.Clear();
+        _selectedStageForRow.Clear();
+
+        var roundNumber = 1;
+        foreach (var stage in stages)
+        {
+            _model.TournamentRoundMappings.Add(new TournamentRoundMappingDto
+            {
+                RoundNumber = roundNumber,
+                DisplayName = TournamentRoundNameParser.GetDefaultDisplayName(stage),
+                Stages = [stage],
+                ExpectedMatchCount = TournamentRoundNameParser.CalculateExpectedMatchCount(stage, _teamCount)
+            });
+            _selectedStageForRow[roundNumber - 1] = null;
+            roundNumber++;
+        }
+
+        while (roundNumber <= _model.NumberOfRounds)
+        {
+            _model.TournamentRoundMappings.Add(new TournamentRoundMappingDto
+            {
+                RoundNumber = roundNumber,
+                DisplayName = "",
+                Stages = [],
+                ExpectedMatchCount = 0
+            });
+            _selectedStageForRow[roundNumber - 1] = null;
+            roundNumber++;
+        }
     }
 
     private async Task FetchApiRoundsAsync()
@@ -268,12 +366,10 @@
 
         try
         {
-            var seasonYear = _model.StartDateUtc.Year;
-            var stages = await Http.GetFromJsonAsync<List<TournamentStage>>($"api/admin/seasons/api-rounds?apiLeagueId={_model.ApiLeagueId.Value}&seasonYear={seasonYear}");
+            var stages = await Http.GetFromJsonAsync<List<TournamentStage>>($"api/admin/seasons/api-rounds?apiLeagueId={_model.ApiLeagueId.Value}&seasonYear={_seasonYear}");
 
             if (stages != null && stages.Any())
             {
-                // Only add stages that aren't already configured
                 var existingStages = _model.TournamentRoundMappings.SelectMany(m => m.Stages).ToHashSet();
                 var newStages = stages.Where(s => !existingStages.Contains(s)).ToList();
 
@@ -286,7 +382,7 @@
                         RoundNumber = roundNumber,
                         DisplayName = TournamentRoundNameParser.GetDefaultDisplayName(stage),
                         Stages = [stage],
-                        ExpectedMatchCount = TournamentRoundNameParser.CalculateExpectedMatchCount(stage, _model.NumberOfRounds)
+                        ExpectedMatchCount = TournamentRoundNameParser.CalculateExpectedMatchCount(stage, _teamCount)
                     });
                     _selectedStageForRow[index] = null;
                     roundNumber++;
@@ -295,7 +391,7 @@
         }
         catch
         {
-            _fetchRoundsError = "Could not fetch round names from the API. Check the League ID and Start Date.";
+            _fetchRoundsError = "Could not fetch round names from the API. Check the League ID and Season Year.";
         }
         finally
         {
@@ -331,7 +427,7 @@
         if (!mapping.Stages.Contains(stage.Value))
         {
             mapping.Stages.Add(stage.Value);
-            mapping.ExpectedMatchCount += TournamentRoundNameParser.CalculateExpectedMatchCount(stage.Value, _model.NumberOfRounds);
+            mapping.ExpectedMatchCount += TournamentRoundNameParser.CalculateExpectedMatchCount(stage.Value, _teamCount);
 
             if (string.IsNullOrWhiteSpace(mapping.DisplayName))
                 mapping.DisplayName = TournamentRoundNameParser.GetCombinedDisplayName(mapping.Stages);
@@ -344,7 +440,7 @@
     {
         var mapping = _model!.TournamentRoundMappings[rowIndex];
         mapping.Stages.Remove(stage);
-        mapping.ExpectedMatchCount = mapping.Stages.Sum(s => TournamentRoundNameParser.CalculateExpectedMatchCount(s, _model.NumberOfRounds));
+        mapping.ExpectedMatchCount = mapping.Stages.Sum(s => TournamentRoundNameParser.CalculateExpectedMatchCount(s, _teamCount));
 
         if (mapping.Stages.Any())
             mapping.DisplayName = TournamentRoundNameParser.GetCombinedDisplayName(mapping.Stages);
