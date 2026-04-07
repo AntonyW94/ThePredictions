@@ -140,14 +140,20 @@
                                     var mapping = _model.TournamentRoundMappings[index];
 
                                     <div class="tournament-round-row">
-                                        <div class="tournament-round-number">@(index + 1)</div>
-                                        <div class="tournament-round-fields">
-                                            <div class="row gx-2">
-                                                <div class="col-12 col-md-4 mb-2">
-                                                    <label class="form-label">Display Name</label>
-                                                    <InputText class="form-control" @bind-Value="mapping.DisplayName" />
-                                                </div>
-                                                <div class="col-8 col-md-4 mb-2">
+                                        <div class="tournament-round-header">
+                                            <div class="tournament-round-number">@(index + 1)</div>
+                                            <span class="tournament-round-title">@(string.IsNullOrWhiteSpace(mapping.DisplayName) ? "New Round" : mapping.DisplayName)</span>
+                                            <button type="button" class="btn btn-sm red-button" @onclick="() => RemoveRoundMapping(index)">
+                                                <span class="bi bi-trash-fill"></span>
+                                            </button>
+                                        </div>
+                                        <div class="tournament-round-body">
+                                            <div class="mb-3">
+                                                <label class="form-label">Display Name</label>
+                                                <InputText class="form-control" @bind-Value="mapping.DisplayName" placeholder="e.g. Quarter-finals" />
+                                            </div>
+                                            <div class="row gx-3">
+                                                <div class="col-8 mb-3">
                                                     <label class="form-label">Stages</label>
                                                     <InputSelect class="form-control" @bind-Value="_selectedStageForRow[index]" @bind-Value:after="() => AddStageToMapping(index)">
                                                         <option value="">Add stage...</option>
@@ -159,29 +165,27 @@
                                                             }
                                                         }
                                                     </InputSelect>
-                                                    <div class="tournament-stage-tags">
-                                                        @foreach (var stage in mapping.Stages)
-                                                        {
-                                                            var stageToRemove = stage;
-                                                            <span class="tournament-stage-tag">
-                                                                @TournamentRoundNameParser.GetDefaultDisplayName(stage)
-                                                                <button type="button" class="tournament-stage-tag-remove" @onclick="() => RemoveStageFromMapping(index, stageToRemove)">
-                                                                    <span class="bi bi-x"></span>
-                                                                </button>
-                                                            </span>
-                                                        }
-                                                    </div>
                                                 </div>
-                                                <div class="col-4 col-md-2 mb-2">
+                                                <div class="col-4 mb-3">
                                                     <label class="form-label">Matches</label>
                                                     <InputNumber class="form-control" @bind-Value="mapping.ExpectedMatchCount" />
                                                 </div>
-                                                <div class="col-12 col-md-2 mb-2 d-flex align-items-end">
-                                                    <button type="button" class="btn btn-sm red-button w-100" @onclick="() => RemoveRoundMapping(index)">
-                                                        <span class="bi bi-trash-fill"></span><span class="d-none d-md-inline ms-1">Remove</span>
-                                                    </button>
-                                                </div>
                                             </div>
+                                            @if (mapping.Stages.Any())
+                                            {
+                                                <div class="tournament-stage-tags">
+                                                    @foreach (var stage in mapping.Stages)
+                                                    {
+                                                        var stageToRemove = stage;
+                                                        <span class="tournament-stage-tag">
+                                                            @TournamentRoundNameParser.GetDefaultDisplayName(stage)
+                                                            <button type="button" class="tournament-stage-tag-remove" @onclick="() => RemoveStageFromMapping(index, stageToRemove)">
+                                                                <span class="bi bi-x"></span>
+                                                            </button>
+                                                        </span>
+                                                    }
+                                                </div>
+                                            }
                                         </div>
                                     </div>
                                 }

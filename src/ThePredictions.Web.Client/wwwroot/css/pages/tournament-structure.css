@@ -7,18 +7,32 @@
 }
 
 .tournament-round-row {
-    display: flex;
-    gap: var(--space-3);
-    padding: var(--space-3);
-    margin-bottom: var(--space-2);
+    margin-bottom: var(--space-3);
     background: var(--purple-100);
     border-radius: 12px;
     border: 1px solid var(--grey-200);
+    overflow: hidden;
+}
+
+.tournament-round-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: var(--white);
+    border-bottom: 1px solid var(--grey-200);
+}
+
+.tournament-round-title {
+    flex: 1;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--purple-1000);
 }
 
 .tournament-round-number {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     background: var(--purple-300);
     color: var(--white);
@@ -26,14 +40,12 @@
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     flex-shrink: 0;
-    margin-top: var(--space-6);
 }
 
-.tournament-round-fields {
-    flex: 1;
-    min-width: 0;
+.tournament-round-body {
+    padding: var(--space-4);
 }
 
 /* Stage tags */
@@ -41,7 +53,6 @@
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-1);
-    margin-top: var(--space-1);
 }
 
 .tournament-stage-tag {
@@ -69,11 +80,4 @@
 
 .tournament-stage-tag-remove:hover {
     opacity: 1;
-}
-
-/* Mobile: hide round number circle */
-@media (min-width: 768px) {
-    .tournament-round-row {
-        padding: var(--space-4);
-    }
 }
