@@ -69,6 +69,7 @@ public static class DependencyInjection
         services.AddScoped<IRoundRepository, RoundRepository>();
         services.AddScoped<ISeasonRepository, SeasonRepository>();
         services.AddScoped<ITeamRepository, TeamRepository>();
+        services.AddScoped<ITournamentRoundMappingRepository, TournamentRoundMappingRepository>();
         services.AddScoped<IUserPredictionRepository, UserPredictionRepository>();
         services.AddScoped<IWinningsRepository, WinningsRepository>();
         services.AddScoped<IBoostReadRepository, BoostReadRepository>();

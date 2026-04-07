@@ -63,6 +63,42 @@ public class Match
         };
     }
 
+    public static Match CreatePlaceholder(int roundId, string placeholderHomeName, string placeholderAwayName, string apiRoundName)
+    {
+        Guard.Against.NegativeOrZero(roundId, parameterName: null, message: "Round ID must be greater than 0");
+        Guard.Against.NullOrWhiteSpace(placeholderHomeName, message: "Placeholder home name is required");
+        Guard.Against.NullOrWhiteSpace(placeholderAwayName, message: "Placeholder away name is required");
+
+        return new Match
+        {
+            RoundId = roundId,
+            HomeTeamId = null,
+            AwayTeamId = null,
+            MatchDateTimeUtc = DateTime.MaxValue,
+            CustomLockTimeUtc = null,
+            Status = MatchStatus.Scheduled,
+            ExternalId = null,
+            PlaceholderHomeName = placeholderHomeName,
+            PlaceholderAwayName = placeholderAwayName,
+            ApiRoundName = apiRoundName
+        };
+    }
+
+    public void SetCustomLockTime(DateTime? customLockTimeUtc)
+    {
+        CustomLockTimeUtc = customLockTimeUtc;
+    }
+
+    public void SetExternalId(int externalId)
+    {
+        ExternalId = externalId;
+    }
+
+    public void SetApiRoundName(string apiRoundName)
+    {
+        ApiRoundName = apiRoundName;
+    }
+
     public void UpdateScore(int homeScore, int awayScore, MatchStatus status)
     {
         Guard.Against.Negative(homeScore);

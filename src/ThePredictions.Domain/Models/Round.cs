@@ -94,6 +94,11 @@ public class Round
         _matches.Add(Match.Create(Id, homeTeamId, awayTeamId, matchTimeUtc, externalId));
     }
 
+    public void AddPlaceholderMatch(string placeholderHomeName, string placeholderAwayName, string apiRoundName)
+    {
+        _matches.Add(Match.CreatePlaceholder(Id, placeholderHomeName, placeholderAwayName, apiRoundName));
+    }
+
     public void AcceptMatch(Match match)
     {
         var matchExists = _matches.Any(m => m.Id == match.Id);

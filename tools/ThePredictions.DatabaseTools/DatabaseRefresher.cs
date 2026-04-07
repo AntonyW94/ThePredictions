@@ -27,6 +27,7 @@ public class DatabaseRefresher(
         "AspNetUserLogins",
         "Teams",
         "Seasons",
+        "TournamentRoundMappings",
         "Rounds",
         "Matches",
         "BoostDefinitions",

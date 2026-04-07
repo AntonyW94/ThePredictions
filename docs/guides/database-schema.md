@@ -85,6 +85,26 @@ Represents a gameweek within a season.
 
 ---
 
+### TournamentRoundMappings
+
+Admin-configured tournament round structure. Maps tournament stages to prediction rounds.
+
+| Column | Type | Nullable | Default | Description |
+|--------|------|----------|---------|-------------|
+| Id | int | NO | IDENTITY | Primary key |
+| SeasonId | int | NO | | FK to Seasons |
+| RoundNumber | int | NO | | Prediction round ordering |
+| DisplayName | nvarchar(200) | NO | | User-facing round name |
+| Stages | nvarchar(500) | NO | | Pipe-delimited TournamentStage values (e.g. `SemiFinals\|ThirdPlace\|Final`) |
+| ExpectedMatchCount | int | NO | | Number of matches to create as placeholders |
+
+**Constraints:**
+- PK: `Id`
+- UNIQUE: `SeasonId, RoundNumber`
+- FK: `SeasonId` → `Seasons.Id` (CASCADE DELETE)
+
+---
+
 ### Matches
 
 Individual fixtures within a round.
