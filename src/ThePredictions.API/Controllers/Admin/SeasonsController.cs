@@ -86,6 +86,20 @@ public class SeasonsController(IMediator mediator, IFootballDataService football
         return Ok(season);
     }
 
+    [HttpGet("{seasonId:int}/tournament-mappings")]
+    [SwaggerOperation(
+        Summary = "Get tournament round mappings",
+        Description = "Returns the configured tournament round structure for a season.")]
+    [SwaggerResponse(200, "Mappings retrieved successfully", typeof(List<TournamentRoundMappingDto>))]
+    public async Task<IActionResult> GetTournamentMappingsAsync(
+        [SwaggerParameter("Season identifier")] int seasonId,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetTournamentRoundMappingsQuery(seasonId);
+        var mappings = await mediator.Send(query, cancellationToken);
+        return Ok(mappings);
+    }
+
     [HttpGet("api-rounds")]
     [SwaggerOperation(
         Summary = "Get available API round names",

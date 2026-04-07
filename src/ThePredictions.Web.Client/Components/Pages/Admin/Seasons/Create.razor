@@ -5,6 +5,8 @@
 @inject HttpClient Http
 
 @using ThePredictions.Contracts.Admin.Seasons
+@using ThePredictions.Domain.Common
+@using ThePredictions.Domain.Common.Enumerations
 
 <PageTitle>Create Season</PageTitle>
 
@@ -52,7 +54,7 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="competitionType" class="form-label">Competition Type</label>
-                        <InputSelect id="competitionType" class="form-control" @bind-Value="_model.CompetitionType">
+                        <InputSelect id="competitionType" class="form-control" @bind-Value="_model.CompetitionType" @bind-Value:after="OnCompetitionTypeChanged">
                             <option value="0">League</option>
                             <option value="1">Tournament</option>
                         </InputSelect>
@@ -64,6 +66,91 @@
                         <StyledValidationMessage For="@(() => _model.ApiLeagueId)" />
                     </div>
                 </div>
+
+                @if (_model.CompetitionType == 1)
+                {
+                    <div class="tournament-structure-section">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold mb-0">Tournament Structure</h5>
+                            <div class="d-flex gap-2">
+                                @if (_model.ApiLeagueId.HasValue)
+                                {
+                                    <button type="button" class="btn btn-sm purple-accent-button" @onclick="FetchApiRoundsAsync" disabled="@_isFetchingRounds">
+                                        <span class="bi bi-cloud-download me-1"></span>@(_isFetchingRounds ? "Fetching..." : "Fetch from API")
+                                    </button>
+                                }
+                                <button type="button" class="btn btn-sm green-button" @onclick="AddRoundMapping">
+                                    <span class="bi bi-plus-circle-fill me-1"></span>Add Round
+                                </button>
+                            </div>
+                        </div>
+
+                        <ApiError Message="@_fetchRoundsError" />
+
+                        @if (!_model.TournamentRoundMappings.Any())
+                        {
+                            <div class="empty-state" style="padding: var(--space-6);">
+                                <span class="bi bi-diagram-3 empty-state-icon"></span>
+                                <p class="empty-state-title">No rounds configured</p>
+                                <p class="empty-state-text">Add rounds manually or fetch available stages from the API.</p>
+                            </div>
+                        }
+                        else
+                        {
+                            @for (var i = 0; i < _model.TournamentRoundMappings.Count; i++)
+                            {
+                                var index = i;
+                                var mapping = _model.TournamentRoundMappings[index];
+
+                                <div class="tournament-round-row">
+                                    <div class="tournament-round-number">@(index + 1)</div>
+                                    <div class="tournament-round-fields">
+                                        <div class="row gx-2">
+                                            <div class="col-12 col-md-4 mb-2">
+                                                <label class="form-label">Display Name</label>
+                                                <InputText class="form-control" @bind-Value="mapping.DisplayName" />
+                                            </div>
+                                            <div class="col-8 col-md-4 mb-2">
+                                                <label class="form-label">Stages</label>
+                                                <InputSelect class="form-control" @bind-Value="_selectedStageForRow[index]" @bind-Value:after="() => AddStageToMapping(index)">
+                                                    <option value="">Add stage...</option>
+                                                    @foreach (TournamentStage stage in Enum.GetValues(typeof(TournamentStage)))
+                                                    {
+                                                        if (!IsStageUsed(stage))
+                                                        {
+                                                            <option value="@stage">@TournamentRoundNameParser.GetDefaultDisplayName(stage)</option>
+                                                        }
+                                                    }
+                                                </InputSelect>
+                                                <div class="tournament-stage-tags">
+                                                    @foreach (var stage in mapping.Stages)
+                                                    {
+                                                        var stageToRemove = stage;
+                                                        <span class="tournament-stage-tag">
+                                                            @TournamentRoundNameParser.GetDefaultDisplayName(stage)
+                                                            <button type="button" class="tournament-stage-tag-remove" @onclick="() => RemoveStageFromMapping(index, stageToRemove)">
+                                                                <span class="bi bi-x"></span>
+                                                            </button>
+                                                        </span>
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class="col-4 col-md-2 mb-2">
+                                                <label class="form-label">Matches</label>
+                                                <InputNumber class="form-control" @bind-Value="mapping.ExpectedMatchCount" />
+                                            </div>
+                                            <div class="col-12 col-md-2 mb-2 d-flex align-items-end">
+                                                <button type="button" class="btn btn-sm red-button w-100" @onclick="() => RemoveRoundMapping(index)">
+                                                    <span class="bi bi-trash-fill"></span><span class="d-none d-md-inline ms-1">Remove</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                }
             </ChildContent>
         </BaseFormComponent>
     </div>
@@ -77,8 +164,120 @@
         NumberOfRounds = 38
     };
 
+    private readonly Dictionary<int, TournamentStage?> _selectedStageForRow = new();
+    private bool _isFetchingRounds;
+    private string? _fetchRoundsError;
+
     private Task<HttpResponseMessage> HandleCreateSeasonAsync()
     {
+        // Re-number rounds sequentially before submitting
+        for (var i = 0; i < _model.TournamentRoundMappings.Count; i++)
+            _model.TournamentRoundMappings[i].RoundNumber = i + 1;
+
         return Http.PostAsJsonAsync("api/admin/seasons/create", _model);
+    }
+
+    private void OnCompetitionTypeChanged()
+    {
+        if (_model.CompetitionType == 1 && !_model.TournamentRoundMappings.Any())
+        {
+            _model.NumberOfRounds = 48;
+        }
+    }
+
+    private async Task FetchApiRoundsAsync()
+    {
+        if (!_model.ApiLeagueId.HasValue)
+            return;
+
+        _isFetchingRounds = true;
+        _fetchRoundsError = null;
+        StateHasChanged();
+
+        try
+        {
+            var seasonYear = _model.StartDateUtc.Year;
+            var stages = await Http.GetFromJsonAsync<List<TournamentStage>>($"api/admin/seasons/api-rounds?apiLeagueId={_model.ApiLeagueId.Value}&seasonYear={seasonYear}");
+
+            if (stages != null && stages.Any())
+            {
+                _model.TournamentRoundMappings.Clear();
+                _selectedStageForRow.Clear();
+
+                var roundNumber = 1;
+                foreach (var stage in stages.Where(s => !IsStageUsed(s)))
+                {
+                    _model.TournamentRoundMappings.Add(new TournamentRoundMappingDto
+                    {
+                        RoundNumber = roundNumber,
+                        DisplayName = TournamentRoundNameParser.GetDefaultDisplayName(stage),
+                        Stages = [stage],
+                        ExpectedMatchCount = TournamentRoundNameParser.CalculateExpectedMatchCount(stage, _model.NumberOfRounds)
+                    });
+                    _selectedStageForRow[roundNumber - 1] = null;
+                    roundNumber++;
+                }
+            }
+        }
+        catch
+        {
+            _fetchRoundsError = "Could not fetch round names from the API. Check the League ID and Start Date.";
+        }
+        finally
+        {
+            _isFetchingRounds = false;
+        }
+    }
+
+    private void AddRoundMapping()
+    {
+        var index = _model.TournamentRoundMappings.Count;
+        _model.TournamentRoundMappings.Add(new TournamentRoundMappingDto
+        {
+            RoundNumber = index + 1,
+            DisplayName = "",
+            Stages = [],
+            ExpectedMatchCount = 0
+        });
+        _selectedStageForRow[index] = null;
+    }
+
+    private void RemoveRoundMapping(int index)
+    {
+        _model.TournamentRoundMappings.RemoveAt(index);
+        _selectedStageForRow.Remove(index);
+    }
+
+    private void AddStageToMapping(int rowIndex)
+    {
+        if (!_selectedStageForRow.TryGetValue(rowIndex, out var stage) || stage == null)
+            return;
+
+        var mapping = _model.TournamentRoundMappings[rowIndex];
+        if (!mapping.Stages.Contains(stage.Value))
+        {
+            mapping.Stages.Add(stage.Value);
+            mapping.ExpectedMatchCount += TournamentRoundNameParser.CalculateExpectedMatchCount(stage.Value, _model.NumberOfRounds);
+
+            if (string.IsNullOrWhiteSpace(mapping.DisplayName))
+                mapping.DisplayName = TournamentRoundNameParser.GetCombinedDisplayName(mapping.Stages);
+        }
+
+        _selectedStageForRow[rowIndex] = null;
+    }
+
+    private void RemoveStageFromMapping(int rowIndex, TournamentStage stage)
+    {
+        var mapping = _model.TournamentRoundMappings[rowIndex];
+        mapping.Stages.Remove(stage);
+        mapping.ExpectedMatchCount = mapping.Stages.Sum(s => TournamentRoundNameParser.CalculateExpectedMatchCount(s, _model.NumberOfRounds));
+
+        if (mapping.Stages.Any())
+            mapping.DisplayName = TournamentRoundNameParser.GetCombinedDisplayName(mapping.Stages);
+    }
+
+    private bool IsStageUsed(TournamentStage stage)
+    {
+        return _model.TournamentRoundMappings.Any(m => m.Stages.Contains(stage));
     }
 }

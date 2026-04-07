@@ -1,0 +1,79 @@
+/* Tournament Structure Section (Season create/edit pages) */
+
+.tournament-structure-section {
+    margin-top: var(--space-6);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--grey-200);
+}
+
+.tournament-round-row {
+    display: flex;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    margin-bottom: var(--space-2);
+    background: var(--purple-100);
+    border-radius: 12px;
+    border: 1px solid var(--grey-200);
+}
+
+.tournament-round-number {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--purple-300);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    margin-top: var(--space-6);
+}
+
+.tournament-round-fields {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Stage tags */
+.tournament-stage-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    margin-top: var(--space-1);
+}
+
+.tournament-stage-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 2px var(--space-2);
+    background: var(--purple-300);
+    color: var(--white);
+    border-radius: 50rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.tournament-stage-tag-remove {
+    background: none;
+    border: none;
+    color: var(--white);
+    padding: 0;
+    cursor: pointer;
+    font-size: 0.85rem;
+    line-height: 1;
+    opacity: 0.7;
+}
+
+.tournament-stage-tag-remove:hover {
+    opacity: 1;
+}
+
+/* Mobile: hide round number circle */
+@media (min-width: 768px) {
+    .tournament-round-row {
+        padding: var(--space-4);
+    }
+}

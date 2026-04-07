@@ -134,6 +134,7 @@ System.IO.File.WriteAllText(FilePath, content);
             <CssFilesToBundle Include="$(PublishCssDir)pages\leaderboard.css" />
             <CssFilesToBundle Include="$(PublishCssDir)pages\predictions.css" />
             <CssFilesToBundle Include="$(PublishCssDir)pages\prizes.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)pages\tournament-structure.css" />
             <CssFilesToBundle Include="$(PublishCssDir)pages\results-grid.css" />
             <CssFilesToBundle Include="$(PublishCssDir)pages\boost-usage.css" />
             <CssFilesToBundle Include="$(PublishCssDir)themes\light\layout.css" />
