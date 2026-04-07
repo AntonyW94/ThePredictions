@@ -711,4 +711,124 @@ public class MatchTests
     }
 
     #endregion
+
+    #region CreatePlaceholder
+
+    [Fact]
+    public void CreatePlaceholder_ShouldCreateMatch_WhenValidParametersProvided()
+    {
+        // Act
+        var match = Match.CreatePlaceholder(1, "Semi-final 1", "Semi-final 1", "Semi-finals");
+
+        // Assert
+        match.RoundId.Should().Be(1);
+        match.HomeTeamId.Should().BeNull();
+        match.AwayTeamId.Should().BeNull();
+        match.PlaceholderHomeName.Should().Be("Semi-final 1");
+        match.PlaceholderAwayName.Should().Be("Semi-final 1");
+        match.ApiRoundName.Should().Be("Semi-finals");
+        match.Status.Should().Be(MatchStatus.Scheduled);
+        match.AreTeamsConfirmed.Should().BeFalse();
+        match.ExternalId.Should().BeNull();
+        match.CustomLockTimeUtc.Should().BeNull();
+        match.MatchDateTimeUtc.Should().Be(DateTime.MaxValue);
+    }
+
+    [Fact]
+    public void CreatePlaceholder_ShouldThrow_WhenRoundIdIsZero()
+    {
+        // Act
+        var act = () => Match.CreatePlaceholder(0, "TBC", "TBC", "Final");
+
+        // Assert
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void CreatePlaceholder_ShouldThrow_WhenPlaceholderHomeNameIsEmpty()
+    {
+        // Act
+        var act = () => Match.CreatePlaceholder(1, "", "TBC", "Final");
+
+        // Assert
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void CreatePlaceholder_ShouldThrow_WhenPlaceholderAwayNameIsEmpty()
+    {
+        // Act
+        var act = () => Match.CreatePlaceholder(1, "TBC", "", "Final");
+
+        // Assert
+        act.Should().Throw<ArgumentException>();
+    }
+
+    #endregion
+
+    #region SetCustomLockTime
+
+    [Fact]
+    public void SetCustomLockTime_ShouldSetValue_WhenProvided()
+    {
+        // Arrange
+        var match = CreateMatchViaFactory();
+        var lockTime = new DateTime(2025, 8, 16, 14, 30, 0, DateTimeKind.Utc);
+
+        // Act
+        match.SetCustomLockTime(lockTime);
+
+        // Assert
+        match.CustomLockTimeUtc.Should().Be(lockTime);
+    }
+
+    [Fact]
+    public void SetCustomLockTime_ShouldClearValue_WhenNull()
+    {
+        // Arrange
+        var match = CreateMatchViaFactory();
+        match.SetCustomLockTime(new DateTime(2025, 8, 16, 14, 30, 0, DateTimeKind.Utc));
+
+        // Act
+        match.SetCustomLockTime(null);
+
+        // Assert
+        match.CustomLockTimeUtc.Should().BeNull();
+    }
+
+    #endregion
+
+    #region SetExternalId
+
+    [Fact]
+    public void SetExternalId_ShouldSetValue_WhenProvided()
+    {
+        // Arrange
+        var match = Match.CreatePlaceholder(1, "TBC", "TBC", "Final");
+
+        // Act
+        match.SetExternalId(12345);
+
+        // Assert
+        match.ExternalId.Should().Be(12345);
+    }
+
+    #endregion
+
+    #region SetApiRoundName
+
+    [Fact]
+    public void SetApiRoundName_ShouldSetValue_WhenProvided()
+    {
+        // Arrange
+        var match = CreateMatchViaFactory();
+
+        // Act
+        match.SetApiRoundName("Quarter-finals");
+
+        // Assert
+        match.ApiRoundName.Should().Be("Quarter-finals");
+    }
+
+    #endregion
 }

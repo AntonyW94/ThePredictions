@@ -800,4 +800,42 @@ public class RoundTests
     }
 
     #endregion
+
+    #region AddPlaceholderMatch
+
+    [Fact]
+    public void AddPlaceholderMatch_ShouldAddMatch_WhenValidParametersProvided()
+    {
+        // Arrange
+        var round = CreateRoundWithId();
+
+        // Act
+        round.AddPlaceholderMatch("Semi-final 1", "Semi-final 1", "Semi-finals");
+
+        // Assert
+        round.Matches.Should().HaveCount(1);
+        var match = round.Matches.First();
+        match.HomeTeamId.Should().BeNull();
+        match.AwayTeamId.Should().BeNull();
+        match.PlaceholderHomeName.Should().Be("Semi-final 1");
+        match.PlaceholderAwayName.Should().Be("Semi-final 1");
+        match.AreTeamsConfirmed.Should().BeFalse();
+    }
+
+    [Fact]
+    public void AddPlaceholderMatch_ShouldAddMultiplePlaceholders_WhenCalledMultipleTimes()
+    {
+        // Arrange
+        var round = CreateRoundWithId();
+
+        // Act
+        round.AddPlaceholderMatch("SF 1", "SF 1", "Semi-finals");
+        round.AddPlaceholderMatch("SF 2", "SF 2", "Semi-finals");
+        round.AddPlaceholderMatch("Final", "Final", "Final");
+
+        // Assert
+        round.Matches.Should().HaveCount(3);
+    }
+
+    #endregion
 }
