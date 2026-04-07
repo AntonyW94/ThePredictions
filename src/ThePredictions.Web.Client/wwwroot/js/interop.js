@@ -184,6 +184,40 @@ window.blazorInterop = {
             delete window._resizeHandler;
         }
     },
+    updateCarouselHeight: function (trackWrapperId, currentIndex, itemsPerPage) {
+        var wrapper = document.getElementById(trackWrapperId);
+        if (!wrapper) return;
+
+        var items = wrapper.querySelectorAll('.carousel-item-wrapper');
+        var maxHeight = 0;
+
+        // Reset all items to auto height first so we get natural sizes
+        items.forEach(function (item) {
+            var card = item.querySelector('.card.slide');
+            if (card) card.style.minHeight = '';
+        });
+
+        // Measure natural heights of visible items
+        for (var i = currentIndex; i < currentIndex + itemsPerPage && i < items.length; i++) {
+            var content = items[i].querySelector('.carousel-item-content');
+            if (content) {
+                var height = content.scrollHeight;
+                if (height > maxHeight) maxHeight = height;
+            }
+        }
+
+        // If multiple items visible, make them all the same height
+        if (itemsPerPage > 1 && maxHeight > 0) {
+            for (var j = currentIndex; j < currentIndex + itemsPerPage && j < items.length; j++) {
+                var card = items[j].querySelector('.card.slide');
+                if (card) card.style.minHeight = maxHeight + 'px';
+            }
+        }
+
+        if (maxHeight > 0) {
+            wrapper.style.height = maxHeight + 'px';
+        }
+    },
     scrollToUserRow: function (containerId) {
         const container = document.getElementById(containerId);
         if (!container) return;

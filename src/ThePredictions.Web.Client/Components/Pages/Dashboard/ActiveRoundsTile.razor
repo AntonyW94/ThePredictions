@@ -1,5 +1,6 @@
 @inject IDashboardStateService DashboardState
 @inject IBrowserService BrowserService
+@inject IJSRuntime JsRuntime
 
 @using ThePredictions.Web.Client.Services.Browser
 @using ThePredictions.Web.Client.Services.Dashboard
@@ -35,7 +36,7 @@
                     </button>
                 }
 
-                <div class="carousel-track-wrapper">
+                <div class="carousel-track-wrapper" id="carousel-track-wrapper">
                     <div class="carousel-track" style="@_trackStyle">
                         @foreach (var round in DashboardState.ActiveRounds)
                         {
@@ -85,6 +86,14 @@
             await DashboardState.LoadActiveRoundsAsync();
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (DashboardState.ActiveRounds.Any())
+        {
+            await UpdateCarouselHeightAsync();
+        }
+    }
+
     private int NumberOfDots
     {
         get
@@ -111,7 +120,7 @@
 
     }
 
-    private void HandleTouchEnd(TouchEventArgs e)
+    private async Task HandleTouchEnd(TouchEventArgs e)
     {
         var touchEndX = e.ChangedTouches[0].ClientX;
         var diffX = _touchStartX - touchEndX;
@@ -120,42 +129,49 @@
             return;
 
         if (diffX > 0)
-            ShowNext();
+            await ShowNext();
         else
-            ShowPrevious();
+            await ShowPrevious();
     }
 
-    private void GoToSlide(int index)
+    private async Task GoToSlide(int index)
     {
         if (index < 0 || index >= NumberOfDots)
             return;
 
         _currentIndex = index;
-        UpdateTrackStyle();
+        await UpdateTrackStyle();
     }
 
-    private void ShowPrevious()
+    private async Task ShowPrevious()
     {
         if (_currentIndex <= 0)
             return;
 
         _currentIndex--;
-        UpdateTrackStyle();
+        await UpdateTrackStyle();
     }
 
-    private void ShowNext()
+    private async Task ShowNext()
     {
         if (IsAtEnd())
             return;
 
         _currentIndex++;
-        UpdateTrackStyle();
+        await UpdateTrackStyle();
     }
 
-    private void UpdateTrackStyle()
+    private async Task UpdateTrackStyle()
     {
         var percentageToMove = _showTwoItems ? 50 : 100;
         _trackStyle = $"transform: translateX(-{_currentIndex * percentageToMove}%);";
+        await UpdateCarouselHeightAsync();
+    }
+
+    private async Task UpdateCarouselHeightAsync()
+    {
+        var itemsPerPage = _showTwoItems ? 2 : 1;
+        await JsRuntime.InvokeVoidAsync("blazorInterop.updateCarouselHeight", "carousel-track-wrapper", _currentIndex, itemsPerPage);
     }
 
     private bool IsAtEnd()

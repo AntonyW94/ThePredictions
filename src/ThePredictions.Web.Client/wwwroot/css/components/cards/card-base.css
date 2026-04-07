@@ -23,7 +23,6 @@
 /* Card Variants (layout only, NOT colour) */
 .card.slide {
     /* Carousel items - same as base, width handled by carousel */
-    height: 100%;
     max-width: 350px;
     width: 100%;
 }

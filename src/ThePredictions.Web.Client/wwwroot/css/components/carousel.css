@@ -3,7 +3,6 @@
 .carousel-wrapper {
     display: flex;
     flex-direction: column;
-    height: 100%;
     overflow: hidden;
 }
 
@@ -20,11 +19,12 @@
 .carousel-track-wrapper {
     overflow: hidden;
     width: 100%;
+    transition: height 0.3s ease-in-out;
 }
 
 .carousel-track {
     display: flex;
-    height: 100%;
+    align-items: flex-start;
     max-width: 100%;
     transition: transform 0.3s ease-in-out;
 }
@@ -38,7 +38,6 @@
 
 .carousel-item-content {
     padding: 0;
-    height: 100%;
     display: flex;
     justify-content: center;
     width: 100%;
