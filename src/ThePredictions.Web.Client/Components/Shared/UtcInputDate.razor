@@ -4,7 +4,7 @@
 <input type="datetime-local"
        class="@Class"
        id="@Id"
-       value="@_localDateTime.ToString("yyyy-MM-ddTHH:mm")"
+       value="@(Value == default ? "" : _localDateTime.ToString("yyyy-MM-ddTHH:mm"))"
        @onchange="OnInputChange"
        disabled="@Disabled"
        max="@Max"

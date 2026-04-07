@@ -196,7 +196,7 @@
                         Id = m.Id,
                         HomeTeamId = m.HomeTeamId ?? 0,
                         AwayTeamId = m.AwayTeamId ?? 0,
-                        MatchDateTimeUtc = m.MatchDateTimeUtc
+                        MatchDateTimeUtc = m.MatchDateTimeUtc.Year == 9999 ? default : m.MatchDateTimeUtc
                     }).ToList()
                 };
             }
