@@ -1,21 +1,134 @@
 /* SweetAlert Modal Overrides */
 
-.swal2-select {
-    background-color: var(--white) !important;
-    color: var(--purple-800) !important;
-    border-radius: var(--bs-border-radius);
-    padding: 0.5rem;
+/* Light admin theme popup */
+.swal2-admin-light {
+    background: var(--white) !important;
+    color: var(--purple-1000) !important;
+    border-radius: var(--bs-border-radius) !important;
+    border: 1px solid var(--grey-200);
+    box-shadow: 0 8px 32px var(--black-alpha-25) !important;
 }
 
-.swal2-radio-container {
+.swal2-admin-light .swal2-title {
+    color: var(--purple-1000) !important;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.swal2-admin-light .swal2-html-container {
+    color: var(--grey-500) !important;
+}
+
+.swal2-admin-light .swal2-icon {
+    border-color: var(--purple-300) !important;
+    color: var(--purple-300) !important;
+}
+
+.swal2-admin-light .swal2-icon.swal2-question::before {
+    color: var(--purple-300) !important;
+}
+
+.swal2-admin-light .swal2-icon.swal2-warning {
+    border-color: var(--orange) !important;
+    color: var(--orange) !important;
+}
+
+/* Custom button styles (buttonsStyling: false) */
+.swal2-btn-green {
+    background: var(--green-600) !important;
+    color: var(--white) !important;
+    border: none !important;
+    border-radius: 50rem !important;
+    padding: 0.6rem 1.5rem !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    cursor: pointer;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.swal2-btn-green:hover {
+    opacity: 0.9;
+}
+
+.swal2-btn-red {
+    background: var(--red) !important;
+    color: var(--white) !important;
+    border: none !important;
+    border-radius: 50rem !important;
+    padding: 0.6rem 1.5rem !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    cursor: pointer;
+    margin-left: var(--space-2) !important;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.swal2-btn-red:hover {
+    opacity: 0.9;
+}
+
+/* Role selector cards */
+.swal2-role-cards {
     display: flex;
     justify-content: center;
-    gap: 2rem;
-    margin-top: 1rem;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
 }
 
-    .swal2-radio-container label {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
+.swal2-role-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-6);
+    border: 2px solid var(--grey-200);
+    border-radius: 12px;
+    background: var(--white);
+    color: var(--grey-500);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    font-family: inherit;
+    min-width: 120px;
+}
+
+.swal2-role-card .bi {
+    font-size: 1.5rem;
+}
+
+.swal2-role-card-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.swal2-role-card:hover {
+    border-color: var(--purple-300);
+    color: var(--purple-300);
+}
+
+.swal2-role-card.active {
+    border-color: var(--purple-300);
+    background: var(--purple-100);
+    color: var(--purple-300);
+    box-shadow: 0 0 0 3px var(--purple-800-alpha-25);
+}
+
+/* Reassign league select dropdown */
+.swal2-select {
+    background-color: var(--white) !important;
+    color: var(--purple-1000) !important;
+    border: 1px solid var(--grey-200) !important;
+    border-radius: 12px !important;
+    padding: var(--space-3) var(--space-4) !important;
+    width: 100%;
+    font-size: 0.9rem;
+}
+
+.swal2-text {
+    color: var(--grey-500) !important;
+}
+
+/* Validation message */
+.swal2-admin-light .swal2-validation-message {
+    background: var(--purple-100) !important;
+    color: var(--red) !important;
+}

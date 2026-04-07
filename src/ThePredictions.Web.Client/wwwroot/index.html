@@ -39,9 +39,23 @@
     <div id="app">
         <div class="app-loading-container">
             <div class="spinner"></div>
-            <p>Loading Prediction League...</p>
+            <p>Loading The Predictions...</p>
         </div>
     </div>
+
+    <script>
+        (function () {
+            var path = window.location.pathname;
+            var adminPaths = ['/admin/', '/leagues'];
+            var isAdmin = adminPaths.some(function (p) { return path.startsWith(p); });
+            if (isAdmin) {
+                var container = document.querySelector('.app-loading-container');
+                if (container) {
+                    container.classList.add('app-loading-light');
+                }
+            }
+        })();
+    </script>
 
     <div id="blazor-error-ui">
         <span id="blazor-error-message">An unhandled error has occurred.</span>

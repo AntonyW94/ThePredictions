@@ -22,3 +22,14 @@
         animation: spin 1s linear infinite;
         margin-bottom: 1.25rem;
     }
+
+/* Light theme loading screen for admin pages */
+.app-loading-container.app-loading-light {
+    background-color: var(--purple-100);
+    color: var(--purple-1000);
+}
+
+    .app-loading-container.app-loading-light .spinner {
+        border-color: var(--grey-200);
+        border-top-color: var(--purple-300);
+    }

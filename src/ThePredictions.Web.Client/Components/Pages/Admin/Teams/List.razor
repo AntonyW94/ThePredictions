@@ -22,6 +22,18 @@
 
         @if (_seasons != null)
         {
+            <div class="admin-tabs-mobile">
+                <select @onchange="OnMobileFilterChanged">
+                    <option value="" selected="@(_selectedSeasonId == null)">All (@_allTeamCount)</option>
+                    @foreach (var season in _seasons)
+                    {
+                        <option value="@season.Id" selected="@(_selectedSeasonId == season.Id)">
+                            @season.Name (@(_seasonTeamCounts.TryGetValue(season.Id, out var count) ? count : 0))
+                        </option>
+                    }
+                </select>
+            </div>
+
             <div class="filter-row">
                 <button class="filter-card @(_selectedSeasonId == null ? "active" : "")" @onclick="() => FilterBySeasonAsync(null)">
                     All
@@ -32,9 +44,9 @@
                 {
                     <button class="filter-card @(_selectedSeasonId == season.Id ? "active" : "")" @onclick="() => FilterBySeasonAsync(season.Id)">
                         @season.Name
-                        @if (_seasonTeamCounts.TryGetValue(season.Id, out var count))
+                        @if (_seasonTeamCounts.TryGetValue(season.Id, out var cnt))
                         {
-                            <span class="match-count-badge ms-1">@count</span>
+                            <span class="match-count-badge ms-1">@cnt</span>
                         }
                     </button>
                 }
@@ -97,6 +109,13 @@
                 _seasonTeamCounts[season.Id] = seasonTeams?.Count ?? 0;
             }
         }
+    }
+
+    private async Task OnMobileFilterChanged(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString();
+        int? seasonId = string.IsNullOrEmpty(value) ? null : int.Parse(value);
+        await FilterBySeasonAsync(seasonId);
     }
 
     private async Task FilterBySeasonAsync(int? seasonId)

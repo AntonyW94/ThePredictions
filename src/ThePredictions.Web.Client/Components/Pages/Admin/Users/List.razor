@@ -17,10 +17,6 @@
     <div class="admin-table-container">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3 class="fw-bold mb-0">Users</h3>
-            @if (_users != null)
-            {
-                <span class="match-count-badge">@_users.Count</span>
-            }
         </div>
 
         <ApiError Message="@_errorMessage" />
@@ -35,12 +31,41 @@
         }
         else
         {
+            <div class="admin-tabs-mobile">
+                <select @onchange="OnMobileTabChanged" value="@_activeTab">
+                    <option value="all">All (@_users.Count)</option>
+                    <option value="admin">Admin (@_adminUsers.Count)</option>
+                    <option value="player">Player (@_playerUsers.Count)</option>
+                </select>
+            </div>
+
+            <div class="admin-tabs">
+                <button class="admin-tab @(_activeTab == "all" ? "active" : "")" @onclick='() => _activeTab = "all"'>
+                    All
+                    <span class="match-count-badge">@_users.Count</span>
+                </button>
+                <button class="admin-tab @(_activeTab == "admin" ? "active" : "")" @onclick='() => _activeTab = "admin"'>
+                    Admin
+                    @if (_adminUsers.Any())
+                    {
+                        <span class="match-count-badge" style="background: var(--red)">@_adminUsers.Count</span>
+                    }
+                </button>
+                <button class="admin-tab @(_activeTab == "player" ? "active" : "")" @onclick='() => _activeTab = "player"'>
+                    Player
+                    @if (_playerUsers.Any())
+                    {
+                        <span class="match-count-badge" style="background: var(--blue-700)">@_playerUsers.Count</span>
+                    }
+                </button>
+            </div>
+
             <div class="member-list">
-                @foreach (var user in _users)
+                @foreach (var user in GetActiveTabUsers())
                 {
                     var isLoggedInUser = _currentUserId == user.Id;
 
-                    <div class="member-row">
+                    <div class="member-row user-row">
                         <div class="member-avatar">
                             @user.FullName[0]
                         </div>
@@ -56,31 +81,31 @@
                                     <span class="member-status-pill" style="background: var(--blue-700); color: var(--white)">Player</span>
                                 }
                             </div>
-                            <span class="member-date">
+                            <span class="member-date" style="word-break: break-all;">
                                 @user.Email
                                 @if (!string.IsNullOrWhiteSpace(user.PhoneNumber))
                                 {
                                     <span class="d-none d-lg-inline"> · @user.PhoneNumber</span>
                                 }
                             </span>
-                            <span class="member-date d-flex align-items-center gap-1 mt-1">
-                                @if (user.HasLocalPassword)
-                                {
-                                    <span class="bi bi-envelope-fill" title="Email & Password" style="color: var(--purple-300)"></span>
-                                }
-                                @foreach (var provider in user.SocialProviders)
-                                {
-                                    <span class="bi @GetProviderIcon(provider)" title="@provider" style="color: var(--purple-300)"></span>
-                                }
-                            </span>
-                        </div>
-                        <div class="season-row-actions">
-                            <button class="btn btn-sm @(isLoggedInUser ? "grey-button" : "green-button")" @onclick="() => ChangeRole(user)" disabled="@isLoggedInUser" title="Change Role">
-                                <span class="bi bi-person-badge-fill me-1"></span><span class="d-none d-lg-inline">Role</span>
-                            </button>
-                            <button class="btn btn-sm @(isLoggedInUser ? "grey-button" : "red-button")" @onclick="() => PrepareToDeleteUser(user)" disabled="@isLoggedInUser" title="Delete User">
-                                <span class="bi bi-trash-fill"></span>
-                            </button>
+                            <div class="user-row-footer">
+                                <div class="auth-badges">
+                                    <span class="auth-badge @(user.HasLocalPassword ? "active" : "")" title="Email & Password">
+                                        <span class="bi bi-envelope-fill"></span>
+                                    </span>
+                                    <span class="auth-badge @(user.SocialProviders.Contains("Google") ? "active" : "")" title="Google">
+                                        <span class="bi bi-google"></span>
+                                    </span>
+                                </div>
+                                <div class="user-row-actions">
+                                    <button class="btn btn-sm @(isLoggedInUser ? "grey-button" : "green-button")" @onclick="() => ChangeRole(user)" disabled="@isLoggedInUser" title="Change Role">
+                                        <span class="bi bi-person-badge-fill"></span><span class="d-none d-lg-inline ms-1">Role</span>
+                                    </button>
+                                    <button class="btn btn-sm @(isLoggedInUser ? "grey-button" : "red-button")" @onclick="() => PrepareToDeleteUser(user)" disabled="@isLoggedInUser" title="Delete User">
+                                        <span class="bi bi-trash-fill"></span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 }
@@ -91,8 +116,11 @@
 
 @code {
     private List<UserDto>? _users;
+    private List<UserDto> _adminUsers = [];
+    private List<UserDto> _playerUsers = [];
     private string? _errorMessage;
     private string? _currentUserId;
+    private string _activeTab = "all";
 
     protected override async Task OnInitializedAsync()
     {
@@ -102,12 +130,30 @@
         await LoadUsers();
     }
 
+    private void OnMobileTabChanged(ChangeEventArgs e)
+    {
+        _activeTab = e.Value?.ToString() ?? "all";
+    }
+
+    private List<UserDto> GetActiveTabUsers() => _activeTab switch
+    {
+        "admin" => _adminUsers,
+        "player" => _playerUsers,
+        _ => _users ?? []
+    };
+
     private async Task LoadUsers()
     {
         _errorMessage = null;
         try
         {
             _users = await Http.GetFromJsonAsync<List<UserDto>>("api/admin/users");
+
+            if (_users != null)
+            {
+                _adminUsers = _users.Where(u => u.IsAdmin).ToList();
+                _playerUsers = _users.Where(u => !u.IsAdmin).ToList();
+            }
         }
         catch (Exception)
         {
@@ -126,7 +172,7 @@
         {
             try
             {
-                var response = await Http.PostAsJsonAsync($"api/admin/users/{user.Id}/role", newRole);
+                var response = await Http.PostAsJsonAsync($"api/admin/users/{user.Id}/role", new { NewRole = newRole });
                 if (response.IsSuccessStatusCode)
                 {
                     await LoadUsers();

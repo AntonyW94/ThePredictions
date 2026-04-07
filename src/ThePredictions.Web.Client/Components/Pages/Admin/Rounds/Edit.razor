@@ -49,7 +49,7 @@
                         </div>
 
                         <div class="row gx-3 align-items-end mt-3">
-                            <div class="col-4">
+                            <div class="col-12 col-md-4">
                                 <label for="status" class="form-label">Status</label>
                                 <InputSelect id="status" class="form-control" @bind-Value="_model.Status">
                                     @foreach (RoundStatus status in Enum.GetValues(typeof(RoundStatus)))
@@ -59,12 +59,12 @@
                                 </InputSelect>
                             </div>
 
-                            <div class="col-4">
+                            <div class="col-12 col-md-4 mt-3 mt-md-0">
                                 <label for="startDate" class="form-label">Start Date</label>
                                 <UtcInputDate id="startDate" Class="form-control" @bind-Value="_model.StartDateUtc" />
                             </div>
 
-                            <div class="col-4">
+                            <div class="col-12 col-md-4 mt-3 mt-md-0">
                                 <label for="deadline" class="form-label">Deadline</label>
                                 <UtcInputDate id="deadline" Class="form-control" @bind-Value="_model.DeadlineUtc" />
                             </div>
@@ -140,7 +140,7 @@
                                             <option value="0">Home</option>
                                             @foreach (var t in _teams)
                                             {
-                                                <option value="@t.Id">@t.Name</option>
+                                                <option value="@t.Id">@t.Abbreviation</option>
                                             }
                                         </InputSelect>
                                     </div>
@@ -150,7 +150,7 @@
                                             <option value="0">Away</option>
                                             @foreach (var t in _teams)
                                             {
-                                                <option value="@t.Id">@t.Name</option>
+                                                <option value="@t.Id">@t.Abbreviation</option>
                                             }
                                         </InputSelect>
                                     </div>

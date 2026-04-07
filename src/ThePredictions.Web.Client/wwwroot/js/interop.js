@@ -28,13 +28,14 @@ window.blazorInterop = {
                 text: text,
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#00FF85',
-                cancelButtonColor: '#E90052',
                 confirmButtonText: confirmButtonText,
                 cancelButtonText: cancelButtonText,
-
-                background: '#4A2E6C',
-                color: '#FFFFFF'
+                customClass: {
+                    popup: 'swal2-admin-light',
+                    confirmButton: 'swal2-btn-green',
+                    cancelButton: 'swal2-btn-red'
+                },
+                buttonsStyling: false
             }).then((result) => {
                 resolve(result.isConfirmed);
             });
@@ -75,12 +76,14 @@ window.blazorInterop = {
                 `,
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#00FF85',
-                cancelButtonColor: '#E90052',
                 confirmButtonText: '<i class="bi bi-check-circle"></i> <strong>Confirm Deletion</strong>',
                 cancelButtonText: '<i class="bi bi-x-circle"></i> <strong>Cancel</strong>',
-                background: '#4A2E6C',
-                color: '#FFFFFF',
+                customClass: {
+                    popup: 'swal2-admin-light',
+                    confirmButton: 'swal2-btn-green',
+                    cancelButton: 'swal2-btn-red'
+                },
+                buttonsStyling: false,
                 preConfirm: () => {
                     // ReSharper disable once Html.IdNotResolved
                     const select = document.getElementById('newAdminSelect');
@@ -105,32 +108,45 @@ window.blazorInterop = {
             Swal.fire({
                 title: `Change role for ${self.escapeHtml(userName)}`,
                 html: `
-                    <div class="swal2-radio-container">
-                        <label>
-                            <input type="radio" name="swal2-radio" value="Player" ${currentRole === 'Player' ? 'checked' : ''}>
-                            <span class="swal2-label-text">Player</span>
-                        </label>
-                        <label>
-                            <input type="radio" name="swal2-radio" value="Administrator" ${currentRole === 'Administrator' ? 'checked' : ''}>
-                            <span class="swal2-label-text">Administrator</span>
-                        </label>
+                    <div class="swal2-role-cards">
+                        <button type="button" class="swal2-role-card ${currentRole === 'Player' ? 'active' : ''}" data-role="Player">
+                            <span class="bi bi-controller"></span>
+                            <span class="swal2-role-card-label">Player</span>
+                        </button>
+                        <button type="button" class="swal2-role-card ${currentRole === 'Administrator' ? 'active' : ''}" data-role="Administrator">
+                            <span class="bi bi-shield-lock-fill"></span>
+                            <span class="swal2-role-card-label">Admin</span>
+                        </button>
                     </div>
+                    <div id="selectedRole" data-value="${self.escapeHtml(currentRole)}" style="display:none"></div>
                 `,
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#00FF85',
-                cancelButtonColor: '#E90052',
                 confirmButtonText: '<i class="bi bi-check-circle"></i> <strong>Save Role</strong>',
                 cancelButtonText: '<i class="bi bi-x-circle"></i> <strong>Cancel</strong>',
-                background: '#4A2E6C',
-                color: '#FFFFFF',
+                customClass: {
+                    popup: 'swal2-admin-light',
+                    confirmButton: 'swal2-btn-green',
+                    cancelButton: 'swal2-btn-red'
+                },
+                buttonsStyling: false,
+                didOpen: () => {
+                    const popup = Swal.getPopup();
+                    popup.querySelectorAll('.swal2-role-card').forEach(card => {
+                        card.addEventListener('click', () => {
+                            popup.querySelectorAll('.swal2-role-card').forEach(c => c.classList.remove('active'));
+                            card.classList.add('active');
+                            popup.querySelector('#selectedRole').dataset.value = card.dataset.role;
+                        });
+                    });
+                },
                 preConfirm: () => {
-                    const selectedRole = Swal.getPopup().querySelector('input[name="swal2-radio"]:checked');
-                    if (!selectedRole) {
+                    const value = Swal.getPopup().querySelector('#selectedRole').dataset.value;
+                    if (!value) {
                         Swal.showValidationMessage('You must select a role.');
                         return false;
                     }
-                    return selectedRole.value;
+                    return value;
                 }
             }).then((result) => {
                 if (result.isConfirmed && result.value) {

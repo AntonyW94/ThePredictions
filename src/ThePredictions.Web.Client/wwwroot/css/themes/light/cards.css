@@ -274,6 +274,47 @@
     flex-shrink: 0;
 }
 
+/* User row layout — badges and actions on same line */
+.user-row {
+    flex-wrap: nowrap;
+}
+
+.user-row-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: var(--space-1);
+}
+
+.user-row-actions {
+    display: flex;
+    gap: var(--space-2);
+    flex-shrink: 0;
+}
+
+/* Auth method badges */
+.auth-badges {
+    display: flex;
+    gap: var(--space-1);
+}
+
+.auth-badge {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    background: var(--grey-200);
+    color: var(--grey-500);
+}
+
+.auth-badge.active {
+    background: var(--purple-300);
+    color: var(--white);
+}
+
 /* Season list rows */
 .season-row-icon {
     width: 42px;

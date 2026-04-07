@@ -102,6 +102,7 @@
     border: 1px solid var(--white);
     color: var(--white);
     font-size: 1rem;
+    line-height: 48px;
     transition: all 0.18s ease;
 }
 

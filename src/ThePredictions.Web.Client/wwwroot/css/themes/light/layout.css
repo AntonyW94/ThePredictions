@@ -22,6 +22,7 @@
     box-shadow: 0 1px 3px var(--black-alpha-15);
     padding: var(--space-8) var(--space-6);
     margin-top: var(--space-6);
+    margin-bottom: 5rem;
 }
 
 /* Edit Round page has its own card structure, so make container transparent */
@@ -29,7 +30,9 @@
     background: transparent;
     border: none;
     box-shadow: none;
-    padding: var(--space-6) 0;
+    padding: var(--space-3) 0;
+    margin-top: var(--space-2);
+    margin-bottom: var(--space-6);
 }
 
 .admin-light .admin-table-container {
