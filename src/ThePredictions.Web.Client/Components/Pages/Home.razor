@@ -1,18 +1,23 @@
-﻿@page "/"
+@page "/"
 
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject HttpClient Http
 @inject ILogger<Home> Logger
 
-<PageTitle>Home - Premier League Predictions</PageTitle>
+@using System.Net.Http.Json
+@using ThePredictions.Contracts.Homepage
+
+<PageTitle>The Predictions — Football Score Predictions</PageTitle>
 
 <CascadingAuthenticationState>
     <AuthorizeView>
         <NotAuthorized>
+            @* 1. Hero *@
             <div class="hero-section text-center diagonal-clip">
                 <div class="container py-5">
-                    <img src="/images/logo.png" alt="Prediction League Logo" class="mb-4 hero-image" />
-                    <h1 class="display-4 fw-bold text-white">The Ultimate Premier League Prediction Game</h1>
+                    <img src="/images/logo.png" alt="The Predictions Logo" class="mb-4 hero-image" />
+                    <h1 class="display-4 fw-bold text-white">The Ultimate Football Prediction Game</h1>
                     <p class="fs-4 col-md-8 mx-auto">Challenge your friends, prove your football knowledge, and top the leaderboard. Your journey to prediction glory starts here.</p>
                     <div class="d-flex justify-content-center align-items-center mt-4 gap-3">
                         <NavLink class="btn btn-lg blue-light-button px-4 text-purple-1000" href="authentication/login">Log in</NavLink>
@@ -21,39 +26,165 @@
                 </div>
             </div>
 
-            <div class="container px-4 py-5">
-                <h2 class="text-center fw-bold mb-5">How It Works</h2>
-                <div class="row g-4 text-center">
-                    <div class="col-md-4">
-                        <div class="feature-icon mb-3"><i class="bi bi-pencil-square"></i></div>
-                        <h4 class="fw-bold">1. Predict Scores</h4>
-                        <p class="text-muted">Submit your score predictions for all 10 Premier League matches each week before the deadline.</p>
-                    </div>
+            @* 2. How It Works (light) *@
+            <div class="home-section-light py-5">
+                <div class="container px-4">
+                    <h2 class="text-center fw-bold mb-5">How It Works</h2>
+                    <div class="row g-4 text-center">
+                        <div class="col-md-4">
+                            <div class="feature-icon mb-3"><i class="bi bi-pencil-square"></i></div>
+                            <h4 class="fw-bold">1. Predict Scores</h4>
+                            <p>Submit your score predictions for matches each round before the deadline.</p>
+                        </div>
 
-                    <div class="col-md-4">
-                        <div class="feature-icon mb-3"><i class="bi bi-trophy"></i></div>
-                        <h4 class="fw-bold">2. Score Points</h4>
-                        <p class="text-muted">Earn 5 points for a perfect score, 3 for the correct result, and climb the weekly, monthly, and overall leaderboards.</p>
-                    </div>
+                        <div class="col-md-4">
+                            <div class="feature-icon mb-3"><i class="bi bi-trophy"></i></div>
+                            <h4 class="fw-bold">2. Score Points</h4>
+                            <p>Earn 5 points for a perfect score, 3 for the correct result, and climb the weekly, monthly, and overall leaderboards.</p>
+                        </div>
 
-                    <div class="col-md-4">
-                        <div class="feature-icon mb-3"><i class="bi bi-people-fill"></i></div>
-                        <h4 class="fw-bold">3. Compete & Win</h4>
-                        <p class="text-muted">Create private leagues to challenge your friends, family, and colleagues for the ultimate bragging rights!</p>
+                        <div class="col-md-4">
+                            <div class="feature-icon mb-3"><i class="bi bi-people-fill"></i></div>
+                            <h4 class="fw-bold">3. Compete & Win</h4>
+                            <p>Create private leagues to challenge your friends, family, and colleagues for the ultimate bragging rights!</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
+            @* 3. Current Competitions (dark — always shown) *@
             <div class="py-5 bg-purple-1000">
                 <div class="container px-4">
-                    <h2 class="text-center text-white fw-bold mb-5">Why Join Prediction League?</h2>
+                    <h2 class="text-center text-white fw-bold mb-5">Current Competitions</h2>
+
+                    @if (_seasons.Any())
+                    {
+                        <div class="competitions-rotator"
+                             @ontouchstart="HandleTouchStart" @ontouchmove="HandleTouchMove" @ontouchend="HandleTouchEnd">
+                            <div class="competitions-track" style="transform: translateX(-@(_currentIndex * 100)%);">
+                                @foreach (var season in _seasons)
+                                {
+                                    <div class="competitions-slide">
+                                        <div class="row align-items-center g-5">
+                                            <div class="col-lg-5 text-center">
+                                                <div class="competitions-slide__icon">
+                                                    @if (season.CompetitionType == 1)
+                                                    {
+                                                        <i class="bi bi-trophy-fill"></i>
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="bi bi-table"></i>
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-7 text-white">
+                                                <h3 class="competitions-slide__name fw-bold text-white">@season.Name</h3>
+
+                                                <div class="competitions-slide__dates text-white-50 mb-3">
+                                                    <i class="bi bi-calendar3 me-1"></i>
+                                                    @season.StartDateUtc.ToString("dd MMM yyyy") — @season.EndDateUtc.ToString("dd MMM yyyy")
+                                                </div>
+
+                                                <div class="competitions-slide__status mb-4">
+                                                    @if (season.IsInProgress == 1)
+                                                    {
+                                                        <span class="badge bg-green-600 text-purple-1000 fw-bold px-3 py-2">In Progress</span>
+                                                    }
+                                                    else if (season.IsUpcoming == 1)
+                                                    {
+                                                        <span class="badge bg-purple-300 text-white fw-bold px-3 py-2">Starting @season.StartDateUtc.ToString("dd MMM")</span>
+                                                    }
+                                                </div>
+
+                                                <div class="competitions-stats">
+                                                    <div class="competitions-stat">
+                                                        <div class="competitions-stat__value">@season.LeagueCount</div>
+                                                        <div class="competitions-stat__label">Leagues</div>
+                                                    </div>
+                                                    <div class="competitions-stat">
+                                                        <div class="competitions-stat__value">@season.PlayerCount</div>
+                                                        <div class="competitions-stat__label">Players</div>
+                                                    </div>
+                                                    @if (season.TotalPrizeFund > 0)
+                                                    {
+                                                        <div class="competitions-stat">
+                                                            <div class="competitions-stat__value">@((MarkupString)$"&pound;{season.TotalPrizeFund:0}")</div>
+                                                            <div class="competitions-stat__label">Prize Money</div>
+                                                        </div>
+                                                    }
+                                                </div>
+
+                                                <div class="competitions-slide__cta mt-4" style="visibility: @(season.IsUpcoming == 1 ? "visible" : "hidden")">
+                                                    <NavLink class="btn btn-lg green-button px-5" href="authentication/register">
+                                                        Register to Play
+                                                    </NavLink>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        @if (_seasons.Count > 1)
+                        {
+                            <div class="competitions-dots mt-4 text-center">
+                                @for (var i = 0; i < _seasons.Count; i++)
+                                {
+                                    var dotIndex = i;
+                                    <span class="carousel-dot @(i == _currentIndex ? "active" : "")" @onclick="() => GoToSlide(dotIndex)"></span>
+                                }
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center">
+                            <p class="text-white-50 fs-5 mb-4">Competitions coming soon — register now to be ready!</p>
+                            <NavLink class="btn btn-lg green-button px-5" href="authentication/register">
+                                Register Now
+                            </NavLink>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            @* 4. Boosts & Power-Ups (light) *@
+            <div class="home-section-light py-5">
+                <div class="container px-4">
+                    <h2 class="text-center fw-bold mb-5">Boosts & Power-Ups</h2>
+                    <div class="row align-items-center g-5">
+                        <div class="col-lg-7">
+                            <h3 class="fw-bold">Gain the Edge</h3>
+                            <p>Activate the <strong>Double Up</strong> boost on any round to multiply all your points by two. It's the ultimate strategic weapon — time it right and watch yourself rocket up the leaderboard.</p>
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><i class="bi bi-check-circle-fill tick-icon me-2"></i><strong>Double your points</strong> for an entire round</li>
+                                <li class="mb-2"><i class="bi bi-check-circle-fill tick-icon me-2"></i><strong>Limited uses</strong> per season — choose wisely</li>
+                                <li class="mb-2"><i class="bi bi-check-circle-fill tick-icon me-2"></i><strong>Outmanoeuvre your rivals</strong> at the perfect moment</li>
+                            </ul>
+                        </div>
+                        <div class="col-lg-5 text-center">
+                            <div class="boost-showcase">
+                                <div class="boost-showcase__glow"></div>
+                                <img src="/images/boosts/double-up-normal.png" alt="Double Up Boost" class="boost-showcase__image" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @* 5. Why Join (dark) *@
+            <div class="py-5 bg-purple-1000">
+                <div class="container px-4">
+                    <h2 class="text-center text-white fw-bold mb-5">Why Join The Predictions?</h2>
                     <div class="row align-items-center g-5">
                         <div class="col-lg-6">
                             <img src="https://images.pexels.com/photos/23495488/pexels-photo-23495488.jpeg" class="img-fluid rounded-3 shadow" alt="Friends cheering while watching football on TV" />
                         </div>
                         <div class="col-lg-6 text-white">
                             <h3 class="fw-bold text-white">It's More Than Just a Game</h3>
-                            <p>Prediction League adds an extra layer of excitement to every match. It's a season-long battle of wits, luck, and football passion.</p>
+                            <p>The Predictions adds an extra layer of excitement to every match. It's a season-long battle of wits, luck, and football passion.</p>
                             <ul class="list-unstyled">
                                 <li class="mb-2"><i class="bi bi-check-circle-fill tick-icon me-2"></i><strong>Free to Play:</strong> Jump into our official public leagues for free.</li>
                                 <li class="mb-2"><i class="bi bi-check-circle-fill tick-icon me-2"></i><strong>Private Leagues:</strong> Create your own private league with an entry fee and a custom prize structure.</li>
@@ -64,43 +195,47 @@
                 </div>
             </div>
 
-            <div class="container px-4 py-5">
-                <h2 class="text-center fw-bold mb-5">What Our Players Are Saying</h2>
-                <div class="row g-4">
-                    <div class="col-md-4">
-                        <div class="card testimonial-card text-white p-4 h-100">
-                            <div class="card-body text-center">
-                                <img src="https://randomuser.me/api/portraits/men/32.jpg" class="rounded-circle mb-3" alt="User testimonial photo">
-                                <p class="card-text fst-italic">"This has completely changed how I watch football on the weekend. Every match matters now!"</p>
-                                <footer class="blockquote-footer text-white-50 mt-3">Louis L, Northampton</footer>
+            @* 6. Testimonials (light) *@
+            <div class="home-section-light py-5">
+                <div class="container px-4">
+                    <h2 class="text-center fw-bold mb-5">What Our Players Are Saying</h2>
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="card testimonial-card text-white p-4 h-100">
+                                <div class="card-body text-center">
+                                    <img src="https://randomuser.me/api/portraits/men/32.jpg" class="rounded-circle mb-3" alt="User testimonial photo">
+                                    <p class="card-text fst-italic">"This has completely changed how I watch football on the weekend. Every match matters now!"</p>
+                                    <footer class="blockquote-footer text-white-50 mt-3">Louis L, Northampton</footer>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card testimonial-card text-white p-4 h-100">
-                            <div class="card-body text-center">
-                                <img src="https://randomuser.me/api/portraits/women/44.jpg" class="rounded-circle mb-3" alt="User testimonial photo">
-                                <p class="card-text fst-italic">"Our office league has never been more competitive. The banter is brilliant, and the platform is so easy to use."</p>
-                                <footer class="blockquote-footer text-white-50 mt-3">Mitch W, Kent</footer>
+                        <div class="col-md-4">
+                            <div class="card testimonial-card text-white p-4 h-100">
+                                <div class="card-body text-center">
+                                    <img src="https://randomuser.me/api/portraits/women/44.jpg" class="rounded-circle mb-3" alt="User testimonial photo">
+                                    <p class="card-text fst-italic">"Our office league has never been more competitive. The banter is brilliant, and the platform is so easy to use."</p>
+                                    <footer class="blockquote-footer text-white-50 mt-3">Mitch W, Kent</footer>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card testimonial-card text-white p-4 h-100">
-                            <div class="card-body text-center">
-                                <img src="https://randomuser.me/api/portraits/men/3.jpg" class="rounded-circle mb-3" alt="User testimonial photo">
-                                <p class="card-text fst-italic">"Finally beat my dad in our family league last season. Best feeling ever! Can't wait for the new season to start."</p>
-                                <footer class="blockquote-footer text-white-50 mt-3">Ross H, Kent</footer>
+                        <div class="col-md-4">
+                            <div class="card testimonial-card text-white p-4 h-100">
+                                <div class="card-body text-center">
+                                    <img src="https://randomuser.me/api/portraits/men/3.jpg" class="rounded-circle mb-3" alt="User testimonial photo">
+                                    <p class="card-text fst-italic">"Finally beat my dad in our family league last season. Best feeling ever! Can't wait for the new season to start."</p>
+                                    <footer class="blockquote-footer text-white-50 mt-3">Ross H, Kent</footer>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
+            @* 7. CTA (dark) *@
             <div class="py-5 bg-purple-1000">
                 <div class="container text-center text-white">
                     <h2 class="fw-bold text-white">Ready to Prove Your Punditry?</h2>
-                    <p class="fs-5 my-4 col-md-8 mx-auto">The new season is just around the corner. Create your account, join a league, and start making your predictions today!</p>
+                    <p class="fs-5 my-4 col-md-8 mx-auto">Create your account, join a league, and start making your predictions today!</p>
                     <NavLink class="btn btn-lg green-button px-5" href="authentication/register">Get Started for Free</NavLink>
                 </div>
             </div>
@@ -109,6 +244,11 @@
 </CascadingAuthenticationState>
 
 @code {
+    private List<HomepageSeasonDto> _seasons = [];
+    private int _currentIndex;
+    private System.Timers.Timer? _autoAdvanceTimer;
+    private double _touchStartX;
+
     protected override async Task OnInitializedAsync()
     {
         Logger.LogInformation("Home page has been loaded.");
@@ -117,6 +257,85 @@
 
         var user = authenticationState.User;
         if (user.Identity?.IsAuthenticated ?? false)
+        {
             NavigationManager.NavigateTo("/dashboard");
+            return;
+        }
+
+        await LoadSeasonsAsync();
+    }
+
+    private async Task LoadSeasonsAsync()
+    {
+        try
+        {
+            var result = await Http.GetFromJsonAsync<List<HomepageSeasonDto>>("api/homepage/seasons");
+            _seasons = result ?? [];
+
+            if (_seasons.Count > 1)
+            {
+                StartAutoAdvance();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Failed to load homepage seasons");
+            _seasons = [];
+        }
+    }
+
+    private void StartAutoAdvance()
+    {
+        _autoAdvanceTimer = new System.Timers.Timer(5000);
+        _autoAdvanceTimer.Elapsed += (_, _) =>
+        {
+            InvokeAsync(() =>
+            {
+                _currentIndex = (_currentIndex + 1) % _seasons.Count;
+                StateHasChanged();
+            });
+        };
+        _autoAdvanceTimer.AutoReset = true;
+        _autoAdvanceTimer.Start();
+    }
+
+    private void GoToSlide(int index)
+    {
+        if (index < 0 || index >= _seasons.Count)
+            return;
+
+        _currentIndex = index;
+        ResetAutoAdvance();
+    }
+
+    private void HandleTouchStart(TouchEventArgs e)
+    {
+        _touchStartX = e.Touches[0].ClientX;
+    }
+
+    private static void HandleTouchMove(TouchEventArgs e)
+    {
+    }
+
+    private void HandleTouchEnd(TouchEventArgs e)
+    {
+        var touchEndX = e.ChangedTouches[0].ClientX;
+        var diffX = _touchStartX - touchEndX;
+
+        if (!(Math.Abs(diffX) > 50))
+            return;
+
+        if (diffX > 0 && _currentIndex < _seasons.Count - 1)
+            _currentIndex++;
+        else if (diffX < 0 && _currentIndex > 0)
+            _currentIndex--;
+
+        ResetAutoAdvance();
+    }
+
+    private void ResetAutoAdvance()
+    {
+        _autoAdvanceTimer?.Stop();
+        _autoAdvanceTimer?.Start();
     }
 }
