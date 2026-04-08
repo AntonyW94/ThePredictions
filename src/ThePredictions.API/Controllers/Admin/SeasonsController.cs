@@ -86,6 +86,20 @@ public class SeasonsController(IMediator mediator, IFootballDataService football
         return Ok(season);
     }
 
+    [HttpGet("{seasonId:int}/has-predictions")]
+    [SwaggerOperation(
+        Summary = "Check if season has predictions",
+        Description = "Returns true if any match in the season has user predictions.")]
+    [SwaggerResponse(200, "Check completed", typeof(bool))]
+    public async Task<IActionResult> HasPredictionsAsync(
+        [SwaggerParameter("Season identifier")] int seasonId,
+        CancellationToken cancellationToken)
+    {
+        var query = new HasSeasonPredictionsQuery(seasonId);
+        var result = await mediator.Send(query, cancellationToken);
+        return Ok(result);
+    }
+
     [HttpGet("{seasonId:int}/tournament-mappings")]
     [SwaggerOperation(
         Summary = "Get tournament round mappings",
@@ -229,6 +243,29 @@ public class SeasonsController(IMediator mediator, IFootballDataService football
         CancellationToken cancellationToken)
     {
         var command = new UpdateSeasonStatusCommand(seasonId, isActive);
+        await mediator.Send(command, cancellationToken);
+
+        return NoContent();
+    }
+
+    #endregion
+
+    #region Delete
+
+    [HttpDelete("{seasonId:int}")]
+    [SwaggerOperation(
+        Summary = "Delete a season",
+        Description = "Permanently deletes a season and all associated rounds, matches, and leagues. Cannot delete a season that has predictions.")]
+    [SwaggerResponse(204, "Season deleted successfully")]
+    [SwaggerResponse(400, "Cannot delete - season has predictions")]
+    [SwaggerResponse(401, "Not authenticated")]
+    [SwaggerResponse(403, "Not authorised - admin role required")]
+    [SwaggerResponse(404, "Season not found")]
+    public async Task<IActionResult> DeleteSeasonAsync(
+        [SwaggerParameter("Season identifier")] int seasonId,
+        CancellationToken cancellationToken)
+    {
+        var command = new DeleteSeasonCommand(seasonId);
         await mediator.Send(command, cancellationToken);
 
         return NoContent();
