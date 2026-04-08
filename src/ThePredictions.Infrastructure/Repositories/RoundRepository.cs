@@ -23,6 +23,7 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
             [CustomLockTimeUtc],
             [Status],
             [ExternalId],
+            [MatchNumber],
             [PlaceholderHomeName],
             [PlaceholderAwayName],
             [ApiRoundName]
@@ -36,6 +37,7 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
             @CustomLockTimeUtc,
             @Status,
             @ExternalId,
+            @MatchNumber,
             @PlaceholderHomeName,
             @PlaceholderAwayName,
             @ApiRoundName
@@ -101,6 +103,7 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
             m.CustomLockTimeUtc,
             Status = m.Status.ToString(),
             m.ExternalId,
+            m.MatchNumber,
             m.PlaceholderHomeName,
             m.PlaceholderAwayName,
             m.ApiRoundName
@@ -362,6 +365,7 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
                     [MatchDateTimeUtc] = @MatchDateTimeUtc,
                     [CustomLockTimeUtc] = @CustomLockTimeUtc,
                     [ExternalId] = @ExternalId,
+                    [MatchNumber] = @MatchNumber,
                     [Status] = @Status,
                     [PlaceholderHomeName] = @PlaceholderHomeName,
                     [PlaceholderAwayName] = @PlaceholderAwayName,
@@ -378,6 +382,7 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
                 m.MatchDateTimeUtc,
                 m.CustomLockTimeUtc,
                 m.ExternalId,
+                m.MatchNumber,
                 Status = m.Status.ToString(),
                 m.PlaceholderHomeName,
                 m.PlaceholderAwayName,

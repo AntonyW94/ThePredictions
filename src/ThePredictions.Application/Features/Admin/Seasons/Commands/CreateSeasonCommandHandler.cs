@@ -115,6 +115,8 @@ public class CreateSeasonCommandHandler(
 
         await tournamentRoundMappingRepository.ReplaceAllForSeasonAsync(season.Id, mappings, cancellationToken);
 
+        var globalMatchNumber = 1;
+
         foreach (var mapping in mappings)
         {
             var stages = mapping.GetStageList();
@@ -132,19 +134,19 @@ public class CreateSeasonCommandHandler(
 
             var createdRound = await roundRepository.CreateAsync(round, cancellationToken);
 
-            var matchNumber = 1;
+            var localMatchNumber = 1;
             for (var i = 0; i < mapping.ExpectedMatchCount; i++)
             {
-                // For combined rounds, assign matches to stages proportionally
                 var stage = stages.Count == 1
                     ? stages[0]
                     : GetStageForMatchIndex(stages, i, mapping.ExpectedMatchCount);
 
-                var placeholderName = TournamentRoundNameParser.GetPlaceholderMatchName(stage, matchNumber);
+                var placeholderName = TournamentRoundNameParser.GetPlaceholderMatchName(stage, localMatchNumber);
                 var apiRoundNameForStage = TournamentRoundNameParser.GetDefaultDisplayName(stage);
 
-                createdRound.AddPlaceholderMatch(placeholderName, placeholderName, apiRoundNameForStage);
-                matchNumber++;
+                createdRound.AddPlaceholderMatch(placeholderName, placeholderName, apiRoundNameForStage, globalMatchNumber);
+                localMatchNumber++;
+                globalMatchNumber++;
             }
 
             await roundRepository.UpdateAsync(createdRound, cancellationToken);

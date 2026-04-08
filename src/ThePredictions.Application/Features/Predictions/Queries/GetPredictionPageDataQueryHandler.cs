@@ -17,17 +17,24 @@ public class GetPredictionPageDataQueryHandler(IApplicationReadDbConnection dbCo
                 r.[RoundNumber],
                 s.[Id] AS SeasonId,
                 s.[Name] AS SeasonName,
+                s.[CompetitionType],
                 r.[DeadlineUtc],
                 m.[Id] AS MatchId,
                 m.[MatchDateTimeUtc],
+                m.[MatchNumber],
+                m.[HomeTeamId],
                 ht.[Name] AS HomeTeamName,
                 ht.[ShortName] AS HomeTeamShortName,
                 ht.[Abbreviation] AS HomeTeamAbbreviation,
                 ht.[LogoUrl] AS HomeTeamLogoUrl,
+                m.[AwayTeamId],
                 at.[Name] AS AwayTeamName,
                 at.[ShortName] AS AwayTeamShortName,
-                at.[Abbreviation] AS AwayTeamAbbreviation, 
+                at.[Abbreviation] AS AwayTeamAbbreviation,
                 at.[LogoUrl] AS AwayTeamLogoUrl,
+                m.[PlaceholderHomeName],
+                m.[PlaceholderAwayName],
+                m.[CustomLockTimeUtc],
                 up.[PredictedHomeScore],
                 up.[PredictedAwayScore]
             FROM [Rounds] r
@@ -38,7 +45,7 @@ public class GetPredictionPageDataQueryHandler(IApplicationReadDbConnection dbCo
             LEFT JOIN [UserPredictions] up ON m.[Id] = up.[MatchId] AND up.[UserId] = @UserId
             WHERE r.[Id] = @RoundId
                 AND (m.[Status] IS NULL OR m.[Status] <> @PostponedStatus)
-            ORDER BY m.[MatchDateTimeUtc];";
+            ORDER BY m.[MatchDateTimeUtc], m.[MatchNumber];";
 
         var queryResult = await dbConnection.QueryAsync<PredictionPageQueryResult>(
             sql,
@@ -56,30 +63,31 @@ public class GetPredictionPageDataQueryHandler(IApplicationReadDbConnection dbCo
             return null;
 
         var firstRow = results.First();
+        var isTournament = firstRow.CompetitionType == (int)CompetitionType.Tournament;
 
         const string leaguesSql = @"
-            SELECT 
-                l.[Id] AS LeagueId, 
+            SELECT
+                l.[Id] AS LeagueId,
                 l.[Name],
                 CAST
                     (
                         CASE WHEN EXISTS (
                         SELECT 1
                         FROM [LeagueBoostRules] lbr
-                        WHERE 
+                        WHERE
                             lbr.[LeagueId] = l.[Id]
                             AND lbr.[IsEnabled] = 1
                         ) THEN 1 ELSE 0 END AS BIT
                     ) AS HasBoosts
-            FROM 
+            FROM
                 [Leagues] l
             JOIN
                 [LeagueMembers] lm ON lm.[LeagueId] = l.[Id]
-            WHERE 
+            WHERE
                 l.[SeasonId] = @SeasonId
                 AND lm.[UserId] = @UserId
                 AND lm.[Status] = @ApprovedStatus
-            ORDER BY 
+            ORDER BY
                 l.[Name];";
 
         var leagues = await dbConnection.QueryAsync<PredictionLeagueQueryResult>(
@@ -89,12 +97,12 @@ public class GetPredictionPageDataQueryHandler(IApplicationReadDbConnection dbCo
         );
 
         const string userBoostSql = @"
-            SELECT 
+            SELECT
                 ubu.[LeagueId],
                 bd.[Code] AS SelectedBoostCode
             FROM [UserBoostUsages] ubu
             JOIN [BoostDefinitions] bd ON bd.[Id] = ubu.[BoostDefinitionId]
-            WHERE 
+            WHERE
                 ubu.[UserId] = @UserId
                 AND ubu.[RoundId] = @RoundId;";
 
@@ -103,7 +111,7 @@ public class GetPredictionPageDataQueryHandler(IApplicationReadDbConnection dbCo
             cancellationToken,
             new { request.UserId, request.RoundId }
         );
-        
+
         var boostDictionary = boostUsages.ToDictionary(x => x.LeagueId, x => x.SelectedBoostCode);
 
         return new PredictionPageDto
@@ -113,27 +121,37 @@ public class GetPredictionPageDataQueryHandler(IApplicationReadDbConnection dbCo
             SeasonName = firstRow.SeasonName,
             DeadlineUtc = firstRow.DeadlineUtc,
             IsPastDeadline = firstRow.DeadlineUtc < DateTime.UtcNow,
+            IsTournament = isTournament,
             Matches = results
                 .Where(r => r.MatchId.HasValue)
-                .Select(r => new MatchPredictionDto
+                .Select(r =>
                 {
-                    MatchId = r.MatchId!.Value,
-                    MatchDateTimeUtc = r.MatchDateTimeUtc!.Value,
-                    HomeTeamName = r.HomeTeamName,
-                    HomeTeamShortName = r.HomeTeamShortName,
-                    HomeTeamAbbreviation = r.HomeTeamAbbreviation,
-                    HomeTeamLogoUrl = r.HomeTeamLogoUrl,
-                    AwayTeamName = r.AwayTeamName,
-                    AwayTeamShortName = r.AwayTeamShortName,
-                    AwayTeamAbbreviation = r.AwayTeamAbbreviation,
-                    AwayTeamLogoUrl = r.AwayTeamLogoUrl,
-                    PredictedHomeScore = r.PredictedHomeScore,
-                    PredictedAwayScore = r.PredictedAwayScore
+                    var teamsConfirmed = r.HomeTeamId.HasValue && r.AwayTeamId.HasValue;
+                    return new MatchPredictionDto
+                    {
+                        MatchId = r.MatchId!.Value,
+                        MatchDateTimeUtc = r.MatchDateTimeUtc!.Value,
+                        MatchNumber = r.MatchNumber,
+                        HomeTeamName = r.HomeTeamName,
+                        HomeTeamShortName = r.HomeTeamShortName,
+                        HomeTeamAbbreviation = r.HomeTeamAbbreviation,
+                        HomeTeamLogoUrl = r.HomeTeamLogoUrl,
+                        AwayTeamName = r.AwayTeamName,
+                        AwayTeamShortName = r.AwayTeamShortName,
+                        AwayTeamAbbreviation = r.AwayTeamAbbreviation,
+                        AwayTeamLogoUrl = r.AwayTeamLogoUrl,
+                        PlaceholderHomeName = r.PlaceholderHomeName,
+                        PlaceholderAwayName = r.PlaceholderAwayName,
+                        AreTeamsConfirmed = teamsConfirmed,
+                        CustomLockTimeUtc = r.CustomLockTimeUtc,
+                        PredictedHomeScore = r.PredictedHomeScore,
+                        PredictedAwayScore = r.PredictedAwayScore
+                    };
                 }).ToList(),
             Leagues = leagues
                 .Select(l => new PredictionLeagueDto
                 {
-                    LeagueId = l.LeagueId, 
+                    LeagueId = l.LeagueId,
                     Name = l.Name,
                     HasBoosts = l.HasBoosts,
                     SelectedBoostCode = boostDictionary.GetValueOrDefault(l.LeagueId)
@@ -147,17 +165,24 @@ public class GetPredictionPageDataQueryHandler(IApplicationReadDbConnection dbCo
         int RoundNumber,
         int SeasonId,
         string SeasonName,
+        int CompetitionType,
         DateTime DeadlineUtc,
         int? MatchId,
         DateTime? MatchDateTimeUtc,
-        string HomeTeamName,
-        string HomeTeamShortName,
-        string HomeTeamAbbreviation,
-        string HomeTeamLogoUrl,
-        string AwayTeamName,
-        string AwayTeamShortName,
-        string AwayTeamAbbreviation,
-        string AwayTeamLogoUrl,
+        int? MatchNumber,
+        int? HomeTeamId,
+        string? HomeTeamName,
+        string? HomeTeamShortName,
+        string? HomeTeamAbbreviation,
+        string? HomeTeamLogoUrl,
+        int? AwayTeamId,
+        string? AwayTeamName,
+        string? AwayTeamShortName,
+        string? AwayTeamAbbreviation,
+        string? AwayTeamLogoUrl,
+        string? PlaceholderHomeName,
+        string? PlaceholderAwayName,
+        DateTime? CustomLockTimeUtc,
         int? PredictedHomeScore,
         int? PredictedAwayScore
     );

@@ -94,9 +94,9 @@ public class Round
         _matches.Add(Match.Create(Id, homeTeamId, awayTeamId, matchTimeUtc, externalId));
     }
 
-    public void AddPlaceholderMatch(string placeholderHomeName, string placeholderAwayName, string apiRoundName)
+    public void AddPlaceholderMatch(string placeholderHomeName, string placeholderAwayName, string apiRoundName, int? matchNumber = null)
     {
-        _matches.Add(Match.CreatePlaceholder(Id, placeholderHomeName, placeholderAwayName, apiRoundName));
+        _matches.Add(Match.CreatePlaceholder(Id, placeholderHomeName, placeholderAwayName, apiRoundName, matchNumber));
     }
 
     public void AcceptMatch(Match match)

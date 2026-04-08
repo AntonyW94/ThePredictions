@@ -31,6 +31,7 @@ public class GetRoundByIdQueryHandler(IApplicationReadDbConnection dbConnection)
                 r.[Status],
                 m.[Id] AS MatchId,
                 m.[MatchDateTimeUtc],
+                m.[MatchNumber],
                 m.[HomeTeamId],
                 ht.[Name] AS HomeTeamName,
                 ht.[ShortName] AS HomeTeamShortName,
@@ -77,6 +78,7 @@ public class GetRoundByIdQueryHandler(IApplicationReadDbConnection dbConnection)
                 .Select(r => new MatchInRoundDto(
                     r.MatchId!.Value,
                     r.MatchDateTimeUtc!.Value,
+                    r.MatchNumber,
                     r.HomeTeamId,
                     r.HomeTeamName,
                     r.HomeTeamShortName,
@@ -107,6 +109,7 @@ public class GetRoundByIdQueryHandler(IApplicationReadDbConnection dbConnection)
         string Status,
         int? MatchId,
         DateTime? MatchDateTimeUtc,
+        int? MatchNumber,
         int? HomeTeamId,
         string HomeTeamName,
         string HomeTeamShortName,

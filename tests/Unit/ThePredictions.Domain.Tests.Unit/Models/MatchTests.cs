@@ -568,7 +568,7 @@ public class MatchTests
         var match = new Match(id: 1, roundId: 1, homeTeamId: 1, awayTeamId: 2,
             matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: customLockTime,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
+            externalId: null, matchNumber: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
 
         // Act
         var result = match.GetEffectiveDeadline(roundDeadline);
@@ -585,7 +585,7 @@ public class MatchTests
         var match = new Match(id: 1, roundId: 1, homeTeamId: 1, awayTeamId: 2,
             matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
+            externalId: null, matchNumber: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
 
         // Act
         var result = match.GetEffectiveDeadline(roundDeadline);
@@ -639,7 +639,7 @@ public class MatchTests
         var match = new Match(id: 1, roundId: 1, homeTeamId: 1, awayTeamId: 2,
             matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
+            externalId: null, matchNumber: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
 
         // Act & Assert
         match.AreTeamsConfirmed.Should().BeTrue();
@@ -652,7 +652,7 @@ public class MatchTests
         var match = new Match(id: 1, roundId: 1, homeTeamId: null, awayTeamId: 2,
             matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: "Winner Group A", placeholderAwayName: null,
+            externalId: null, matchNumber: null, placeholderHomeName: "Winner Group A", placeholderAwayName: null,
             apiRoundName: null);
 
         // Act & Assert
@@ -666,7 +666,7 @@ public class MatchTests
         var match = new Match(id: 1, roundId: 1, homeTeamId: 1, awayTeamId: null,
             matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: null, placeholderAwayName: "Runner-up Group B",
+            externalId: null, matchNumber: null, placeholderHomeName: null, placeholderAwayName: "Runner-up Group B",
             apiRoundName: null);
 
         // Act & Assert
@@ -684,7 +684,7 @@ public class MatchTests
         var match = new Match(id: 1, roundId: 1, homeTeamId: 10, awayTeamId: 20,
             matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: "Winner Group A", placeholderAwayName: "Winner Group B",
+            externalId: null, matchNumber: null, placeholderHomeName: "Winner Group A", placeholderAwayName: "Winner Group B",
             apiRoundName: null);
 
         // Act

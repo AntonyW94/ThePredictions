@@ -9,6 +9,7 @@ public class PredictionPageDto
     public string SeasonName { get; init; } = string.Empty;
     public DateTime DeadlineUtc { get; init; }
     public bool IsPastDeadline { get; init; }
+    public bool IsTournament { get; init; }
     public List<MatchPredictionDto> Matches { get; init; } = [];
     public List<PredictionLeagueDto> Leagues { get; init; } = [];
 }

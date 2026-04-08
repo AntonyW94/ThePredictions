@@ -121,8 +121,9 @@ Individual fixtures within a round.
 | ExternalId | int | YES | | External API match ID |
 | MatchDateTimeUtc | datetime2 | NO | | Kick-off time |
 | CustomLockTimeUtc | datetime2 | YES | | Per-match lock time (for tournaments) |
-| PlaceholderHomeName | nvarchar(100) | YES | | e.g., "Winner Group A" |
-| PlaceholderAwayName | nvarchar(100) | YES | | e.g., "Runner-up Group B" |
+| MatchNumber | int | YES | | Tournament match number (e.g., 1-104 for World Cup). Auto-assigned on creation, editable by admin. |
+| PlaceholderHomeName | nvarchar(100) | YES | | e.g., "Winner Match 73" |
+| PlaceholderAwayName | nvarchar(100) | YES | | e.g., "Winner Match 75" |
 | ApiRoundName | nvarchar(128) | YES | | Original API round name for this match (e.g., "Group Stage - 1") |
 
 **Constraints:**

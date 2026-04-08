@@ -456,7 +456,7 @@ public class RoundTests
         var match = new Match(id: 10, roundId: 1, homeTeamId: 1, awayTeamId: 2,
             matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
+            externalId: null, matchNumber: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
 
         // Act
         round.AcceptMatch(match);
@@ -477,7 +477,7 @@ public class RoundTests
         var match = new Match(id: 10, roundId: 1, homeTeamId: 1, awayTeamId: 2,
             matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
+            externalId: null, matchNumber: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
 
         // Act
         round.AcceptMatch(match);
@@ -493,7 +493,7 @@ public class RoundTests
         var match = new Match(id: 10, roundId: 1, homeTeamId: 1, awayTeamId: 2,
             matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
+            externalId: null, matchNumber: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
         var round = new Round(id: 5, seasonId: 1, roundNumber: 1, displayName: "Gameweek 1",
             startDateUtc: ValidStartDate, deadlineUtc: ValidDeadline,
             status: RoundStatus.Draft, apiRoundName: null,
@@ -503,7 +503,7 @@ public class RoundTests
         var duplicateMatch = new Match(id: 10, roundId: 2, homeTeamId: 3, awayTeamId: 4,
             matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
+            externalId: null, matchNumber: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
         var act = () => round.AcceptMatch(duplicateMatch);
 
         // Assert
@@ -521,11 +521,11 @@ public class RoundTests
         var match1 = new Match(id: 10, roundId: 1, homeTeamId: 1, awayTeamId: 2,
             matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
+            externalId: null, matchNumber: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
         var match2 = new Match(id: 11, roundId: 2, homeTeamId: 3, awayTeamId: 4,
             matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
+            externalId: null, matchNumber: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
 
         // Act
         round.AcceptMatch(match1);
@@ -546,7 +546,7 @@ public class RoundTests
         var match = new Match(id: 10, roundId: 1, homeTeamId: 1, awayTeamId: 2,
             matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
+            externalId: null, matchNumber: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
         var round = new Round(id: 1, seasonId: 1, roundNumber: 1, displayName: "Gameweek 1",
             startDateUtc: ValidStartDate, deadlineUtc: ValidDeadline,
             status: RoundStatus.Draft, apiRoundName: null, lastReminderSentUtc: null,
@@ -566,7 +566,7 @@ public class RoundTests
         var match = new Match(id: 10, roundId: 1, homeTeamId: 1, awayTeamId: 2,
             matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
+            externalId: null, matchNumber: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
         var round = new Round(id: 1, seasonId: 1, roundNumber: 1, displayName: "Gameweek 1",
             startDateUtc: ValidStartDate, deadlineUtc: ValidDeadline,
             status: RoundStatus.Draft, apiRoundName: null, lastReminderSentUtc: null,
@@ -586,11 +586,11 @@ public class RoundTests
         var match1 = new Match(id: 10, roundId: 1, homeTeamId: 1, awayTeamId: 2,
             matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
+            externalId: null, matchNumber: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
         var match2 = new Match(id: 11, roundId: 1, homeTeamId: 3, awayTeamId: 4,
             matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
+            externalId: null, matchNumber: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
         var round = new Round(id: 1, seasonId: 1, roundNumber: 1, displayName: "Gameweek 1",
             startDateUtc: ValidStartDate, deadlineUtc: ValidDeadline,
             status: RoundStatus.Draft, apiRoundName: null, lastReminderSentUtc: null,

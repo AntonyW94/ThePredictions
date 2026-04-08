@@ -22,14 +22,14 @@ public class PredictionDomainServiceTests
             matchDateTimeUtc: new DateTime(2025, 6, 20, 15, 0, 0, DateTimeKind.Utc),
             customLockTimeUtc: customLockTimeUtc,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
+            externalId: null, matchNumber: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
 
     private static Match CreatePlaceholderMatch(int id, int roundId) =>
         new(id: id, roundId: roundId, homeTeamId: null, awayTeamId: null,
             matchDateTimeUtc: DateTime.MaxValue,
             customLockTimeUtc: null,
             status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
-            externalId: null, placeholderHomeName: "TBC", placeholderAwayName: "TBC", apiRoundName: null);
+            externalId: null, matchNumber: null, placeholderHomeName: "TBC", placeholderAwayName: "TBC", apiRoundName: null);
 
     private Round CreateRoundWithFutureDeadline(List<Match>? matches = null) =>
         new(id: 1, seasonId: 1, roundNumber: 1, displayName: "Gameweek 1",

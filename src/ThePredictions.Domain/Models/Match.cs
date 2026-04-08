@@ -17,6 +17,7 @@ public class Match
     public int? ActualHomeTeamScore { get; private set; }
     public int? ActualAwayTeamScore { get; private set; }
     public int? ExternalId { get; private set; }
+    public int? MatchNumber { get; private set; }
     public string? PlaceholderHomeName { get; private set; }
     public string? PlaceholderAwayName { get; private set; }
     public string? ApiRoundName { get; private set; }
@@ -26,7 +27,7 @@ public class Match
     private Match() { }
 
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
-    public Match(int id, int roundId, int? homeTeamId, int? awayTeamId, DateTime matchDateTimeUtc, DateTime? customLockTimeUtc, MatchStatus status, int? actualHomeTeamScore, int? actualAwayTeamScore, int? externalId, string? placeholderHomeName, string? placeholderAwayName, string? apiRoundName)
+    public Match(int id, int roundId, int? homeTeamId, int? awayTeamId, DateTime matchDateTimeUtc, DateTime? customLockTimeUtc, MatchStatus status, int? actualHomeTeamScore, int? actualAwayTeamScore, int? externalId, int? matchNumber, string? placeholderHomeName, string? placeholderAwayName, string? apiRoundName)
     {
         Id = id;
         RoundId = roundId;
@@ -38,6 +39,7 @@ public class Match
         ActualHomeTeamScore = actualHomeTeamScore;
         ActualAwayTeamScore = actualAwayTeamScore;
         ExternalId = externalId;
+        MatchNumber = matchNumber;
         PlaceholderHomeName = placeholderHomeName;
         PlaceholderAwayName = placeholderAwayName;
         ApiRoundName = apiRoundName;
@@ -63,7 +65,7 @@ public class Match
         };
     }
 
-    public static Match CreatePlaceholder(int roundId, string placeholderHomeName, string placeholderAwayName, string apiRoundName)
+    public static Match CreatePlaceholder(int roundId, string placeholderHomeName, string placeholderAwayName, string apiRoundName, int? matchNumber = null)
     {
         Guard.Against.NegativeOrZero(roundId, parameterName: null, message: "Round ID must be greater than 0");
         Guard.Against.NullOrWhiteSpace(placeholderHomeName, message: "Placeholder home name is required");
@@ -78,6 +80,7 @@ public class Match
             CustomLockTimeUtc = null,
             Status = MatchStatus.Scheduled,
             ExternalId = null,
+            MatchNumber = matchNumber,
             PlaceholderHomeName = placeholderHomeName,
             PlaceholderAwayName = placeholderAwayName,
             ApiRoundName = apiRoundName

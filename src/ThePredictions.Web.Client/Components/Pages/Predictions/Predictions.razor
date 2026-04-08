@@ -45,45 +45,103 @@
                 <ApiSuccess Message="@_successMessage" />
 
                 <div class="prediction-grid">
-                    @foreach (var match in _pageData.Matches.OrderBy(m => m.MatchDateTimeUtc).ThenBy(m => m.HomeTeamShortName))
+                    @foreach (var match in GetSortedMatches())
                     {
-                        <div class="prediction-card">
+                        var isLocked = IsMatchLocked(match);
+                        var isTbc = !match.AreTeamsConfirmed;
+                        var isDisabled = _pageData.IsPastDeadline || isLocked || isTbc;
+
+                        <div class="prediction-card @(isTbc ? "prediction-card--tbc" : "") @(isLocked ? "prediction-card--locked" : "")">
                             <div class="prediction-card-header">
-                                <LocalTime UtcDate="@match.MatchDateTimeUtc" Format="dddd dd MMM yyyy 'at' HH:mm" />
+                                @if (_pageData.IsTournament && match.MatchNumber.HasValue)
+                                {
+                                    <span class="match-number-badge">@match.MatchNumber</span>
+                                }
+
+                                @if (isTbc)
+                                {
+                                    @if (match.MatchDateTimeUtc.Year == 9999)
+                                    {
+                                        <span class="text-white-50">Date TBC</span>
+                                    }
+                                    else
+                                    {
+                                        <LocalTime UtcDate="@match.MatchDateTimeUtc" Format="dddd dd MMM yyyy 'at' HH:mm" />
+                                    }
+                                }
+                                else
+                                {
+                                    <LocalTime UtcDate="@match.MatchDateTimeUtc" Format="dddd dd MMM yyyy 'at' HH:mm" />
+                                }
+
+                                @if (isLocked && !_pageData.IsPastDeadline)
+                                {
+                                    <span class="locked-badge"><i class="bi bi-lock-fill me-1"></i>Locked</span>
+                                }
+                                else if (!isTbc && !isLocked && match.CustomLockTimeUtc.HasValue && match.CustomLockTimeUtc.Value != _pageData.DeadlineUtc)
+                                {
+                                    <span class="custom-deadline-badge">
+                                        <i class="bi bi-alarm me-1"></i>Locks <LocalTime UtcDate="@match.CustomLockTimeUtc.Value" Format="dd MMM HH:mm" />
+                                    </span>
+                                }
                             </div>
-                            <div class="prediction-card-body">
-                                <div class="team-display">
-                                    <img src="@match.HomeTeamLogoUrl" class="match-logo" alt="Home Team Logo" />
-                                    <span class="team-name d-none d-sm-block">@match.HomeTeamName</span>
-                                    <span class="team-name d-sm-none">@match.HomeTeamAbbreviation</span>
-                                </div>
-                                <div class="score-input-group">
-                                    <div class="score-input-stepper">
-                                        <button type="button" class="stepper-btn" @onclick="() => UpdateScore(match, true, 1)" disabled="@_pageData.IsPastDeadline">
-                                            <span class="bi bi-caret-up-fill"></span>
-                                        </button>
-                                        <div class="score-value">@match.PredictedHomeScore</div>
-                                        <button type="button" class="stepper-btn" @onclick="() => UpdateScore(match, true, -1)" disabled="@_pageData.IsPastDeadline">
-                                            <span class="bi bi-caret-down-fill"></span>
-                                        </button>
+
+                            @if (isTbc)
+                            {
+                                <div class="prediction-card-body prediction-card-body--tbc">
+                                    <div class="team-display">
+                                        <div class="tbc-team-placeholder">
+                                            <span class="bi bi-question-circle"></span>
+                                        </div>
+                                        <span class="team-name">@(match.PlaceholderHomeName ?? "TBC")</span>
                                     </div>
-                                    <span class="vs-separator">-</span>
-                                    <div class="score-input-stepper">
-                                        <button type="button" class="stepper-btn" @onclick="() => UpdateScore(match, false, 1)" disabled="@_pageData.IsPastDeadline">
-                                            <span class="bi bi-caret-up-fill"></span>
-                                        </button>
-                                        <div class="score-value">@match.PredictedAwayScore</div>
-                                        <button type="button" class="stepper-btn" @onclick="() => UpdateScore(match, false, -1)" disabled="@_pageData.IsPastDeadline">
-                                            <span class="bi bi-caret-down-fill"></span>
-                                        </button>
+                                    <div class="score-input-group">
+                                        <span class="tbc-label">TBC</span>
+                                    </div>
+                                    <div class="team-display">
+                                        <div class="tbc-team-placeholder">
+                                            <span class="bi bi-question-circle"></span>
+                                        </div>
+                                        <span class="team-name">@(match.PlaceholderAwayName ?? "TBC")</span>
                                     </div>
                                 </div>
-                                <div class="team-display">
-                                    <img src="@match.AwayTeamLogoUrl" class="match-logo" alt="Away Team Logo" />
-                                    <span class="team-name d-none d-sm-block">@match.AwayTeamName</span>
-                                    <span class="team-name d-sm-none">@match.AwayTeamAbbreviation</span>
+                            }
+                            else
+                            {
+                                <div class="prediction-card-body">
+                                    <div class="team-display">
+                                        <img src="@match.HomeTeamLogoUrl" class="match-logo" alt="Home Team Logo" />
+                                        <span class="team-name d-none d-sm-block">@match.HomeTeamName</span>
+                                        <span class="team-name d-sm-none">@match.HomeTeamAbbreviation</span>
+                                    </div>
+                                    <div class="score-input-group">
+                                        <div class="score-input-stepper">
+                                            <button type="button" class="stepper-btn" @onclick="() => UpdateScore(match, true, 1)" disabled="@isDisabled">
+                                                <span class="bi bi-caret-up-fill"></span>
+                                            </button>
+                                            <div class="score-value">@match.PredictedHomeScore</div>
+                                            <button type="button" class="stepper-btn" @onclick="() => UpdateScore(match, true, -1)" disabled="@isDisabled">
+                                                <span class="bi bi-caret-down-fill"></span>
+                                            </button>
+                                        </div>
+                                        <span class="vs-separator">-</span>
+                                        <div class="score-input-stepper">
+                                            <button type="button" class="stepper-btn" @onclick="() => UpdateScore(match, false, 1)" disabled="@isDisabled">
+                                                <span class="bi bi-caret-up-fill"></span>
+                                            </button>
+                                            <div class="score-value">@match.PredictedAwayScore</div>
+                                            <button type="button" class="stepper-btn" @onclick="() => UpdateScore(match, false, -1)" disabled="@isDisabled">
+                                                <span class="bi bi-caret-down-fill"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="team-display">
+                                        <img src="@match.AwayTeamLogoUrl" class="match-logo" alt="Away Team Logo" />
+                                        <span class="team-name d-none d-sm-block">@match.AwayTeamName</span>
+                                        <span class="team-name d-sm-none">@match.AwayTeamAbbreviation</span>
+                                    </div>
                                 </div>
-                            </div>
+                            }
                         </div>
                     }
                 </div>
@@ -198,19 +256,21 @@
             _pageData = await Http.GetFromJsonAsync<PredictionPageDto>($"api/predictions/{RoundId}");
             if (_pageData != null)
             {
-                foreach (var match in _pageData.Matches)
+                foreach (var match in _pageData.Matches.Where(m => m.AreTeamsConfirmed))
                 {
                     match.PredictedHomeScore ??= 0;
                     match.PredictedAwayScore ??= 0;
                 }
 
                 _model.RoundId = _pageData.RoundId;
-                _model.Predictions = _pageData.Matches.Select(m => new PredictionSubmissionDto
-                (
-                    m.MatchId,
-                    m.PredictedHomeScore ?? 0,
-                    m.PredictedAwayScore ?? 0
-                )).ToList();
+                _model.Predictions = _pageData.Matches
+                    .Where(m => m.AreTeamsConfirmed)
+                    .Select(m => new PredictionSubmissionDto
+                    (
+                        m.MatchId,
+                        m.PredictedHomeScore ?? 0,
+                        m.PredictedAwayScore ?? 0
+                    )).ToList();
 
                 _initialBoostSelections = new Dictionary<int, string>();
                 _leaguesWithBoosts = _pageData.Leagues.Where(l => l.HasBoosts).ToList();
@@ -254,6 +314,25 @@
             _isLoading = false;
             _loadingBoostEligibility = false;
         }
+    }
+
+    private IEnumerable<MatchPredictionDto> GetSortedMatches()
+    {
+        if (_pageData == null)
+            return [];
+
+        return _pageData.IsTournament
+            ? _pageData.Matches.OrderBy(m => m.MatchNumber ?? int.MaxValue).ThenBy(m => m.MatchDateTimeUtc)
+            : _pageData.Matches.OrderBy(m => m.MatchDateTimeUtc).ThenBy(m => m.HomeTeamShortName);
+    }
+
+    private bool IsMatchLocked(MatchPredictionDto match)
+    {
+        if (!match.AreTeamsConfirmed)
+            return false;
+
+        var effectiveDeadline = match.CustomLockTimeUtc ?? _pageData!.DeadlineUtc;
+        return DateTime.UtcNow >= effectiveDeadline;
     }
 
     private string GetSelectedCode(int leagueId) => _boostSelections.GetValueOrDefault(leagueId, "None");
@@ -307,12 +386,14 @@
 
         if (_pageData != null)
         {
-            _model.Predictions = _pageData.Matches.Select(m => new PredictionSubmissionDto
-            (
-                m.MatchId,
-                m.PredictedHomeScore ?? 0,
-                m.PredictedAwayScore ?? 0
-            )).ToList();
+            _model.Predictions = _pageData.Matches
+                .Where(m => m.AreTeamsConfirmed)
+                .Select(m => new PredictionSubmissionDto
+                (
+                    m.MatchId,
+                    m.PredictedHomeScore ?? 0,
+                    m.PredictedAwayScore ?? 0
+                )).ToList();
         }
 
         try

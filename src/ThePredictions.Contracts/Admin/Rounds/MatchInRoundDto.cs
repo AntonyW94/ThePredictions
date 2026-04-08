@@ -5,6 +5,7 @@ namespace ThePredictions.Contracts.Admin.Rounds;
 public record MatchInRoundDto(
     int Id,
     DateTime MatchDateTimeUtc,
+    int? MatchNumber,
     int? HomeTeamId,
     string? HomeTeamName,
     string? HomeTeamShortName,
