@@ -4,6 +4,7 @@ public record MyLeagueDto(
     int Id,
     string Name,
     string SeasonName,
+    int CompetitionType,
 
     string CurrentRound,
     string CurrentMonth,

@@ -1,6 +1,7 @@
 @inject NavigationManager NavigationManager
 @inject IDashboardStateService DashboardState
 @inject IBrowserService BrowserService
+@inject IJSRuntime JsRuntime
 
 @using ThePredictions.Domain.Common.Enumerations
 @using ThePredictions.Web.Client.Services.Browser
@@ -98,7 +99,7 @@
                     </button>
                 }
 
-                <div class="carousel-track-wrapper">
+                <div class="carousel-track-wrapper" id="my-leagues-track-wrapper">
                     <div class="carousel-track" style="@_trackStyle">
                         @foreach (var league in DashboardState.MyLeagues)
                         {
@@ -107,7 +108,15 @@
                                     <div class="card slide">
                                         <div class="header">
                                             <h5 class="fw-bold text-white mb-0">@league.Name</h5>
-                                            <small class="text-white-50 fw-bold">@league.SeasonName</small>
+                                            <div class="d-flex align-items-center justify-content-center gap-2">
+                                                @if (league.CompetitionType == 1)
+                                                {
+                                                    <span class="competition-badge competition-badge--tournament" title="Tournament">
+                                                        <i class="bi bi-trophy-fill"></i>
+                                                    </span>
+                                                }
+                                                <small class="text-white-50 fw-bold">@league.SeasonName</small>
+                                            </div>
                                         </div>
 
                                         <div class="body pt-2 space-between">
@@ -273,6 +282,14 @@
             await DashboardState.LoadMyLeaguesAsync();
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (DashboardState.MyLeagues.Any())
+        {
+            await UpdateCarouselHeightAsync();
+        }
+    }
+
     private int NumberOfDots
     {
         get
@@ -298,7 +315,7 @@
     {
     }
 
-    private void HandleTouchEnd(TouchEventArgs e)
+    private async Task HandleTouchEnd(TouchEventArgs e)
     {
         var touchEndX = e.ChangedTouches[0].ClientX;
         var diffX = _touchStartX - touchEndX;
@@ -307,42 +324,49 @@
             return;
 
         if (diffX > 0)
-            ShowNext();
+            await ShowNext();
         else
-            ShowPrevious();
+            await ShowPrevious();
     }
 
-    private void GoToSlide(int index)
+    private async Task GoToSlide(int index)
     {
         if (index < 0 || index >= NumberOfDots)
             return;
 
         _currentIndex = index;
-        UpdateTrackStyle();
+        await UpdateTrackStyle();
     }
 
-    private void ShowPrevious()
+    private async Task ShowPrevious()
     {
         if (_currentIndex <= 0)
             return;
 
         _currentIndex--;
-        UpdateTrackStyle();
+        await UpdateTrackStyle();
     }
 
-    private void ShowNext()
+    private async Task ShowNext()
     {
         if (IsAtEnd())
             return;
 
         _currentIndex++;
-        UpdateTrackStyle();
+        await UpdateTrackStyle();
     }
 
-    private void UpdateTrackStyle()
+    private async Task UpdateTrackStyle()
     {
         var percentageToMove = _showTwoItems ? 50 : 100;
         _trackStyle = $"transform: translateX(-{_currentIndex * percentageToMove}%);";
+        await UpdateCarouselHeightAsync();
+    }
+
+    private async Task UpdateCarouselHeightAsync()
+    {
+        var itemsPerPage = _showTwoItems ? 2 : 1;
+        await JsRuntime.InvokeVoidAsync("blazorInterop.updateCarouselHeight", "my-leagues-track-wrapper", _currentIndex, itemsPerPage);
     }
 
     private bool IsAtEnd()
