@@ -83,7 +83,7 @@
 /* --- Financial Row Styles (use with .glass-panel) --- */
 .financial-row {
     display: flex;
-    border-radius: 0.5rem; /* Override glass-panel's 12px */
+    border-radius: var(--bs-border-radius);
     overflow: hidden;
     margin-bottom: 0.5rem;
 }

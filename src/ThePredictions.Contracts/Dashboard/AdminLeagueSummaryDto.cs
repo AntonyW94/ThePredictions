@@ -5,5 +5,8 @@ public record AdminLeagueSummaryDto(
     string LeagueName,
     DateTime EntryDeadlineUtc,
     int MemberCount,
-    int PendingCount
+    int PendingCount,
+    decimal Price,
+    bool IsFree,
+    string? EntryCode
 );

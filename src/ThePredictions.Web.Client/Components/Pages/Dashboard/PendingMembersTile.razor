@@ -1,4 +1,6 @@
 @inject IDashboardStateService DashboardState
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavigationManager
 
 @using ThePredictions.Web.Client.Services.Dashboard
 
@@ -17,145 +19,175 @@
             </div>
         </div>
     }
-    else
+    else if (DashboardState.AdminLeagues.Any())
     {
         var hasPending = DashboardState.PendingMembers.Any();
         var multipleLeagues = DashboardState.AdminLeagues.Count > 1;
         var showAllSlide = hasPending && multipleLeagues;
         var totalSlides = (showAllSlide ? 1 : 0) + DashboardState.AdminLeagues.Count;
 
-        <div class="pending-members-carousel">
-            <div class="pending-members-track" style="transform: translateX(-@(_currentIndex * 100)%);">
+        <div class="carousel-wrapper league-admin-carousel">
+            <div class="carousel-container">
+                <div class="carousel-track-wrapper">
+                    <div class="carousel-track" style="transform: translateX(-@(_currentIndex * 100)%);">
 
-                @* Slide 1: All pending requests (only when multiple leagues have pending) *@
-                @if (showAllSlide)
-                {
-                    <div class="pending-members-slide">
-                        <div class="text-center mb-3">
-                            <span class="badge bg-orange text-white">@DashboardState.PendingMembers.Count Pending</span>
-                        </div>
-                        <div class="pending-members-list">
-                            @{
-                                var groupedByLeague = DashboardState.PendingMembers
-                                    .GroupBy(m => new { m.LeagueId, m.LeagueName })
-                                    .ToList();
-                            }
-
-                            @foreach (var league in groupedByLeague)
-                            {
-                                @if (groupedByLeague.Count > 1)
-                                {
-                                    <small class="text-white-50 text-uppercase fw-bold d-block mb-2 mt-2">@league.Key.LeagueName</small>
-                                }
-
-                                @foreach (var member in league)
-                                {
-                                    <div class="pending-member-row">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div class="member-avatar member-avatar--sm">@member.MemberName[0]</div>
-                                            <div>
-                                                <div class="text-white fw-bold text-sm">@member.MemberName</div>
-                                                <small class="text-white-50 text-xs">Applied @FormatTimeAgo(member.JoinedAtUtc)</small>
+                        @if (showAllSlide)
+                        {
+                            <div class="carousel-item-wrapper">
+                                <div class="carousel-item-content">
+                                    <div class="card slide">
+                                        <div class="header">
+                                            <h5 class="fw-bold text-white">All Requests</h5>
+                                            <small class="text-white-50 fw-bold">@DashboardState.PendingMembers.Count pending</small>
+                                        </div>
+                                        <div class="body">
+                                            <div class="pending-members-list">
+                                                @{
+                                                    var grouped = DashboardState.PendingMembers
+                                                        .GroupBy(m => new { m.LeagueId, m.LeagueName })
+                                                        .ToList();
+                                                }
+                                                @foreach (var league in grouped)
+                                                {
+                                                    <small class="text-white-50 text-uppercase fw-bold d-block mb-2 mt-2">@league.Key.LeagueName</small>
+                                                    @foreach (var member in league)
+                                                    {
+                                                        <div class="pending-member-row">
+                                                            <div class="d-flex align-items-center gap-2">
+                                                                <div class="member-avatar member-avatar--sm">@member.MemberName[0]</div>
+                                                                <div>
+                                                                    <div class="text-white fw-bold text-sm">@member.MemberName</div>
+                                                                    <small class="text-white-50 text-xs">@FormatTimeAgo(member.JoinedAtUtc)</small>
+                                                                </div>
+                                                            </div>
+                                                            <div class="d-flex gap-2">
+                                                                <button class="btn btn-sm pending-member-approve" @onclick="() => Approve(member.LeagueId, member.UserId)" disabled="@_isProcessing">
+                                                                    <i class="bi bi-check-lg"></i>
+                                                                </button>
+                                                                <button class="btn btn-sm pending-member-reject" @onclick="() => Reject(member.LeagueId, member.UserId)" disabled="@_isProcessing">
+                                                                    <i class="bi bi-x-lg"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                }
                                             </div>
                                         </div>
-                                        <div class="d-flex gap-2">
-                                            <button class="btn btn-sm pending-member-approve" @onclick="() => Approve(member.LeagueId, member.UserId)" disabled="@_isProcessing">
-                                                <i class="bi bi-check-lg"></i>
-                                            </button>
-                                            <button class="btn btn-sm pending-member-reject" @onclick="() => Reject(member.LeagueId, member.UserId)" disabled="@_isProcessing">
-                                                <i class="bi bi-x-lg"></i>
-                                            </button>
-                                        </div>
                                     </div>
-                                }
-                            }
-                        </div>
-                    </div>
-                }
-
-                @* One slide per open league *@
-                @foreach (var league in DashboardState.AdminLeagues)
-                {
-                    var leaguePending = DashboardState.PendingMembers
-                        .Where(m => m.LeagueId == league.LeagueId)
-                        .ToList();
-
-                    <div class="pending-members-slide">
-                        <div class="d-flex flex-column align-items-center flex-grow-1">
-                            <h5 class="fw-bold text-white text-center mb-1">@league.LeagueName</h5>
-
-                            <div class="d-flex justify-content-center gap-4 mt-3">
-                                <div class="text-center">
-                                    <div class="fw-bold text-white fs-4">@league.MemberCount</div>
-                                    <small class="text-white-50 text-uppercase fw-bold text-xs">Members</small>
                                 </div>
-                                @if (league.PendingCount > 0)
-                                {
-                                    <div class="text-center">
-                                        <div class="fw-bold text-orange fs-4">@league.PendingCount</div>
-                                        <small class="text-white-50 text-uppercase fw-bold text-xs">Pending</small>
-                                    </div>
-                                }
                             </div>
+                        }
 
-                            @if (leaguePending.Any())
-                            {
-                                <div class="pending-members-list mt-3 w-100">
-                                    @foreach (var member in leaguePending)
-                                    {
-                                        <div class="pending-member-row">
-                                            <div class="d-flex align-items-center gap-2">
-                                                <div class="member-avatar member-avatar--sm">@member.MemberName[0]</div>
-                                                <div>
-                                                    <div class="text-white fw-bold text-sm">@member.MemberName</div>
-                                                    <small class="text-white-50 text-xs">Applied @FormatTimeAgo(member.JoinedAtUtc)</small>
+                        @foreach (var league in DashboardState.AdminLeagues)
+                        {
+                            var leaguePending = DashboardState.PendingMembers
+                                .Where(m => m.LeagueId == league.LeagueId)
+                                .ToList();
+
+                            <div class="carousel-item-wrapper">
+                                <div class="carousel-item-content">
+                                    <div class="card slide">
+                                        <div class="header">
+                                            <h5 class="fw-bold text-white">@league.LeagueName</h5>
+                                        </div>
+                                        <div class="body">
+                                            <div class="d-flex justify-content-center gap-3 mb-3">
+                                                <div class="glass-panel d-flex align-items-center gap-2 py-2 px-3">
+                                                    <i class="bi bi-people-fill text-white-50"></i>
+                                                    <span class="text-white fw-bold">@league.MemberCount @(league.MemberCount == 1 ? "member" : "members")</span>
                                                 </div>
+                                                @if (!league.IsFree)
+                                                {
+                                                    <div class="glass-panel d-flex align-items-center gap-2 py-2 px-3">
+                                                        <i class="bi bi-cash-stack text-green-600"></i>
+                                                        <span class="text-green-600 fw-bold">@((MarkupString)$"&pound;{league.Price:0.00}") entry</span>
+                                                    </div>
+                                                }
                                             </div>
-                                            <div class="d-flex gap-2">
-                                                <button class="btn btn-sm pending-member-approve" @onclick="() => Approve(member.LeagueId, member.UserId)" disabled="@_isProcessing">
-                                                    <i class="bi bi-check-lg"></i>
-                                                </button>
-                                                <button class="btn btn-sm pending-member-reject" @onclick="() => Reject(member.LeagueId, member.UserId)" disabled="@_isProcessing">
-                                                    <i class="bi bi-x-lg"></i>
+
+                                            @if (leaguePending.Any())
+                                            {
+                                                <div class="pending-members-list">
+                                                    @foreach (var member in leaguePending)
+                                                    {
+                                                        <div class="pending-member-row">
+                                                            <div class="d-flex align-items-center gap-2">
+                                                                <div class="member-avatar member-avatar--sm">@member.MemberName[0]</div>
+                                                                <div>
+                                                                    <div class="text-white fw-bold text-sm">@member.MemberName</div>
+                                                                    <small class="text-white-50 text-xs">@FormatTimeAgo(member.JoinedAtUtc)</small>
+                                                                </div>
+                                                            </div>
+                                                            <div class="d-flex gap-2">
+                                                                <button class="btn btn-sm pending-member-approve" @onclick="() => Approve(member.LeagueId, member.UserId)" disabled="@_isProcessing">
+                                                                    <i class="bi bi-check-lg"></i>
+                                                                </button>
+                                                                <button class="btn btn-sm pending-member-reject" @onclick="() => Reject(member.LeagueId, member.UserId)" disabled="@_isProcessing">
+                                                                    <i class="bi bi-x-lg"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1">
+                                                    <i class="bi bi-check-circle-fill text-green-600" style="font-size: 3rem;"></i>
+                                                    <p class="text-white-50 mt-2 mb-0">No pending requests</p>
+                                                </div>
+                                            }
+
+                                            <div class="mt-auto pt-3 d-flex flex-column gap-2">
+                                                @if (!string.IsNullOrEmpty(league.EntryCode))
+                                                {
+                                                    <div class="glass-panel d-flex align-items-center justify-content-between py-2 px-3">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <i class="bi bi-key-fill text-white-50"></i>
+                                                            <span class="text-white fw-bold font-monospace">@league.EntryCode</span>
+                                                        </div>
+                                                        <button class="btn btn-sm p-0 text-white-50" @onclick="() => CopyEntryCode(league.EntryCode)" title="Copy entry code">
+                                                            <i class="bi @(_copiedLeagueId == league.LeagueId ? "bi-check-lg text-green-600" : "bi-clipboard")"></i>
+                                                        </button>
+                                                    </div>
+                                                }
+
+                                                <div class="glass-panel d-flex align-items-center justify-content-center gap-2 py-2">
+                                                    <i class="bi bi-clock text-white-50"></i>
+                                                    <span class="text-white-50 fw-bold">Entry closes @league.EntryDeadlineUtc.ToString("dd MMM yyyy")</span>
+                                                </div>
+
+                                                <button class="btn purple-accent-button w-100" @onclick="() => ManageLeague(league.LeagueId)">
+                                                    <i class="bi bi-gear me-1"></i>Manage League
                                                 </button>
                                             </div>
                                         </div>
-                                    }
+                                    </div>
                                 </div>
-                            }
-                            else
-                            {
-                                <div class="mt-3 text-center">
-                                    <i class="bi bi-check-circle text-green-600" style="font-size: 1.5rem;"></i>
-                                    <p class="text-white-50 text-sm mt-1 mb-0">No pending requests</p>
-                                </div>
-                            }
-
-                            <small class="text-white-50 text-xs mt-3">
-                                <i class="bi bi-clock me-1"></i>Entry closes @league.EntryDeadlineUtc.ToString("dd MMM yyyy")
-                            </small>
-                        </div>
+                            </div>
+                        }
                     </div>
-                }
+                </div>
             </div>
-        </div>
 
-        @if (totalSlides > 1)
-        {
-            <div class="carousel-dots mt-3">
-                @for (var i = 0; i < totalSlides; i++)
-                {
-                    var dotIndex = i;
-                    <span class="carousel-dot @(i == _currentIndex ? "active" : "")" @onclick="() => GoToSlide(dotIndex)"></span>
-                }
-            </div>
-        }
+            @if (totalSlides > 1)
+            {
+                <div class="carousel-dots">
+                    @for (var i = 0; i < totalSlides; i++)
+                    {
+                        var dotIndex = i;
+                        <span class="carousel-dot @(i == _currentIndex ? "active" : "")" @onclick="() => GoToSlide(dotIndex)"></span>
+                    }
+                </div>
+            }
+        </div>
     }
 </div>
 
 @code {
     private int _currentIndex;
     private bool _isProcessing;
+    private int? _copiedLeagueId;
 
     protected override void OnInitialized()
     {
@@ -181,6 +213,25 @@
         await DashboardState.RejectMemberAsync(leagueId, userId);
         _isProcessing = false;
         _currentIndex = 0;
+    }
+
+    private async Task CopyEntryCode(string? entryCode)
+    {
+        if (string.IsNullOrEmpty(entryCode))
+            return;
+
+        await JsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", entryCode);
+        _copiedLeagueId = DashboardState.AdminLeagues.FirstOrDefault(l => l.EntryCode == entryCode)?.LeagueId;
+        StateHasChanged();
+
+        await Task.Delay(2000);
+        _copiedLeagueId = null;
+        StateHasChanged();
+    }
+
+    private void ManageLeague(int leagueId)
+    {
+        NavigationManager.NavigateTo($"/leagues/{leagueId}/edit");
     }
 
     private static string FormatTimeAgo(DateTime utcDate)

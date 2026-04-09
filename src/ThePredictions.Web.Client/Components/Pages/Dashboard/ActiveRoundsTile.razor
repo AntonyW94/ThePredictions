@@ -27,7 +27,7 @@
     }
     else
     {
-        <div class="carousel-wrapper carousel--multi-item">
+        <div class="carousel-wrapper @(_showTwoItems ? "carousel--multi-item" : "")">
             <div class="carousel-container" @ontouchstart="HandleTouchStart" @ontouchmove="HandleTouchMove" @ontouchend="HandleTouchEnd">
                 @{ var itemsPerPage = _showTwoItems ? 2 : 1; }
                 @if (DashboardState.ActiveRounds.Count > itemsPerPage)

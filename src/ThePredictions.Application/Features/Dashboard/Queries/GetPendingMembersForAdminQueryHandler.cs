@@ -18,7 +18,10 @@ public class GetPendingMembersForAdminQueryHandler(IApplicationReadDbConnection 
                 l.[Name] AS LeagueName,
                 l.[EntryDeadlineUtc],
                 (SELECT COUNT(*) FROM [LeagueMembers] lm WHERE lm.[LeagueId] = l.[Id] AND lm.[Status] = @ApprovedStatus) AS MemberCount,
-                (SELECT COUNT(*) FROM [LeagueMembers] lm WHERE lm.[LeagueId] = l.[Id] AND lm.[Status] = @PendingStatus) AS PendingCount
+                (SELECT COUNT(*) FROM [LeagueMembers] lm WHERE lm.[LeagueId] = l.[Id] AND lm.[Status] = @PendingStatus) AS PendingCount,
+                l.[Price],
+                l.[IsFree],
+                l.[EntryCode]
             FROM
                 [Leagues] l
             WHERE
