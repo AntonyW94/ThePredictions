@@ -110,6 +110,7 @@
     color: var(--purple-1000);
     border: 1px solid var(--grey-200);
     border-left: 0;
+    border-radius: 0 28px 28px 0;
     transition: color 0.2s ease-in-out;
 }
 
@@ -154,10 +155,11 @@
 .google-btn {
     background-color: var(--white);
     color: var(--black);
-    border: 1px solid var(--grey-200);
+    border: 2px solid var(--grey-300);
+    box-shadow: 0 1px 3px var(--black-alpha-15);
 }
 
     .google-btn:hover {
-        background-color: var(--grey-300);
-        border-color: var(--grey-300);
+        background-color: var(--purple-100);
+        border-color: var(--purple-300);
     }
