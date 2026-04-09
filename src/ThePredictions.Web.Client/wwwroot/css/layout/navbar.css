@@ -1,5 +1,23 @@
 /* Base: Extra-small mobile (< --breakpoint-phone-small) */
 
+/* Light theme navbar defaults */
+.navbar-custom {
+    background: var(--purple-100) !important;
+    border-bottom: 1px solid var(--grey-200);
+}
+
+.navbar-custom .navbar-brand span {
+    color: var(--purple-1000) !important;
+}
+
+.navbar-custom .navbar-toggler-icon {
+    filter: invert(1) brightness(0.3);
+}
+
+.navbar-custom .navbar-logo {
+    filter: drop-shadow(0 1px 3px var(--black-alpha-25));
+}
+
 .navbar-overlay {
     background-color: transparent !important;
     position: absolute;
@@ -27,7 +45,7 @@ a.navbar-brand span {
 
 .navbar-nav .nav-item .nav-link,
 .navbar-nav .nav-item .navbar-text {
-    color: var(--white) !important;
+    color: var(--purple-1000) !important;
     font-weight: 700;
 }
 
