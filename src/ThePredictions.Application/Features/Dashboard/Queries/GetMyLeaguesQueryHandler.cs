@@ -111,7 +111,7 @@ public class GetMyLeaguesQueryHandler(IApplicationReadDbConnection dbConnection)
             CASE WHEN ar.[RoundId] IS NOT NULL THEN DATENAME(MONTH, ar.[StartDateUtc]) ELSE NULL END AS CurrentMonth,
             ISNULL(lc.[MemberCount], 0) AS MemberCount,
 
-            stats.[OverallRank] AS Rank,
+            ISNULL(stats.[OverallRank], 1) AS Rank,
             armr.[ActiveMonthRank] AS MonthRank,
             CASE 
                 WHEN ar.[Status] = @PublishedStatus THEN 1                    
