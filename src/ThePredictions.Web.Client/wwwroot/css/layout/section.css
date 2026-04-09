@@ -13,9 +13,10 @@
 
 /* Section titles */
 .section > h3 {
-    font-size: 1.1rem;
+    font-size: 0.85rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
+    font-weight: 700;
     color: var(--purple-1000);
 }
 

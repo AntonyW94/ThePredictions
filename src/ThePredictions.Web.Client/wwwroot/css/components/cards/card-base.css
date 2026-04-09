@@ -47,6 +47,11 @@
     gap: 0.5rem;
 }
 
+/* Nested cards inside sections get a tinted background for contrast */
+.section .card {
+    background-color: var(--purple-100);
+}
+
 /* NO background variants - all cards use white */
 
 /* Card Sub-elements - ALL use same background as card (white) */
@@ -159,7 +164,7 @@
     }
 
     .card > .header h5 {
-        font-size: 1.25rem;
+        font-size: 1.1rem;
     }
 
     .card > .header span {
