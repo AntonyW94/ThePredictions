@@ -19,6 +19,8 @@ public interface ILeagueService
     Task<WinningsDto> GetWinningsAsync(int leagueId);
     Task<List<BoostUsageSummaryDto>> GetBoostUsageSummaryAsync(int leagueId);
     Task<bool> CheckForAvailablePrivateLeaguesAsync();
+    Task<PendingMembersResultDto> GetPendingMembersForAdminAsync();
+    Task UpdateMemberStatusAsync(int leagueId, string userId, string newStatus);
 
     Task<(bool Success, string? ErrorMessage)> JoinPublicLeagueAsync(int leagueId);
     Task<(bool Success, string? ErrorMessage)> JoinPrivateLeagueAsync(string entryCode);

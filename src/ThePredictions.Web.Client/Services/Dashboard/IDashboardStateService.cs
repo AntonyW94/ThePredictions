@@ -11,6 +11,8 @@ public interface IDashboardStateService
     List<LeagueLeaderboardDto> Leaderboards { get; }
     List<ActiveRoundDto> ActiveRounds { get; }
     List<LeagueRequestDto> PendingRequests { get; }
+    List<PendingLeagueMemberDto> PendingMembers { get; }
+    bool IsAdminOfOpenLeague { get; }
 
     bool HasAvailablePrivateLeagues { get; }
     bool IsMyLeaguesLoading { get; }
@@ -18,6 +20,7 @@ public interface IDashboardStateService
     bool IsLeaderboardsLoading { get; }
     bool IsActiveRoundsLoading { get; }
     bool IsPendingRequestsLoading { get; }
+    bool IsPendingMembersLoading { get; }
 
     string? MyLeaguesErrorMessage { get; }
     string? AvailableLeaguesErrorMessage { get; }
@@ -25,6 +28,7 @@ public interface IDashboardStateService
     string? ActiveRoundsErrorMessage { get; }
     string? ActiveRoundsSuccessMessage { get; }
     string? PendingRequestsErrorMessage { get; }
+    string? PendingMembersErrorMessage { get; }
 
     event Action OnStateChange;
 
@@ -33,6 +37,9 @@ public interface IDashboardStateService
     Task LoadLeaderboardsAsync();
     Task LoadActiveRoundsAsync();
     Task LoadPendingRequestsAsync();
+    Task LoadPendingMembersAsync();
+    Task ApproveMemberAsync(int leagueId, string userId);
+    Task RejectMemberAsync(int leagueId, string userId);
 
     Task JoinPublicLeagueAsync(int leagueId);
     Task CancelJoinRequestAsync(int leagueId);

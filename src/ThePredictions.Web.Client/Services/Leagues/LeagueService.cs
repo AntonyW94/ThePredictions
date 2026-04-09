@@ -107,6 +107,17 @@ public class LeagueService(HttpClient httpClient) : ILeagueService
         return await httpClient.GetFromJsonAsync<List<LeagueRequestDto>>("api/dashboard/pending-requests") ?? [];
     }
 
+    public async Task<PendingMembersResultDto> GetPendingMembersForAdminAsync()
+    {
+        return await httpClient.GetFromJsonAsync<PendingMembersResultDto>("api/dashboard/pending-members")
+               ?? new PendingMembersResultDto();
+    }
+
+    public async Task UpdateMemberStatusAsync(int leagueId, string userId, string newStatus)
+    {
+        await httpClient.PostAsJsonAsync($"api/leagues/{leagueId}/members/{userId}/status", newStatus);
+    }
+
     public async Task<(bool Success, string? ErrorMessage)> CancelJoinRequestAsync(int leagueId)
     {
         var response = await httpClient.DeleteAsync($"api/leagues/{leagueId}/join-request");

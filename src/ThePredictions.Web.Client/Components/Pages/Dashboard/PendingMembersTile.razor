@@ -1,0 +1,111 @@
+@inject IDashboardStateService DashboardState
+
+@using ThePredictions.Web.Client.Services.Dashboard
+
+@implements IAsyncDisposable
+
+<div class="section h-100">
+    <h3 class="text-white text-center fw-bold mb-4">Pending Members</h3>
+
+    <ApiError Message="@DashboardState.PendingMembersErrorMessage" />
+
+    @if (DashboardState.IsPendingMembersLoading)
+    {
+        <div class="d-flex justify-content-center align-items-center flex-grow-1">
+            <div class="spinner-border text-white" role="status">
+                <span class="visually-hidden">Loading pending members...</span>
+            </div>
+        </div>
+    }
+    else if (!DashboardState.PendingMembers.Any())
+    {
+        <div class="text-center py-4">
+            <i class="bi bi-check-circle text-green-600" style="font-size: 2rem;"></i>
+            <p class="text-white-50 mt-2 mb-0">No pending requests</p>
+        </div>
+    }
+    else
+    {
+        <div class="pending-members-list">
+            @{
+                var groupedByLeague = DashboardState.PendingMembers
+                    .GroupBy(m => new { m.LeagueId, m.LeagueName })
+                    .ToList();
+            }
+
+            @foreach (var league in groupedByLeague)
+            {
+                @if (groupedByLeague.Count > 1)
+                {
+                    <small class="text-white-50 text-uppercase fw-bold d-block mb-2">@league.Key.LeagueName</small>
+                }
+
+                @foreach (var member in league)
+                {
+                    <div class="pending-member-row">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="member-avatar member-avatar--sm">@member.MemberName[0]</div>
+                            <div>
+                                <div class="text-white fw-bold text-sm">@member.MemberName</div>
+                                <small class="text-white-50 text-xs">Applied @FormatTimeAgo(member.JoinedAtUtc)</small>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm pending-member-approve" @onclick="() => Approve(member.LeagueId, member.UserId)" disabled="@_isProcessing">
+                                <i class="bi bi-check-lg"></i>
+                            </button>
+                            <button class="btn btn-sm pending-member-reject" @onclick="() => Reject(member.LeagueId, member.UserId)" disabled="@_isProcessing">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private bool _isProcessing;
+
+    protected override void OnInitialized()
+    {
+        DashboardState.OnStateChange += StateHasChanged;
+    }
+
+    private async Task Approve(int leagueId, string userId)
+    {
+        _isProcessing = true;
+        await DashboardState.ApproveMemberAsync(leagueId, userId);
+        _isProcessing = false;
+    }
+
+    private async Task Reject(int leagueId, string userId)
+    {
+        _isProcessing = true;
+        await DashboardState.RejectMemberAsync(leagueId, userId);
+        _isProcessing = false;
+    }
+
+    private static string FormatTimeAgo(DateTime utcDate)
+    {
+        var elapsed = DateTime.UtcNow - utcDate;
+
+        if (elapsed.TotalMinutes < 60)
+            return $"{(int)elapsed.TotalMinutes}m ago";
+
+        if (elapsed.TotalHours < 24)
+            return $"{(int)elapsed.TotalHours}h ago";
+
+        if (elapsed.TotalDays < 7)
+            return $"{(int)elapsed.TotalDays}d ago";
+
+        return utcDate.ToString("dd MMM");
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        DashboardState.OnStateChange -= StateHasChanged;
+        return ValueTask.CompletedTask;
+    }
+}

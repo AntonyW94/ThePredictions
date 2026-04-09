@@ -75,6 +75,18 @@ public class DashboardController(IMediator mediator) : ApiControllerBase
         return Ok(await mediator.Send(query, cancellationToken));
     }
 
+    [HttpGet("pending-members")]
+    [SwaggerOperation(
+        Summary = "Get pending members for admin",
+        Description = "Returns pending league membership requests for leagues the current user administers where the entry deadline has not passed.")]
+    [SwaggerResponse(200, "Pending members retrieved successfully", typeof(PendingMembersResultDto))]
+    [SwaggerResponse(401, "Not authenticated")]
+    public async Task<ActionResult<PendingMembersResultDto>> GetPendingMembersAsync(CancellationToken cancellationToken)
+    {
+        var query = new GetPendingMembersForAdminQuery(CurrentUserId);
+        return Ok(await mediator.Send(query, cancellationToken));
+    }
+
     [HttpGet("pending-requests")]
     [SwaggerOperation(
         Summary = "Get pending join requests",
