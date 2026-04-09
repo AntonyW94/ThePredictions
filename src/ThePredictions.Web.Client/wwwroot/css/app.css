@@ -52,6 +52,9 @@
 @import url('themes/light/tabs.css');
 @import url('themes/light/match-editor.css');
 
+/* Dark theme override (scoped under .theme-dark) */
+@import url('themes/dark/dark.css');
+
 /* Page-specific styles */
 @import url('pages/dashboard.css');
 @import url('pages/home.css');
