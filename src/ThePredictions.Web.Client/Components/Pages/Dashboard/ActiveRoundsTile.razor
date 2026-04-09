@@ -72,6 +72,9 @@
 </div>
 
 @code {
+    [Parameter]
+    public bool IsHalfWidth { get; set; }
+
     private int _currentIndex;
     private double _touchStartX;
     private string _trackStyle = "transform: translateX(0%);";
@@ -80,7 +83,8 @@
     protected override async Task OnInitializedAsync()
     {
         DashboardState.OnStateChange += StateHasChanged;
-        _showTwoItems = await BrowserService.IsTabletOrAbove();
+        var isTabletOrAbove = await BrowserService.IsTabletOrAbove();
+        _showTwoItems = isTabletOrAbove && !IsHalfWidth;
 
         if (!DashboardState.ActiveRounds.Any())
             await DashboardState.LoadActiveRoundsAsync();
