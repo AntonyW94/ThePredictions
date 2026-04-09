@@ -110,7 +110,7 @@
     color: var(--purple-1000);
     border: 1px solid var(--grey-200);
     border-left: 0;
-    border-radius: 0 28px 28px 0;
+    border-radius: 0 var(--bs-border-radius) var(--bs-border-radius) 0;
     transition: color 0.2s ease-in-out;
 }
 

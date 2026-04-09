@@ -81,7 +81,7 @@
     background: var(--purple-1000);
     border: 1px solid var(--white);
     color: var(--white);
-    border-radius: 28px;
+    border-radius: var(--bs-border-radius);
 }
 
 .theme-dark .form-control:focus {
