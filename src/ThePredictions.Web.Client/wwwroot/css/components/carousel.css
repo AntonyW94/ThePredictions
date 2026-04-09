@@ -49,6 +49,7 @@
     color: var(--purple-1000);
     font-size: 2rem;
     padding: 0 1rem;
+    display: none;
 }
 
 .carousel-btn:disabled {
@@ -79,6 +80,10 @@
 
 /* Tablet and up (--breakpoint-tablet: 768px) */
 @media (min-width: 768px) {
+    .carousel-btn {
+        display: block;
+    }
+
     .carousel-item-wrapper {
         padding: 0 0.3125rem;
     }
