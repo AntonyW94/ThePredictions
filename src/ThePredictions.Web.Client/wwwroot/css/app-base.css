@@ -11,6 +11,44 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 700;
 }
 
+/* ============================================
+   LIGHT THEME TEXT OVERRIDES
+   Cards, sections, and glass panels now have light backgrounds.
+   Override .text-white utilities within these containers so text
+   is visible. The .theme-dark class restores white text.
+   ============================================ */
+
+.card .text-white,
+.section .text-white,
+.glass-panel .text-white,
+.form-container .text-white {
+    color: var(--purple-1000) !important;
+}
+
+.card .text-white-50,
+.section .text-white-50,
+.glass-panel .text-white-50,
+.form-container .text-white-50 {
+    color: var(--grey-500) !important;
+}
+
+.card .spinner-border.text-white,
+.section .spinner-border.text-white {
+    color: var(--purple-300) !important;
+}
+
+/* Horizontal rules inside light containers */
+.card hr.text-white,
+.section hr.text-white {
+    color: var(--grey-200) !important;
+    opacity: 1;
+}
+
+/* Collapse icons inside sections */
+.section .collapse-icon.text-white {
+    color: var(--purple-1000) !important;
+}
+
 #blazor-error-ui {
     background: var(--yellow);
     color: var(--purple-900);

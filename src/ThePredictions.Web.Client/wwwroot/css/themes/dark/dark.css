@@ -429,3 +429,38 @@
 .theme-dark .shadow {
     box-shadow: 0 8px 20px var(--black-alpha-35), inset 0 0 0 1px var(--white-alpha-05) !important;
 }
+
+/* ============================================
+   TEXT UTILITY RESTORES
+   Undo the light-theme .text-white overrides
+   from app-base.css within dark containers.
+   ============================================ */
+
+.theme-dark .card .text-white,
+.theme-dark .section .text-white,
+.theme-dark .glass-panel .text-white,
+.theme-dark .form-container .text-white {
+    color: var(--white) !important;
+}
+
+.theme-dark .card .text-white-50,
+.theme-dark .section .text-white-50,
+.theme-dark .glass-panel .text-white-50,
+.theme-dark .form-container .text-white-50 {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.theme-dark .card .spinner-border.text-white,
+.theme-dark .section .spinner-border.text-white {
+    color: var(--white) !important;
+}
+
+.theme-dark .card hr.text-white,
+.theme-dark .section hr.text-white {
+    color: var(--white) !important;
+    opacity: 0.25;
+}
+
+.theme-dark .section .collapse-icon.text-white {
+    color: var(--white) !important;
+}
