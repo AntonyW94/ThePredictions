@@ -18,7 +18,7 @@ public class GetPendingMembersForAdminQueryHandler(IApplicationReadDbConnection 
             FROM
                 [Leagues] l
             WHERE
-                l.[AdministratorId] = @UserId
+                l.[AdministratorUserId] = @UserId
                 AND l.[EntryDeadlineUtc] >= GETUTCDATE()";
 
         var adminLeagueCount = await dbConnection.QuerySingleOrDefaultAsync<int>(
@@ -46,7 +46,7 @@ public class GetPendingMembersForAdminQueryHandler(IApplicationReadDbConnection 
             JOIN
                 [AspNetUsers] u ON lm.[UserId] = u.[Id]
             WHERE
-                l.[AdministratorId] = @UserId
+                l.[AdministratorUserId] = @UserId
                 AND l.[EntryDeadlineUtc] >= GETUTCDATE()
                 AND lm.[Status] = @PendingStatus
             ORDER BY
