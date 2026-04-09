@@ -19,7 +19,7 @@
     }
 
     .results-grid th {
-        background-color: var(--grey-100);
+        background-color: var(--purple-50);
         font-weight: bold;
         position: sticky;
         top: 0;
@@ -31,7 +31,7 @@
         min-width: 3.75rem;
         position: sticky;
         left: 0;
-        background-color: var(--grey-100);
+        background-color: var(--purple-50);
         font-weight: bold;
     }
 
@@ -64,7 +64,7 @@
     }
 
     .results-grid tfoot th {
-        background-color: var(--grey-100);
+        background-color: var(--purple-50);
         font-size: 1.2rem;
         position: sticky;
         bottom: 0;

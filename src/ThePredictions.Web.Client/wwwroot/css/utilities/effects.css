@@ -108,13 +108,13 @@
    TABLE STRIPING
    ============================================ */
 
-/* Subtle alternation — grey-100 is distinct from both white and purple-100 */
+/* Subtle purple-tinted alternation — purple-50 sits between white and purple-100 */
 .table-striped-purple tbody tr:nth-child(odd) td {
     background-color: var(--white);
 }
 
 .table-striped-purple tbody tr:nth-child(even) td {
-    background-color: var(--grey-100);
+    background-color: var(--purple-50);
 }
 
 /* ============================================
