@@ -72,10 +72,11 @@
 
 /* Dashboard leaderboard - scrollable container */
 .leaderboard-scroll-container {
-    max-height: 20rem;
     overflow-y: auto;
     border-radius: var(--bs-border-radius);
     width: 100%;
+    flex: 1 1 0;
+    min-height: 0;
 }
 
 /* Custom scrollbar styling for webkit browsers */
@@ -127,6 +128,23 @@
 .leaderboard-month-select:focus {
     outline: none;
     border-color: var(--green-600);
+}
+
+/* Dashboard leaderboard tile — flex chain so scroll container fills remaining space */
+.section .carousel-wrapper {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.section .carousel-item-content > .card {
+    flex: 1 1 0;
+    min-height: 0;
+}
+
+.section .body.leaderboard-body {
+    flex: 1 1 0;
+    min-height: 0;
 }
 
 /* Mobile/tablet padding for leaderboard body */

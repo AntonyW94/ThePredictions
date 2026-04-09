@@ -56,7 +56,6 @@
     background-color: var(--purple-600);
     color: var(--white);
     border: none;
-    border-left: none;
     box-shadow: 0 8px 20px var(--black-alpha-35), inset 0 0 0 1px var(--white-alpha-05);
 }
 
