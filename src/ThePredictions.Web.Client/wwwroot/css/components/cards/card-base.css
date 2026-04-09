@@ -50,6 +50,12 @@
 /* Nested cards inside sections get a tinted background for contrast */
 .section .card {
     background-color: var(--purple-100);
+    border-color: transparent;
+    box-shadow: none;
+}
+
+.section .card > .footer {
+    border-top-color: transparent;
 }
 
 /* NO background variants - all cards use white */
@@ -69,10 +75,9 @@
 }
 
 .card > .header h5 {
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     margin-bottom: 0.5rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.02em;
     color: var(--purple-1000);
 }
 
@@ -165,7 +170,7 @@
     }
 
     .card > .header h5 {
-        font-size: 0.85rem;
+        font-size: 1.05rem;
     }
 
     .card > .header span {
