@@ -21,19 +21,22 @@ h1, h2, h3, h4, h5, h6 {
 .card .text-white,
 .section .text-white,
 .glass-panel .text-white,
-.form-container .text-white {
+.form-container .text-white,
+.dashboard-container .text-white {
     color: var(--purple-1000) !important;
 }
 
 .card .text-white-50,
 .section .text-white-50,
 .glass-panel .text-white-50,
-.form-container .text-white-50 {
+.form-container .text-white-50,
+.dashboard-container .text-white-50 {
     color: var(--grey-500) !important;
 }
 
 .card .spinner-border.text-white,
-.section .spinner-border.text-white {
+.section .spinner-border.text-white,
+.dashboard-container .spinner-border.text-white {
     color: var(--purple-300) !important;
 }
 

@@ -3,6 +3,25 @@
     overflow-x: auto;
 }
 
+/* Custom scrollbar for results grid */
+.results-grid-container::-webkit-scrollbar {
+    height: 0.5rem;
+}
+
+.results-grid-container::-webkit-scrollbar-track {
+    background: var(--purple-50);
+    border-radius: 0.25rem;
+}
+
+.results-grid-container::-webkit-scrollbar-thumb {
+    background: var(--grey-400);
+    border-radius: 0.25rem;
+}
+
+.results-grid-container::-webkit-scrollbar-thumb:hover {
+    background: var(--grey-500);
+}
+
 .results-grid {
     border-collapse: collapse;
     width: 100%;
@@ -55,7 +74,7 @@
 
     .results-grid .not-predicted-icon {
         font-size: 1.5rem;
-        color: var(--grey-100);
+        color: var(--grey-300);
     }
 
     .results-grid .match-info .match-logo-small {

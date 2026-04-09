@@ -11,8 +11,11 @@
     box-shadow: 0 1px 3px var(--black-alpha-15);
 }
 
-/* Section titles — category labels, larger than card titles */
-.section > h3 {
+/* Section titles — category labels */
+.section > h3,
+.section > h5,
+.section > .section-header-collapsible h5,
+.section > div > h5 {
     font-size: 1.1rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
