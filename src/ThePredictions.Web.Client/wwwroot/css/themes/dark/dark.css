@@ -186,11 +186,15 @@
    ============================================ */
 
 .theme-dark .table-striped-purple tbody tr:nth-child(odd) td {
-    background-color: var(--purple-700);
+    background-color: var(--purple-800);
 }
 
 .theme-dark .table-striped-purple tbody tr:nth-child(even) td {
-    background-color: var(--purple-800);
+    background-color: var(--purple-700);
+}
+
+.theme-dark .card .glass-panel {
+    background: radial-gradient(circle at center, var(--white-alpha-02) 0%, var(--white-alpha-08) 100%);
 }
 
 .theme-dark .leaderboard-table {

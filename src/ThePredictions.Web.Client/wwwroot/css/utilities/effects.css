@@ -99,17 +99,22 @@
     box-shadow: 0 1px 3px var(--black-alpha-15);
 }
 
+/* Inside purple-100 cards, glass panels need white to contrast */
+.card .glass-panel {
+    background: var(--white);
+}
+
 /* ============================================
    TABLE STRIPING
    ============================================ */
 
-/* Purple variant - Body rows use light purples to contrast with white header */
+/* Purple variant - Subtle alternation on light backgrounds */
 .table-striped-purple tbody tr:nth-child(odd) td {
-    background-color: var(--purple-100);
+    background-color: var(--white);
 }
 
 .table-striped-purple tbody tr:nth-child(even) td {
-    background-color: var(--white);
+    background-color: var(--purple-100);
 }
 
 /* ============================================
