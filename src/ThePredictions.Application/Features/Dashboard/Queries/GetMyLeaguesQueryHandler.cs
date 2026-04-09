@@ -20,6 +20,7 @@ public class GetMyLeaguesQueryHandler(IApplicationReadDbConnection dbConnection)
                 s.[Id] AS SeasonId,
                 s.[Name] AS SeasonName,
                 s.[CompetitionType],
+                s.[StartDateUtc] AS SeasonStartDateUtc,
                 lm.[UserId],
                 lm.[Status]
             FROM [LeagueMembers] lm
@@ -104,6 +105,7 @@ public class GetMyLeaguesQueryHandler(IApplicationReadDbConnection dbConnection)
             l.[LeagueName] AS Name,
             l.[SeasonName],
             l.[CompetitionType],
+            l.[SeasonStartDateUtc],
 
             CASE WHEN ar.[RoundId] IS NOT NULL THEN 'Round ' + CAST(ar.[RoundNumber] AS VARCHAR(10)) ELSE NULL END AS CurrentRound,
             CASE WHEN ar.[RoundId] IS NOT NULL THEN DATENAME(MONTH, ar.[StartDateUtc]) ELSE NULL END AS CurrentMonth,

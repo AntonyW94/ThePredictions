@@ -27,8 +27,23 @@ public class GetLeagueDashboardQueryHandler(IApplicationReadDbConnection dbConne
                 return null;
         }
         
-        var leagueName = await dbConnection.QuerySingleOrDefaultAsync<string>("SELECT [Name] FROM [Leagues] WHERE [Id] = @LeagueId", cancellationToken, new { request.LeagueId });
-        if (leagueName == null) 
+        const string leagueSql = @"
+            SELECT
+                l.[Name],
+                s.[CompetitionType],
+                s.[StartDateUtc],
+                (SELECT COUNT(*) FROM [LeagueMembers] lm WHERE lm.[LeagueId] = l.[Id] AND lm.[Status] = @ApprovedStatus) AS MemberCount,
+                COALESCE(l.[PrizeFundOverride], l.[Price] * (SELECT COUNT(*) FROM [LeagueMembers] lm WHERE lm.[LeagueId] = l.[Id] AND lm.[Status] = @ApprovedStatus)) AS TotalPrizeFund
+            FROM
+                [Leagues] l
+            JOIN
+                [Seasons] s ON l.[SeasonId] = s.[Id]
+            WHERE
+                l.[Id] = @LeagueId";
+
+        var leagueInfo = await dbConnection.QuerySingleOrDefaultAsync<(string Name, int CompetitionType, DateTime StartDateUtc, int MemberCount, decimal TotalPrizeFund)>(
+            leagueSql, cancellationToken, new { request.LeagueId, ApprovedStatus = nameof(LeagueMemberStatus.Approved) });
+        if (leagueInfo == default)
             return null;
 
         const string roundsSql = @"
@@ -62,7 +77,11 @@ public class GetLeagueDashboardQueryHandler(IApplicationReadDbConnection dbConne
 
         return new LeagueDashboardDto
         {
-            LeagueName = leagueName,
+            LeagueName = leagueInfo.Name,
+            CompetitionType = leagueInfo.CompetitionType,
+            SeasonStartDateUtc = leagueInfo.StartDateUtc,
+            MemberCount = leagueInfo.MemberCount,
+            TotalPrizeFund = leagueInfo.TotalPrizeFund,
             ViewableRounds = rounds.ToList()
         };
     }

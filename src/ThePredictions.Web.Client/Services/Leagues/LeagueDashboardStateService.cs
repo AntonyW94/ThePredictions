@@ -10,6 +10,10 @@ public class LeagueDashboardStateService(HttpClient httpClient)
     public event Action? OnStateChange;
 
     public string? LeagueName { get; private set; }
+    public int CompetitionType { get; private set; }
+    public DateTime? SeasonStartDateUtc { get; private set; }
+    public int MemberCount { get; private set; }
+    public decimal TotalPrizeFund { get; private set; }
     public List<RoundDto> ViewableRounds { get; private set; } = [];
     public List<PredictionResultDto> CurrentRoundResults { get; private set; } = [];
     public List<MatchInRoundDto> CurrentRoundMatches { get; private set; } = [];
@@ -35,6 +39,10 @@ public class LeagueDashboardStateService(HttpClient httpClient)
             if (data != null)
             {
                 LeagueName = data.LeagueName;
+                CompetitionType = data.CompetitionType;
+                SeasonStartDateUtc = data.SeasonStartDateUtc;
+                MemberCount = data.MemberCount;
+                TotalPrizeFund = data.TotalPrizeFund;
                 ViewableRounds = data.ViewableRounds;
 
                 if (ViewableRounds.Any())
