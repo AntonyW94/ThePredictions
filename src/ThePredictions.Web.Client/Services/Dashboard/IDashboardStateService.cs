@@ -12,6 +12,7 @@ public interface IDashboardStateService
     List<ActiveRoundDto> ActiveRounds { get; }
     List<LeagueRequestDto> PendingRequests { get; }
     List<PendingLeagueMemberDto> PendingMembers { get; }
+    List<AdminLeagueSummaryDto> AdminLeagues { get; }
     bool IsAdminOfOpenLeague { get; }
 
     bool HasAvailablePrivateLeagues { get; }

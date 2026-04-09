@@ -84,7 +84,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        DashboardState.OnStateChange += OnStateChanged;
+        DashboardState.OnStateChange += StateHasChanged;
         _isTabletOrAbove = await BrowserService.IsTabletOrAbove();
         _showTwoItems = _isTabletOrAbove && !IsHalfWidth;
 
@@ -92,10 +92,9 @@
             await DashboardState.LoadActiveRoundsAsync();
     }
 
-    private void OnStateChanged()
+    protected override void OnParametersSet()
     {
         _showTwoItems = _isTabletOrAbove && !IsHalfWidth;
-        StateHasChanged();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

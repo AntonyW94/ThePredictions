@@ -167,9 +167,9 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="row g-2 mb-3">
-                                                    <div class="col-6">
-                                                        <div class="glass-panel secondary-rank-box">
+                                                <div class="row g-2 mb-3 flex-grow-1">
+                                                    <div class="col-6 d-flex">
+                                                        <div class="glass-panel secondary-rank-box w-100">
                                                             <small class="text-uppercase text-white fw-bold d-block mb-1 text-xs">@league.CurrentRound</small>
                                                             @if (league.RoundRank.HasValue)
                                                             {
@@ -198,8 +198,8 @@
                                                         </div>
                                                     </div>
 
-                                                    <div class="col-6">
-                                                        <div class="glass-panel secondary-rank-box">
+                                                    <div class="col-6 d-flex">
+                                                        <div class="glass-panel secondary-rank-box w-100">
                                                             <small class="text-uppercase text-white fw-bold d-block mb-1 text-xs">@league.CurrentMonth</small>
                                                             @if (league.MonthRank.HasValue)
                                                             {

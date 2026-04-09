@@ -12,19 +12,32 @@ public class GetPendingMembersForAdminQueryHandler(IApplicationReadDbConnection 
         GetPendingMembersForAdminQuery request,
         CancellationToken cancellationToken)
     {
-        const string adminCheckSql = @"
+        const string leaguesSql = @"
             SELECT
-                COUNT(*)
+                l.[Id] AS LeagueId,
+                l.[Name] AS LeagueName,
+                l.[EntryDeadlineUtc],
+                (SELECT COUNT(*) FROM [LeagueMembers] lm WHERE lm.[LeagueId] = l.[Id] AND lm.[Status] = @ApprovedStatus) AS MemberCount,
+                (SELECT COUNT(*) FROM [LeagueMembers] lm WHERE lm.[LeagueId] = l.[Id] AND lm.[Status] = @PendingStatus) AS PendingCount
             FROM
                 [Leagues] l
             WHERE
                 l.[AdministratorUserId] = @UserId
-                AND l.[EntryDeadlineUtc] >= GETUTCDATE()";
+                AND l.[EntryDeadlineUtc] >= GETUTCDATE()
+            ORDER BY
+                l.[Name]";
 
-        var adminLeagueCount = await dbConnection.QuerySingleOrDefaultAsync<int>(
-            adminCheckSql, cancellationToken, new { request.UserId });
+        var adminLeagues = (await dbConnection.QueryAsync<AdminLeagueSummaryDto>(
+            leaguesSql,
+            cancellationToken,
+            new
+            {
+                request.UserId,
+                ApprovedStatus = nameof(LeagueMemberStatus.Approved),
+                PendingStatus = nameof(LeagueMemberStatus.Pending)
+            })).ToList();
 
-        if (adminLeagueCount == 0)
+        if (!adminLeagues.Any())
         {
             return new PendingMembersResultDto
             {
@@ -65,6 +78,7 @@ public class GetPendingMembersForAdminQueryHandler(IApplicationReadDbConnection 
         return new PendingMembersResultDto
         {
             IsAdminOfOpenLeague = true,
+            AdminLeagues = adminLeagues,
             Members = members.ToList()
         };
     }

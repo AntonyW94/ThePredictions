@@ -13,6 +13,7 @@ public class DashboardStateService(ILeagueService leagueService) : IDashboardSta
     public List<ActiveRoundDto> ActiveRounds { get; private set; } = [];
     public List<LeagueRequestDto> PendingRequests { get; private set; } = [];
     public List<PendingLeagueMemberDto> PendingMembers { get; private set; } = [];
+    public List<AdminLeagueSummaryDto> AdminLeagues { get; private set; } = [];
     public bool IsAdminOfOpenLeague { get; private set; }
 
     public bool HasAvailablePrivateLeagues { get; private set; }
@@ -214,6 +215,7 @@ public class DashboardStateService(ILeagueService leagueService) : IDashboardSta
         {
             var result = await leagueService.GetPendingMembersForAdminAsync();
             IsAdminOfOpenLeague = result.IsAdminOfOpenLeague;
+            AdminLeagues = result.AdminLeagues;
             PendingMembers = result.Members;
         }
         catch

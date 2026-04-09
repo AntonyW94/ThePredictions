@@ -5,7 +5,7 @@
 @implements IAsyncDisposable
 
 <div class="section h-100">
-    <h3 class="text-white text-center fw-bold mb-4">Pending Members</h3>
+    <h3 class="text-white text-center fw-bold mb-4">League Admin</h3>
 
     <ApiError Message="@DashboardState.PendingMembersErrorMessage" />
 
@@ -13,59 +13,148 @@
     {
         <div class="d-flex justify-content-center align-items-center flex-grow-1">
             <div class="spinner-border text-white" role="status">
-                <span class="visually-hidden">Loading pending members...</span>
+                <span class="visually-hidden">Loading...</span>
             </div>
-        </div>
-    }
-    else if (!DashboardState.PendingMembers.Any())
-    {
-        <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1">
-            <i class="bi bi-check-circle text-green-600" style="font-size: 3.5rem;"></i>
-            <p class="text-white-50 mt-3 mb-0">No pending requests</p>
         </div>
     }
     else
     {
-        <div class="pending-members-list">
-            @{
-                var groupedByLeague = DashboardState.PendingMembers
-                    .GroupBy(m => new { m.LeagueId, m.LeagueName })
-                    .ToList();
-            }
+        var hasPending = DashboardState.PendingMembers.Any();
+        var multipleLeagues = DashboardState.AdminLeagues.Count > 1;
+        var showAllSlide = hasPending && multipleLeagues;
+        var totalSlides = (showAllSlide ? 1 : 0) + DashboardState.AdminLeagues.Count;
 
-            @foreach (var league in groupedByLeague)
-            {
-                @if (groupedByLeague.Count > 1)
-                {
-                    <small class="text-white-50 text-uppercase fw-bold d-block mb-2">@league.Key.LeagueName</small>
-                }
+        <div class="pending-members-carousel">
+            <div class="pending-members-track" style="transform: translateX(-@(_currentIndex * 100)%);">
 
-                @foreach (var member in league)
+                @* Slide 1: All pending requests (only when multiple leagues have pending) *@
+                @if (showAllSlide)
                 {
-                    <div class="pending-member-row">
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="member-avatar member-avatar--sm">@member.MemberName[0]</div>
-                            <div>
-                                <div class="text-white fw-bold text-sm">@member.MemberName</div>
-                                <small class="text-white-50 text-xs">Applied @FormatTimeAgo(member.JoinedAtUtc)</small>
-                            </div>
+                    <div class="pending-members-slide">
+                        <div class="text-center mb-3">
+                            <span class="badge bg-orange text-white">@DashboardState.PendingMembers.Count Pending</span>
                         </div>
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-sm pending-member-approve" @onclick="() => Approve(member.LeagueId, member.UserId)" disabled="@_isProcessing">
-                                <i class="bi bi-check-lg"></i>
-                            </button>
-                            <button class="btn btn-sm pending-member-reject" @onclick="() => Reject(member.LeagueId, member.UserId)" disabled="@_isProcessing">
-                                <i class="bi bi-x-lg"></i>
-                            </button>
+                        <div class="pending-members-list">
+                            @{
+                                var groupedByLeague = DashboardState.PendingMembers
+                                    .GroupBy(m => new { m.LeagueId, m.LeagueName })
+                                    .ToList();
+                            }
+
+                            @foreach (var league in groupedByLeague)
+                            {
+                                @if (groupedByLeague.Count > 1)
+                                {
+                                    <small class="text-white-50 text-uppercase fw-bold d-block mb-2 mt-2">@league.Key.LeagueName</small>
+                                }
+
+                                @foreach (var member in league)
+                                {
+                                    <div class="pending-member-row">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="member-avatar member-avatar--sm">@member.MemberName[0]</div>
+                                            <div>
+                                                <div class="text-white fw-bold text-sm">@member.MemberName</div>
+                                                <small class="text-white-50 text-xs">Applied @FormatTimeAgo(member.JoinedAtUtc)</small>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-sm pending-member-approve" @onclick="() => Approve(member.LeagueId, member.UserId)" disabled="@_isProcessing">
+                                                <i class="bi bi-check-lg"></i>
+                                            </button>
+                                            <button class="btn btn-sm pending-member-reject" @onclick="() => Reject(member.LeagueId, member.UserId)" disabled="@_isProcessing">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                            }
                         </div>
                     </div>
                 }
-            }
+
+                @* One slide per open league *@
+                @foreach (var league in DashboardState.AdminLeagues)
+                {
+                    var leaguePending = DashboardState.PendingMembers
+                        .Where(m => m.LeagueId == league.LeagueId)
+                        .ToList();
+
+                    <div class="pending-members-slide">
+                        <div class="d-flex flex-column align-items-center flex-grow-1">
+                            <h5 class="fw-bold text-white text-center mb-1">@league.LeagueName</h5>
+
+                            <div class="d-flex justify-content-center gap-4 mt-3">
+                                <div class="text-center">
+                                    <div class="fw-bold text-white fs-4">@league.MemberCount</div>
+                                    <small class="text-white-50 text-uppercase fw-bold text-xs">Members</small>
+                                </div>
+                                @if (league.PendingCount > 0)
+                                {
+                                    <div class="text-center">
+                                        <div class="fw-bold text-orange fs-4">@league.PendingCount</div>
+                                        <small class="text-white-50 text-uppercase fw-bold text-xs">Pending</small>
+                                    </div>
+                                }
+                            </div>
+
+                            @if (leaguePending.Any())
+                            {
+                                <div class="pending-members-list mt-3 w-100">
+                                    @foreach (var member in leaguePending)
+                                    {
+                                        <div class="pending-member-row">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="member-avatar member-avatar--sm">@member.MemberName[0]</div>
+                                                <div>
+                                                    <div class="text-white fw-bold text-sm">@member.MemberName</div>
+                                                    <small class="text-white-50 text-xs">Applied @FormatTimeAgo(member.JoinedAtUtc)</small>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex gap-2">
+                                                <button class="btn btn-sm pending-member-approve" @onclick="() => Approve(member.LeagueId, member.UserId)" disabled="@_isProcessing">
+                                                    <i class="bi bi-check-lg"></i>
+                                                </button>
+                                                <button class="btn btn-sm pending-member-reject" @onclick="() => Reject(member.LeagueId, member.UserId)" disabled="@_isProcessing">
+                                                    <i class="bi bi-x-lg"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="mt-3 text-center">
+                                    <i class="bi bi-check-circle text-green-600" style="font-size: 1.5rem;"></i>
+                                    <p class="text-white-50 text-sm mt-1 mb-0">No pending requests</p>
+                                </div>
+                            }
+
+                            <small class="text-white-50 text-xs mt-3">
+                                <i class="bi bi-clock me-1"></i>Entry closes @league.EntryDeadlineUtc.ToString("dd MMM yyyy")
+                            </small>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
+
+        @if (totalSlides > 1)
+        {
+            <div class="carousel-dots mt-3">
+                @for (var i = 0; i < totalSlides; i++)
+                {
+                    var dotIndex = i;
+                    <span class="carousel-dot @(i == _currentIndex ? "active" : "")" @onclick="() => GoToSlide(dotIndex)"></span>
+                }
+            </div>
+        }
     }
 </div>
 
 @code {
+    private int _currentIndex;
     private bool _isProcessing;
 
     protected override void OnInitialized()
@@ -73,11 +162,17 @@
         DashboardState.OnStateChange += StateHasChanged;
     }
 
+    private void GoToSlide(int index)
+    {
+        _currentIndex = index;
+    }
+
     private async Task Approve(int leagueId, string userId)
     {
         _isProcessing = true;
         await DashboardState.ApproveMemberAsync(leagueId, userId);
         _isProcessing = false;
+        _currentIndex = 0;
     }
 
     private async Task Reject(int leagueId, string userId)
@@ -85,6 +180,7 @@
         _isProcessing = true;
         await DashboardState.RejectMemberAsync(leagueId, userId);
         _isProcessing = false;
+        _currentIndex = 0;
     }
 
     private static string FormatTimeAgo(DateTime utcDate)
