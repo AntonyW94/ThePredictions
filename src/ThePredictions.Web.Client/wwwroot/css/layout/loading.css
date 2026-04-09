@@ -8,15 +8,15 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: var(--purple-800);
-    color: var(--white);
+    background-color: var(--purple-100);
+    color: var(--purple-1000);
     z-index: 9999;
 }
 
     .app-loading-container .spinner {
-        border: 0.25rem solid var(--white-alpha-30);
+        border: 0.25rem solid var(--grey-200);
         border-radius: 50%;
-        border-top: 0.25rem solid var(--green-600);
+        border-top: 0.25rem solid var(--purple-300);
         width: 2.5rem;
         height: 2.5rem;
         animation: spin 1s linear infinite;

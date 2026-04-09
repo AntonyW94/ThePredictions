@@ -46,7 +46,7 @@
 .carousel-btn {
     background: transparent;
     border: none;
-    color: var(--white);
+    color: var(--purple-1000);
     font-size: 2rem;
     padding: 0 1rem;
 }
@@ -66,7 +66,7 @@
     height: 0.75rem;
     width: 0.75rem;
     margin: 0 0.3125rem;
-    background-color: var(--purple-800);
+    background-color: var(--grey-300);
     border-radius: 50%;
     display: inline-block;
     transition: background-color 0.3s ease;

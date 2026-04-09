@@ -8,15 +8,17 @@
 }
 
 .prediction-card {
-    background-color: var(--purple-600);
+    background-color: var(--white);
     border-radius: var(--bs-border-radius);
     overflow: hidden;
-    color: var(--white);
-    box-shadow: 0 8px 20px var(--black-alpha-35), inset 0 0 0 1px var(--white-alpha-05);
+    color: var(--purple-1000);
+    border: 1px solid var(--grey-200);
+    box-shadow: 0 1px 3px var(--black-alpha-15);
 }
 
 .prediction-card-header {
-    background-color: var(--purple-800);
+    background-color: var(--white);
+    border-bottom: 1px solid var(--grey-200);
     padding: 0.75rem 1.5rem;
     text-align: center;
     font-weight: bold;
@@ -25,10 +27,11 @@
     align-items: center;
     font-size: 0.8rem;
     flex-direction: column;
+    color: var(--purple-1000);
 }
 
 .prediction-card-body {
-    background-color: var(--purple-600);
+    background-color: var(--white);
     padding: 0.5rem;
     display: flex;
     align-items: center;
@@ -117,7 +120,7 @@
 .stepper-btn {
     background: none;
     border: none;
-    color: var(--white);
+    color: var(--purple-300);
     font-size: 1.5rem;
     line-height: 1;
     cursor: pointer;
@@ -196,7 +199,7 @@
 }
 
 .prediction-card-body--tbc {
-    background-color: var(--purple-600);
+    background-color: var(--white);
     padding: 0.5rem;
     display: flex;
     align-items: center;
@@ -207,18 +210,18 @@
     width: 2.5rem;
     height: 2.5rem;
     border-radius: 50%;
-    background: var(--purple-800);
+    background: var(--grey-200);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.25rem;
-    color: var(--white-alpha-50);
+    color: var(--grey-500);
 }
 
 .tbc-label {
     font-weight: bold;
     font-size: 1.25rem;
-    color: var(--white-alpha-50);
+    color: var(--grey-500);
     letter-spacing: 0.1em;
 }
 

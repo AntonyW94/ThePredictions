@@ -3,7 +3,7 @@
 .leaderboard-table {
     border-collapse: collapse;
     width: 100%;
-    color: var(--white);
+    color: var(--purple-1000);
     font-size: 0.9rem;
     table-layout: fixed;
 }
@@ -12,12 +12,12 @@
 .leaderboard-table td {
     padding: 0.75rem;
     text-align: center;
-    border-bottom: 1px solid var(--purple-800);
+    border-bottom: 1px solid var(--grey-200);
     white-space: nowrap;
 }
 
 .leaderboard-table th {
-    background-color: var(--purple-900);
+    background-color: var(--purple-100);
     font-weight: bold;
     position: sticky;
     top: 0;
@@ -25,7 +25,7 @@
 }
 
 .leaderboard-table td {
-    background: var(--purple-700);
+    background: var(--white);
 }
 
 /* Striping now handled by .table-striped-purple utility */
@@ -84,17 +84,17 @@
 }
 
 .leaderboard-scroll-container::-webkit-scrollbar-track {
-    background: var(--purple-900);
+    background: var(--grey-200);
     border-radius: 0.25rem;
 }
 
 .leaderboard-scroll-container::-webkit-scrollbar-thumb {
-    background: var(--purple-300);
+    background: var(--grey-400);
     border-radius: 0.25rem;
 }
 
 .leaderboard-scroll-container::-webkit-scrollbar-thumb:hover {
-    background: var(--purple-200);
+    background: var(--grey-500);
 }
 
 /* Month selector dropdown */
@@ -109,9 +109,9 @@
     font-family: inherit;
     font-size: 0.9rem;
     font-weight: 600;
-    color: var(--white);
-    background-color: var(--purple-800);
-    border: 1px solid var(--purple-300);
+    color: var(--purple-1000);
+    background-color: var(--white);
+    border: 1px solid var(--grey-200);
     border-radius: 12px;
     appearance: none;
     -webkit-appearance: none;

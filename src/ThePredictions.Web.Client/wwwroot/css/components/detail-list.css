@@ -30,7 +30,7 @@
 .detail-row code {
     font-size: 1rem;
     font-weight: bold;
-    color: var(--white);
+    color: var(--purple-1000);
 }
 
 .detail-row.centered {
