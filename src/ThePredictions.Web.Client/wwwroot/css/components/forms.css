@@ -23,6 +23,9 @@
 
 .form-container.extra-wide {
     max-width: 1200px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
 }
 
 .form-check-input {
