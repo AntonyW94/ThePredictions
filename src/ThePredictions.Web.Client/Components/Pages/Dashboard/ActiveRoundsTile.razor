@@ -29,7 +29,8 @@
     {
         <div class="carousel-wrapper carousel--multi-item">
             <div class="carousel-container" @ontouchstart="HandleTouchStart" @ontouchmove="HandleTouchMove" @ontouchend="HandleTouchEnd">
-                @if (_showTwoItems && DashboardState.ActiveRounds.Count > 2)
+                @{ var itemsPerPage = _showTwoItems ? 2 : 1; }
+                @if (DashboardState.ActiveRounds.Count > itemsPerPage)
                 {
                     <button class="carousel-btn" @onclick="ShowPrevious" disabled="@(_currentIndex == 0)">
                         <span class="bi bi-chevron-left"></span>
@@ -49,7 +50,7 @@
                     </div>
                 </div>
 
-                @if (_showTwoItems && DashboardState.ActiveRounds.Count > 2)
+                @if (DashboardState.ActiveRounds.Count > itemsPerPage)
                 {
                     <button class="carousel-btn" @onclick="ShowNext" disabled="@IsAtEnd()">
                         <span class="bi bi-chevron-right"></span>
@@ -79,15 +80,22 @@
     private double _touchStartX;
     private string _trackStyle = "transform: translateX(0%);";
     private bool _showTwoItems;
+    private bool _isTabletOrAbove;
 
     protected override async Task OnInitializedAsync()
     {
-        DashboardState.OnStateChange += StateHasChanged;
-        var isTabletOrAbove = await BrowserService.IsTabletOrAbove();
-        _showTwoItems = isTabletOrAbove && !IsHalfWidth;
+        DashboardState.OnStateChange += OnStateChanged;
+        _isTabletOrAbove = await BrowserService.IsTabletOrAbove();
+        _showTwoItems = _isTabletOrAbove && !IsHalfWidth;
 
         if (!DashboardState.ActiveRounds.Any())
             await DashboardState.LoadActiveRoundsAsync();
+    }
+
+    private void OnStateChanged()
+    {
+        _showTwoItems = _isTabletOrAbove && !IsHalfWidth;
+        StateHasChanged();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

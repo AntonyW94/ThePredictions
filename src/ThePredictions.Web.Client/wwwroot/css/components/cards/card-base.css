@@ -14,10 +14,13 @@
 .card {
     background-color: var(--purple-1000);
     border-radius: var(--bs-border-radius);
+    border: 1px solid var(--white-alpha-08);
+    box-shadow: 0 4px 12px var(--black-alpha-25);
     color: var(--white);
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transition: box-shadow 0.2s ease-in-out;
 }
 
 /* Card Variants (layout only, NOT colour) */
@@ -63,6 +66,7 @@
 .card > .header h5 {
     font-size: 1rem;
     margin-bottom: 0.5rem;
+    letter-spacing: 0.02em;
 }
 
 .card > .header small {
