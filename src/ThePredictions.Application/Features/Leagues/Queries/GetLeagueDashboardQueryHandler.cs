@@ -78,6 +78,7 @@ public class GetLeagueDashboardQueryHandler(IApplicationReadDbConnection dbConne
         const string membersSql = @"
             SELECT
                 u.[FirstName] + ' ' + LEFT(u.[LastName], 1) AS FullName,
+                lm.[Status],
                 lm.[JoinedAtUtc]
             FROM
                 [LeagueMembers] lm
@@ -85,12 +86,17 @@ public class GetLeagueDashboardQueryHandler(IApplicationReadDbConnection dbConne
                 [AspNetUsers] u ON lm.[UserId] = u.[Id]
             WHERE
                 lm.[LeagueId] = @LeagueId
-                AND lm.[Status] = @ApprovedStatus
+                AND lm.[Status] IN (@ApprovedStatus, @PendingStatus)
             ORDER BY
                 lm.[JoinedAtUtc]";
 
         var members = await dbConnection.QueryAsync<LeagueDashboardMemberDto>(
-            membersSql, cancellationToken, new { request.LeagueId, ApprovedStatus = nameof(LeagueMemberStatus.Approved) });
+            membersSql, cancellationToken, new
+            {
+                request.LeagueId,
+                ApprovedStatus = nameof(LeagueMemberStatus.Approved),
+                PendingStatus = nameof(LeagueMemberStatus.Pending)
+            });
 
         return new LeagueDashboardDto
         {

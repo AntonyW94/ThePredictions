@@ -1,3 +1,3 @@
 namespace ThePredictions.Contracts.Leagues;
 
-public record LeagueDashboardMemberDto(string FullName, DateTime JoinedAtUtc);
+public record LeagueDashboardMemberDto(string FullName, string Status, DateTime JoinedAtUtc);
