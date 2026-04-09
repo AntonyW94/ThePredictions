@@ -69,9 +69,10 @@
 }
 
 .card > .header h5 {
-    font-size: 1rem;
+    font-size: 0.85rem;
     margin-bottom: 0.5rem;
-    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     color: var(--purple-1000);
 }
 
@@ -164,7 +165,7 @@
     }
 
     .card > .header h5 {
-        font-size: 1.1rem;
+        font-size: 0.85rem;
     }
 
     .card > .header span {
