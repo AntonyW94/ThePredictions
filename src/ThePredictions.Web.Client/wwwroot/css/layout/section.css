@@ -1,13 +1,14 @@
-/* Section - Outer container (purple boxes with titles) */
-/* Background: purple-600 (#4A2E6C) - Lightest */
+/* Section - Outer container (white boxes with titles) */
+/* Background: white with grey border — light theme default */
 .section {
-    background-color: var(--purple-600);
+    background-color: var(--white);
     padding: 1.5rem;
     border-radius: var(--bs-border-radius);
-    color: var(--white);
+    color: var(--purple-1000);
     display: flex;
     flex-direction: column;
-    box-shadow: 0 8px 20px var(--black-alpha-35), inset 0 0 0 1px var(--white-alpha-05);
+    border: 1px solid var(--grey-200);
+    box-shadow: 0 1px 3px var(--black-alpha-15);
 }
 
 /* Section titles */
@@ -15,6 +16,7 @@
     font-size: 1.1rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    color: var(--purple-1000);
 }
 
 /* Section body - matches card body behaviour */
@@ -79,15 +81,15 @@
 }
 
 .section-body-collapsible::-webkit-scrollbar-track {
-    background: var(--purple-900);
+    background: var(--grey-200);
     border-radius: 0.25rem;
 }
 
 .section-body-collapsible::-webkit-scrollbar-thumb {
-    background: var(--purple-300);
+    background: var(--grey-400);
     border-radius: 0.25rem;
 }
 
 .section-body-collapsible::-webkit-scrollbar-thumb:hover {
-    background: var(--purple-200);
+    background: var(--grey-500);
 }

@@ -1,7 +1,7 @@
 /* Base: Extra-small mobile (< --breakpoint-phone-small) */
 
 main {
-    background: var(--purple-800);
+    background: var(--purple-100);
 }
 
 .page-container {
@@ -13,7 +13,7 @@ main {
 }
 
 .admin-table-container {
-    background-color: var(--purple-600);
+    background-color: transparent;
     padding: 1.5rem;
     border-radius: var(--bs-border-radius);
     width: 100%;
