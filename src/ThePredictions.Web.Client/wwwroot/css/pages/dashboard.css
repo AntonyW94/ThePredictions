@@ -3,9 +3,68 @@
     margin: auto;
 }
 
-.dashboard-waiting-icon {
-    font-size: 4rem;
-    color: var(--purple-300);
+/* Dashboard waiting state (no rounds yet) */
+.dashboard-waiting {
+    position: relative;
+    padding: var(--space-16) var(--space-4);
+    overflow: hidden;
+}
+
+.dashboard-waiting__pulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200px;
+    height: 200px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(150, 60, 255, 0.3) 0%, rgba(150, 60, 255, 0) 70%);
+    animation: dashboard-pulse 3s ease-in-out infinite;
+}
+
+@keyframes dashboard-pulse {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.6;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.5);
+        opacity: 0.2;
+    }
+}
+
+.dashboard-waiting__content {
+    position: relative;
+    z-index: 1;
+}
+
+.dashboard-waiting__countdown {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--space-2);
+}
+
+.dashboard-waiting__days {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--green-600);
+    line-height: 1;
+}
+
+.dashboard-waiting__days-label {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--white-alpha-30);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.dashboard-waiting__member {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    min-width: 4.5rem;
 }
 
 .position-info {

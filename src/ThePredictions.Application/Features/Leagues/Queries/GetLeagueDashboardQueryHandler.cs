@@ -75,6 +75,23 @@ public class GetLeagueDashboardQueryHandler(IApplicationReadDbConnection dbConne
         };
         var rounds = await dbConnection.QueryAsync<RoundDto>(roundsSql, cancellationToken, parameters);
 
+        const string membersSql = @"
+            SELECT
+                u.[FirstName] + ' ' + LEFT(u.[LastName], 1) AS FullName,
+                lm.[JoinedAtUtc]
+            FROM
+                [LeagueMembers] lm
+            JOIN
+                [AspNetUsers] u ON lm.[UserId] = u.[Id]
+            WHERE
+                lm.[LeagueId] = @LeagueId
+                AND lm.[Status] = @ApprovedStatus
+            ORDER BY
+                lm.[JoinedAtUtc]";
+
+        var members = await dbConnection.QueryAsync<LeagueDashboardMemberDto>(
+            membersSql, cancellationToken, new { request.LeagueId, ApprovedStatus = nameof(LeagueMemberStatus.Approved) });
+
         return new LeagueDashboardDto
         {
             LeagueName = leagueInfo.Name,
@@ -82,6 +99,7 @@ public class GetLeagueDashboardQueryHandler(IApplicationReadDbConnection dbConne
             SeasonStartDateUtc = leagueInfo.StartDateUtc,
             MemberCount = leagueInfo.MemberCount,
             TotalPrizeFund = leagueInfo.TotalPrizeFund,
+            Members = members.ToList(),
             ViewableRounds = rounds.ToList()
         };
     }
