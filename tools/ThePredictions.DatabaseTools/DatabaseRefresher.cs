@@ -27,6 +27,7 @@ public class DatabaseRefresher(
         "AspNetUserLogins",
         "Teams",
         "Seasons",
+        "TournamentRoundMappings",
         "Rounds",
         "Matches",
         "BoostDefinitions",
@@ -57,8 +58,26 @@ public class DatabaseRefresher(
         await using var sourceConnection = new SqlConnection(sourceConnectionString);
         await sourceConnection.OpenAsync();
 
+        var sourceTableCheck = new HashSet<string>();
         foreach (var table in TableCopyOrder)
         {
+            var exists = await sourceConnection.ExecuteScalarAsync<int>(
+                "SELECT COUNT(*) FROM [INFORMATION_SCHEMA].[TABLES] WHERE [TABLE_NAME] = @Table",
+                new { Table = table });
+
+            if (exists > 0)
+                sourceTableCheck.Add(table);
+        }
+
+        foreach (var table in TableCopyOrder)
+        {
+            if (!sourceTableCheck.Contains(table))
+            {
+                Console.WriteLine($"[WARN] [{table}] does not exist on source, skipping");
+                tableData[table] = [];
+                continue;
+            }
+
             Console.WriteLine($"[INFO] Reading [{table}] from source...");
 
             if (table == "AspNetUserLogins" && anonymise)
@@ -164,9 +183,19 @@ public class DatabaseRefresher(
             new { Email = DataAnonymiser.PreservedEmail });
     }
 
+    private static async Task<HashSet<string>> GetTargetTablesAsync(SqlConnection connection)
+    {
+        var tables = await connection.QueryAsync<string>(
+            "SELECT [TABLE_NAME] FROM [INFORMATION_SCHEMA].[TABLES] WHERE [TABLE_TYPE] = 'BASE TABLE'");
+
+        return [..tables];
+    }
+
     private static async Task DisableForeignKeyConstraintsAsync(SqlConnection connection)
     {
-        foreach (var table in AllTables)
+        var targetTables = await GetTargetTablesAsync(connection);
+
+        foreach (var table in AllTables.Where(t => targetTables.Contains(t)))
         {
             await connection.ExecuteAsync($"ALTER TABLE [{table}] NOCHECK CONSTRAINT ALL");
         }
@@ -174,7 +203,9 @@ public class DatabaseRefresher(
 
     private static async Task EnableForeignKeyConstraintsAsync(SqlConnection connection)
     {
-        foreach (var table in AllTables.Reverse())
+        var targetTables = await GetTargetTablesAsync(connection);
+
+        foreach (var table in AllTables.Reverse().Where(t => targetTables.Contains(t)))
         {
             await connection.ExecuteAsync($"ALTER TABLE [{table}] WITH CHECK CHECK CONSTRAINT ALL");
         }
@@ -182,10 +213,44 @@ public class DatabaseRefresher(
 
     private static async Task TruncateAllTablesAsync(SqlConnection connection)
     {
-        foreach (var table in AllTables.Reverse())
+        var targetTables = await GetTargetTablesAsync(connection);
+
+        foreach (var table in AllTables.Reverse().Where(t => targetTables.Contains(t)))
         {
             await connection.ExecuteAsync($"DELETE FROM [{table}]");
         }
+    }
+
+    private static async Task<HashSet<string>> GetTargetColumnsAsync(SqlConnection connection, string table)
+    {
+        var columns = await connection.QueryAsync<string>(
+            """
+            SELECT
+                c.[COLUMN_NAME]
+            FROM
+                [INFORMATION_SCHEMA].[COLUMNS] c
+            WHERE
+                c.[TABLE_NAME] = @Table
+            """,
+            new { Table = table });
+
+        return [..columns];
+    }
+
+    private static async Task<bool> TableExistsOnTargetAsync(SqlConnection connection, string table)
+    {
+        var count = await connection.ExecuteScalarAsync<int>(
+            """
+            SELECT
+                COUNT(*)
+            FROM
+                [INFORMATION_SCHEMA].[TABLES] t
+            WHERE
+                t.[TABLE_NAME] = @Table
+            """,
+            new { Table = table });
+
+        return count > 0;
     }
 
     private static async Task InsertRowsAsync(SqlConnection connection, string table, List<dynamic> rows)
@@ -193,8 +258,23 @@ public class DatabaseRefresher(
         if (rows.Count == 0)
             return;
 
+        if (!await TableExistsOnTargetAsync(connection, table))
+        {
+            Console.WriteLine($"[WARN] [{table}] does not exist on target, skipping");
+            return;
+        }
+
+        var targetColumns = await GetTargetColumnsAsync(connection, table);
+
         var firstRow = (IDictionary<string, object?>)rows[0];
-        var columns = firstRow.Keys.ToList();
+        var sourceColumns = firstRow.Keys.ToList();
+        var columns = sourceColumns.Where(c => targetColumns.Contains(c)).ToList();
+
+        var skippedColumns = sourceColumns.Except(columns).ToList();
+        if (skippedColumns.Count > 0)
+        {
+            Console.WriteLine($"[WARN] [{table}] skipping columns not on target: {string.Join(", ", skippedColumns)}");
+        }
 
         var dataTable = new DataTable();
 
