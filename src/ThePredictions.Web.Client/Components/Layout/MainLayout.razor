@@ -53,10 +53,9 @@
         var path = uri.AbsolutePath;
 
         var isHomePage = path == "/" || path == "";
-        var isAuthenticationPage = path.StartsWith("/authentication/");
 
         _navLayoutClass = isHomePage ? "navbar-overlay" : "";
-        _backgroundClass = isAuthenticationPage ? "bg-purple-gradient" : isHomePage ? "bg-grey-100" : "";
+        _backgroundClass = isHomePage ? "bg-grey-100" : "";
     }
 
     public void Dispose()

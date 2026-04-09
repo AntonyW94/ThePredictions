@@ -20,12 +20,23 @@
 
 .navbar-overlay {
     background-color: transparent !important;
+    border-bottom: none;
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     z-index: 10;
     transition: background-color 0.3s ease-in-out;
+}
+
+/* Restore white text for overlay navbar (homepage hero) */
+.navbar-overlay .navbar-nav .nav-item .nav-link,
+.navbar-overlay .navbar-nav .nav-item .navbar-text {
+    color: var(--white) !important;
+}
+
+.navbar-overlay .navbar-toggler-icon {
+    filter: none;
 }
 
 .navbar-logo {
