@@ -1,6 +1,7 @@
 using ThePredictions.Contracts.Dashboard;
 using ThePredictions.Contracts.Leaderboards;
 using ThePredictions.Contracts.Leagues;
+using ThePredictions.Domain.Common.Enumerations;
 using ThePredictions.Web.Client.Services.Leagues;
 
 namespace ThePredictions.Web.Client.Services.Dashboard;
@@ -236,7 +237,7 @@ public class DashboardStateService(ILeagueService leagueService) : IDashboardSta
 
         try
         {
-            await leagueService.UpdateMemberStatusAsync(leagueId, userId, "Approved");
+            await leagueService.UpdateMemberStatusAsync(leagueId, userId, LeagueMemberStatus.Approved);
             await LoadPendingMembersAsync();
         }
         catch
@@ -253,7 +254,7 @@ public class DashboardStateService(ILeagueService leagueService) : IDashboardSta
 
         try
         {
-            await leagueService.UpdateMemberStatusAsync(leagueId, userId, "Rejected");
+            await leagueService.UpdateMemberStatusAsync(leagueId, userId, LeagueMemberStatus.Rejected);
             await LoadPendingMembersAsync();
         }
         catch

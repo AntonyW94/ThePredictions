@@ -2,6 +2,7 @@ using ThePredictions.Contracts.Boosts;
 using ThePredictions.Contracts.Dashboard;
 using ThePredictions.Contracts.Leaderboards;
 using ThePredictions.Contracts.Leagues;
+using ThePredictions.Domain.Common.Enumerations;
 
 namespace ThePredictions.Web.Client.Services.Leagues;
 
@@ -20,7 +21,7 @@ public interface ILeagueService
     Task<List<BoostUsageSummaryDto>> GetBoostUsageSummaryAsync(int leagueId);
     Task<bool> CheckForAvailablePrivateLeaguesAsync();
     Task<PendingMembersResultDto> GetPendingMembersForAdminAsync();
-    Task UpdateMemberStatusAsync(int leagueId, string userId, string newStatus);
+    Task UpdateMemberStatusAsync(int leagueId, string userId, LeagueMemberStatus newStatus);
 
     Task<(bool Success, string? ErrorMessage)> JoinPublicLeagueAsync(int leagueId);
     Task<(bool Success, string? ErrorMessage)> JoinPrivateLeagueAsync(string entryCode);
