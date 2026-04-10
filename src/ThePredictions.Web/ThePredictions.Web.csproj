@@ -144,6 +144,7 @@ System.IO.File.WriteAllText(FilePath, content);
             <CssFilesToBundle Include="$(PublishCssDir)themes\light\badges.css" />
             <CssFilesToBundle Include="$(PublishCssDir)themes\light\tabs.css" />
             <CssFilesToBundle Include="$(PublishCssDir)themes\light\match-editor.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)themes\dark\dark.css" />
             <CssFilesToBundle Include="$(PublishCssDir)app-base.css" />
         </ItemGroup>
 
@@ -165,6 +166,7 @@ System.IO.File.WriteAllText(FilePath, content);
         <RemoveDir Directories="$(PublishCssDir)components" Condition="Exists('$(PublishCssDir)components')" />
         <RemoveDir Directories="$(PublishCssDir)pages" Condition="Exists('$(PublishCssDir)pages')" />
         <RemoveDir Directories="$(PublishCssDir)themes\light" Condition="Exists('$(PublishCssDir)themes\light')" />
+        <RemoveDir Directories="$(PublishCssDir)themes\dark" Condition="Exists('$(PublishCssDir)themes\dark')" />
         <RemoveDir Directories="$(PublishCssDir)themes" Condition="Exists('$(PublishCssDir)themes')" />
 
         <Message Importance="high" Text="CSS bundled successfully!" />

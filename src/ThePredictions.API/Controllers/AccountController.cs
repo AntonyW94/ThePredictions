@@ -48,4 +48,20 @@ public class AccountController(IMediator mediator) : ApiControllerBase
 
         return NoContent();
     }
+
+    [HttpPut("theme")]
+    [SwaggerOperation(
+        Summary = "Update theme preference",
+        Description = "Sets the user's preferred theme to 'light' or 'dark'.")]
+    [SwaggerResponse(204, "Theme preference updated successfully")]
+    [SwaggerResponse(401, "Not authenticated")]
+    public async Task<IActionResult> UpdateThemePreferenceAsync(
+        [FromBody, SwaggerParameter("Theme name ('light' or 'dark')", Required = true)] string theme,
+        CancellationToken cancellationToken)
+    {
+        var command = new UpdateThemePreferenceCommand(CurrentUserId, theme);
+        await mediator.Send(command, cancellationToken);
+
+        return NoContent();
+    }
 }

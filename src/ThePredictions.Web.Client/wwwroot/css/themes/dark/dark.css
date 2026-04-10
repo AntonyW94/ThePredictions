@@ -1,0 +1,582 @@
+/* Dark Theme Override — restores dark purple look */
+/* Apply .theme-dark to the page container to activate */
+
+/* ============================================
+   LAYOUT
+   ============================================ */
+
+.theme-dark {
+    background: var(--purple-800);
+}
+
+.theme-dark.bg-grey-100 {
+    background-color: var(--purple-800) !important;
+}
+
+.theme-dark .admin-table-container {
+    background-color: var(--purple-600);
+}
+
+.theme-dark .form-container {
+    background-color: var(--purple-1000);
+    border: none;
+    box-shadow: none;
+}
+
+/* ============================================
+   CARDS
+   ============================================ */
+
+.theme-dark .card {
+    background-color: var(--purple-1000);
+    border: 1px solid var(--white-alpha-08);
+    box-shadow: 0 4px 12px var(--black-alpha-25);
+    color: var(--white);
+}
+
+.theme-dark .card > .header h5 {
+    color: var(--white);
+}
+
+.theme-dark .section .card {
+    background-color: var(--purple-1000);
+    border-color: var(--white-alpha-08);
+    box-shadow: 0 4px 12px var(--black-alpha-25);
+}
+
+.theme-dark .section .card > .footer {
+    border-top-color: var(--white-alpha-08);
+}
+
+.theme-dark .card > .footer {
+    border-top: 1px solid var(--white-alpha-08);
+}
+
+/* ============================================
+   SECTIONS
+   ============================================ */
+
+.theme-dark .section {
+    background-color: var(--purple-600);
+    color: var(--white);
+    border: none;
+    box-shadow: 0 8px 20px var(--black-alpha-35), inset 0 0 0 1px var(--white-alpha-05);
+}
+
+.theme-dark .section > h3 {
+    color: var(--white);
+}
+
+.theme-dark h1,
+.theme-dark h2,
+.theme-dark h3,
+.theme-dark h4,
+.theme-dark h5,
+.theme-dark h6 {
+    color: var(--white);
+}
+
+.theme-dark .empty-state-icon {
+    color: var(--white-alpha-30);
+}
+
+.theme-dark .section-body-collapsible::-webkit-scrollbar-track {
+    background: var(--purple-900);
+}
+
+.theme-dark .section-body-collapsible::-webkit-scrollbar-thumb {
+    background: var(--purple-300);
+}
+
+.theme-dark .section-body-collapsible::-webkit-scrollbar-thumb:hover {
+    background: var(--purple-200);
+}
+
+/* ============================================
+   FORMS
+   ============================================ */
+
+.theme-dark .form-label {
+    color: var(--white);
+}
+
+.theme-dark .form-sub-header {
+    color: var(--grey-100);
+}
+
+.theme-dark .form-control {
+    background: var(--purple-1000);
+    border: 1px solid var(--white);
+    color: var(--white);
+    border-radius: var(--bs-border-radius);
+}
+
+.theme-dark .form-control:focus {
+    background: var(--purple-800);
+    color: var(--white);
+    border-color: var(--white);
+}
+
+.theme-dark .form-control::placeholder {
+    color: var(--white);
+}
+
+.theme-dark select.form-control {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='white' d='M6 8.825L0.575 3.4L1.4 2.575L6 7.175L10.6 2.575L11.425 3.4L6 8.825Z'/%3E%3C/svg%3E");
+}
+
+.theme-dark .form-check-input {
+    background-color: var(--red);
+    border-color: var(--red);
+}
+
+.theme-dark .form-check-input:checked {
+    background-color: var(--green-600);
+    border-color: var(--green-600);
+}
+
+.theme-dark .input-group-text.prize-label {
+    background-color: var(--purple-900);
+    border-color: var(--purple-900);
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+
+.theme-dark .purple-accent-button,
+.theme-dark .purple-accent-button:disabled,
+.theme-dark .purple-accent-button:active {
+    background-color: var(--purple-200);
+    border-color: var(--purple-200);
+}
+
+.theme-dark .purple-accent-button:not(.badge):hover {
+    border-color: var(--purple-200);
+    color: var(--purple-200);
+}
+
+.theme-dark .back-button,
+.theme-dark .back-button:disabled,
+.theme-dark .back-button:active {
+    color: var(--white);
+}
+
+.theme-dark .back-button:not(.badge):hover {
+    color: var(--white);
+}
+
+.theme-dark .password-toggle-btn {
+    background-color: var(--purple-1000);
+    color: var(--white);
+    border-color: var(--white);
+}
+
+/* ============================================
+   NAVBAR
+   ============================================ */
+
+.theme-dark .navbar-custom {
+    background: var(--purple-800) !important;
+    border-bottom: none;
+}
+
+.theme-dark .navbar-custom .navbar-brand span {
+    color: var(--white) !important;
+}
+
+.theme-dark .navbar-custom .navbar-toggler-icon {
+    filter: none;
+}
+
+.theme-dark .navbar-nav .nav-item .nav-link,
+.theme-dark .navbar-nav .nav-item .navbar-text {
+    color: var(--white) !important;
+}
+
+/* ============================================
+   GLASS PANEL
+   ============================================ */
+
+.theme-dark .glass-panel {
+    background: radial-gradient(circle at center, var(--white-alpha-02) 0%, var(--white-alpha-08) 100%);
+    border: 1px solid var(--white-alpha-10);
+    box-shadow: inset 0 1px 0 var(--white-alpha-15);
+}
+
+/* ============================================
+   TABLES
+   ============================================ */
+
+.theme-dark .table-striped-purple tbody tr:nth-child(odd) td {
+    background-color: var(--purple-800);
+}
+
+.theme-dark .table-striped-purple tbody tr:nth-child(even) td {
+    background-color: var(--purple-700);
+}
+
+.theme-dark .card .glass-panel {
+    background: radial-gradient(circle at center, var(--white-alpha-02) 0%, var(--white-alpha-08) 100%);
+}
+
+.theme-dark .leaderboard-table {
+    color: var(--white);
+}
+
+.theme-dark .leaderboard-table th {
+    background-color: var(--purple-900);
+}
+
+.theme-dark .leaderboard-table td {
+    background: var(--purple-700);
+}
+
+.theme-dark .leaderboard-table th,
+.theme-dark .leaderboard-table td {
+    border-bottom-color: var(--purple-800);
+}
+
+.theme-dark .leaderboard-month-select {
+    color: var(--white);
+    background-color: var(--purple-800);
+    border-color: var(--purple-300);
+}
+
+.theme-dark .leaderboard-scroll-container::-webkit-scrollbar-track {
+    background: var(--purple-900);
+}
+
+.theme-dark .leaderboard-scroll-container::-webkit-scrollbar-thumb {
+    background: var(--purple-300);
+}
+
+.theme-dark .results-grid {
+    color: var(--white);
+}
+
+.theme-dark .results-grid th {
+    background-color: var(--purple-900);
+}
+
+.theme-dark .results-grid .match-info {
+    background-color: var(--purple-900);
+}
+
+.theme-dark .results-grid td.match-info {
+    background-color: var(--purple-800);
+}
+
+.theme-dark .results-grid .score-cell {
+    background: var(--purple-800);
+}
+
+.theme-dark .results-grid th,
+.theme-dark .results-grid td {
+    border-bottom-color: var(--purple-800);
+}
+
+.theme-dark .results-grid tfoot th {
+    background-color: var(--purple-900);
+}
+
+/* ============================================
+   PREDICTIONS
+   ============================================ */
+
+.theme-dark .prediction-card {
+    background-color: var(--purple-600);
+    color: var(--white);
+    border: none;
+    box-shadow: 0 8px 20px var(--black-alpha-35), inset 0 0 0 1px var(--white-alpha-05);
+}
+
+.theme-dark .prediction-card-header {
+    background-color: var(--purple-800);
+    color: var(--white);
+    border-bottom: none;
+}
+
+.theme-dark .prediction-card-body {
+    background-color: var(--purple-600);
+}
+
+.theme-dark .prediction-card-body--tbc {
+    background-color: var(--purple-600);
+}
+
+.theme-dark .tbc-team-placeholder {
+    background: var(--purple-800);
+    color: var(--white-alpha-50);
+}
+
+.theme-dark .tbc-label {
+    color: var(--white-alpha-50);
+}
+
+.theme-dark .stepper-btn {
+    color: var(--white);
+}
+
+/* ============================================
+   DASHBOARD
+   ============================================ */
+
+.theme-dark .dashboard-waiting__label {
+    color: var(--white-alpha-30);
+}
+
+.theme-dark .dashboard-waiting__separator {
+    color: var(--white-alpha-15);
+}
+
+.theme-dark .dashboard-waiting__member-row {
+    border-bottom-color: var(--white-alpha-05);
+}
+
+.theme-dark .pending-member-row {
+    border-bottom-color: var(--white-alpha-05);
+}
+
+.theme-dark .pending-member-reject {
+    color: var(--white-alpha-30);
+    border-color: var(--white-alpha-15);
+}
+
+.theme-dark .position-info {
+    color: var(--white);
+}
+
+/* ============================================
+   COMPONENTS
+   ============================================ */
+
+.theme-dark .carousel-btn {
+    color: var(--white);
+}
+
+.theme-dark .carousel-dot {
+    background-color: var(--white-alpha-15);
+}
+
+.theme-dark .carousel-dot.active,
+.theme-dark .carousel-dot:hover {
+    background-color: var(--green-600);
+}
+
+.theme-dark .filter-card {
+    background: var(--white-alpha-10);
+    color: var(--white);
+    border: none;
+}
+
+.theme-dark .filter-card:hover {
+    background: var(--white-alpha-30);
+}
+
+.theme-dark .boost-league-row {
+    background: var(--purple-600);
+    border: none;
+    box-shadow: 0 8px 20px var(--black-alpha-35), inset 0 0 0 1px var(--white-alpha-05);
+}
+
+.theme-dark .boost-description-wrapper {
+    border-top-color: var(--purple-600);
+}
+
+.theme-dark .detail-row code {
+    color: var(--white);
+}
+
+.theme-dark .team-card-name {
+    color: var(--white);
+}
+
+.theme-dark .member-status-column {
+    background-color: var(--purple-800);
+    border: none;
+    box-shadow: none;
+}
+
+.theme-dark .match-preview-row {
+    background-color: var(--black-alpha-25);
+}
+
+.theme-dark .match-preview-score {
+    color: var(--white);
+}
+
+.theme-dark .outcome-summary {
+    background-color: var(--black-alpha-25);
+    color: var(--white);
+}
+
+.theme-dark .financial-col:first-child::after {
+    background-color: var(--white-alpha-10);
+}
+
+/* ============================================
+   BOOST USAGE
+   ============================================ */
+
+.theme-dark .boost-usage-window + .boost-usage-window {
+    border-top-color: var(--white-alpha-10);
+}
+
+.theme-dark .boost-usage-player-row {
+    background: var(--white-alpha-05);
+}
+
+.theme-dark .boost-usage-pill--unused {
+    background: var(--white-alpha-10);
+    color: var(--white-alpha-30);
+}
+
+.theme-dark .boost-usage-pill--expired {
+    background: var(--white-alpha-10);
+}
+
+/* ============================================
+   BADGES — revert tinted chips to solid colours
+   ============================================ */
+
+.theme-dark .badge-group--green {
+    background-color: var(--green-600);
+    color: var(--white);
+}
+
+.theme-dark .badge-group--red {
+    background-color: var(--red);
+    color: var(--white);
+}
+
+.theme-dark .badge-group--blue {
+    background-color: var(--blue-700);
+    color: var(--white);
+}
+
+.theme-dark .badge-group--purple {
+    background-color: var(--purple-200);
+    color: var(--white);
+}
+
+.theme-dark .badge-group--orange {
+    background-color: var(--orange);
+    color: var(--white);
+}
+
+.theme-dark .badge-group--yellow {
+    background-color: var(--yellow);
+    color: var(--purple-800);
+}
+
+.theme-dark .badge-icon {
+    background-color: var(--white);
+}
+
+.theme-dark .badge-group--green .badge-icon {
+    color: var(--green-600);
+}
+
+.theme-dark .badge-group--red .badge-icon {
+    color: var(--red);
+}
+
+.theme-dark .badge-group--blue .badge-icon {
+    color: var(--blue-700);
+}
+
+.theme-dark .badge-group--purple .badge-icon {
+    color: var(--purple-200);
+}
+
+.theme-dark .badge-group--orange .badge-icon {
+    color: var(--orange);
+}
+
+.theme-dark .badge-group--yellow .badge-icon {
+    color: var(--purple-800);
+}
+
+.theme-dark .badge {
+    color: var(--white);
+}
+
+.theme-dark .current-user-highlight .badge-group--green {
+    background-color: var(--white);
+    color: var(--green-600);
+}
+
+/* ============================================
+   LOADING
+   ============================================ */
+
+.theme-dark .app-loading-container {
+    background-color: var(--purple-800);
+    color: var(--white);
+}
+
+.theme-dark .app-loading-container .spinner {
+    border-color: var(--white-alpha-30);
+    border-top-color: var(--green-600);
+}
+
+/* ============================================
+   MODALS
+   ============================================ */
+
+.theme-dark .modal-content.bg-white {
+    background-color: var(--purple-1000) !important;
+    color: var(--white);
+    border: 1px solid var(--white-alpha-08);
+}
+
+.theme-dark .modal-content .btn-close {
+    filter: invert(1);
+}
+
+/* ============================================
+   EFFECTS
+   ============================================ */
+
+.theme-dark .shadow {
+    box-shadow: 0 8px 20px var(--black-alpha-35), inset 0 0 0 1px var(--white-alpha-05) !important;
+}
+
+/* ============================================
+   TEXT UTILITY RESTORES
+   Undo the light-theme .text-white overrides
+   from app-base.css within dark containers.
+   ============================================ */
+
+.theme-dark .card .text-white,
+.theme-dark .section .text-white,
+.theme-dark .glass-panel .text-white,
+.theme-dark .form-container .text-white,
+.theme-dark .dashboard-container .text-white {
+    color: var(--white) !important;
+}
+
+.theme-dark .card .text-white-50,
+.theme-dark .section .text-white-50,
+.theme-dark .glass-panel .text-white-50,
+.theme-dark .form-container .text-white-50,
+.theme-dark .dashboard-container .text-white-50 {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.theme-dark .card .spinner-border.text-white,
+.theme-dark .section .spinner-border.text-white,
+.theme-dark .dashboard-container .spinner-border.text-white {
+    color: var(--white) !important;
+}
+
+.theme-dark .card hr.text-white,
+.theme-dark .section hr.text-white {
+    color: var(--white) !important;
+    opacity: 0.25;
+}
+
+.theme-dark .section .collapse-icon.text-white {
+    color: var(--white) !important;
+}

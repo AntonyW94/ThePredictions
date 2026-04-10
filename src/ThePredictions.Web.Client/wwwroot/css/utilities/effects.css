@@ -13,7 +13,7 @@
 }
 
 .shadow {
-    box-shadow: 0 8px 20px var(--black-alpha-35), inset 0 0 0 1px var(--white-alpha-05) !important;
+    box-shadow: 0 4px 12px var(--black-alpha-20) !important;
 }
 
 .shadow-md {
@@ -93,23 +93,28 @@
    ============================================ */
 
 .glass-panel {
-    background: radial-gradient(circle at center, var(--white-alpha-02) 0%, var(--white-alpha-08) 100%);
-    border: 1px solid var(--white-alpha-10);
+    background: var(--purple-100);
+    border: 1px solid var(--grey-200);
     border-radius: var(--bs-border-radius);
-    box-shadow: inset 0 1px 0 var(--white-alpha-15);
+    box-shadow: 0 1px 3px var(--black-alpha-15);
+}
+
+/* Inside purple-100 cards, glass panels need white to contrast */
+.card .glass-panel {
+    background: var(--white);
 }
 
 /* ============================================
    TABLE STRIPING
    ============================================ */
 
-/* Purple variant - Body rows use lighter purples (700, 800) to contrast with header (900) */
+/* Subtle purple-tinted alternation — purple-50 sits between white and purple-100 */
 .table-striped-purple tbody tr:nth-child(odd) td {
-    background-color: var(--purple-700);
+    background-color: var(--white);
 }
 
 .table-striped-purple tbody tr:nth-child(even) td {
-    background-color: var(--purple-800);
+    background-color: var(--purple-50);
 }
 
 /* ============================================

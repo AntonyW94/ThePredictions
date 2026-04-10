@@ -67,7 +67,7 @@
 .dashboard-waiting__label {
     font-size: 0.7rem;
     font-weight: 600;
-    color: var(--white-alpha-30);
+    color: var(--grey-500);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-top: var(--space-1);
@@ -76,7 +76,7 @@
 .dashboard-waiting__separator {
     font-size: 2rem;
     font-weight: 700;
-    color: var(--white-alpha-15);
+    color: var(--grey-300);
     margin-bottom: 1rem;
 }
 
@@ -92,7 +92,7 @@
     align-items: center;
     justify-content: space-between;
     padding: var(--space-3) 0;
-    border-bottom: 1px solid var(--white-alpha-05);
+    border-bottom: 1px solid var(--grey-200);
 }
 
 .dashboard-waiting__member-row:last-child {
@@ -165,7 +165,7 @@
     align-items: center;
     justify-content: space-between;
     padding: var(--space-2) 0;
-    border-bottom: 1px solid var(--white-alpha-05);
+    border-bottom: 1px solid var(--grey-200);
 }
 
 .pending-member-row:last-child {
@@ -198,8 +198,8 @@
 
 .pending-member-reject {
     background: transparent;
-    color: var(--white-alpha-30);
-    border: 1px solid var(--white-alpha-15);
+    color: var(--grey-500);
+    border: 1px solid var(--grey-300);
     width: 2rem;
     height: 2rem;
     display: flex;
@@ -216,7 +216,7 @@
     }
 
 .position-info {
-    color: var(--white);
+    color: var(--purple-1000);
 }
 
     .position-info span:first-child {

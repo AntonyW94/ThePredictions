@@ -51,7 +51,6 @@
     background: var(--white);
     border: 1px solid var(--grey-200);
     color: var(--purple-1000);
-    border-radius: 12px;
 }
 
 .admin-light .form-control:focus {

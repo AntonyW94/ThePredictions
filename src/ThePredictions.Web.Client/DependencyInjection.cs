@@ -5,6 +5,7 @@ using ThePredictions.Web.Client.Services.Boosts;
 using ThePredictions.Web.Client.Services.Browser;
 using ThePredictions.Web.Client.Services.Dashboard;
 using ThePredictions.Web.Client.Services.Leagues;
+using ThePredictions.Web.Client.Services.Theme;
 using ThePredictions.Web.Client.ViewModels.Admin.Rounds;
 
 namespace ThePredictions.Web.Client;
@@ -21,7 +22,8 @@ public static class DependencyInjection
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<ILeagueService, LeagueService>();
         services.AddScoped<IDashboardStateService, DashboardStateService>();
-        services.AddScoped<IBrowserService, BrowserService>(); 
+        services.AddScoped<IBrowserService, BrowserService>();
+        services.AddScoped<IThemeService, ThemeService>();
         services.AddScoped<LeagueDashboardStateService>(); 
         services.AddScoped<BoostClientService>();
         services.AddScoped<EnterResultsViewModel>();

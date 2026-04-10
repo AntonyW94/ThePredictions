@@ -7,10 +7,10 @@
 
 <div class="modal fade" id="joinPrivateLeagueModal" tabindex="-1" aria-labelledby="joinPrivateLeagueModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-purple-600 text-white">
-            <div class="modal-header border-purple-900">
-                <h5 class="modal-title fw-bold text-white" id="joinPrivateLeagueModalLabel">Join Private League</h5>
-                <button type="button" class="btn-close btn-close-white" @onclick="Close" aria-label="Close"></button>
+        <div class="modal-content bg-white">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title fw-bold" id="joinPrivateLeagueModalLabel">Join Private League</h5>
+                <button type="button" class="btn-close" @onclick="Close" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <ApiError Message="@_errorMessage" />

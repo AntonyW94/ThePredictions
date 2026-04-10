@@ -9,14 +9,14 @@
 }
 
 /* Base Card */
-/* Background: purple-1000 (#2C0A3D) - Darkest (same as login form) */
+/* Background: white with grey border — light theme default */
 /* ALL card parts (header, body, footer) use the SAME background colour */
 .card {
-    background-color: var(--purple-1000);
+    background-color: var(--white);
     border-radius: var(--bs-border-radius);
-    border: 1px solid var(--white-alpha-08);
-    box-shadow: 0 4px 12px var(--black-alpha-25);
-    color: var(--white);
+    border: 1px solid var(--grey-200);
+    box-shadow: 0 1px 3px var(--black-alpha-15);
+    color: var(--purple-1000);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -47,12 +47,23 @@
     gap: 0.5rem;
 }
 
-/* NO background variants - all cards use purple-1000 */
+/* Nested cards inside sections get a tinted background for contrast */
+.section .card {
+    background-color: var(--purple-100);
+    border-color: transparent;
+    box-shadow: none;
+}
 
-/* Card Sub-elements - ALL use same background as card (purple-1000) */
+.section .card > .footer {
+    border-top-color: transparent;
+}
+
+/* NO background variants - all cards use white */
+
+/* Card Sub-elements - ALL use same background as card (white) */
 .card > .header {
     padding: 1rem 1.5rem 0;
-    /* NO background-color - inherits from card (purple-1000) */
+    /* NO background-color - inherits from card (white) */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -64,9 +75,10 @@
 }
 
 .card > .header h5 {
-    font-size: 1rem;
+    font-size: 0.95rem;
     margin-bottom: 0.5rem;
     letter-spacing: 0.02em;
+    color: var(--purple-1000);
 }
 
 .card > .header small {
@@ -108,6 +120,8 @@
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
+    border-top: 1px solid var(--grey-200);
+    padding-top: 1rem;
 }
 
 .card > .footer .btn {
@@ -156,7 +170,7 @@
     }
 
     .card > .header h5 {
-        font-size: 1.25rem;
+        font-size: 1.05rem;
     }
 
     .card > .header span {

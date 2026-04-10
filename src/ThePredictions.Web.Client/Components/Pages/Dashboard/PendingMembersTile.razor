@@ -1,7 +1,9 @@
 @inject IDashboardStateService DashboardState
+@inject IBrowserService BrowserService
 @inject IJSRuntime JsRuntime
 @inject NavigationManager NavigationManager
 
+@using ThePredictions.Web.Client.Services.Browser
 @using ThePredictions.Web.Client.Services.Dashboard
 
 @implements IAsyncDisposable
@@ -27,7 +29,14 @@
         var totalSlides = (showAllSlide ? 1 : 0) + DashboardState.AdminLeagues.Count;
 
         <div class="carousel-wrapper league-admin-carousel">
-            <div class="carousel-container">
+            <div class="carousel-container" @ontouchstart="HandleTouchStart" @ontouchmove="HandleTouchMove" @ontouchend="HandleTouchEnd">
+                @if (_showArrows && totalSlides > 1)
+                {
+                    <button class="carousel-btn" @onclick="ShowPrevious" disabled="@(_currentIndex == 0)">
+                        <span class="bi bi-chevron-left"></span>
+                    </button>
+                }
+
                 <div class="carousel-track-wrapper">
                     <div class="carousel-track" style="transform: translateX(-@(_currentIndex * 100)%);">
 
@@ -168,6 +177,13 @@
                         }
                     </div>
                 </div>
+
+                @if (_showArrows && totalSlides > 1)
+                {
+                    <button class="carousel-btn" @onclick="ShowNext" disabled="@(_currentIndex >= totalSlides - 1)">
+                        <span class="bi bi-chevron-right"></span>
+                    </button>
+                }
             </div>
 
             @if (totalSlides > 1)
@@ -186,17 +202,65 @@
 
 @code {
     private int _currentIndex;
+    private double _touchStartX;
+    private bool _showArrows;
     private bool _isProcessing;
     private int? _copiedLeagueId;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         DashboardState.OnStateChange += StateHasChanged;
+        _showArrows = await BrowserService.IsTabletOrAbove();
+    }
+
+    private int TotalSlides
+    {
+        get
+        {
+            var hasPending = DashboardState.PendingMembers.Any();
+            var multipleLeagues = DashboardState.AdminLeagues.Count > 1;
+            var showAllSlide = hasPending && multipleLeagues;
+            return (showAllSlide ? 1 : 0) + DashboardState.AdminLeagues.Count;
+        }
     }
 
     private void GoToSlide(int index)
     {
-        _currentIndex = index;
+        if (index >= 0 && index < TotalSlides)
+            _currentIndex = index;
+    }
+
+    private void ShowPrevious()
+    {
+        if (_currentIndex > 0)
+            _currentIndex--;
+    }
+
+    private void ShowNext()
+    {
+        if (_currentIndex < TotalSlides - 1)
+            _currentIndex++;
+    }
+
+    private void HandleTouchStart(TouchEventArgs e)
+    {
+        _touchStartX = e.Touches[0].ClientX;
+    }
+
+    private static void HandleTouchMove(TouchEventArgs e)
+    {
+    }
+
+    private void HandleTouchEnd(TouchEventArgs e)
+    {
+        var diffX = _touchStartX - e.ChangedTouches[0].ClientX;
+        if (!(Math.Abs(diffX) > 50))
+            return;
+
+        if (diffX > 0)
+            ShowNext();
+        else
+            ShowPrevious();
     }
 
     private async Task Approve(int leagueId, string userId)

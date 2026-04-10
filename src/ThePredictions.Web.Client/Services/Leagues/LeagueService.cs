@@ -2,6 +2,7 @@ using ThePredictions.Contracts.Boosts;
 using ThePredictions.Contracts.Dashboard;
 using ThePredictions.Contracts.Leaderboards;
 using ThePredictions.Contracts.Leagues;
+using ThePredictions.Domain.Common.Enumerations;
 using System.Net.Http.Json;
 using System.Text.Json.Nodes;
 
@@ -113,7 +114,7 @@ public class LeagueService(HttpClient httpClient) : ILeagueService
                ?? new PendingMembersResultDto();
     }
 
-    public async Task UpdateMemberStatusAsync(int leagueId, string userId, string newStatus)
+    public async Task UpdateMemberStatusAsync(int leagueId, string userId, LeagueMemberStatus newStatus)
     {
         await httpClient.PostAsJsonAsync($"api/leagues/{leagueId}/members/{userId}/status", newStatus);
     }

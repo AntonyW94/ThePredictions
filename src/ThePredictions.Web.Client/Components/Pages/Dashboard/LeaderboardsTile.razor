@@ -8,7 +8,7 @@
 
 @using ThePredictions.Web.Client.Services.Dashboard
 
-<div class="section h-100">
+<div class="section h-100 section--constrained">
     <h3 class="text-white text-center fw-bold mb-4">Leaderboards</h3>
 
     <ApiError Message="@DashboardState.LeaderboardsErrorMessage" />
@@ -23,7 +23,10 @@
     }
     else if (!DashboardState.Leaderboards.Any())
     {
-        <p class="text-center text-white">No active leaderboards.</p>
+        <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1">
+            <i class="bi bi-bar-chart-line empty-state-icon"></i>
+            <p class="text-white-50 mt-2 mb-0 text-center">No active leaderboards.</p>
+        </div>
     }
     else
     {
