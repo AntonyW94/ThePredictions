@@ -162,7 +162,7 @@ public class DashboardStateService(ILeagueService leagueService) : IDashboardSta
         var (success, errorMessage) = await leagueService.JoinPublicLeagueAsync(leagueId);
         if (success)
         {
-            await Task.WhenAll(LoadMyLeaguesAsync(), LoadAvailableLeaguesAsync());
+            await Task.WhenAll(LoadMyLeaguesAsync(), LoadAvailableLeaguesAsync(), LoadPendingRequestsAsync());
         }
         else
         {

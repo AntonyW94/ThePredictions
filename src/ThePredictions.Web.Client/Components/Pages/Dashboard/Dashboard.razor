@@ -22,18 +22,40 @@
                     <div class="col-lg-8">
                         @{
                             var showPendingMembers = !DashboardState.IsPendingMembersLoading && DashboardState.IsAdminOfOpenLeague;
-                            var activeRoundsClass = showPendingMembers ? "col-lg-6 mb-4" : "col-lg-12 mb-4";
+                            var showPendingRequests = DashboardState.PendingRequests.Any() || DashboardState.IsPendingRequestsLoading;
+                            var showBothAlertTiles = showPendingMembers && showPendingRequests;
+                            var hasCompanionTile = showPendingMembers || showPendingRequests;
+                            var activeRoundsHalfWidth = hasCompanionTile && !showBothAlertTiles;
+                            var activeRoundsClass = activeRoundsHalfWidth ? "col-lg-6 mb-4" : "col-lg-12 mb-4";
+                        }
+
+                        @if (showBothAlertTiles)
+                        {
+                            <div class="row">
+                                <div class="col-lg-6 mb-4">
+                                    <PendingMembersTile />
+                                </div>
+                                <div class="col-lg-6 mb-4">
+                                    <PendingRequestsTile />
+                                </div>
+                            </div>
                         }
 
                         <div class="row">
                             <div class="@activeRoundsClass">
-                                <ActiveRoundsTile IsHalfWidth="showPendingMembers" />
+                                <ActiveRoundsTile IsHalfWidth="activeRoundsHalfWidth" />
                             </div>
 
-                            @if (showPendingMembers)
+                            @if (!showBothAlertTiles && showPendingMembers)
                             {
                                 <div class="col-lg-6 mb-4">
                                     <PendingMembersTile />
+                                </div>
+                            }
+                            else if (!showBothAlertTiles && showPendingRequests)
+                            {
+                                <div class="col-lg-6 mb-4">
+                                    <PendingRequestsTile />
                                 </div>
                             }
                         </div>
@@ -55,15 +77,6 @@
                                 </div>
                             }
                         </div>
-                        
-                        @if (DashboardState.PendingRequests.Any() || DashboardState.IsPendingRequestsLoading)
-                        {
-                            <div class="row mt-4">
-                                <div class="col-12">
-                                    <PendingRequestsTile />
-                                </div>
-                            </div>
-                        }
                     </div>
 
                     <div class="col-lg-4">

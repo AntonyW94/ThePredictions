@@ -1,8 +1,11 @@
 @using ThePredictions.Domain.Common.Enumerations
+@using ThePredictions.Web.Client.Services.Browser
 @using ThePredictions.Web.Client.Services.Dashboard
 @using System.Globalization
 
 @inject IDashboardStateService DashboardState
+@inject IBrowserService BrowserService
+@inject IJSRuntime JsRuntime
 
 @implements IAsyncDisposable
 
@@ -23,127 +26,128 @@
         }
         else
         {
-            <div class="card-grid">
-                @foreach (var request in DashboardState.PendingRequests)
-                {
-                    <div class="card mb-3">
-                        <div class="header">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h5 class="fw-bold text-white mb-0">@request.LeagueName</h5>
-                                    <small class="text-white-50 fw-bold">@request.SeasonName</small>
-                                    <div class="d-flex justify-content-between align-items-center gap-4 mb-1">
-                                        <div class="text-sm text-muted mt-1">
-                                            Sent: @GetTimeAgo(request.JoinedAtUtc)
-                                        </div>
-                                       
-                                        <div class="flex-shrink-0">
-                                            @if (request.Status == LeagueMemberStatus.Rejected)
-                                            {
-                                                <span class="badge badge-group--red">Rejected</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge badge-group--orange">Pending</span>
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <div class="carousel-wrapper">
+                <div class="carousel-container" @ontouchstart="HandleTouchStart" @ontouchmove="HandleTouchMove" @ontouchend="HandleTouchEnd">
+                    @if (_showArrows && DashboardState.PendingRequests.Count > 1)
+                    {
+                        <button class="carousel-btn" @onclick="ShowPrevious" disabled="@(_currentIndex == 0)">
+                            <span class="bi bi-chevron-left"></span>
+                        </button>
+                    }
 
-                        <div class="px-3">
-                            <div class="row g-2">
-                                <div class="col-6">
-                                    <div class="glass-panel gradient-flex-info center">
-                                        <div class="d-flex align-items-center mb-1 gap-1">
-                                            <i class="bi bi-person-fill me-1 text-grey-300"></i>
-                                            <small class="text-white-50 text-xs">Admin</small>
-                                        </div>
-                                        <span class="text-white small fw-bold text-truncate">@request.AdminName</span>
-                                    </div>
-                                </div>
-
-                                <div class="col-6">
-                                    <div class="glass-panel gradient-flex-info center">
-                                        <div class="d-flex align-items-center mb-1 gap-1">
-                                            <i class="bi bi-people-fill me-1 text-grey-300"></i>
-                                            <small class="text-white-50 text-xs">Members</small>
-                                        </div>
-                                        <span class="text-white small fw-bold">@request.MemberCount</span>
-                                    </div>
-                                </div>
-
-                                <div class="col-6">
-                                    <div class="glass-panel gradient-flex-info center">
-                                        <div class="d-flex align-items-center mb-1 gap-1">
-                                            <i class="bi bi-cash-stack me-1 text-grey-300"></i>
-                                            <small class="text-white-50 text-xs">Entry</small>
-                                        </div>
-                                        <span class="text-white small fw-bold">
-                                            @(request.EntryFee > 0 ? request.EntryFee.ToString("C", new CultureInfo("en-GB")) : "Free")
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div class="col-6">
-                                    <div class="glass-panel gradient-flex-info center">
-                                        <div class="d-flex align-items-center mb-1 gap-1">
-                                            <i class="bi bi-trophy-fill me-1 text-grey-300"></i>
-                                            <small class="text-white-50 text-xs">Est. Pot</small>
-                                        </div>
-                                        <span class="text-white small fw-bold">
-                                            @(request.PotValue > 0 ? request.PotValue.ToString("C", new CultureInfo("en-GB")) : "£0.00")
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="footer px-3">
-                            @switch (request.Status)
+                    <div class="carousel-track-wrapper" id="pending-requests-track-wrapper">
+                        <div class="carousel-track" style="@_trackStyle">
+                            @foreach (var request in DashboardState.PendingRequests)
                             {
-                                case LeagueMemberStatus.Pending:
-                                {
-                                    <button class="btn btn-sm w-100 red-outline-button"
-                                            @onclick="() => CancelRequest(request.LeagueId)"
-                                            disabled="@_processingIds.Contains(request.LeagueId)">
-                                        @if (_processingIds.Contains(request.LeagueId))
-                                        {
-                                            <span><i class="spinner-border spinner-border-sm me-1"></i> Cancelling...</span>
-                                        }
-                                        else
-                                        {
-                                            <span>Cancel Request</span>
-                                        }
-                                    </button>
-                                    break;
-                                }
+                                <div class="carousel-item-wrapper">
+                                    <div class="carousel-item-content">
+                                        <div class="card slide available-league-card">
+                                            <div class="body centered">
+                                                <h5 class="fw-bold mb-1">@request.LeagueName</h5>
+                                                <small class="text-white-50 fw-bold d-block mb-2">@request.SeasonName</small>
 
-                                case LeagueMemberStatus.Rejected:
-                                {
-                                    <button class="btn btn-sm w-100 red-button"
-                                            @onclick="() => DismissAlert(request.LeagueId)"
-                                            disabled="@_processingIds.Contains(request.LeagueId)">
-                                        @if (_processingIds.Contains(request.LeagueId))
-                                        {
-                                            <span><i class="spinner-border spinner-border-sm me-1"></i> Removing...</span>
-                                        }
-                                        else
-                                        {
-                                            <span>Remove Notification</span>
-                                        }
-                                    </button>
-                                    break;
-                                }
+                                                <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
+                                                    @if (request.Status == LeagueMemberStatus.Rejected)
+                                                    {
+                                                        <span class="badge badge-group--red">Rejected</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge badge-group--orange">Pending</span>
+                                                    }
+                                                    <small class="text-white-50">@GetTimeAgo(request.JoinedAtUtc)</small>
+                                                </div>
 
-                                case LeagueMemberStatus.Approved:
-                                    break;
+                                                <div class="available-league-meta">
+                                                    <div class="badge-group badge-group--red">
+                                                        <span class="badge-icon"><i class="bi bi-alarm"></i></span>
+                                                        <LocalTime UtcDate="@request.EntryDeadlineUtc"/>
+                                                    </div>
 
-                                default:
-                                    throw new ArgumentOutOfRangeException();
+                                                    <div class="available-league-meta-row">
+                                                        <div class="badge-group badge-group--blue">
+                                                            <span class="badge-icon"><i class="bi bi-people-fill"></i></span>
+                                                            <span>@request.MemberCount</span>
+                                                        </div>
+
+                                                        <div class="badge-group badge-group--green">
+                                                            <span class="badge-icon"><i class="bi bi-cash-stack"></i></span>
+                                                            <span>@(request.EntryFee > 0 ? request.EntryFee.ToString("C", new CultureInfo("en-GB")) : "Free")</span>
+                                                        </div>
+
+                                                        <div class="badge-group badge-group--green">
+                                                            <span class="badge-icon"><i class="bi bi-trophy-fill"></i></span>
+                                                            <span>@(request.PotValue > 0 ? request.PotValue.ToString("C", new CultureInfo("en-GB")) : "£0.00")</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                @switch (request.Status)
+                                                {
+                                                    case LeagueMemberStatus.Pending:
+                                                    {
+                                                        <button class="btn red-outline-button w-100 mt-3"
+                                                                @onclick="() => CancelRequest(request.LeagueId)"
+                                                                disabled="@_processingIds.Contains(request.LeagueId)">
+                                                            @if (_processingIds.Contains(request.LeagueId))
+                                                            {
+                                                                <span><i class="spinner-border spinner-border-sm me-1"></i> Cancelling...</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span>Cancel Request</span>
+                                                            }
+                                                        </button>
+                                                        break;
+                                                    }
+
+                                                    case LeagueMemberStatus.Rejected:
+                                                    {
+                                                        <button class="btn red-button w-100 mt-3"
+                                                                @onclick="() => DismissAlert(request.LeagueId)"
+                                                                disabled="@_processingIds.Contains(request.LeagueId)">
+                                                            @if (_processingIds.Contains(request.LeagueId))
+                                                            {
+                                                                <span><i class="spinner-border spinner-border-sm me-1"></i> Removing...</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span>Dismiss</span>
+                                                            }
+                                                        </button>
+                                                        break;
+                                                    }
+
+                                                    case LeagueMemberStatus.Approved:
+                                                        break;
+
+                                                    default:
+                                                        throw new ArgumentOutOfRangeException();
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             }
                         </div>
+                    </div>
+
+                    @if (_showArrows && DashboardState.PendingRequests.Count > 1)
+                    {
+                        <button class="carousel-btn" @onclick="ShowNext" disabled="@IsAtEnd()">
+                            <span class="bi bi-chevron-right"></span>
+                        </button>
+                    }
+                </div>
+
+                @if (NumberOfDots > 1)
+                {
+                    <div class="carousel-dots">
+                        @for (var i = 0; i < NumberOfDots; i++)
+                        {
+                            var dotIndex = i;
+                            <span class="carousel-dot @(i == _currentIndex ? "active" : "")" @onclick="() => GoToSlide(dotIndex)"></span>
+                        }
                     </div>
                 }
             </div>
@@ -152,11 +156,99 @@
 }
 
 @code {
+    private int _currentIndex;
+    private double _touchStartX;
+    private string _trackStyle = "transform: translateX(0%);";
+    private bool _showArrows;
     private readonly HashSet<int> _processingIds = [];
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         DashboardState.OnStateChange += StateHasChanged;
+        _showArrows = await BrowserService.IsTabletOrAbove();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (DashboardState.PendingRequests.Any())
+            await UpdateCarouselHeightAsync();
+    }
+
+    private int NumberOfDots
+    {
+        get
+        {
+            if (DashboardState.PendingRequests.Count <= 1)
+                return 0;
+
+            return DashboardState.PendingRequests.Count;
+        }
+    }
+
+    private void HandleTouchStart(TouchEventArgs e)
+    {
+        _touchStartX = e.Touches[0].ClientX;
+    }
+
+    private static void HandleTouchMove(TouchEventArgs e)
+    {
+    }
+
+    private async Task HandleTouchEnd(TouchEventArgs e)
+    {
+        var touchEndX = e.ChangedTouches[0].ClientX;
+        var diffX = _touchStartX - touchEndX;
+
+        if (!(Math.Abs(diffX) > 50))
+            return;
+
+        if (diffX > 0)
+            await ShowNext();
+        else
+            await ShowPrevious();
+    }
+
+    private async Task GoToSlide(int index)
+    {
+        if (index < 0 || index >= NumberOfDots)
+            return;
+
+        _currentIndex = index;
+        await UpdateTrackStyle();
+    }
+
+    private async Task ShowPrevious()
+    {
+        if (_currentIndex <= 0)
+            return;
+
+        _currentIndex--;
+        await UpdateTrackStyle();
+    }
+
+    private async Task ShowNext()
+    {
+        if (IsAtEnd())
+            return;
+
+        _currentIndex++;
+        await UpdateTrackStyle();
+    }
+
+    private async Task UpdateTrackStyle()
+    {
+        _trackStyle = $"transform: translateX(-{_currentIndex * 100}%);";
+        await UpdateCarouselHeightAsync();
+    }
+
+    private async Task UpdateCarouselHeightAsync()
+    {
+        await JsRuntime.InvokeVoidAsync("blazorInterop.updateCarouselHeight", "pending-requests-track-wrapper", _currentIndex, 1);
+    }
+
+    private bool IsAtEnd()
+    {
+        return _currentIndex >= DashboardState.PendingRequests.Count - 1;
     }
 
     private async Task CancelRequest(int leagueId)
@@ -193,10 +285,10 @@
     {
         var span = DateTime.UtcNow - dateUtc;
 
-        if (span.TotalDays > 1) 
+        if (span.TotalDays > 1)
             return $"{(int)span.TotalDays}d ago";
 
-        if (span.TotalHours > 1) 
+        if (span.TotalHours > 1)
             return $"{(int)span.TotalHours}h ago";
 
         return span.TotalMinutes > 1 ? $"{(int)span.TotalMinutes}m ago" : "Just now";

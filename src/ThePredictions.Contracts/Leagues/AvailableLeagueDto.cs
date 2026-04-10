@@ -6,4 +6,5 @@ public record AvailableLeagueDto(
     string SeasonName,
     decimal Price,
     DateTime EntryDeadlineUtc,
-    int MemberCount);
+    int MemberCount,
+    decimal EstPot);
