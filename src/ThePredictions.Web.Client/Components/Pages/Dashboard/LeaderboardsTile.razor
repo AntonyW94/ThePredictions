@@ -23,7 +23,10 @@
     }
     else if (!DashboardState.Leaderboards.Any())
     {
-        <p class="text-center text-white">No active leaderboards.</p>
+        <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1">
+            <i class="bi bi-bar-chart-line empty-state-icon"></i>
+            <p class="text-white-50 mt-2 mb-0 text-center">No active leaderboards.</p>
+        </div>
     }
     else
     {

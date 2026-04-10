@@ -24,41 +24,31 @@
         <div class="card-grid">
             @foreach (var league in DashboardState.AvailableLeagues)
             {
-                <div class="card">
-                    <div class="header">
-                        <h5 class="fw-bold text-white">@league.Name</h5>
-                        <small class="text-white-50 fw-bold">@league.SeasonName</small>
-                    </div>
+                <div class="card available-league-card">
+                    <div class="body centered">
+                        <h5 class="fw-bold mb-1">@league.Name</h5>
+                        <small class="text-white-50 fw-bold d-block mb-3">@league.SeasonName</small>
 
-                    <div class="body">
-                        <div class="detail-list">
-                            <div class="detail-row centered">
+                        <div class="available-league-meta">
                             <div class="badge-group badge-group--red">
                                 <span class="badge-icon"><i class="bi bi-alarm"></i></span>
                                 <LocalTime UtcDate="@league.EntryDeadlineUtc"/>
                             </div>
-                        </div>
 
-                            <div class="detail-row">
+                            <div class="available-league-meta-row">
                                 <div class="badge-group badge-group--blue">
-                                    <span class="badge-icon">
-                                        <i class="bi bi-people-fill"></i>
-                                    </span>
+                                    <span class="badge-icon"><i class="bi bi-people-fill"></i></span>
                                     <span>@league.MemberCount</span>
                                 </div>
 
                                 <div class="badge-group badge-group--green">
-                                    <span class="badge-icon">
-                                        <i class="bi bi-cash-stack"></i>
-                                    </span>
+                                    <span class="badge-icon"><i class="bi bi-cash-stack"></i></span>
                                     <span>@(league.Price > 0 ? league.Price.ToString("C", new CultureInfo("en-GB")) : "Free Entry")</span>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="footer">
-                        <button class="btn btn-sm purple-accent-button w-100"
+                        <button class="btn purple-accent-button w-100 mt-3"
                                 @onclick="() => HandleJoinLeagueAsync(league.Id)"
                                 disabled="@_isBusy">
                             Join
@@ -70,7 +60,10 @@
     }
     else
     {
-        <p class="text-white fw-bold text-center">There are currently no public leagues available.</p>
+        <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1">
+            <i class="bi bi-people empty-state-icon"></i>
+            <p class="text-white-50 mt-2 mb-0 text-center">No public leagues available right now.</p>
+        </div>
     }
 
     <div class="mt-auto pt-4">
