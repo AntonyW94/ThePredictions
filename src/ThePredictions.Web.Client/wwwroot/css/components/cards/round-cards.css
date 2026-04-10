@@ -98,8 +98,8 @@
     opacity: 0.5;
 }
 
-/* Small phone and up (--breakpoint-phone-small: 480px) */
-@media (min-width: 480px) {
+/* iPhone 16 and up (393px viewport) */
+@media (min-width: 390px) {
     .match-preview-grid {
         grid-template-columns: 1fr 1fr;
         gap: 0.5rem;
