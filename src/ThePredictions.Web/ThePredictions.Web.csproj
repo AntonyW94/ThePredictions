@@ -172,9 +172,10 @@ System.IO.File.WriteAllText(FilePath, content);
         <Message Importance="high" Text="CSS bundled successfully!" />
 
         <!-- Add cache busting version to index.html -->
-        <Message Importance="high" Text="Adding CSS cache busting version: $(CssVersion)" />
+        <Message Importance="high" Text="Adding cache busting version: $(CssVersion)" />
         <ReplaceInFile FilePath="$(IndexHtmlPath)" Find="href=&quot;css/app.css&quot;" ReplaceWith="href=&quot;css/app.css?v=$(CssVersion)&quot;" />
+        <ReplaceInFile FilePath="$(IndexHtmlPath)" Find="src=&quot;js/interop.js&quot;" ReplaceWith="src=&quot;js/interop.js?v=$(CssVersion)&quot;" />
 
-        <Message Importance="high" Text="CSS processing complete. Cache version: $(CssVersion)" />
+        <Message Importance="high" Text="Cache busting complete. Version: $(CssVersion)" />
     </Target>
 </Project>
