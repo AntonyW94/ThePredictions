@@ -88,6 +88,18 @@ a.navbar-brand span {
     font-size: 1.25rem;
 }
 
+.theme-toggle-btn {
+    font-size: 1.25rem;
+    padding: 0.25rem 0.5rem;
+    line-height: 1;
+    color: var(--green-300);
+    transition: color 0.2s ease-in-out;
+}
+
+.theme-toggle-btn:hover {
+    color: var(--green-600);
+}
+
 .navbar-nav > .nav-item {
     transition: background-color 0.2s ease-in-out;
     border-radius: var(--bs-border-radius);

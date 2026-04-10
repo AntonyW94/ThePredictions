@@ -470,6 +470,7 @@ Extended ASP.NET Identity users table.
 | AccessFailedCount | int | NO | | Failed login attempts |
 | **FirstName** | nvarchar(100) | NO | | **Custom: User's first name** |
 | **LastName** | nvarchar(100) | NO | | **Custom: User's last name** |
+| **PreferredTheme** | nvarchar(10) | NO | 'light' | **Custom: User's theme preference ('light' or 'dark')** |
 
 **Constraints:**
 - PK: `Id`

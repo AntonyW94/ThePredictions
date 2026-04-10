@@ -1,10 +1,12 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
+@inject IThemeService ThemeService
+@using ThePredictions.Web.Client.Services.Theme
 @implements IDisposable
 
 <div class="page">
     <CascadingAuthenticationState>
-        <main class="@_backgroundClass">
+        <main class="@_backgroundClass @(ThemeService.IsDarkMode ? "theme-dark" : "")">
             <NavLayout class="@_navLayoutClass" />
 
             <article class="content">
@@ -29,10 +31,12 @@
     private string _navLayoutClass = "";
     private string _backgroundClass = "";
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         SetLayoutClasses();
         NavigationManager.LocationChanged += OnLocationChanged;
+        ThemeService.OnThemeChanged += StateHasChanged;
+        await ThemeService.InitialiseAsync();
     }
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
@@ -61,5 +65,6 @@
     public void Dispose()
     {
         NavigationManager.LocationChanged -= OnLocationChanged;
+        ThemeService.OnThemeChanged -= StateHasChanged;
     }
 }

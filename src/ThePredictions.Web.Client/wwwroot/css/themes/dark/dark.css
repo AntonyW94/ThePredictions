@@ -9,6 +9,10 @@
     background: var(--purple-800);
 }
 
+.theme-dark.bg-grey-100 {
+    background-color: var(--purple-800) !important;
+}
+
 .theme-dark .admin-table-container {
     background-color: var(--purple-600);
 }
@@ -61,6 +65,19 @@
 
 .theme-dark .section > h3 {
     color: var(--white);
+}
+
+.theme-dark h1,
+.theme-dark h2,
+.theme-dark h3,
+.theme-dark h4,
+.theme-dark h5,
+.theme-dark h6 {
+    color: var(--white);
+}
+
+.theme-dark .empty-state-icon {
+    color: var(--white-alpha-30);
 }
 
 .theme-dark .section-body-collapsible::-webkit-scrollbar-track {
@@ -339,7 +356,12 @@
 }
 
 .theme-dark .carousel-dot {
-    background-color: var(--purple-800);
+    background-color: var(--white-alpha-15);
+}
+
+.theme-dark .carousel-dot.active,
+.theme-dark .carousel-dot:hover {
+    background-color: var(--green-600);
 }
 
 .theme-dark .filter-card {
@@ -415,11 +437,74 @@
 }
 
 /* ============================================
-   BADGES
+   BADGES — revert tinted chips to solid colours
    ============================================ */
+
+.theme-dark .badge-group--green {
+    background-color: var(--green-600);
+    color: var(--white);
+}
+
+.theme-dark .badge-group--red {
+    background-color: var(--red);
+    color: var(--white);
+}
+
+.theme-dark .badge-group--blue {
+    background-color: var(--blue-700);
+    color: var(--white);
+}
+
+.theme-dark .badge-group--purple {
+    background-color: var(--purple-200);
+    color: var(--white);
+}
+
+.theme-dark .badge-group--orange {
+    background-color: var(--orange);
+    color: var(--white);
+}
+
+.theme-dark .badge-group--yellow {
+    background-color: var(--yellow);
+    color: var(--purple-800);
+}
+
+.theme-dark .badge-icon {
+    background-color: var(--white);
+}
+
+.theme-dark .badge-group--green .badge-icon {
+    color: var(--green-600);
+}
+
+.theme-dark .badge-group--red .badge-icon {
+    color: var(--red);
+}
+
+.theme-dark .badge-group--blue .badge-icon {
+    color: var(--blue-700);
+}
+
+.theme-dark .badge-group--purple .badge-icon {
+    color: var(--purple-200);
+}
+
+.theme-dark .badge-group--orange .badge-icon {
+    color: var(--orange);
+}
+
+.theme-dark .badge-group--yellow .badge-icon {
+    color: var(--purple-800);
+}
+
+.theme-dark .badge {
+    color: var(--white);
+}
 
 .theme-dark .current-user-highlight .badge-group--green {
     background-color: var(--white);
+    color: var(--green-600);
 }
 
 /* ============================================
@@ -434,6 +519,20 @@
 .theme-dark .app-loading-container .spinner {
     border-color: var(--white-alpha-30);
     border-top-color: var(--green-600);
+}
+
+/* ============================================
+   MODALS
+   ============================================ */
+
+.theme-dark .modal-content.bg-white {
+    background-color: var(--purple-1000) !important;
+    color: var(--white);
+    border: 1px solid var(--white-alpha-08);
+}
+
+.theme-dark .modal-content .btn-close {
+    filter: invert(1);
 }
 
 /* ============================================
