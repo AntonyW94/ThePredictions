@@ -10,97 +10,154 @@
 
 <PageTitle>Manage League Members</PageTitle>
 
-<div class="page-container">
+<div class="page-container admin-light">
     <div class="admin-table-container">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="fw-bold text-white mb-0">Manage Members for @_leagueData?.LeagueName</h3>
+            <h3 class="fw-bold mb-0">Members</h3>
+            <span class="form-label mb-0">@_leagueData?.LeagueName</span>
         </div>
 
         @if (_leagueData == null)
         {
-            <p class="text-center text-white"><em>Loading members...</em></p>
+            <div class="d-flex justify-content-center align-items-center py-5">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
         }
         else
         {
             <ApiError Message="@_errorMessage" />
 
-            <div class="row">
-                <div class="col-md-4 mb-4">
-                    <div class="member-status-column">
-                        <h4 class="text-white mb-3">Pending Approval</h4>
-                        @if (_leagueData.Members.Any(m => m.Status == LeagueMemberStatus.Pending))
-                        {
-                            @foreach (var member in _leagueData.Members.Where(m => m.Status == LeagueMemberStatus.Pending))
-                            {
-                                <div class="card">
-                                    <div class="header">
-                                        <h5 class="fw-bold text-white">@member.FullName</h5>
-                                        <small class="text-white-50 fw-bold">Joined: @member.JoinedAtUtc.ToString("dd MMM yyyy")</small>
-                                    </div>
-                                    <div class="footer">
-                                        <button class="btn btn-sm red-button" @onclick="() => RejectMemberAsync(member.UserId)"><i class="bi bi-x-circle me-2 fw-bold"></i>Reject</button>
-                                        <button class="btn btn-sm green-button" @onclick="() => ApproveMemberAsync(member.UserId)"><i class="bi bi-check-circle me-2 fw-bold"></i>Approve</button>
-                                    </div>
-                                </div>
-                            }
-                        }
-                        else
-                        {
-                            <p class="column-placeholder text-white">No members are currently pending approval.</p>
-                        }
-                    </div>
-                </div>
-
-                <div class="col-md-4 mb-4">
-                    <div class="member-status-column">
-                        <h4 class="text-white mb-3">Approved Members</h4>
-                        @if (_leagueData.Members.Any(m => m.Status == LeagueMemberStatus.Approved))
-                        {
-                            @foreach (var member in _leagueData.Members.Where(m => m.Status == LeagueMemberStatus.Approved))
-                            {
-                                <div class="card row">
-                                    <div>
-                                        <div class="fw-bold text-center">@member.FullName</div>
-                                        <div class="small text-white-50 text-center">Joined: @member.JoinedAtUtc.ToString("dd MMM yyyy")</div>
-                                    </div>
-                                    <span class="badge bg-green-600">Approved</span>
-                                </div>
-                            }
-                        }
-                        else
-                        {
-                            <p class="column-placeholder text-white">No members are currently approved.</p>
-                        }
-                    </div>
-                </div>
-
-                <div class="col-md-4 mb-4">
-                    <div class="member-status-column">
-                        <h4 class="text-white mb-3">Rejected Members</h4>
-                        @if (_leagueData.Members.Any(m => m.Status == LeagueMemberStatus.Rejected))
-                        {
-                            @foreach (var member in _leagueData.Members.Where(m => m.Status == LeagueMemberStatus.Rejected))
-                            {
-                                <div class="card row">
-                                    <div>
-                                        <div class="fw-bold text-center">@member.FullName</div>
-                                        <div class="small text-white-50 text-center">Joined: @member.JoinedAtUtc.ToString("dd MMM yyyy")</div>
-                                    </div>
-                                    <span class="badge bg-red">Rejected</span>
-                                </div>
-                            }
-                        }
-                        else
-                        {
-                            <p class="column-placeholder text-white">No members are currently rejected.</p>
-                        }
-                    </div>
-                </div>
+            <div class="admin-tabs-mobile">
+                <select @onchange="OnMobileTabChanged" value="@_activeTab">
+                    <option value="approved">Approved (@_approvedMembers.Count)</option>
+                    <option value="pending">Pending (@_pendingMembers.Count)</option>
+                    <option value="rejected">Rejected (@_rejectedMembers.Count)</option>
+                </select>
             </div>
 
-            <button class="btn red-button d-flex align-items-center mt-3" @onclick="BackToLeagues">
-                <span class="bi bi-arrow-left-circle-fill me-2"></span>Back to Leagues
-            </button>
+            <div class="admin-tabs">
+                <button class="admin-tab @(_activeTab == "approved" ? "active" : "")" @onclick='() => _activeTab = "approved"'>
+                    Approved
+                    <span class="match-count-badge">@_approvedMembers.Count</span>
+                </button>
+                <button class="admin-tab @(_activeTab == "pending" ? "active" : "")" @onclick='() => _activeTab = "pending"'>
+                    Pending
+                    @if (_pendingMembers.Any())
+                    {
+                        <span class="match-count-badge" style="background: var(--orange)">@_pendingMembers.Count</span>
+                    }
+                </button>
+                <button class="admin-tab @(_activeTab == "rejected" ? "active" : "")" @onclick='() => _activeTab = "rejected"'>
+                    Rejected
+                    @if (_rejectedMembers.Any())
+                    {
+                        <span class="match-count-badge" style="background: var(--red)">@_rejectedMembers.Count</span>
+                    }
+                </button>
+            </div>
+
+            @if (_activeTab == "approved")
+            {
+                @if (_approvedMembers.Any())
+                {
+                    <div class="member-list">
+                        @foreach (var member in _approvedMembers)
+                        {
+                            <div class="member-row">
+                                <div class="member-avatar">
+                                    @member.FullName[0]
+                                </div>
+                                <div class="member-info">
+                                    <span class="member-name">@member.FullName</span>
+                                    <span class="member-date">Joined @member.JoinedAtUtc.ToString("dd MMM yyyy")</span>
+                                </div>
+                                <span class="member-status-pill member-status-approved">Approved</span>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <span class="bi bi-people empty-state-icon"></span>
+                        <p class="empty-state-title">No approved members</p>
+                        <p class="empty-state-text">Approved members will appear here.</p>
+                    </div>
+                }
+            }
+            else if (_activeTab == "pending")
+            {
+                @if (_pendingMembers.Any())
+                {
+                    <div class="member-list">
+                        @foreach (var member in _pendingMembers)
+                        {
+                            <div class="member-row">
+                                <div class="member-avatar">
+                                    @member.FullName[0]
+                                </div>
+                                <div class="member-info">
+                                    <span class="member-name">@member.FullName</span>
+                                    <span class="member-date">Applied @member.JoinedAtUtc.ToString("dd MMM yyyy")</span>
+                                </div>
+                                <div class="member-actions">
+                                    <button class="btn btn-sm green-button" @onclick="() => ApproveMemberAsync(member.UserId)">
+                                        <span class="bi bi-check-lg me-1"></span>Approve
+                                    </button>
+                                    <button class="btn btn-sm red-button" @onclick="() => RejectMemberAsync(member.UserId)">
+                                        <span class="bi bi-x-lg me-1"></span>Reject
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <span class="bi bi-inbox empty-state-icon"></span>
+                        <p class="empty-state-title">No pending requests</p>
+                        <p class="empty-state-text">Member requests awaiting approval will appear here.</p>
+                    </div>
+                }
+            }
+            else if (_activeTab == "rejected")
+            {
+                @if (_rejectedMembers.Any())
+                {
+                    <div class="member-list">
+                        @foreach (var member in _rejectedMembers)
+                        {
+                            <div class="member-row">
+                                <div class="member-avatar">
+                                    @member.FullName[0]
+                                </div>
+                                <div class="member-info">
+                                    <span class="member-name">@member.FullName</span>
+                                    <span class="member-date">Rejected @member.JoinedAtUtc.ToString("dd MMM yyyy")</span>
+                                </div>
+                                <span class="member-status-pill member-status-rejected">Rejected</span>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <span class="bi bi-person-x empty-state-icon"></span>
+                        <p class="empty-state-title">No rejected members</p>
+                        <p class="empty-state-text">Rejected members will appear here.</p>
+                    </div>
+                }
+            }
+
+            <div class="mt-4">
+                <button class="btn red-button d-flex align-items-center" @onclick="BackToLeagues">
+                    <span class="bi bi-arrow-left-circle-fill me-2"></span>Back to Leagues
+                </button>
+            </div>
         }
     </div>
 </div>
@@ -111,10 +168,20 @@
 
     private LeagueMembersPageDto? _leagueData;
     private string? _errorMessage;
+    private string _activeTab = "approved";
+
+    private List<LeagueMemberDto> _approvedMembers = [];
+    private List<LeagueMemberDto> _pendingMembers = [];
+    private List<LeagueMemberDto> _rejectedMembers = [];
 
     protected override async Task OnInitializedAsync()
     {
         await LoadMembersAsync();
+    }
+
+    private void OnMobileTabChanged(ChangeEventArgs e)
+    {
+        _activeTab = e.Value?.ToString() ?? "approved";
     }
 
     private async Task LoadMembersAsync()
@@ -124,6 +191,13 @@
         try
         {
             _leagueData = await Http.GetFromJsonAsync<LeagueMembersPageDto>($"api/leagues/{LeagueId}/members");
+
+            if (_leagueData != null)
+            {
+                _approvedMembers = _leagueData.Members.Where(m => m.Status == LeagueMemberStatus.Approved).ToList();
+                _pendingMembers = _leagueData.Members.Where(m => m.Status == LeagueMemberStatus.Pending).ToList();
+                _rejectedMembers = _leagueData.Members.Where(m => m.Status == LeagueMemberStatus.Rejected).ToList();
+            }
         }
         catch (Exception)
         {

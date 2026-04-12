@@ -9,13 +9,13 @@
 
 <PageTitle>Enter Results - Round @ViewModel.RoundNumber</PageTitle>
 
-<div class="page-container">
+<div class="page-container admin-light">
     <div class="form-container extra-wide">
-        <h3 class="text-center fw-bold text-white mb-4">Enter Results for Round @ViewModel.RoundNumber</h3>
+        <h3 class="text-center fw-bold mb-4">Enter Results for Round @ViewModel.RoundNumber</h3>
 
         @if (ViewModel.IsLoading)
         {
-            <p class="text-center text-white"><em>Loading matches...</em></p>
+            <p class="text-center"><em>Loading matches...</em></p>
         }
         else if (ViewModel.Matches.Any())
         {
@@ -29,7 +29,7 @@
                     {
                         <div class="prediction-card">
                             <div class="prediction-card-header">
-                                <h6 class="card-title text-white fw-bold text-center mb-2">
+                                <h6 class="card-title fw-bold text-center mb-0">
                                     <LocalTime UtcDate="@match.MatchDateTimeUtc" Format="dddd dd MMMM, HH:mm"></LocalTime>
                                 </h6>
 
@@ -88,7 +88,7 @@
         }
         else
         {
-            <p class="text-center text-white">There are no matches for this round.</p>
+            <p class="text-center">There are no matches for this round.</p>
         }
     </div>
 </div>

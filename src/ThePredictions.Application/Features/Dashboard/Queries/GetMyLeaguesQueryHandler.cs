@@ -19,6 +19,8 @@ public class GetMyLeaguesQueryHandler(IApplicationReadDbConnection dbConnection)
 		        l.[PrizeFundOverride],
                 s.[Id] AS SeasonId,
                 s.[Name] AS SeasonName,
+                s.[CompetitionType],
+                s.[StartDateUtc] AS SeasonStartDateUtc,
                 lm.[UserId],
                 lm.[Status]
             FROM [LeagueMembers] lm
@@ -102,12 +104,19 @@ public class GetMyLeaguesQueryHandler(IApplicationReadDbConnection dbConnection)
             l.[LeagueId] AS Id,
             l.[LeagueName] AS Name,
             l.[SeasonName],
+            l.[CompetitionType],
+            l.[SeasonStartDateUtc],
 
             CASE WHEN ar.[RoundId] IS NOT NULL THEN 'Round ' + CAST(ar.[RoundNumber] AS VARCHAR(10)) ELSE NULL END AS CurrentRound,
-            CASE WHEN ar.[RoundId] IS NOT NULL THEN DATENAME(MONTH, ar.[StartDateUtc]) ELSE NULL END AS CurrentMonth,
+            CASE
+                WHEN ar.[RoundId] IS NULL THEN NULL
+                WHEN l.[CompetitionType] = 1 THEN 'Exact Scores'
+                ELSE DATENAME(MONTH, ar.[StartDateUtc])
+            END AS CurrentMonth,
+            ar.[StartDateUtc] AS RoundStartDateUtc,
             ISNULL(lc.[MemberCount], 0) AS MemberCount,
 
-            stats.[OverallRank] AS Rank,
+            ISNULL(stats.[OverallRank], 1) AS Rank,
             armr.[ActiveMonthRank] AS MonthRank,
             CASE 
                 WHEN ar.[Status] = @PublishedStatus THEN 1                    

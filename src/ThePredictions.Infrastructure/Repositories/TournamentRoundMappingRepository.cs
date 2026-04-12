@@ -1,0 +1,96 @@
+using System.Data;
+using Dapper;
+using ThePredictions.Application.Data;
+using ThePredictions.Application.Repositories;
+using ThePredictions.Domain.Models;
+
+namespace ThePredictions.Infrastructure.Repositories;
+
+public class TournamentRoundMappingRepository(IDbConnectionFactory connectionFactory) : ITournamentRoundMappingRepository
+{
+    private IDbConnection Connection => connectionFactory.CreateConnection();
+
+    public async Task<List<TournamentRoundMapping>> GetBySeasonIdAsync(int seasonId, CancellationToken cancellationToken)
+    {
+        const string sql = @"
+            SELECT
+                m.[Id],
+                m.[SeasonId],
+                m.[RoundNumber],
+                m.[DisplayName],
+                m.[Stages],
+                m.[ExpectedMatchCount]
+            FROM
+                [TournamentRoundMappings] m
+            WHERE
+                m.[SeasonId] = @SeasonId
+            ORDER BY
+                m.[RoundNumber]";
+
+        var command = new CommandDefinition(
+            commandText: sql,
+            parameters: new { SeasonId = seasonId },
+            cancellationToken: cancellationToken
+        );
+
+        var results = await Connection.QueryAsync<TournamentRoundMapping>(command);
+        return results.ToList();
+    }
+
+    public async Task ReplaceAllForSeasonAsync(int seasonId, List<TournamentRoundMapping> mappings, CancellationToken cancellationToken)
+    {
+        const string deleteSql = @"
+            DELETE FROM
+                [TournamentRoundMappings]
+            WHERE
+                [SeasonId] = @SeasonId";
+
+        const string insertSql = @"
+            INSERT INTO [TournamentRoundMappings]
+            (
+                [SeasonId],
+                [RoundNumber],
+                [DisplayName],
+                [Stages],
+                [ExpectedMatchCount]
+            )
+            VALUES
+            (
+                @SeasonId,
+                @RoundNumber,
+                @DisplayName,
+                @Stages,
+                @ExpectedMatchCount
+            )";
+
+        using var connection = connectionFactory.CreateConnection();
+        connection.Open();
+        using var transaction = connection.BeginTransaction();
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                commandText: deleteSql,
+                parameters: new { SeasonId = seasonId },
+                transaction: transaction,
+                cancellationToken: cancellationToken));
+
+        foreach (var mapping in mappings)
+        {
+            await connection.ExecuteAsync(
+                new CommandDefinition(
+                    commandText: insertSql,
+                    parameters: new
+                    {
+                        mapping.SeasonId,
+                        mapping.RoundNumber,
+                        mapping.DisplayName,
+                        mapping.Stages,
+                        mapping.ExpectedMatchCount
+                    },
+                    transaction: transaction,
+                    cancellationToken: cancellationToken));
+        }
+
+        transaction.Commit();
+    }
+}

@@ -13,7 +13,8 @@ public class GetUserQueryHandler(IApplicationReadDbConnection dbConnection) : IR
                 [FirstName],
                 [LastName],
                 [Email],
-                [PhoneNumber]
+                [PhoneNumber],
+                [PreferredTheme]
             FROM [AspNetUsers]
             WHERE [Id] = @UserId;";
 

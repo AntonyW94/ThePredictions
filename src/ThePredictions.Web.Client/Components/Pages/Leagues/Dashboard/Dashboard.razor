@@ -6,6 +6,7 @@
 
 @implements IAsyncDisposable
 
+@using ThePredictions.Contracts.Leagues
 @using ThePredictions.Web.Client.Services.Leagues
 
 <PageTitle>League Dashboard</PageTitle>
@@ -22,29 +23,121 @@
         {
             <h3 class="text-center fw-bold text-white mb-4">@State.LeagueName</h3>
 
-            <div class="row">
-                <div class="col-12 mb-4">
-                    <RoundResultsTile LeagueId="LeagueId" />
-                </div>
+            @if (!State.ViewableRounds.Any())
+            {
+                <div class="dashboard-waiting text-center">
+                    <div class="dashboard-waiting__pulse"></div>
+                    <div class="dashboard-waiting__content">
+                        <i class="bi bi-hourglass-split dashboard-waiting__icon"></i>
+                        <h4 class="fw-bold text-white mt-3">The competition hasn't started yet</h4>
 
-                <div class="col-lg-4 mb-4 d-flex">
-                    <OverallLeaderboardTile LeagueId="LeagueId" />
-                </div>
+                        @if (State.SeasonStartDateUtc.HasValue && _timeRemaining.HasValue && _timeRemaining.Value.TotalSeconds > 0)
+                        {
+                            <div class="dashboard-waiting__countdown mt-3">
+                                <div class="dashboard-waiting__unit">
+                                    <span class="dashboard-waiting__value">@_timeRemaining.Value.Days</span>
+                                    <span class="dashboard-waiting__label">Days</span>
+                                </div>
+                                <span class="dashboard-waiting__separator">:</span>
+                                <div class="dashboard-waiting__unit">
+                                    <span class="dashboard-waiting__value">@_timeRemaining.Value.Hours.ToString("D2")</span>
+                                    <span class="dashboard-waiting__label">Hours</span>
+                                </div>
+                                <span class="dashboard-waiting__separator">:</span>
+                                <div class="dashboard-waiting__unit">
+                                    <span class="dashboard-waiting__value">@_timeRemaining.Value.Minutes.ToString("D2")</span>
+                                    <span class="dashboard-waiting__label">Mins</span>
+                                </div>
+                                <span class="dashboard-waiting__separator">:</span>
+                                <div class="dashboard-waiting__unit">
+                                    <span class="dashboard-waiting__value">@_timeRemaining.Value.Seconds.ToString("D2")</span>
+                                    <span class="dashboard-waiting__label">Secs</span>
+                                </div>
+                            </div>
+                            <p class="text-white-50 mt-2 mb-0">Kicks off @State.SeasonStartDateUtc.Value.ToString("dd MMMM yyyy")</p>
+                        }
+                        else if (State.SeasonStartDateUtc.HasValue)
+                        {
+                            <p class="text-white-50 fs-5 mt-2">Kicks off on @State.SeasonStartDateUtc.Value.ToString("dd MMMM yyyy")</p>
+                        }
 
-                <div class="col-lg-4 mb-4 d-flex">
-                    <MonthlyLeaderboardTile LeagueId="LeagueId" />
-                </div>
+                        <div class="d-flex justify-content-center gap-5 mt-4">
+                            <div>
+                                <div class="fw-bold text-white fs-3">@State.MemberCount</div>
+                                <small class="text-white-50 text-uppercase fw-bold">Players</small>
+                            </div>
+                            @if (State.TotalPrizeFund > 0)
+                            {
+                                <div>
+                                    <div class="fw-bold text-green-600 fs-3">@((MarkupString)$"&pound;{State.TotalPrizeFund:0.00}")</div>
+                                    <small class="text-white-50 text-uppercase fw-bold">Prize Pot</small>
+                                </div>
+                            }
+                        </div>
 
-                <div class="col-lg-4 mb-4 d-flex">
-                    <ExactScoresLeaderboardTile LeagueId="LeagueId" />
+                        @if (State.Members.Any())
+                        {
+                            <div class="dashboard-waiting__members mt-5">
+                                <div class="dashboard-waiting__members-table">
+                                    @foreach (var member in State.Members)
+                                    {
+                                        <div class="dashboard-waiting__member-row">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="member-avatar">@member.FullName[0]</div>
+                                                <span class="text-white fw-bold">@member.FullName</span>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-3">
+                                                <small class="text-white-50 d-none d-md-inline">@member.JoinedAtUtc.ToString("dd MMM yyyy")</small>
+                                                @if (member.Status == "Approved")
+                                                {
+                                                    <span class="member-status-pill member-status-approved">Approved</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="member-status-pill member-status-pending">Pending</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
                 </div>
+            }
+            else
+            {
+                <div class="row">
+                    <div class="col-12 mb-4">
+                        <RoundResultsTile LeagueId="LeagueId" />
+                    </div>
 
-                <BoostUsageTile LeagueId="LeagueId" />
+                    @{
+                        var leaderboardColClass = State.CompetitionType == 1 ? "col-lg-6" : "col-lg-4";
+                    }
 
-                <div class="col-12">
-                    <WinningsSection LeagueId="LeagueId" />
+                    <div class="@leaderboardColClass mb-4 d-flex">
+                        <OverallLeaderboardTile LeagueId="LeagueId" />
+                    </div>
+
+                    @if (State.CompetitionType != 1)
+                    {
+                        <div class="col-lg-4 mb-4 d-flex">
+                            <MonthlyLeaderboardTile LeagueId="LeagueId" />
+                        </div>
+                    }
+
+                    <div class="@leaderboardColClass mb-4 d-flex">
+                        <ExactScoresLeaderboardTile LeagueId="LeagueId" />
+                    </div>
+
+                    <BoostUsageTile LeagueId="LeagueId" />
+
+                    <div class="col-12">
+                        <WinningsSection LeagueId="LeagueId" />
+                    </div>
                 </div>
-            </div>
+            }
         }
     </div>
 </div>
@@ -53,15 +146,56 @@
     [Parameter]
     public int LeagueId { get; set; }
 
+    private TimeSpan? _timeRemaining;
+    private System.Timers.Timer? _countdownTimer;
+
     protected override async Task OnInitializedAsync()
     {
         State.OnStateChange += StateHasChanged;
         await State.LoadDashboardData(LeagueId);
+        StartCountdown();
+    }
+
+    private void StartCountdown()
+    {
+        if (!State.SeasonStartDateUtc.HasValue)
+            return;
+
+        UpdateTimeRemaining();
+
+        if (_timeRemaining is not { TotalSeconds: > 0 })
+            return;
+
+        _countdownTimer = new System.Timers.Timer(1000);
+        _countdownTimer.Elapsed += (_, _) =>
+        {
+            InvokeAsync(() =>
+            {
+                UpdateTimeRemaining();
+                StateHasChanged();
+
+                if (_timeRemaining is not { TotalSeconds: > 0 })
+                    _countdownTimer?.Stop();
+            });
+        };
+        _countdownTimer.AutoReset = true;
+        _countdownTimer.Start();
+    }
+
+    private void UpdateTimeRemaining()
+    {
+        if (!State.SeasonStartDateUtc.HasValue)
+            return;
+
+        var remaining = State.SeasonStartDateUtc.Value - DateTime.UtcNow;
+        _timeRemaining = remaining.TotalSeconds > 0 ? remaining : TimeSpan.Zero;
     }
 
     public ValueTask DisposeAsync()
     {
         State.OnStateChange -= StateHasChanged;
+        _countdownTimer?.Stop();
+        _countdownTimer?.Dispose();
         return ValueTask.CompletedTask;
     }
 }

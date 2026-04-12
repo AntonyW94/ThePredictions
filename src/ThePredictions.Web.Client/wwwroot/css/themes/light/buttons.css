@@ -1,0 +1,50 @@
+/* Light Theme - Buttons */
+/* Scoped under .admin-light */
+
+.admin-light .green-button {
+    background: var(--green-600);
+    color: var(--white);
+    border: 1px solid var(--green-600);
+}
+
+.admin-light .green-button:hover {
+    background: var(--white);
+    color: var(--green-600);
+    border: 1px solid var(--green-600);
+}
+
+.admin-light .red-button {
+    background: var(--red);
+    color: var(--white);
+    border: 1px solid var(--red);
+}
+
+.admin-light .red-button:hover {
+    background: var(--white);
+    color: var(--red);
+    border: 1px solid var(--red);
+}
+
+.admin-light .purple-accent-button {
+    background: var(--purple-300);
+    color: var(--white);
+    border: 1px solid var(--purple-300);
+}
+
+.admin-light .purple-accent-button:hover {
+    background: var(--white);
+    color: var(--purple-300);
+    border: 1px solid var(--purple-300);
+}
+
+.admin-light .blue-light-button {
+    background: var(--blue-700);
+    color: var(--white);
+    border: 1px solid var(--blue-700);
+}
+
+.admin-light .blue-light-button:hover {
+    background: var(--white);
+    color: var(--blue-700);
+    border: 1px solid var(--blue-700);
+}

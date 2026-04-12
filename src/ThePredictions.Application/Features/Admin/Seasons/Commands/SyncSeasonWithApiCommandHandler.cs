@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using ThePredictions.Application.Features.Admin.Rounds.Commands;
 using ThePredictions.Application.Repositories;
 using ThePredictions.Application.Services;
+using ThePredictions.Domain.Common;
 using ThePredictions.Domain.Common.Enumerations;
 using ThePredictions.Domain.Common.Guards;
 using ThePredictions.Domain.Models;
@@ -14,6 +15,7 @@ public class SyncSeasonWithApiCommandHandler(
     ISeasonRepository seasonRepository,
     ITeamRepository teamRepository,
     IRoundRepository roundRepository,
+    ITournamentRoundMappingRepository tournamentRoundMappingRepository,
     IFootballDataService footballDataService,
     IMediator mediator,
     ILogger<SyncSeasonWithApiCommandHandler> logger) : IRequestHandler<SyncSeasonWithApiCommand>
@@ -25,6 +27,12 @@ public class SyncSeasonWithApiCommandHandler(
 
         if (season.ApiLeagueId == null)
             return;
+
+        if (season.IsTournament)
+        {
+            await HandleTournamentSyncAsync(season, cancellationToken);
+            return;
+        }
 
         // Phase 0: Load all data upfront
         var seasonYear = season.StartDateUtc.Year;
@@ -129,6 +137,7 @@ public class SyncSeasonWithApiCommandHandler(
                 var newRound = Round.Create(
                     season.Id,
                     window.RoundNumber,
+                    $"Gameweek {window.RoundNumber}",
                     earliestMatchDateUtc,
                     earliestMatchDateUtc.AddMinutes(-30),
                     window.ApiRoundName);
@@ -183,6 +192,7 @@ public class SyncSeasonWithApiCommandHandler(
 
             round.UpdateDetails(
                 round.RoundNumber,
+                round.DisplayName,
                 roundEarliestMatchDateUtc,
                 roundEarliestMatchDateUtc.AddMinutes(-30),
                 round.Status,
@@ -275,6 +285,205 @@ public class SyncSeasonWithApiCommandHandler(
 
         // Phase 8: Publish/unpublish rounds based on updated start dates
         await mediator.Send(new PublishUpcomingRoundsCommand(), cancellationToken);
+    }
+
+    private async Task HandleTournamentSyncAsync(Season season, CancellationToken cancellationToken)
+    {
+        var seasonYear = season.StartDateUtc.Year;
+
+        // Load data
+        var apiFixtures = (await footballDataService.GetAllFixturesForSeasonAsync(season.ApiLeagueId!.Value, seasonYear, cancellationToken)).ToList();
+        var allRounds = await roundRepository.GetAllForSeasonAsync(season.Id, cancellationToken);
+        var mappings = await tournamentRoundMappingRepository.GetBySeasonIdAsync(season.Id, cancellationToken);
+        var allApiTeamIds = apiFixtures
+            .Where(f => f.Teams?.Home != null && f.Teams?.Away != null)
+            .SelectMany(f => new[] { f.Teams!.Home.Id, f.Teams!.Away.Id })
+            .Distinct();
+        var teamsByApiId = await teamRepository.GetByApiIdsAsync(allApiTeamIds, cancellationToken);
+
+        // Build stage-to-mapping lookup
+        var stageToMapping = new Dictionary<TournamentStage, TournamentRoundMapping>();
+        foreach (var mapping in mappings)
+        {
+            foreach (var stage in mapping.GetStageList())
+                stageToMapping[stage] = mapping;
+        }
+
+        // Filter valid fixtures (skip null teams — knockout teams not yet known)
+        var validFixtures = new List<ValidFixture>();
+        foreach (var fixture in apiFixtures)
+        {
+            if (fixture.Fixture == null || fixture.Teams?.Home == null || fixture.Teams?.Away == null || fixture.League?.RoundName == null)
+                continue;
+
+            if (!teamsByApiId.TryGetValue(fixture.Teams.Home.Id, out var homeTeam) ||
+                !teamsByApiId.TryGetValue(fixture.Teams.Away.Id, out var awayTeam))
+                continue;
+
+            validFixtures.Add(new ValidFixture(
+                fixture.Fixture.Id,
+                fixture.Fixture.Date.UtcDateTime,
+                homeTeam.Id,
+                awayTeam.Id,
+                fixture.League.RoundName,
+                fixture.Fixture.Status.Short));
+        }
+
+        // Group fixtures by mapping
+        var fixturesByMapping = new Dictionary<int, List<ValidFixture>>();
+        foreach (var fixture in validFixtures)
+        {
+            if (!TournamentRoundNameParser.TryParseStage(fixture.ApiRoundName, out var stage))
+            {
+                logger.LogWarning("Tournament sync: unrecognised API round name (Value: {ApiRoundName})", fixture.ApiRoundName);
+                continue;
+            }
+
+            if (!stageToMapping.TryGetValue(stage, out var mapping))
+            {
+                logger.LogWarning("Tournament sync: stage (Value: {Stage}) has no mapping for Season (ID: {SeasonId})", stage, season.Id);
+                continue;
+            }
+
+            if (!fixturesByMapping.ContainsKey(mapping.RoundNumber))
+                fixturesByMapping[mapping.RoundNumber] = [];
+
+            fixturesByMapping[mapping.RoundNumber].Add(fixture);
+        }
+
+        // Process each mapping
+        var allChangedRoundIds = new HashSet<int>();
+
+        foreach (var mapping in mappings)
+        {
+            if (!fixturesByMapping.TryGetValue(mapping.RoundNumber, out var fixtures) || !fixtures.Any())
+                continue;
+
+            // Find existing round
+            var round = allRounds.Values.FirstOrDefault(r => r.RoundNumber == mapping.RoundNumber);
+            if (round == null)
+            {
+                logger.LogWarning("Tournament sync: no round found for mapping RoundNumber (Value: {RoundNumber}) in Season (ID: {SeasonId})", mapping.RoundNumber, season.Id);
+                continue;
+            }
+
+            var stages = mapping.GetStageList();
+            var primaryStage = mapping.GetPrimaryStage();
+
+            foreach (var fixture in fixtures)
+            {
+                TournamentRoundNameParser.TryParseStage(fixture.ApiRoundName, out var fixtureStage);
+
+                // Try to find an existing placeholder match to fill in
+                var existingMatch = round.Matches.FirstOrDefault(m =>
+                    m.ExternalId == fixture.ExternalId);
+
+                if (existingMatch != null)
+                {
+                    // Already synced — update date if changed
+                    if (existingMatch.MatchDateTimeUtc != fixture.MatchDateTimeUtc)
+                    {
+                        existingMatch.UpdateDate(fixture.MatchDateTimeUtc);
+                        allChangedRoundIds.Add(round.Id);
+                    }
+                }
+                else
+                {
+                    // Find an unassigned placeholder match for this stage
+                    var stageDisplayName = TournamentRoundNameParser.GetDefaultDisplayName(fixtureStage);
+                    var placeholder = round.Matches.FirstOrDefault(m =>
+                        !m.AreTeamsConfirmed &&
+                        m.ExternalId == null &&
+                        m.ApiRoundName == stageDisplayName);
+
+                    if (placeholder != null)
+                    {
+                        // Fill in the placeholder
+                        placeholder.AssignTeams(fixture.HomeTeamId, fixture.AwayTeamId);
+                        placeholder.UpdateDate(fixture.MatchDateTimeUtc);
+                        placeholder.SetExternalId(fixture.ExternalId);
+                        placeholder.SetApiRoundName(fixture.ApiRoundName);
+
+                        // Set CustomLockTimeUtc for non-primary stages in combined rounds
+                        if (stages.Count > 1 && fixtureStage != primaryStage)
+                        {
+                            var stageFixtures = fixtures.Where(f =>
+                            {
+                                TournamentRoundNameParser.TryParseStage(f.ApiRoundName, out var s);
+                                return s == fixtureStage;
+                            }).ToList();
+
+                            if (stageFixtures.Any())
+                            {
+                                var earliestInStage = stageFixtures.Min(f => f.MatchDateTimeUtc);
+                                placeholder.SetCustomLockTime(earliestInStage.AddMinutes(-30));
+                            }
+                        }
+
+                        allChangedRoundIds.Add(round.Id);
+                    }
+                    else
+                    {
+                        // No placeholder available — add as new match
+                        round.AddMatch(fixture.HomeTeamId, fixture.AwayTeamId, fixture.MatchDateTimeUtc, fixture.ExternalId);
+                        allChangedRoundIds.Add(round.Id);
+                        logger.LogInformation("Tournament sync: added extra match (ExternalId: {ExternalId}) beyond expected count to Round (ID: {RoundId})", fixture.ExternalId, round.Id);
+                    }
+                }
+            }
+
+            // Update round dates based on actual matches
+            var confirmedMatches = round.Matches
+                .Where(m => m.AreTeamsConfirmed && m.Status != MatchStatus.Postponed)
+                .ToList();
+
+            if (confirmedMatches.Any())
+            {
+                var earliestMatchDateUtc = confirmedMatches.Min(m => m.MatchDateTimeUtc);
+                if (earliestMatchDateUtc != round.StartDateUtc)
+                {
+                    round.UpdateDetails(
+                        round.RoundNumber,
+                        round.DisplayName,
+                        earliestMatchDateUtc,
+                        earliestMatchDateUtc.AddMinutes(-30),
+                        round.Status,
+                        round.ApiRoundName);
+                    allChangedRoundIds.Add(round.Id);
+                }
+            }
+
+            // Handle postponements
+            foreach (var fixture in fixtures)
+            {
+                var match = round.Matches.FirstOrDefault(m => m.ExternalId == fixture.ExternalId);
+                if (match == null)
+                    continue;
+
+                if (fixture.ApiStatus == "PST" && match.Status is not (MatchStatus.Postponed or MatchStatus.Completed))
+                {
+                    match.Postpone();
+                    allChangedRoundIds.Add(round.Id);
+                }
+                else if (fixture.ApiStatus != "PST" && match.Status == MatchStatus.Postponed)
+                {
+                    match.Reschedule();
+                    allChangedRoundIds.Add(round.Id);
+                }
+            }
+        }
+
+        // Persist changes
+        foreach (var roundId in allChangedRoundIds)
+        {
+            if (allRounds.TryGetValue(roundId, out var round))
+                await roundRepository.UpdateAsync(round, cancellationToken);
+        }
+
+        // Publish/unpublish rounds
+        await mediator.Send(new PublishUpcomingRoundsCommand(), cancellationToken);
+
+        logger.LogInformation("Tournament sync completed for Season (ID: {SeasonId}). {FixtureCount} fixtures processed, {RoundCount} rounds updated", season.Id, validFixtures.Count, allChangedRoundIds.Count);
     }
 
     private static List<RoundWindow> CalculateRoundWindows(List<RoundFixtureSummary> sortedSummaries)

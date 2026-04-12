@@ -4,12 +4,15 @@ using FluentValidation.Results;
 using MediatR;
 using ThePredictions.Application.Repositories;
 using ThePredictions.Application.Services;
+using ThePredictions.Domain.Common.Enumerations;
 using ThePredictions.Domain.Common.Guards;
+using ThePredictions.Domain.Models;
 
 namespace ThePredictions.Application.Features.Admin.Seasons.Commands;
 
 public class UpdateSeasonCommandHandler(
     ISeasonRepository seasonRepository,
+    ITournamentRoundMappingRepository tournamentRoundMappingRepository,
     IFootballDataService footballDataService,
     ICurrentUserService currentUserService) : IRequestHandler<UpdateSeasonCommand>
 {
@@ -19,7 +22,7 @@ public class UpdateSeasonCommandHandler(
 
         var season = await seasonRepository.GetByIdAsync(request.Id, cancellationToken);
         Guard.Against.EntityNotFound(request.Id, season, "Season");
-       
+
         await ValidateSeasonAgainstApiAsync(request, cancellationToken);
 
         season.UpdateDetails(
@@ -28,10 +31,24 @@ public class UpdateSeasonCommandHandler(
             request.EndDateUtc,
             request.IsActive,
             request.NumberOfRounds,
-            request.ApiLeagueId
+            request.ApiLeagueId,
+            request.CompetitionType
         );
 
         await seasonRepository.UpdateAsync(season, cancellationToken);
+
+        if (request.CompetitionType == CompetitionType.Tournament && request.TournamentRoundMappings.Any())
+        {
+            var mappings = request.TournamentRoundMappings.Select(dto =>
+                TournamentRoundMapping.Create(
+                    request.Id,
+                    dto.RoundNumber,
+                    dto.DisplayName,
+                    string.Join("|", dto.Stages),
+                    dto.ExpectedMatchCount)).ToList();
+
+            await tournamentRoundMappingRepository.ReplaceAllForSeasonAsync(request.Id, mappings, cancellationToken);
+        }
     }
 
     private async Task ValidateSeasonAgainstApiAsync(UpdateSeasonCommand request, CancellationToken cancellationToken)
@@ -47,16 +64,21 @@ public class UpdateSeasonCommandHandler(
             var apiSeason = await footballDataService.GetLeagueSeasonDetailsAsync(request.ApiLeagueId.Value, seasonYear, cancellationToken);
             if (apiSeason == null)
                 throw new ValidationException($"The API returned no season data for League ID {request.ApiLeagueId.Value} and Year {seasonYear}. Please verify the details.");
-            
-            if (request.StartDateUtc.Date != apiSeason.Start.Date)
-                validationFailures.Add(new ValidationFailure(nameof(request.StartDateUtc), $"The Start Date does not match the API. Expected: {apiSeason.Start:yyyy-MM-dd}, but you entered: {request.StartDateUtc:yyyy-MM-dd}."));
-            
-            if (request.EndDateUtc.Date != apiSeason.End.Date)
-                validationFailures.Add(new ValidationFailure(nameof(request.EndDateUtc), $"The End Date does not match the API. Expected: {apiSeason.End:yyyy-MM-dd}, but you entered: {request.EndDateUtc:yyyy-MM-dd}."));
-            
-            var apiRoundNames = (await footballDataService.GetRoundsForSeasonAsync(request.ApiLeagueId.Value, seasonYear, cancellationToken)).ToList();
-            if (request.NumberOfRounds != apiRoundNames.Count)
-                validationFailures.Add(new ValidationFailure(nameof(request.NumberOfRounds), $"The Number of Rounds does not match the API. Expected: {apiRoundNames.Count}, but you entered: {request.NumberOfRounds}."));
+
+            // Skip date and round count validation for tournaments — the API may not have
+            // accurate end dates or all round names for future knockout stages
+            if (request.CompetitionType != CompetitionType.Tournament)
+            {
+                if (request.StartDateUtc.Date != apiSeason.Start.Date)
+                    validationFailures.Add(new ValidationFailure(nameof(request.StartDateUtc), $"The Start Date does not match the API. Expected: {apiSeason.Start:yyyy-MM-dd}, but you entered: {request.StartDateUtc:yyyy-MM-dd}."));
+
+                if (request.EndDateUtc.Date != apiSeason.End.Date)
+                    validationFailures.Add(new ValidationFailure(nameof(request.EndDateUtc), $"The End Date does not match the API. Expected: {apiSeason.End:yyyy-MM-dd}, but you entered: {request.EndDateUtc:yyyy-MM-dd}."));
+
+                var apiRoundNames = (await footballDataService.GetRoundsForSeasonAsync(request.ApiLeagueId.Value, seasonYear, cancellationToken)).ToList();
+                if (request.NumberOfRounds != apiRoundNames.Count)
+                    validationFailures.Add(new ValidationFailure(nameof(request.NumberOfRounds), $"The Number of Rounds does not match the API. Expected: {apiRoundNames.Count}, but you entered: {request.NumberOfRounds}."));
+            }
         }
         catch (HttpRequestException ex)
         {

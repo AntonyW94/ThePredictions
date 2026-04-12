@@ -14,6 +14,7 @@ public class GetMatchesForRoundQueryHandler(IApplicationReadDbConnection dbConne
             SELECT
                 m.[Id],
                 m.[MatchDateTimeUtc],
+                m.[MatchNumber],
                 m.[HomeTeamId],
                 ht.[Name] AS HomeTeamName,
                 ht.[ShortName] AS HomeTeamShortName,

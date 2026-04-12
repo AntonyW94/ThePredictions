@@ -119,7 +119,9 @@ System.IO.File.WriteAllText(FilePath, content);
             <CssFilesToBundle Include="$(PublishCssDir)components\cards\match-cards.css" />
             <CssFilesToBundle Include="$(PublishCssDir)components\cards\member-cards.css" />
             <CssFilesToBundle Include="$(PublishCssDir)components\cards\round-cards.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)components\cards\match-editor-cards.css" />
             <CssFilesToBundle Include="$(PublishCssDir)components\badges.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)components\filters.css" />
             <CssFilesToBundle Include="$(PublishCssDir)components\boosts.css" />
             <CssFilesToBundle Include="$(PublishCssDir)components\detail-list.css" />
             <CssFilesToBundle Include="$(PublishCssDir)components\buttons.css" />
@@ -132,8 +134,17 @@ System.IO.File.WriteAllText(FilePath, content);
             <CssFilesToBundle Include="$(PublishCssDir)pages\leaderboard.css" />
             <CssFilesToBundle Include="$(PublishCssDir)pages\predictions.css" />
             <CssFilesToBundle Include="$(PublishCssDir)pages\prizes.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)pages\tournament-structure.css" />
             <CssFilesToBundle Include="$(PublishCssDir)pages\results-grid.css" />
             <CssFilesToBundle Include="$(PublishCssDir)pages\boost-usage.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)themes\light\layout.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)themes\light\forms.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)themes\light\cards.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)themes\light\buttons.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)themes\light\badges.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)themes\light\tabs.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)themes\light\match-editor.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)themes\dark\dark.css" />
             <CssFilesToBundle Include="$(PublishCssDir)app-base.css" />
         </ItemGroup>
 
@@ -154,13 +165,17 @@ System.IO.File.WriteAllText(FilePath, content);
         <RemoveDir Directories="$(PublishCssDir)components\cards" Condition="Exists('$(PublishCssDir)components\cards')" />
         <RemoveDir Directories="$(PublishCssDir)components" Condition="Exists('$(PublishCssDir)components')" />
         <RemoveDir Directories="$(PublishCssDir)pages" Condition="Exists('$(PublishCssDir)pages')" />
+        <RemoveDir Directories="$(PublishCssDir)themes\light" Condition="Exists('$(PublishCssDir)themes\light')" />
+        <RemoveDir Directories="$(PublishCssDir)themes\dark" Condition="Exists('$(PublishCssDir)themes\dark')" />
+        <RemoveDir Directories="$(PublishCssDir)themes" Condition="Exists('$(PublishCssDir)themes')" />
 
         <Message Importance="high" Text="CSS bundled successfully!" />
 
         <!-- Add cache busting version to index.html -->
-        <Message Importance="high" Text="Adding CSS cache busting version: $(CssVersion)" />
+        <Message Importance="high" Text="Adding cache busting version: $(CssVersion)" />
         <ReplaceInFile FilePath="$(IndexHtmlPath)" Find="href=&quot;css/app.css&quot;" ReplaceWith="href=&quot;css/app.css?v=$(CssVersion)&quot;" />
+        <ReplaceInFile FilePath="$(IndexHtmlPath)" Find="src=&quot;js/interop.js&quot;" ReplaceWith="src=&quot;js/interop.js?v=$(CssVersion)&quot;" />
 
-        <Message Importance="high" Text="CSS processing complete. Cache version: $(CssVersion)" />
+        <Message Importance="high" Text="Cache busting complete. Version: $(CssVersion)" />
     </Target>
 </Project>

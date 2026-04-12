@@ -9,10 +9,10 @@
 
 <PageTitle>Manage Seasons</PageTitle>
 
-<div class="page-container">
+<div class="page-container admin-light">
     <div class="admin-table-container">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="fw-bold text-white mb-0">Manage Seasons</h3>
+            <h3 class="fw-bold mb-0">Manage Seasons</h3>
             <button class="btn d-flex align-items-center green-button" @onclick='() => NavigationManager.NavigateTo("/admin/seasons/create")'>
                 <span class="bi bi-plus-circle-fill"></span>
                 <span class="d-none d-md-inline ms-2">Create Season</span>
@@ -23,72 +23,106 @@
 
         @if (_seasons == null)
         {
-            <div class="d-flex justify-content-center align-items-center h-100">
-                <div class="spinner-border text-light" role="status">
+            <div class="d-flex justify-content-center align-items-center py-5">
+                <div class="spinner-border" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
             </div>
         }
         else
         {
-            <div class="card-grid">
-                @foreach (var season in _seasons)
-                {
-                    <div class="card">
-                        <div class="header">
-                            <h5 class="fw-bold text-white mb-0">@season.Name</h5>
-                        </div>
-
-                        <div class="body">
-                            <div class="detail-list">
-                                <div class="detail-row">
-                                <dt>Active</dt>
-                                <dd>
-                                    <div class="form-check form-switch ms-0">
-                                        <input type="checkbox" class="form-check-input"
-                                               checked="@season.IsActive"
-                                               @onchange="() => ToggleIsActive(season)"
-                                               title="Toggle Active Status"/>
-                                    </div>
-                                </dd>
-                            </div>
-
-                            <div class="detail-row">
-                                <dt>Rounds</dt>
-                                <dd>@season.RoundCount / @season.NumberOfRounds</dd>
-                            </div>
-
-                            <div class="detail-row">
-                                <dt>Starts</dt>
-                                <dd>@season.StartDateUtc.ToString("dd MMM yyyy")</dd>
-                            </div>
-
-                            <div class="detail-row">
-                                <dt>Ends</dt>
-                                <dd>@season.EndDateUtc.ToString("dd MMM yyyy")</dd>
-                            </div>
-                            </div>
-                        </div>
-
-                        <div class="footer">
-                            @if (season.RoundCount < season.NumberOfRounds)
-                            {
-                                <button class="btn blue-light-button flex-grow-1" @onclick="() => AddRound(season.Id)">
-                                    <span class="bi bi-plus-circle-fill me-2"></span>Add Round
-                                </button>
-                            }
-
-                            <button class="btn purple-accent-button flex-grow-1" @onclick="() => ManageRounds(season.Id)">
-                                <span class="bi bi-calendar3-range me-2"></span>Manage Rounds
-                            </button>
-
-                            <button class="btn green-button" @onclick="() => EditSeason(season.Id)">
-                                <span class="bi bi-pencil-fill me-2"></span>Edit Season
-                            </button>
-                        </div>
-                    </div>
-                }
+            <div class="admin-tabs-mobile">
+                <select @onchange="OnMobileTabChanged" value="@_activeTab">
+                    <option value="in-progress">In Progress (@_inProgressSeasons.Count)</option>
+                    <option value="upcoming">Upcoming (@_upcomingSeasons.Count)</option>
+                    <option value="past">Past (@_pastSeasons.Count)</option>
+                </select>
             </div>
+
+            <div class="admin-tabs">
+                <button class="admin-tab @(_activeTab == "in-progress" ? "active" : "")" @onclick='() => _activeTab = "in-progress"'>
+                    In Progress
+                    @if (_inProgressSeasons.Any())
+                    {
+                        <span class="match-count-badge">@_inProgressSeasons.Count</span>
+                    }
+                </button>
+                <button class="admin-tab @(_activeTab == "upcoming" ? "active" : "")" @onclick='() => _activeTab = "upcoming"'>
+                    Upcoming
+                    @if (_upcomingSeasons.Any())
+                    {
+                        <span class="match-count-badge" style="background: var(--blue-700)">@_upcomingSeasons.Count</span>
+                    }
+                </button>
+                <button class="admin-tab @(_activeTab == "past" ? "active" : "")" @onclick='() => _activeTab = "past"'>
+                    Past
+                    @if (_pastSeasons.Any())
+                    {
+                        <span class="match-count-badge" style="background: var(--grey-500)">@_pastSeasons.Count</span>
+                    }
+                </button>
+            </div>
+
+            @if (GetActiveTabSeasons().Any())
+            {
+                <div class="member-list">
+                    @foreach (var season in GetActiveTabSeasons())
+                    {
+                        <div class="member-row season-row">
+                            <div class="season-row-icon">
+                                <span class="bi @(season.CompetitionType == 1 ? "bi-trophy" : "bi-table")"></span>
+                            </div>
+                            <div class="member-info">
+                                <span class="member-name">@season.Name</span>
+                                <span class="member-date">
+                                    @season.StartDateUtc.ToString("dd MMM yyyy") — @season.EndDateUtc.ToString("dd MMM yyyy")
+                                </span>
+                                <span class="season-status-pills">
+                                    @if (season.DraftCount > 0)
+                                    {
+                                        <span class="season-status-pill draft">@season.DraftCount Draft</span>
+                                    }
+                                    @if (season.PublishedCount > 0)
+                                    {
+                                        <span class="season-status-pill published">@season.PublishedCount Published</span>
+                                    }
+                                    @if (season.InProgressCount > 0)
+                                    {
+                                        <span class="season-status-pill in-progress">@season.InProgressCount In Progress</span>
+                                    }
+                                    @if (season.CompletedCount > 0)
+                                    {
+                                        <span class="season-status-pill completed">@season.CompletedCount Completed</span>
+                                    }
+                                </span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="form-check form-switch mb-0" title="Toggle Active">
+                                    <input type="checkbox" class="form-check-input"
+                                           checked="@season.IsActive"
+                                           @onchange="() => ToggleIsActive(season)" />
+                                </div>
+                            </div>
+                            <div class="season-row-actions">
+                                <button class="btn btn-sm purple-accent-button" @onclick="() => ManageRounds(season.Id)" title="Manage Rounds">
+                                    <span class="bi bi-calendar3-range"></span><span class="d-none d-lg-inline ms-1">Rounds</span>
+                                </button>
+                                <button class="btn btn-sm green-button" @onclick="() => EditSeason(season.Id)" title="Edit Season">
+                                    <span class="bi bi-pencil-fill"></span><span class="d-none d-lg-inline ms-1">Edit</span>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <span class="bi bi-calendar3 empty-state-icon"></span>
+                    <p class="empty-state-title">No @_activeTab.Replace("-", " ") seasons</p>
+                    <p class="empty-state-text">Seasons in this category will appear here.</p>
+                </div>
+            }
         }
     </div>
 </div>
@@ -96,10 +130,20 @@
 @code {
     private List<SeasonDto>? _seasons;
     private string? _errorMessage;
+    private string _activeTab = "in-progress";
+
+    private List<SeasonDto> _inProgressSeasons = [];
+    private List<SeasonDto> _upcomingSeasons = [];
+    private List<SeasonDto> _pastSeasons = [];
 
     protected override async Task OnInitializedAsync()
     {
         await LoadSeasons();
+    }
+
+    private void OnMobileTabChanged(ChangeEventArgs e)
+    {
+        _activeTab = e.Value?.ToString() ?? "in-progress";
     }
 
     private async Task LoadSeasons()
@@ -108,6 +152,14 @@
         try
         {
             _seasons = await Http.GetFromJsonAsync<List<SeasonDto>>("api/admin/seasons");
+
+            if (_seasons != null)
+            {
+                var now = DateTime.UtcNow;
+                _inProgressSeasons = _seasons.Where(s => s.StartDateUtc <= now && s.EndDateUtc >= now).ToList();
+                _upcomingSeasons = _seasons.Where(s => s.StartDateUtc > now).ToList();
+                _pastSeasons = _seasons.Where(s => s.EndDateUtc < now).ToList();
+            }
         }
         catch (Exception)
         {
@@ -118,11 +170,11 @@
     private async Task ToggleIsActive(SeasonDto seasonToUpdate)
     {
         _errorMessage = null;
-      
+
         var newStatus = !seasonToUpdate.IsActive;
         var index = _seasons!.IndexOf(seasonToUpdate);
         var updatedSeason = seasonToUpdate with { IsActive = newStatus };
-       
+
         _seasons[index] = updatedSeason;
 
         try
@@ -139,10 +191,18 @@
             _errorMessage = "An unexpected error occurred.";
             _seasons[index] = seasonToUpdate;
         }
+
+        await LoadSeasons();
         StateHasChanged();
     }
 
+    private List<SeasonDto> GetActiveTabSeasons() => _activeTab switch
+    {
+        "upcoming" => _upcomingSeasons,
+        "past" => _pastSeasons,
+        _ => _inProgressSeasons
+    };
+
     private void EditSeason(int seasonId) => NavigationManager.NavigateTo($"/admin/seasons/edit/{seasonId}");
     private void ManageRounds(int seasonId) => NavigationManager.NavigateTo($"/admin/seasons/{seasonId}/rounds");
-    private void AddRound(int seasonId) => NavigationManager.NavigateTo($"/admin/seasons/{seasonId}/rounds/create");
 }

@@ -14,12 +14,19 @@ public interface ISeasonRepository
 
     Task<Season?> GetByIdAsync(int id, CancellationToken cancellationToken);
     Task<IEnumerable<Season>> GetActiveSeasonsAsync(CancellationToken cancellationToken);
+    Task<bool> HasPredictionsAsync(int seasonId, CancellationToken cancellationToken);
 
     #endregion
 
     #region Update
 
     Task UpdateAsync(Season request, CancellationToken cancellationToken);
-    
+
+    #endregion
+
+    #region Delete
+
+    Task DeleteAsync(int seasonId, CancellationToken cancellationToken);
+
     #endregion
 }

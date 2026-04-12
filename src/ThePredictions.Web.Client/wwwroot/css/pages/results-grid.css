@@ -3,10 +3,29 @@
     overflow-x: auto;
 }
 
+/* Custom scrollbar for results grid */
+.results-grid-container::-webkit-scrollbar {
+    height: 0.5rem;
+}
+
+.results-grid-container::-webkit-scrollbar-track {
+    background: var(--purple-50);
+    border-radius: 0.25rem;
+}
+
+.results-grid-container::-webkit-scrollbar-thumb {
+    background: var(--grey-400);
+    border-radius: 0.25rem;
+}
+
+.results-grid-container::-webkit-scrollbar-thumb:hover {
+    background: var(--grey-500);
+}
+
 .results-grid {
     border-collapse: collapse;
     width: 100%;
-    color: var(--white);
+    color: var(--purple-1000);
     font-size: 0.9rem;
 }
 
@@ -14,12 +33,12 @@
     .results-grid td {
         padding: 0.75rem;
         text-align: center;
-        border-bottom: 1px solid var(--purple-800);
+        border-bottom: 1px solid var(--grey-200);
         white-space: nowrap;
     }
 
     .results-grid th {
-        background-color: var(--purple-900);
+        background-color: var(--purple-50);
         font-weight: bold;
         position: sticky;
         top: 0;
@@ -31,7 +50,7 @@
         min-width: 3.75rem;
         position: sticky;
         left: 0;
-        background-color: var(--purple-900);
+        background-color: var(--purple-50);
         font-weight: bold;
     }
 
@@ -41,7 +60,7 @@
     }
 
     .results-grid td.match-info {
-        background-color: var(--purple-800);
+        background-color: var(--white);
         z-index: 2;
     }
 
@@ -50,12 +69,12 @@
     .results-grid .score-cell {
         font-weight: bold;
         font-size: 1.1rem;
-        background: var(--purple-800);
+        background: var(--white);
     }
 
     .results-grid .not-predicted-icon {
         font-size: 1.5rem;
-        color: var(--grey-100);
+        color: var(--grey-300);
     }
 
     .results-grid .match-info .match-logo-small {
@@ -64,7 +83,7 @@
     }
 
     .results-grid tfoot th {
-        background-color: var(--purple-900);
+        background-color: var(--purple-50);
         font-size: 1.2rem;
         position: sticky;
         bottom: 0;

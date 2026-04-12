@@ -11,39 +11,80 @@ This is the actionable implementation plan for adding tournament support to TheP
 
 ---
 
-## BEFORE YOU START - API Data Verification Required
+## API Data Verification - COMPLETED (April 2026)
 
-> **This must be done first in a Claude Desktop session where API calls are possible.**
-> **The API key (`FootballApi-ApiKey`) is stored in Azure Key Vault. The owner will provide it in the Claude Desktop session.**
-> **Do NOT ask for the API key in Claude Code web sessions - it is not available there.**
+> Verified on 2 April 2026 using Claude Code with the owner's API key.
 
-### What to call
+### Endpoints Called
 
-| Endpoint | Purpose |
-|----------|---------|
-| `fixtures/rounds?league=1&season=2026` | Get all World Cup 2026 round name strings |
-| `fixtures?league=1&season=2026` | Get all fixtures with team/date/round data |
-| `teams?league=1&season=2026` | Get all 48 teams |
-| `fixtures/rounds?league=1&season=2022` | Fallback: get 2022 World Cup round names if 2026 not ready |
-| `fixtures?league=1&season=2022` | Fallback: get 2022 fixtures if 2026 not ready |
+| Endpoint | Result |
+|----------|--------|
+| `fixtures/rounds?league=1&season=2026` | **3 rounds returned** (group stage only) |
+| `fixtures?league=1&season=2026&round=Group Stage - 1` | **24 fixtures** with full team data |
+| `teams?league=1&season=2026` | **48 teams** confirmed |
+| `fixtures/rounds?league=1&season=2022` | **8 rounds** (complete tournament for reference) |
+| `fixtures?league=1&season=2022&round=Quarter-finals` | Confirmed knockout fixture structure |
 
-### What to verify before continuing
+### Verification Results
 
-1. [ ] **Round name patterns** - Confirm the exact strings returned (e.g. "Group A - 1", "Quarter-finals", "3rd Place Final"). The sync parser depends on these exact patterns.
-2. [ ] **2026 vs 2022 format** - 2026 has 48 teams in 12 groups (A-L) with a Round of 32. Verify the API reflects this new format, or if it still shows the old 32-team structure.
-3. [ ] **Knockout match team data** - Do knockout fixtures return `null` team IDs before the preceding stage is complete? Or do they return placeholder names? Or are knockout fixtures not created until teams are known?
-4. [ ] **TBC team representation** - Check if `fixture.teams.home` is `null`, `0`, or has a placeholder like `{ "id": null, "name": "Winner Group A" }`.
-5. [ ] **Match count per group matchday** - Confirm 2 matches per group per matchday (not 3 or 4). With 12 groups x 2 matches = 24 matches per matchday.
-6. [ ] **Semi-finals + Final timing** - Check the date gaps between semi-finals and final/3rd place to confirm they'd naturally be grouped.
-7. [ ] **Any unexpected round names** - Check for "Playoff" or other stages not accounted for in the parser.
+1. [x] **Round name patterns** - **DIFFERENT FROM ORIGINAL ASSUMPTION.** API returns `"Group Stage - 1"`, `"Group Stage - 2"`, `"Group Stage - 3"` (NOT `"Group A - 1"`). No group letter in round names. All group matches for a matchday share the same round name. From 2022 data, knockout rounds are: `"Round of 16"`, `"Quarter-finals"`, `"Semi-finals"`, `"3rd Place Final"`, `"Final"`. 2026 will additionally have `"Round of 32"`.
+2. [x] **2026 vs 2022 format** - 2026 has 48 teams confirmed. Only group stage rounds exist in the API so far (as of April 2026). Knockout rounds will appear as the tournament progresses.
+3. [x] **Knockout match team data** - Knockout fixtures **do not exist in the API until teams are known**. They are NOT pre-created with null teams. This means the sync handler must handle new rounds appearing on re-sync.
+4. [x] **TBC team representation** - N/A. Knockout fixtures simply don't exist until teams are determined. PlaceholderHomeName/PlaceholderAwayName columns are not needed for the initial implementation.
+5. [x] **Match count per group matchday** - Confirmed: **24 matches** per group stage matchday (48 teams / 2 = 24).
+6. [x] **Semi-finals + Final timing** - Cannot verify from 2026 data yet. From 2022 data: semi-finals and final/3rd place are on separate days. Grouping logic will combine them if fewer than 4 matches per stage.
+7. [x] **Any unexpected round names** - No unexpected names. 2022 has exactly: Group Stage - 1/2/3, Round of 16, Quarter-finals, Semi-finals, 3rd Place Final, Final. 2026 will additionally have Round of 32.
 
-### If 2026 data is not available
+### Key Findings That Affect Implementation
 
-Use 2022 World Cup data (League ID: 1, Season: 2022) to validate the approach, but note the structural differences:
-- 2022: 32 teams, 8 groups (A-H), no Round of 32
-- 2026: 48 teams, 12 groups (A-L), includes Round of 32
+| Finding | Impact on Plan |
+|---------|---------------|
+| Round names are `"Group Stage - N"` not `"Group A - N"` | **Parser is much simpler.** No group letter extraction needed. Just match `"Group Stage - {N}"` pattern. |
+| Knockout fixtures don't pre-exist | **No TBC/placeholder handling needed for initial sync.** Re-sync picks up new rounds as they appear. `PlaceholderHomeName`/`PlaceholderAwayName` can be used later if we want to show upcoming bracket, but not required. |
+| API provides team logos as URLs | Team `LogoUrl` can use API URLs directly: `https://media.api-sports.io/football/teams/{id}.png` |
+| API provides 3-letter team codes | Maps directly to `Abbreviation` column |
+| Curaçao has no `code` in API | Will need manual abbreviation (CUR) |
 
-Document any findings and adjust the round name parser accordingly before proceeding to Phase 1.
+### API Fixture Structure (Reference)
+
+```json
+{
+  "fixture": {
+    "id": 1489369,
+    "date": "2026-06-11T19:00:00+00:00",
+    "timestamp": 1781204400,
+    "venue": { "name": "Estadio Azteca", "city": "Mexico City" },
+    "status": { "long": "Not Started", "short": "NS", "elapsed": null }
+  },
+  "league": {
+    "id": 1, "name": "World Cup", "season": 2026,
+    "round": "Group Stage - 1"
+  },
+  "teams": {
+    "home": { "id": 16, "name": "Mexico", "winner": null },
+    "away": { "id": 1531, "name": "South Africa", "winner": null }
+  },
+  "goals": { "home": null, "away": null },
+  "score": {
+    "halftime": { "home": null, "away": null },
+    "fulltime": { "home": null, "away": null },
+    "extratime": { "home": null, "away": null },
+    "penalty": { "home": null, "away": null }
+  }
+}
+```
+
+### API Team Structure (Reference)
+
+```json
+{
+  "team": {
+    "id": 10, "name": "England", "code": "ENG",
+    "country": "England", "national": true,
+    "logo": "https://media.api-sports.io/football/teams/10.png"
+  }
+}
+```
 
 ---
 
@@ -70,6 +111,10 @@ Document any findings and adjust the round name parser accordingly before procee
 | Boosts in tournaments | Same as leagues - boosts work identically. | Mar 2026 |
 | Champions League / Hybrid support | Deferred - not in scope for May deadline. | Mar 2026 |
 | Database migrations | Manual SQL scripts via SSMS. | Mar 2026 |
+| Round name format | **API returns `"Group Stage - N"` not `"Group A - N"`.** Parser simplified - no group letter extraction. | Apr 2026 |
+| Knockout fixture creation | **Knockout fixtures do not pre-exist in API.** They appear only once teams are known. No TBC/placeholder handling needed for initial sync. Re-sync picks up new rounds. | Apr 2026 |
+| Team logos | **Use API-Football CDN URLs directly** (`https://media.api-sports.io/football/teams/{id}.png`). No local download. | Apr 2026 |
+| World Cup teams | **48 national teams must be inserted before season creation.** SQL INSERT script + manual verification. | Apr 2026 |
 
 ---
 
@@ -128,6 +173,32 @@ Document any findings and adjust the round name parser accordingly before procee
 ---
 
 ## Implementation Phases
+
+### Phase 0: Insert World Cup 2026 Teams (Pre-requisite)
+
+**Goal:** All 48 World Cup 2026 national teams exist in the database with correct names, abbreviations, and logo URLs.
+
+**Added:** April 2026 after API verification confirmed 48 teams and their data.
+
+#### Step 0.1: Generate SQL INSERT Script
+
+1. [ ] Generate SQL INSERT statements for all 48 teams using API data:
+   - `Name` = API team name (with corrections where needed, e.g. Türkiye)
+   - `ShortName` = Same as Name for most teams. Exceptions: Bosnia & Herzegovina → Bosnia, Cape Verde Islands → Cape Verde
+   - `Abbreviation` = API `code` field (3 letters). Curaçao has no code - use `CUR`
+   - `LogoUrl` = `https://media.api-sports.io/football/teams/{apiId}.png`
+   - `ApiTeamId` = API team ID
+2. [ ] Check for teams that already exist in the database (by ApiTeamId) to avoid duplicates
+3. [ ] Owner runs the INSERT script against dev and prod databases
+
+#### Step 0.2: Verify Team Data
+
+4. [ ] Verify all 48 teams are inserted with correct logo URLs
+5. [ ] Spot-check a few logo URLs load correctly in a browser
+
+**Deliverables:** All 48 World Cup teams in the database, ready for season creation and sync.
+
+---
 
 ### Phase 1: Foundation - Database & Domain (Week 1-2)
 
@@ -220,13 +291,17 @@ SQL scripts to create:
 #### Step 2.1: Tournament Round Name Parser
 
 1. [ ] Create helper method/class to parse tournament API round names:
-   - "Group A - 1" -> TournamentStage.Group, groupLetter='A', matchday=1
+   - "Group Stage - 1" -> TournamentStage.Group, matchday=1
+   - "Group Stage - 2" -> TournamentStage.Group, matchday=2
+   - "Group Stage - 3" -> TournamentStage.Group, matchday=3
    - "Round of 32" -> TournamentStage.RoundOf32
    - "Round of 16" -> TournamentStage.RoundOf16
    - "Quarter-finals" -> TournamentStage.QuarterFinals
    - "Semi-finals" -> TournamentStage.SemiFinals
    - "3rd Place Final" -> TournamentStage.ThirdPlace
    - "Final" -> TournamentStage.Final
+
+   **Note (Apr 2026):** The original plan assumed `"Group A - 1"` format with per-group round names. The actual API returns `"Group Stage - N"` with all groups combined per matchday. This simplifies the parser significantly - no group letter extraction needed.
 2. [ ] Unit tests for all round name patterns (including edge cases from API verification)
 
 #### Step 2.2: Auto-Grouping Logic
@@ -251,12 +326,15 @@ SQL scripts to create:
    c. Apply auto-grouping rules to create prediction rounds
    d. Create Round records with appropriate DisplayName and deadline
    e. Create Match records with `ApiRoundName` set
-   f. For matches with null team IDs: set `PlaceholderHomeName`/`PlaceholderAwayName` from API data
-   g. For combined rounds: set `CustomLockTimeUtc` on later-stage matches
+   f. For combined rounds: set `CustomLockTimeUtc` on later-stage matches
+
+   **Note (Apr 2026):** Knockout fixtures do NOT pre-exist in the API with null team IDs. They simply don't appear until teams are known. Step (f) from the original plan (PlaceholderHomeName/PlaceholderAwayName) is not needed for initial sync. Knockout rounds will appear naturally on re-sync as the tournament progresses.
+
 8. [ ] Handle re-sync (subsequent syncs after initial):
    - Update match times if changed
-   - Assign teams when API returns real team IDs for previously-TBC matches
-   - Set `CustomLockTimeUtc` on newly-assigned matches in combined rounds
+   - **Create new rounds** when API returns new knockout stage fixtures (e.g. Round of 32 appears after group stage completes)
+   - Apply auto-grouping rules to new rounds (including combining small stages)
+   - For combined rounds: set `CustomLockTimeUtc` on later-stage matches
 9. [ ] Unit tests for tournament sync logic
 
 #### Step 2.4: Tests
@@ -431,11 +509,13 @@ SQL scripts to create:
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|-----------|--------|------------|
-| API-Football 2026 World Cup data not available before May | Medium | Critical | Test with 2022 data; have manual entry as fallback |
-| 2026 round name format differs from 2022 | Medium | Medium | Verify with API call before coding parser. Parser is easy to adjust. |
+| ~~API-Football 2026 World Cup data not available before May~~ | ~~Medium~~ | ~~Critical~~ | **RESOLVED Apr 2026.** 2026 data is available (48 teams, group stage fixtures). |
+| ~~2026 round name format differs from 2022~~ | ~~Medium~~ | ~~Medium~~ | **RESOLVED Apr 2026.** Format is `"Group Stage - N"` (simpler than assumed). Parser updated. |
 | Combined round locking logic introduces bugs in existing league flow | Low | High | Feature-flag via CompetitionType - leagues unchanged. CustomLockTimeUtc only set for tournaments. |
 | 6-week timeline is tight for 4 phases | Medium | High | Phase 4 polish can be trimmed; core functionality prioritised |
 | Existing tests break from Season/Round/Match model changes | Medium | Medium | Update constructors carefully; run tests after each change |
+| API-Football CDN logo URLs become unavailable | Low | Medium | Logos are PNG URLs on their CDN. Could download and self-host if needed. |
+| Knockout rounds appear mid-tournament requiring re-sync | Expected | Low | Re-sync handler already planned. Admin triggers sync when new stages appear. |
 
 ---
 
@@ -445,16 +525,21 @@ These steps require the owner (not Claude) to perform:
 
 | When | Action | Owner |
 |------|--------|-------|
-| Before Phase 1 | Provide API-Football API key in a Claude Desktop session for API verification | Owner |
+| ~~Before Phase 1~~ | ~~Provide API-Football API key for API verification~~ | ~~Owner~~ **DONE Apr 2026** |
+| Phase 0 | Run team INSERT script against dev database | Owner |
+| Phase 0 | Run team INSERT script against prod database | Owner |
+| Phase 0 | Verify team logos display correctly | Owner |
 | Phase 1 | Run SQL migration scripts against dev database | Owner |
 | Phase 1 | Run SQL migration scripts against prod database | Owner |
 | Phase 4 | Run integration tests against dev environment | Owner |
 | Phase 4 | Final UAT / manual testing | Owner |
+| During tournament | Trigger re-sync when new knockout stages appear in API | Owner |
 | Post-delivery | Monitor first tournament season for issues | Owner |
 
 ---
 
-*Plan Version: 3.0*
+*Plan Version: 4.0*
 *Original Plan: January 2026*
 *Updated: March 2026 (v2 - codebase review)*
 *Updated: March 2026 (v3 - technical decisions review, simplified architecture)*
+*Updated: April 2026 (v4 - API data verification complete, round name format confirmed, Phase 0 added for team insertion, knockout fixture handling clarified)*

@@ -20,102 +20,77 @@
     }
     else if (_months.Any())
     {
-        <div class="carousel-wrapper">
-            <div class="carousel-container" @ontouchstart="HandleTouchStart" @ontouchmove="HandleTouchMove" @ontouchend="HandleTouchEnd">
-                <div class="carousel-track" style="@_trackStyle">
-                    @foreach (var month in _months)
+        <div class="card slide w-100" style="max-width: none;">
+            <div class="header w-100">
+                <div class="leaderboard-month-selector">
+                    <select class="leaderboard-month-select" @onchange="OnMonthChanged">
+                        @foreach (var month in _months)
+                        {
+                            <option value="@month.Month" selected="@(_currentMonth?.Month == month.Month)">
+                                @month.Name
+                                @if (month.RoundsRemaining > 0)
+                                {
+                                    @($" ({month.RoundsRemaining} round{(month.RoundsRemaining == 1 ? "" : "s")} remaining)")
+                                }
+                            </option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="body leaderboard-body justify-start w-100 leaderboard-scroll-container">
+                @if (_currentMonth != null && _leaderboards.TryGetValue(_currentMonth.Month, out var leaderboard))
+                {
+                    @if (leaderboard.IsLoading)
                     {
-                        <div class="carousel-item-wrapper">
-                            <div class="carousel-item-content">
-                                <div class="card slide">
-                                    <div class="header w-100 row-layout flex-center justify-center">
-                                        <h5 class="text-white fw-bold text-center mb-0">
-                                            @month.Name
-                                        </h5>
-                                        @if (month.RoundsRemaining > 0)
-                                        {
-                                            <div class="d-flex justify-content-end ms-4">
-                                                <div class="@GetRoundsRemainingCss(month.RoundsRemaining)">
-                                                    <span class="badge-icon large-font">
-                                                        <i class="bi bi-@month.RoundsRemaining-circle-fill"></i>
-                                                    </span>
-
-                                                    @(month.RoundsRemaining == 1 ? "round remaining" : "rounds remaining")
-                                                </div>
-                                            </div>
-                                        }
-                                    </div>
-                                    <div class="body leaderboard-body justify-start w-100">
-                                        @if (_leaderboards.TryGetValue(month.Month, out var leaderboard))
-                                        {
-                                            @if (leaderboard.IsLoading)
-                                            {
-                                                <div class="d-flex justify-content-center align-items-center h-100">
-                                                    <div class="spinner-border text-white" role="status">
-                                                        <span class="visually-hidden">Loading...</span>
-                                                    </div>
-                                                </div>
-                                            }
-                                            else if (leaderboard.Entries.Any())
-                                            {
-                                                <div class="table-responsive rounded w-100">
-                                                    <table class="leaderboard-table table-striped-purple light text-white">
-                                                        <thead>
-                                                        <tr>
-                                                            @if (leaderboard.Entries.FirstOrDefault()?.IsRoundInProgress == true && leaderboard.Entries.FirstOrDefault()?.SnapshotRank.HasValue == true)
-                                                            {
-                                                                <th class="rank-change-col"></th>
-                                                            }
-                                                            <th class="rank-col">#</th>
-                                                            <th class="player-name-col">Player</th>
-                                                            <th class="points-col">Pts</th>
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @foreach (var entry in leaderboard.Entries)
-                                                            {
-                                                                <tr class="@(GetUserHighlightClass(entry.UserId))">
-                                                                    @if (entry.IsRoundInProgress && entry.SnapshotRank.HasValue)
-                                                                    {
-                                                                        <td class="rank-change-col">
-                                                                            <RankChangeArrow 
-                                                                                PreviousRank="@entry.SnapshotRank"
-                                                                                CurrentRank="@entry.Rank"
-                                                                                IsVisible="@entry.IsRoundInProgress" />
-                                                                        </td>
-                                                                    }
-                                                                    <td class="rank-col fw-bold">@entry.Rank</td>
-                                                                    <td class="player-name-col fw-bold">@entry.PlayerName</td>
-                                                                    <td class="points-col fw-bold">@entry.TotalPoints</td>
-                                                                </tr>
-                                                            }
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                <p class="text-white-50 text-center">No scores for this month yet.</p>
-                                            }
-                                        }
-                                    </div>
-                                </div>
+                        <div class="d-flex justify-content-center align-items-center py-5">
+                            <div class="spinner-border text-white" role="status">
+                                <span class="visually-hidden">Loading...</span>
                             </div>
                         </div>
                     }
-                </div>
-            </div>
-
-            @if (_months.Count > 1)
-            {
-                <div class="carousel-dots">
-                    @for (var i = 0; i < _months.Count; i++)
+                    else if (leaderboard.Entries.Any())
                     {
-                        var index = i;
-                        <span class="carousel-dot @(index == _currentIndex ? "active" : "")" @onclick="() => GoToSlide(index)"></span>
+                        <div class="table-responsive rounded w-100">
+                            <table class="leaderboard-table table-striped-purple light text-white">
+                                <thead>
+                                <tr>
+                                    @if (leaderboard.Entries.FirstOrDefault()?.IsRoundInProgress == true && leaderboard.Entries.FirstOrDefault()?.SnapshotRank.HasValue == true)
+                                    {
+                                        <th class="rank-change-col"></th>
+                                    }
+                                    <th class="rank-col">#</th>
+                                    <th class="player-name-col">Player</th>
+                                    <th class="points-col">Pts</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var entry in leaderboard.Entries)
+                                    {
+                                        <tr class="@(GetUserHighlightClass(entry.UserId))">
+                                            @if (entry.IsRoundInProgress && entry.SnapshotRank.HasValue)
+                                            {
+                                                <td class="rank-change-col">
+                                                    <RankChangeArrow
+                                                        PreviousRank="@entry.SnapshotRank"
+                                                        CurrentRank="@entry.Rank"
+                                                        IsVisible="@entry.IsRoundInProgress" />
+                                                </td>
+                                            }
+                                            <td class="rank-col fw-bold">@entry.Rank</td>
+                                            <td class="player-name-col fw-bold">@entry.PlayerName</td>
+                                            <td class="points-col fw-bold">@entry.TotalPoints</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
                     }
-                </div>
-            }
+                    else
+                    {
+                        <p class="text-white-50 text-center">No scores for this month yet.</p>
+                    }
+                }
+            </div>
         </div>
     }
     else
@@ -129,12 +104,10 @@
     public int LeagueId { get; set; }
 
     private List<MonthDto> _months = [];
+    private MonthDto? _currentMonth;
     private readonly Dictionary<int, LeaderboardData> _leaderboards = new();
     private bool _isLoadingMonths = true;
     private string? _errorMessage;
-    private string _trackStyle = "transform: translateX(0%);";
-    private int _currentIndex;
-    private double _touchStartX;
 
     protected override async Task OnInitializedAsync()
     {
@@ -143,12 +116,10 @@
             await base.OnInitializedAsync();
             _months = (await LeagueService.GetMonthsForLeagueAsync(LeagueId)).ToList();
 
-            var currentMonthDto = _months.FirstOrDefault(m => m.RoundsRemaining > 0) ?? _months.FirstOrDefault();
-            if (currentMonthDto != null)
+            _currentMonth = _months.FirstOrDefault(m => m.RoundsRemaining > 0) ?? _months.FirstOrDefault();
+            if (_currentMonth != null)
             {
-                _currentIndex = _months.IndexOf(currentMonthDto);
-                UpdateTrackStyle();
-                await LoadLeaderboardForMonth(currentMonthDto.Month);
+                await LoadLeaderboardForMonth(_currentMonth.Month);
             }
         }
         catch (Exception)
@@ -161,32 +132,16 @@
         }
     }
 
-
-    private void HandleTouchStart(TouchEventArgs e) => _touchStartX = e.Touches[0].ClientX;
-    private static void HandleTouchMove(TouchEventArgs e) { }
-    private async Task HandleTouchEnd(TouchEventArgs e)
+    private async Task OnMonthChanged(ChangeEventArgs e)
     {
-        var touchEndX = e.ChangedTouches[0].ClientX;
-        var diffX = _touchStartX - touchEndX;
-
-        if (Math.Abs(diffX) <= 50)
-            return;
-
-        var newIndex = _currentIndex;
-
-        if (diffX > 0)
+        if (int.TryParse(e.Value?.ToString(), out var month))
         {
-            if (_currentIndex < _months.Count - 1)
-                newIndex = _currentIndex + 1;
+            _currentMonth = _months.FirstOrDefault(m => m.Month == month);
+            if (_currentMonth != null)
+            {
+                await LoadLeaderboardForMonth(_currentMonth.Month);
+            }
         }
-        else
-        {
-            if (_currentIndex > 0)
-                newIndex = _currentIndex - 1;
-        }
-
-        if (newIndex != _currentIndex)
-            await GoToSlide(newIndex);
     }
 
     private async Task LoadLeaderboardForMonth(int month)
@@ -211,32 +166,6 @@
             _leaderboards[month].IsLoading = false;
             StateHasChanged();
         }
-    }
-
-    private async Task GoToSlide(int index)
-    {
-        _currentIndex = index;
-        UpdateTrackStyle();
-        var monthToLoad = _months[_currentIndex].Month;
-        await LoadLeaderboardForMonth(monthToLoad);
-    }
-
-    private void UpdateTrackStyle()
-    {
-        _trackStyle = $"transform: translateX(-{_currentIndex * 100}%);";
-    }
-
-    private static string GetRoundsRemainingCss(int roundsRemaining)
-    {
-        if (roundsRemaining <= 0)
-            return "d-none";
-
-        return roundsRemaining switch
-        {
-            1 => "badge-group badge-group--red pulsing-red",
-            2 => "badge-group badge-group--orange",
-            _ => "badge-group badge-group--green"
-        };
     }
 
     private class LeaderboardData

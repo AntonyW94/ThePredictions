@@ -9,4 +9,5 @@ public interface IFootballDataService
     Task<IEnumerable<FixtureResponse>> GetFixturesByIdsAsync(List<int> fixtureIds, CancellationToken cancellationToken);
     Task<IEnumerable<string>> GetRoundsForSeasonAsync(int apiLeagueId, int seasonYear, CancellationToken cancellationToken);
     Task<ApiSeason> GetLeagueSeasonDetailsAsync(int apiLeagueId, int seasonYear, CancellationToken cancellationToken);
+    Task<(string? LeagueName, ApiSeason Season)> GetLeagueInfoAsync(int apiLeagueId, int seasonYear, CancellationToken cancellationToken);
 }

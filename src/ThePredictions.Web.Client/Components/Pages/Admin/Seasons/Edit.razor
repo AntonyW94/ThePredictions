@@ -4,16 +4,26 @@
 
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JsRuntime
 
 @using ThePredictions.Contracts.Admin.Seasons
+@using ThePredictions.Domain.Common
+@using ThePredictions.Domain.Common.Enumerations
 
 <PageTitle>Edit Season</PageTitle>
 
-<div class="page-container">
+<div class="page-container admin-light">
     <div class="form-container">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="fw-bold text-white mb-0">Edit Season</h3>
+            <h3 class="fw-bold mb-0">Edit Season</h3>
+            @if (_model != null)
+            {
+                <button type="button" class="btn red-button" @onclick="DeleteSeasonAsync" disabled="@(_isDeleting || _hasPredictions)" title="@(_hasPredictions ? "Cannot delete — predictions exist" : "Delete this season")">
+                    <span class="bi bi-trash-fill me-1"></span>Delete
+                </button>
+            }
         </div>
+        <ApiError Message="@_deleteError" />
 
         @if (_model == null)
         {
@@ -30,55 +40,224 @@
                                BusyText="Saving...">
                 <ChildContent>
                     <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="apiLeagueId" class="form-label">API League ID</label>
+                            <InputNumber id="apiLeagueId" class="form-control" @bind-Value="_model.ApiLeagueId" />
+                            <StyledValidationMessage For="@(() => _model.ApiLeagueId)" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="seasonYear" class="form-label">Season Year</label>
+                            <InputNumber id="seasonYear" class="form-control" @bind-Value="_seasonYear" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">&nbsp;</label>
+                            <div>
+                                <button type="button" class="btn purple-accent-button w-100" @onclick="LookupApiLeagueAsync" disabled="@(_isLookingUp || !_model.ApiLeagueId.HasValue)">
+                                    <span class="bi bi-cloud-download me-1"></span>@(_isLookingUp ? "Looking up..." : "Lookup")
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ApiError Message="@_lookupError" />
+
+                    <div class="row">
                         <div class="col-md-8 mb-3">
-                            <label for="name" class="form-label text-white">Season Name</label>
+                            <label for="name" class="form-label">Season Name</label>
                             <InputText id="name" class="form-control" @bind-Value="_model.Name" />
                             <StyledValidationMessage For="@(() => _model.Name)" />
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label for="numberOfRounds" class="form-label text-white">Rounds</label>
-                            <InputNumber id="numberOfRounds" class="form-control" @bind-Value="_model.NumberOfRounds" />
-                            <StyledValidationMessage For="@(() => _model.NumberOfRounds)" />
+                            <label for="competitionType" class="form-label">Competition Type</label>
+                            <InputSelect id="competitionType" class="form-control" @bind-Value="_model.CompetitionType">
+                                <option value="0">League</option>
+                                <option value="1">Tournament</option>
+                            </InputSelect>
+                            <StyledValidationMessage For="@(() => _model.CompetitionType)" />
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="startDate" class="form-label text-white">Start Date</label>
+                        <div class="col-md-4 mb-3">
+                            <label for="startDate" class="form-label">Start Date</label>
                             <InputDate id="startDate" Type="InputDateType.Date" class="form-control" @bind-Value="_model.StartDateUtc" />
                             <StyledValidationMessage For="@(() => _model.StartDateUtc)" />
                         </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label for="endDate" class="form-label text-white">End Date</label>
+                        <div class="col-md-4 mb-3">
+                            <label for="endDate" class="form-label">End Date</label>
                             <InputDate id="endDate" Type="InputDateType.Date" class="form-control" @bind-Value="_model.EndDateUtc" />
                             <StyledValidationMessage For="@(() => _model.EndDateUtc)" />
                         </div>
+                        <div class="@(_model.CompetitionType == 1 ? "col-md-2" : "col-md-4") mb-3">
+                            <label for="numberOfRounds" class="form-label">Rounds</label>
+                            <InputNumber id="numberOfRounds" class="form-control" @bind-Value="_model.NumberOfRounds" />
+                            <StyledValidationMessage For="@(() => _model.NumberOfRounds)" />
+                        </div>
+                        @if (_model.CompetitionType == 1)
+                        {
+                            <div class="col-md-2 mb-3">
+                                <label for="teamCount" class="form-label">Teams</label>
+                                <InputNumber id="teamCount" class="form-control" @bind-Value="_teamCount" />
+                            </div>
+                        }
                     </div>
 
-                    <div class="mb-3">
-                        <label for="apiLeagueId" class="form-label text-white">API League ID</label>
-                        <InputNumber id="apiLeagueId" class="form-control" @bind-Value="_model.ApiLeagueId" />
-                        <StyledValidationMessage For="@(() => _model.ApiLeagueId)" />
-                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Rounds</label>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="fw-bold" style="color: var(--purple-1000)">@_roundCount / @_model.NumberOfRounds</span>
+                                <button type="button" class="btn btn-sm purple-accent-button" @onclick="() => ViewRounds(SeasonId)">
+                                    <span class="bi bi-calendar3-range me-1"></span>Manage
+                                </button>
+                                @if (_roundCount < _model.NumberOfRounds)
+                                {
+                                    <button type="button" class="btn btn-sm blue-light-button" @onclick="() => AddRound(SeasonId)">
+                                        <span class="bi bi-plus-circle-fill me-1"></span>Add
+                                    </button>
+                                }
+                            </div>
+                        </div>
 
-                    <div class="mb-3">
-                        <label class="form-label text-white">Rounds</label>
-                        <div class="d-flex align-items-center">
-                            <span class="badge fs-6 me-3 bg-green-600">@_roundCount</span>
-                            <button type="button" class="btn btn-sm purple-accent-button me-2" @onclick="() => ViewRounds(SeasonId)" title="View Rounds">
-                                <span class="bi bi-eye-fill"></span>
-                            </button>
-                            <button type="button" class="btn btn-sm blue-light-button" @onclick="() => AddRound(SeasonId)" title="Add Round">
-                                <span class="bi bi-plus-circle-fill"></span>
-                            </button>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Status</label>
+                            <div class="d-flex align-items-center" style="height: 40px;">
+                                <div class="form-check form-switch mb-0">
+                                    <InputCheckbox id="isActive" class="form-check-input" @bind-Value="_model.IsActive" />
+                                    <label for="isActive" class="form-check-label fw-bold" style="color: var(--purple-1000)">
+                                        @(_model.IsActive ? "Active" : "Inactive")
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="mb-3 form-check">
-                        <InputCheckbox id="isActive" class="form-check-input" @bind-Value="_model.IsActive" />
-                        <label for="isActive" class="form-check-label text-white">Active</label>
-                    </div>
+                    @if (_model.CompetitionType == 1)
+                    {
+                        <div class="tournament-structure-section">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold mb-0">Tournament Structure</h5>
+                                @if (_isStructureLocked)
+                                {
+                                    <span class="text-muted" style="font-size: 0.85rem;">
+                                        <span class="bi bi-lock-fill me-1"></span>Structure locked — delete season to change
+                                    </span>
+                                }
+                                else
+                                {
+                                    <div class="d-flex gap-2">
+                                        @if (_model.ApiLeagueId.HasValue)
+                                        {
+                                            <button type="button" class="btn btn-sm purple-accent-button" @onclick="FetchApiRoundsAsync" disabled="@_isFetchingRounds">
+                                                <span class="bi bi-cloud-download me-1"></span><span class="btn-text">@(_isFetchingRounds ? "Fetching..." : "Fetch from API")</span>
+                                            </button>
+                                        }
+                                        <button type="button" class="btn btn-sm green-button" @onclick="AddRoundMapping">
+                                            <span class="bi bi-plus-circle-fill me-1"></span><span class="btn-text">Add Round</span>
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+
+                            <ApiError Message="@_fetchRoundsError" />
+
+                            @if (!_model.TournamentRoundMappings.Any())
+                            {
+                                <div class="empty-state" style="padding: var(--space-6);">
+                                    <span class="bi bi-diagram-3 empty-state-icon"></span>
+                                    <p class="empty-state-title">No rounds configured</p>
+                                    <p class="empty-state-text">Add rounds manually or fetch available stages from the API.</p>
+                                </div>
+                            }
+                            else
+                            {
+                                @for (var i = 0; i < _model.TournamentRoundMappings.Count; i++)
+                                {
+                                    var index = i;
+                                    var mapping = _model.TournamentRoundMappings[index];
+
+                                    <div class="tournament-round-row">
+                                        <div class="tournament-round-header">
+                                            <div class="tournament-round-number">@(index + 1)</div>
+                                            <span class="tournament-round-title">@(string.IsNullOrWhiteSpace(mapping.DisplayName) ? "New Round" : mapping.DisplayName)</span>
+                                            @if (!_isStructureLocked)
+                                            {
+                                                <button type="button" class="btn btn-sm red-button" @onclick="() => RemoveRoundMapping(index)">
+                                                    <span class="bi bi-trash-fill"></span>
+                                                </button>
+                                            }
+                                        </div>
+                                        <div class="tournament-round-body">
+                                            <div class="mb-3">
+                                                <label class="form-label">Display Name</label>
+                                                <InputText class="form-control" @bind-Value="mapping.DisplayName" placeholder="e.g. Quarter-finals" />
+                                            </div>
+                                            @if (_isStructureLocked)
+                                            {
+                                                <div class="row gx-3">
+                                                    <div class="col-8 mb-3">
+                                                        <label class="form-label">Stages</label>
+                                                        @if (mapping.Stages.Any())
+                                                        {
+                                                            <div class="tournament-stage-tags" style="margin-top: 4px;">
+                                                                @foreach (var stage in mapping.Stages)
+                                                                {
+                                                                    <span class="tournament-stage-tag">
+                                                                        @TournamentRoundNameParser.GetDefaultDisplayName(stage)
+                                                                    </span>
+                                                                }
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                    <div class="col-4 mb-3">
+                                                        <label class="form-label">Matches</label>
+                                                        <div class="form-control" style="background: transparent; border-color: transparent; font-weight: 600; color: var(--purple-1000);">@mapping.ExpectedMatchCount</div>
+                                                    </div>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="row gx-3">
+                                                    <div class="col-8 mb-3">
+                                                        <label class="form-label">Stages</label>
+                                                        <InputSelect class="form-control" @bind-Value="_selectedStageForRow[index]" @bind-Value:after="() => AddStageToMapping(index)">
+                                                            <option value="">Add stage...</option>
+                                                            @foreach (TournamentStage stage in Enum.GetValues(typeof(TournamentStage)))
+                                                            {
+                                                                if (!IsStageUsed(stage))
+                                                                {
+                                                                    <option value="@stage">@TournamentRoundNameParser.GetDefaultDisplayName(stage)</option>
+                                                                }
+                                                            }
+                                                        </InputSelect>
+                                                    </div>
+                                                    <div class="col-4 mb-3">
+                                                        <label class="form-label">Matches</label>
+                                                        <InputNumber class="form-control" @bind-Value="mapping.ExpectedMatchCount" />
+                                                    </div>
+                                                </div>
+                                                @if (mapping.Stages.Any())
+                                                {
+                                                    <div class="tournament-stage-tags">
+                                                        @foreach (var stage in mapping.Stages)
+                                                        {
+                                                            var stageToRemove = stage;
+                                                            <span class="tournament-stage-tag">
+                                                                @TournamentRoundNameParser.GetDefaultDisplayName(stage)
+                                                                <button type="button" class="tournament-stage-tag-remove" @onclick="() => RemoveStageFromMapping(index, stageToRemove)">
+                                                                    <span class="bi bi-x"></span>
+                                                                </button>
+                                                            </span>
+                                                        }
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    }
                 </ChildContent>
             </BaseFormComponent>
         }
@@ -89,6 +268,17 @@
     [Parameter] public int SeasonId { get; set; }
     private UpdateSeasonRequest? _model;
     private int _roundCount;
+    private int _seasonYear = DateTime.UtcNow.Year;
+    private int _teamCount;
+    private bool _isStructureLocked;
+    private readonly Dictionary<int, TournamentStage?> _selectedStageForRow = new();
+    private bool _isFetchingRounds;
+    private string? _fetchRoundsError;
+    private bool _isLookingUp;
+    private string? _lookupError;
+    private bool _hasPredictions;
+    private bool _isDeleting;
+    private string? _deleteError;
 
     protected override async Task OnInitializedAsync()
     {
@@ -101,15 +291,257 @@
                 StartDateUtc = seasonDto.StartDateUtc,
                 EndDateUtc = seasonDto.EndDateUtc,
                 IsActive = seasonDto.IsActive,
-                NumberOfRounds = seasonDto.NumberOfRounds
+                NumberOfRounds = seasonDto.NumberOfRounds,
+                CompetitionType = seasonDto.CompetitionType,
+                ApiLeagueId = seasonDto.ApiLeagueId
             };
             _roundCount = seasonDto.RoundCount;
+            _seasonYear = seasonDto.StartDateUtc.Year;
+
+            if (seasonDto.CompetitionType == 1)
+            {
+                await LoadTournamentMappingsAsync();
+            }
+
+            _hasPredictions = await Http.GetFromJsonAsync<bool>($"api/admin/seasons/{SeasonId}/has-predictions");
+        }
+    }
+
+    private async Task LoadTournamentMappingsAsync()
+    {
+        try
+        {
+            var mappings = await Http.GetFromJsonAsync<List<TournamentRoundMappingDto>>($"api/admin/seasons/{SeasonId}/tournament-mappings");
+            if (mappings != null && _model != null)
+            {
+                _model.TournamentRoundMappings = mappings;
+                _isStructureLocked = mappings.Count > 0;
+                for (var i = 0; i < mappings.Count; i++)
+                    _selectedStageForRow[i] = null;
+            }
+        }
+        catch
+        {
+            // Mappings not yet configured — ignore
         }
     }
 
     private Task<HttpResponseMessage> HandleUpdateSeasonAsync()
     {
+        for (var i = 0; i < _model!.TournamentRoundMappings.Count; i++)
+            _model.TournamentRoundMappings[i].RoundNumber = i + 1;
+
         return Http.PutAsJsonAsync($"api/admin/seasons/{SeasonId}/update", _model);
+    }
+
+    private async Task LookupApiLeagueAsync()
+    {
+        if (_model?.ApiLeagueId == null)
+            return;
+
+        _isLookingUp = true;
+        _lookupError = null;
+        StateHasChanged();
+
+        try
+        {
+            var result = await Http.GetFromJsonAsync<ApiLeagueLookupResult>(
+                $"api/admin/seasons/api-league-lookup?apiLeagueId={_model.ApiLeagueId.Value}&seasonYear={_seasonYear}");
+
+            if (result != null)
+            {
+                if (!string.IsNullOrWhiteSpace(result.LeagueName))
+                    _model.Name = result.LeagueName;
+
+                _model.StartDateUtc = result.StartDateUtc;
+                _model.EndDateUtc = result.EndDateUtc;
+                _model.NumberOfRounds = result.RoundCount;
+                _model.CompetitionType = result.CompetitionType;
+                _teamCount = result.TeamCount;
+
+                if (result.CompetitionType == 1)
+                {
+                    PopulateTournamentStructure(result.TournamentStages);
+                }
+            }
+        }
+        catch
+        {
+            _lookupError = "Could not look up league details. Check the API League ID and Season Year.";
+        }
+        finally
+        {
+            _isLookingUp = false;
+        }
+    }
+
+    private void PopulateTournamentStructure(List<TournamentStage> stages)
+    {
+        _model!.TournamentRoundMappings.Clear();
+        _selectedStageForRow.Clear();
+
+        var roundNumber = 1;
+        foreach (var stage in stages)
+        {
+            _model.TournamentRoundMappings.Add(new TournamentRoundMappingDto
+            {
+                RoundNumber = roundNumber,
+                DisplayName = TournamentRoundNameParser.GetDefaultDisplayName(stage),
+                Stages = [stage],
+                ExpectedMatchCount = TournamentRoundNameParser.CalculateExpectedMatchCount(stage, _teamCount)
+            });
+            _selectedStageForRow[roundNumber - 1] = null;
+            roundNumber++;
+        }
+
+        while (roundNumber <= _model.NumberOfRounds)
+        {
+            _model.TournamentRoundMappings.Add(new TournamentRoundMappingDto
+            {
+                RoundNumber = roundNumber,
+                DisplayName = "",
+                Stages = [],
+                ExpectedMatchCount = 0
+            });
+            _selectedStageForRow[roundNumber - 1] = null;
+            roundNumber++;
+        }
+    }
+
+    private async Task FetchApiRoundsAsync()
+    {
+        if (_model?.ApiLeagueId == null)
+            return;
+
+        _isFetchingRounds = true;
+        _fetchRoundsError = null;
+        StateHasChanged();
+
+        try
+        {
+            var stages = await Http.GetFromJsonAsync<List<TournamentStage>>($"api/admin/seasons/api-rounds?apiLeagueId={_model.ApiLeagueId.Value}&seasonYear={_seasonYear}");
+
+            if (stages != null && stages.Any())
+            {
+                var existingStages = _model.TournamentRoundMappings.SelectMany(m => m.Stages).ToHashSet();
+                var newStages = stages.Where(s => !existingStages.Contains(s)).ToList();
+
+                var roundNumber = _model.TournamentRoundMappings.Count + 1;
+                foreach (var stage in newStages)
+                {
+                    var index = _model.TournamentRoundMappings.Count;
+                    _model.TournamentRoundMappings.Add(new TournamentRoundMappingDto
+                    {
+                        RoundNumber = roundNumber,
+                        DisplayName = TournamentRoundNameParser.GetDefaultDisplayName(stage),
+                        Stages = [stage],
+                        ExpectedMatchCount = TournamentRoundNameParser.CalculateExpectedMatchCount(stage, _teamCount)
+                    });
+                    _selectedStageForRow[index] = null;
+                    roundNumber++;
+                }
+            }
+        }
+        catch
+        {
+            _fetchRoundsError = "Could not fetch round names from the API. Check the League ID and Season Year.";
+        }
+        finally
+        {
+            _isFetchingRounds = false;
+        }
+    }
+
+    private void AddRoundMapping()
+    {
+        var index = _model!.TournamentRoundMappings.Count;
+        _model.TournamentRoundMappings.Add(new TournamentRoundMappingDto
+        {
+            RoundNumber = index + 1,
+            DisplayName = "",
+            Stages = [],
+            ExpectedMatchCount = 0
+        });
+        _selectedStageForRow[index] = null;
+    }
+
+    private void RemoveRoundMapping(int index)
+    {
+        _model!.TournamentRoundMappings.RemoveAt(index);
+        _selectedStageForRow.Remove(index);
+    }
+
+    private void AddStageToMapping(int rowIndex)
+    {
+        if (!_selectedStageForRow.TryGetValue(rowIndex, out var stage) || stage == null)
+            return;
+
+        var mapping = _model!.TournamentRoundMappings[rowIndex];
+        if (!mapping.Stages.Contains(stage.Value))
+        {
+            mapping.Stages.Add(stage.Value);
+            mapping.ExpectedMatchCount += TournamentRoundNameParser.CalculateExpectedMatchCount(stage.Value, _teamCount);
+
+            if (string.IsNullOrWhiteSpace(mapping.DisplayName))
+                mapping.DisplayName = TournamentRoundNameParser.GetCombinedDisplayName(mapping.Stages);
+        }
+
+        _selectedStageForRow[rowIndex] = null;
+    }
+
+    private void RemoveStageFromMapping(int rowIndex, TournamentStage stage)
+    {
+        var mapping = _model!.TournamentRoundMappings[rowIndex];
+        mapping.Stages.Remove(stage);
+        mapping.ExpectedMatchCount = mapping.Stages.Sum(s => TournamentRoundNameParser.CalculateExpectedMatchCount(s, _teamCount));
+
+        if (mapping.Stages.Any())
+            mapping.DisplayName = TournamentRoundNameParser.GetCombinedDisplayName(mapping.Stages);
+    }
+
+    private bool IsStageUsed(TournamentStage stage)
+    {
+        return _model!.TournamentRoundMappings.Any(m => m.Stages.Contains(stage));
+    }
+
+    private async Task DeleteSeasonAsync()
+    {
+        _deleteError = null;
+
+        var confirmed = await JsRuntime.InvokeAsync<bool>(
+            "blazorInterop.showConfirm",
+            "Delete this season?",
+            "This will permanently delete all rounds, matches, and leagues for this season. This cannot be undone.",
+            "Delete",
+            "Cancel");
+
+        if (!confirmed)
+            return;
+
+        _isDeleting = true;
+        StateHasChanged();
+
+        try
+        {
+            var response = await Http.DeleteAsync($"api/admin/seasons/{SeasonId}");
+            if (response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo("/admin/seasons");
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                _deleteError = string.IsNullOrWhiteSpace(error) ? "Failed to delete season." : error;
+            }
+        }
+        catch
+        {
+            _deleteError = "An unexpected error occurred while deleting the season.";
+        }
+        finally
+        {
+            _isDeleting = false;
+        }
     }
 
     private void AddRound(int seasonId) => NavigationManager.NavigateTo($"/admin/seasons/{seasonId}/create-round");

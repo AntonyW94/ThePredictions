@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ThePredictions.Application.Features.Admin.Seasons.Commands;
 using ThePredictions.Application.Features.Admin.Seasons.Queries;
+using ThePredictions.Application.Services;
 using ThePredictions.Contracts.Admin.Seasons;
+using ThePredictions.Domain.Common;
 using ThePredictions.Domain.Common.Enumerations;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -13,7 +15,7 @@ namespace ThePredictions.API.Controllers.Admin;
 [ApiController]
 [Route("api/admin/[controller]")]
 [SwaggerTag("Admin: Seasons - Manage competition seasons (Admin only)")]
-public class SeasonsController(IMediator mediator) : ApiControllerBase
+public class SeasonsController(IMediator mediator, IFootballDataService footballDataService) : ApiControllerBase
 {
     #region Create
 
@@ -36,7 +38,9 @@ public class SeasonsController(IMediator mediator) : ApiControllerBase
             CurrentUserId,
             request.IsActive,
             request.NumberOfRounds,
-            request.ApiLeagueId
+            request.ApiLeagueId,
+            (CompetitionType)request.CompetitionType,
+            request.TournamentRoundMappings
         );
 
         var newSeasonDto = await mediator.Send(command, cancellationToken);
@@ -82,6 +86,115 @@ public class SeasonsController(IMediator mediator) : ApiControllerBase
         return Ok(season);
     }
 
+    [HttpGet("{seasonId:int}/has-predictions")]
+    [SwaggerOperation(
+        Summary = "Check if season has predictions",
+        Description = "Returns true if any match in the season has user predictions.")]
+    [SwaggerResponse(200, "Check completed", typeof(bool))]
+    public async Task<IActionResult> HasPredictionsAsync(
+        [SwaggerParameter("Season identifier")] int seasonId,
+        CancellationToken cancellationToken)
+    {
+        var query = new HasSeasonPredictionsQuery(seasonId);
+        var result = await mediator.Send(query, cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpGet("{seasonId:int}/tournament-mappings")]
+    [SwaggerOperation(
+        Summary = "Get tournament round mappings",
+        Description = "Returns the configured tournament round structure for a season.")]
+    [SwaggerResponse(200, "Mappings retrieved successfully", typeof(List<TournamentRoundMappingDto>))]
+    public async Task<IActionResult> GetTournamentMappingsAsync(
+        [SwaggerParameter("Season identifier")] int seasonId,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetTournamentRoundMappingsQuery(seasonId);
+        var mappings = await mediator.Send(query, cancellationToken);
+        return Ok(mappings);
+    }
+
+    [HttpGet("api-rounds")]
+    [SwaggerOperation(
+        Summary = "Get available API round names",
+        Description = "Fetches round names from the football API and parses them into tournament stages. Used to auto-populate the tournament structure.")]
+    [SwaggerResponse(200, "Stages retrieved successfully")]
+    [SwaggerResponse(400, "Could not fetch round names")]
+    public async Task<IActionResult> GetApiRoundsAsync(
+        [FromQuery, SwaggerParameter("API League ID")] int apiLeagueId,
+        [FromQuery, SwaggerParameter("Season year")] int seasonYear,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var apiRoundNames = await footballDataService.GetRoundsForSeasonAsync(apiLeagueId, seasonYear, cancellationToken);
+
+            var stages = apiRoundNames
+                .Where(name => TournamentRoundNameParser.TryParseStage(name, out _))
+                .Select(name =>
+                {
+                    TournamentRoundNameParser.TryParseStage(name, out var stage);
+                    return stage;
+                })
+                .Distinct()
+                .OrderBy(s => s)
+                .ToList();
+
+            return Ok(stages);
+        }
+        catch (HttpRequestException)
+        {
+            return BadRequest("Could not fetch round names from the football API.");
+        }
+    }
+
+    [HttpGet("api-league-lookup")]
+    [SwaggerOperation(
+        Summary = "Look up league/season details from API",
+        Description = "Fetches season dates, round count, and detects competition type from the football API. Used to auto-populate the season creation form.")]
+    [SwaggerResponse(200, "Lookup successful", typeof(ApiLeagueLookupResult))]
+    [SwaggerResponse(400, "Could not fetch league details")]
+    public async Task<IActionResult> LookupApiLeagueAsync(
+        [FromQuery, SwaggerParameter("API League ID")] int apiLeagueId,
+        [FromQuery, SwaggerParameter("Season year")] int seasonYear,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var (leagueName, apiSeason) = await footballDataService.GetLeagueInfoAsync(apiLeagueId, seasonYear, cancellationToken);
+            var apiRoundNames = (await footballDataService.GetRoundsForSeasonAsync(apiLeagueId, seasonYear, cancellationToken)).ToList();
+            var apiTeams = (await footballDataService.GetTeamsForSeasonAsync(apiLeagueId, seasonYear, cancellationToken)).ToList();
+
+            var tournamentStages = apiRoundNames
+                .Where(name => TournamentRoundNameParser.TryParseStage(name, out _))
+                .Select(name =>
+                {
+                    TournamentRoundNameParser.TryParseStage(name, out var stage);
+                    return stage;
+                })
+                .Distinct()
+                .OrderBy(s => s)
+                .ToList();
+
+            var isTournament = tournamentStages.Count > 0;
+
+            return Ok(new ApiLeagueLookupResult
+            {
+                LeagueName = leagueName,
+                StartDateUtc = apiSeason.Start,
+                EndDateUtc = apiSeason.End,
+                RoundCount = apiRoundNames.Count,
+                TeamCount = apiTeams.Count,
+                CompetitionType = isTournament ? 1 : 0,
+                TournamentStages = tournamentStages
+            });
+        }
+        catch (HttpRequestException)
+        {
+            return BadRequest("Could not fetch league details from the football API. Check the League ID and Season Year.");
+        }
+    }
+
     #endregion
 
     #region Update
@@ -107,7 +220,9 @@ public class SeasonsController(IMediator mediator) : ApiControllerBase
             request.EndDateUtc,
             request.IsActive,
             request.NumberOfRounds,
-            request.ApiLeagueId);
+            request.ApiLeagueId,
+            (CompetitionType)request.CompetitionType,
+            request.TournamentRoundMappings);
 
         await mediator.Send(command, cancellationToken);
 
@@ -128,6 +243,29 @@ public class SeasonsController(IMediator mediator) : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var command = new UpdateSeasonStatusCommand(seasonId, isActive);
+        await mediator.Send(command, cancellationToken);
+
+        return NoContent();
+    }
+
+    #endregion
+
+    #region Delete
+
+    [HttpDelete("{seasonId:int}")]
+    [SwaggerOperation(
+        Summary = "Delete a season",
+        Description = "Permanently deletes a season and all associated rounds, matches, and leagues. Cannot delete a season that has predictions.")]
+    [SwaggerResponse(204, "Season deleted successfully")]
+    [SwaggerResponse(400, "Cannot delete - season has predictions")]
+    [SwaggerResponse(401, "Not authenticated")]
+    [SwaggerResponse(403, "Not authorised - admin role required")]
+    [SwaggerResponse(404, "Season not found")]
+    public async Task<IActionResult> DeleteSeasonAsync(
+        [SwaggerParameter("Season identifier")] int seasonId,
+        CancellationToken cancellationToken)
+    {
+        var command = new DeleteSeasonCommand(seasonId);
         await mediator.Send(command, cancellationToken);
 
         return NoContent();

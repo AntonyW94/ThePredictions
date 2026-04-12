@@ -1,14 +1,17 @@
 using MediatR;
 using ThePredictions.Application.Common.Interfaces;
 using ThePredictions.Contracts.Admin.Seasons;
+using ThePredictions.Domain.Common.Enumerations;
 
 namespace ThePredictions.Application.Features.Admin.Seasons.Commands;
 
 public record CreateSeasonCommand(
-    string Name, 
-    DateTime StartDateUtc, 
+    string Name,
+    DateTime StartDateUtc,
     DateTime EndDateUtc,
     string CreatorId,
     bool IsActive,
     int NumberOfRounds,
-    int? ApiLeagueId) : IRequest<SeasonDto>, ITransactionalRequest;
+    int? ApiLeagueId,
+    CompetitionType CompetitionType,
+    List<TournamentRoundMappingDto> TournamentRoundMappings) : IRequest<SeasonDto>, ITransactionalRequest;

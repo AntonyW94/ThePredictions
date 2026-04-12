@@ -2,13 +2,15 @@
 .green-button:disabled,
 .green-button:active {
     background-color: var(--green-600);
+    border: 1px solid var(--green-600);
     color: var(--white);
     font-weight: bold;
-    transition: background-color 0.2s, color 0.2s;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
 
     .green-button:not(.badge):hover {
         background-color: var(--white);
+        border-color: var(--green-600);
         color: var(--green-600);
     }
 
@@ -16,13 +18,15 @@
 .red-button:disabled,
 .red-button:active {
     background-color: var(--red);
+    border: 1px solid var(--red);
     color: var(--white);
     font-weight: bold;
-    border: none;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
 
     .red-button:not(.badge):hover {
         background-color: var(--white);
+        border-color: var(--red);
         color: var(--red);
     }
 
@@ -42,26 +46,32 @@
 .purple-accent-button,
 .purple-accent-button:disabled,
 .purple-accent-button:active {
-    background-color: var(--purple-200);
+    background-color: var(--purple-300);
+    border: 1px solid var(--purple-300);
     color: var(--white);
     font-weight: bold;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
 
     .purple-accent-button:not(.badge):hover {
         background-color: var(--white);
-        color: var(--purple-200);
+        border-color: var(--purple-300);
+        color: var(--purple-300);
     }
 
 .blue-light-button,
 .blue-light-button:disabled,
 .blue-light-button:active {
     background-color: var(--blue-700);
+    border: 1px solid var(--blue-700);
     color: var(--white);
     font-weight: bold;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
 
     .blue-light-button:not(.badge):hover {
         background-color: var(--white);
+        border-color: var(--blue-700);
         color: var(--blue-700);
     }
 
@@ -81,13 +91,13 @@
     top: -0.9375rem;
     left: 0;
     transform: translateY(-50%);
-    color: var(--white);
+    color: var(--purple-1000);
     transition: color 0.2s ease-in-out;
     text-decoration: none;
 }
 
     .back-button:not(.badge):hover {
-        color: var(--white);
+        color: var(--purple-300);
         text-decoration: underline;
     }
 
@@ -96,26 +106,27 @@
     }
 
 .password-toggle-btn {
-    background-color: var(--purple-1000);
-    color: var(--white);
-    border: 1px solid var(--white);
+    background-color: var(--white);
+    color: var(--purple-1000);
+    border: 1px solid var(--grey-200);
     border-left: 0;
+    border-radius: 0 var(--bs-border-radius) var(--bs-border-radius) 0;
     transition: color 0.2s ease-in-out;
 }
 
     .password-toggle-btn:hover,
     .password-toggle-btn:active {
         color: var(--green-600);
-        border: 1px solid var(--white);
+        border: 1px solid var(--grey-200);
         border-left: 0;
-        background-color: var(--purple-1000);
+        background-color: var(--white);
     }
 
     .password-toggle-btn:focus {
         color: var(--green-600);
-        border: 1px solid var(--white);
+        border: 1px solid var(--purple-300);
         border-left: 0;
-        background-color: var(--purple-800);
+        background-color: var(--white);
     }
 
 .btn .bi {
@@ -144,10 +155,11 @@
 .google-btn {
     background-color: var(--white);
     color: var(--black);
-    border: 1px solid var(--grey-200);
+    border: 2px solid var(--grey-300);
+    box-shadow: 0 1px 3px var(--black-alpha-15);
 }
 
     .google-btn:hover {
-        background-color: var(--grey-300);
-        border-color: var(--grey-300);
+        background-color: var(--purple-100);
+        border-color: var(--purple-300);
     }

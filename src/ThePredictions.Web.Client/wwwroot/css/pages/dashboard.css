@@ -3,11 +3,225 @@
     margin: auto;
 }
 
-.position-info {
+/* Dashboard waiting state (no rounds yet) */
+.dashboard-waiting {
+    position: relative;
+    padding: var(--space-12) var(--space-4);
+    overflow: hidden;
+}
+
+.dashboard-waiting__pulse {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    width: 250px;
+    height: 250px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(150, 60, 255, 0.3) 0%, rgba(150, 60, 255, 0) 70%);
+    animation: dashboard-pulse 3s ease-in-out infinite;
+}
+
+@keyframes dashboard-pulse {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.6;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.5);
+        opacity: 0.2;
+    }
+}
+
+.dashboard-waiting__content {
+    position: relative;
+    z-index: 1;
+}
+
+.dashboard-waiting__icon {
+    font-size: 3rem;
+    color: var(--purple-300);
+}
+
+/* Countdown timer */
+.dashboard-waiting__countdown {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.dashboard-waiting__unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.dashboard-waiting__value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--green-600);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.dashboard-waiting__label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--grey-500);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: var(--space-1);
+}
+
+.dashboard-waiting__separator {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--grey-300);
+    margin-bottom: 1rem;
+}
+
+/* Members table */
+.dashboard-waiting__members-table {
+    max-width: 500px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.dashboard-waiting__member-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--grey-200);
+}
+
+.dashboard-waiting__member-row:last-child {
+    border-bottom: none;
+}
+
+.member-status-pill {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.member-status-approved {
+    background: var(--green-600);
     color: var(--white);
+}
+
+.member-status-pending {
+    background: var(--orange);
+    color: var(--white);
+}
+
+@media (min-width: 768px) {
+    .dashboard-waiting__value {
+        font-size: 3.5rem;
+    }
+
+    .dashboard-waiting__separator {
+        font-size: 2.5rem;
+    }
+
+    .dashboard-waiting__countdown {
+        gap: var(--space-4);
+    }
+}
+
+/* Pending Members / League Admin tile */
+.pending-members-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Make League Admin carousel cards fill the section height */
+.league-admin-carousel {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+    .league-admin-carousel .carousel-container {
+        flex-grow: 1;
+    }
+
+    .league-admin-carousel .carousel-track-wrapper,
+    .league-admin-carousel .carousel-track,
+    .league-admin-carousel .carousel-item-wrapper,
+    .league-admin-carousel .carousel-item-content {
+        height: 100%;
+    }
+
+    .league-admin-carousel .carousel-item-content > .card {
+        height: 100%;
+    }
+
+.pending-member-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--grey-200);
+}
+
+.pending-member-row:last-child {
+    border-bottom: none;
+}
+
+.member-avatar--sm {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.75rem;
+}
+
+.pending-member-approve {
+    background: var(--green-600);
+    color: var(--white);
+    border: none;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    padding: 0;
+}
+
+    .pending-member-approve:hover {
+        background: var(--green-300);
+        color: var(--purple-1000);
+    }
+
+.pending-member-reject {
+    background: transparent;
+    color: var(--grey-500);
+    border: 1px solid var(--grey-300);
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    padding: 0;
+}
+
+    .pending-member-reject:hover {
+        background: var(--red);
+        color: var(--white);
+        border-color: var(--red);
+    }
+
+.position-info {
+    color: var(--purple-1000);
 }
 
     .position-info span:first-child {
         font-size: 1.2rem;
         font-weight: bold;
     }
+
+

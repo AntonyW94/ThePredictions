@@ -52,7 +52,7 @@ Represents a football season or competition period.
 | ApiLeagueId | int | YES | | External API league identifier |
 | StartDateUtc | datetime2 | NO | | Season start date |
 | EndDateUtc | datetime2 | NO | | Season end date |
-| CompetitionType | int | NO | 0 | Type of competition (0 = League, etc.) |
+| CompetitionType | int | NO | 0 | Type of competition (0 = League, 1 = Tournament) |
 
 **Constraints:**
 - PK: `Id`
@@ -69,6 +69,7 @@ Represents a gameweek within a season.
 | Id | int | NO | IDENTITY | Primary key |
 | SeasonId | int | NO | | FK to Seasons |
 | RoundNumber | int | NO | | Round number within season |
+| DisplayName | nvarchar(200) | NO | '' | User-facing round name (e.g., "Gameweek 1", "Quarter-finals") |
 | Status | nvarchar(50) | NO | 'Draft' | Draft, Published, InProgress, Completed |
 | ApiRoundName | nvarchar(128) | YES | | External API round name |
 | StartDateUtc | datetime2 | NO | | Round start date |
@@ -76,6 +77,26 @@ Represents a gameweek within a season.
 | CompletedDateUtc | datetime2 | YES | | When round was completed |
 | LastReminderSentUtc | datetime2 | YES | | Last reminder email sent |
 | CompletedDate | datetime2 | YES | | (Legacy column — use CompletedDateUtc instead) |
+
+**Constraints:**
+- PK: `Id`
+- UNIQUE: `SeasonId, RoundNumber`
+- FK: `SeasonId` → `Seasons.Id` (CASCADE DELETE)
+
+---
+
+### TournamentRoundMappings
+
+Admin-configured tournament round structure. Maps tournament stages to prediction rounds.
+
+| Column | Type | Nullable | Default | Description |
+|--------|------|----------|---------|-------------|
+| Id | int | NO | IDENTITY | Primary key |
+| SeasonId | int | NO | | FK to Seasons |
+| RoundNumber | int | NO | | Prediction round ordering |
+| DisplayName | nvarchar(200) | NO | | User-facing round name |
+| Stages | nvarchar(500) | NO | | Pipe-delimited TournamentStage values (e.g. `SemiFinals\|ThirdPlace\|Final`) |
+| ExpectedMatchCount | int | NO | | Number of matches to create as placeholders |
 
 **Constraints:**
 - PK: `Id`
@@ -100,8 +121,10 @@ Individual fixtures within a round.
 | ExternalId | int | YES | | External API match ID |
 | MatchDateTimeUtc | datetime2 | NO | | Kick-off time |
 | CustomLockTimeUtc | datetime2 | YES | | Per-match lock time (for tournaments) |
-| PlaceholderHomeName | nvarchar(100) | YES | | e.g., "Winner Group A" |
-| PlaceholderAwayName | nvarchar(100) | YES | | e.g., "Runner-up Group B" |
+| MatchNumber | int | YES | | Tournament match number (e.g., 1-104 for World Cup). Auto-assigned on creation, editable by admin. |
+| PlaceholderHomeName | nvarchar(100) | YES | | e.g., "Winner Match 73" |
+| PlaceholderAwayName | nvarchar(100) | YES | | e.g., "Winner Match 75" |
+| ApiRoundName | nvarchar(128) | YES | | Original API round name for this match (e.g., "Group Stage - 1") |
 
 **Constraints:**
 - PK: `Id`
@@ -447,6 +470,7 @@ Extended ASP.NET Identity users table.
 | AccessFailedCount | int | NO | | Failed login attempts |
 | **FirstName** | nvarchar(100) | NO | | **Custom: User's first name** |
 | **LastName** | nvarchar(100) | NO | | **Custom: User's last name** |
+| **PreferredTheme** | nvarchar(10) | NO | 'light' | **Custom: User's theme preference ('light' or 'dark')** |
 
 **Constraints:**
 - PK: `Id`

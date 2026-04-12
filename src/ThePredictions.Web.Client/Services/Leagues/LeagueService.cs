@@ -2,6 +2,7 @@ using ThePredictions.Contracts.Boosts;
 using ThePredictions.Contracts.Dashboard;
 using ThePredictions.Contracts.Leaderboards;
 using ThePredictions.Contracts.Leagues;
+using ThePredictions.Domain.Common.Enumerations;
 using System.Net.Http.Json;
 using System.Text.Json.Nodes;
 
@@ -105,6 +106,17 @@ public class LeagueService(HttpClient httpClient) : ILeagueService
     public async Task<List<LeagueRequestDto>> GetPendingRequestsAsync()
     {
         return await httpClient.GetFromJsonAsync<List<LeagueRequestDto>>("api/dashboard/pending-requests") ?? [];
+    }
+
+    public async Task<PendingMembersResultDto> GetPendingMembersForAdminAsync()
+    {
+        return await httpClient.GetFromJsonAsync<PendingMembersResultDto>("api/dashboard/pending-members")
+               ?? new PendingMembersResultDto();
+    }
+
+    public async Task UpdateMemberStatusAsync(int leagueId, string userId, LeagueMemberStatus newStatus)
+    {
+        await httpClient.PostAsJsonAsync($"api/leagues/{leagueId}/members/{userId}/status", newStatus);
     }
 
     public async Task<(bool Success, string? ErrorMessage)> CancelJoinRequestAsync(int leagueId)

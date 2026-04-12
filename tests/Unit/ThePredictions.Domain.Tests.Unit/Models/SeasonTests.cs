@@ -1,4 +1,5 @@
 using FluentAssertions;
+using ThePredictions.Domain.Common.Enumerations;
 using ThePredictions.Domain.Models;
 using Xunit;
 
@@ -15,7 +16,8 @@ public class SeasonTests
         DateTime? endDateUtc = null,
         bool isActive = true,
         int numberOfRounds = 38,
-        int? apiLeagueId = null)
+        int? apiLeagueId = null,
+        CompetitionType competitionType = CompetitionType.League)
     {
         return Season.Create(
             name,
@@ -23,7 +25,8 @@ public class SeasonTests
             endDateUtc ?? ValidEnd,
             isActive,
             numberOfRounds,
-            apiLeagueId);
+            apiLeagueId,
+            competitionType);
     }
 
     #region Create — Happy Path
@@ -191,7 +194,7 @@ public class SeasonTests
         var end = start.AddMonths(10).AddDays(1);
 
         // Act
-        var act = () => Season.Create("Test", start, end, true, 38, null);
+        var act = () => Season.Create("Test", start, end, true, 38, null, CompetitionType.League);
 
         // Assert
         act.Should().Throw<ArgumentException>();
@@ -205,7 +208,7 @@ public class SeasonTests
         var end = start.AddMonths(10);
 
         // Act
-        var act = () => Season.Create("Test", start, end, true, 38, null);
+        var act = () => Season.Create("Test", start, end, true, 38, null, CompetitionType.League);
 
         // Assert
         act.Should().NotThrow();
@@ -278,7 +281,7 @@ public class SeasonTests
         var newEnd = ValidEnd.AddMonths(1);
 
         // Act
-        season.UpdateDetails("Updated Season", newStart, newEnd, false, 20, 99);
+        season.UpdateDetails("Updated Season", newStart, newEnd, false, 20, 99, CompetitionType.League);
 
         // Assert
         season.Name.Should().Be("Updated Season");
@@ -294,10 +297,10 @@ public class SeasonTests
     {
         // Arrange — use public constructor so we can set Id
         var season = new Season(id: 42, name: "Test", startDateUtc: ValidStart, endDateUtc: ValidEnd,
-            isActive: true, numberOfRounds: 38, apiLeagueId: null);
+            isActive: true, numberOfRounds: 38, apiLeagueId: null, competitionType: CompetitionType.League);
 
         // Act
-        season.UpdateDetails("Updated", ValidStart, ValidEnd, false, 20, null);
+        season.UpdateDetails("Updated", ValidStart, ValidEnd, false, 20, null, CompetitionType.League);
 
         // Assert
         season.Id.Should().Be(42);
@@ -310,7 +313,7 @@ public class SeasonTests
         var season = CreateSeasonViaFactory();
 
         // Act
-        var act = () => season.UpdateDetails(null!, ValidStart, ValidEnd, true, 38, null);
+        var act = () => season.UpdateDetails(null!, ValidStart, ValidEnd, true, 38, null, CompetitionType.League);
 
         // Assert
         act.Should().Throw<ArgumentException>();
@@ -323,7 +326,7 @@ public class SeasonTests
         var season = CreateSeasonViaFactory();
 
         // Act
-        var act = () => season.UpdateDetails("", ValidStart, ValidEnd, true, 38, null);
+        var act = () => season.UpdateDetails("", ValidStart, ValidEnd, true, 38, null, CompetitionType.League);
 
         // Assert
         act.Should().Throw<ArgumentException>();
@@ -336,7 +339,7 @@ public class SeasonTests
         var season = CreateSeasonViaFactory();
 
         // Act
-        var act = () => season.UpdateDetails("Test", ValidStart, ValidStart.AddDays(-1), true, 38, null);
+        var act = () => season.UpdateDetails("Test", ValidStart, ValidStart.AddDays(-1), true, 38, null, CompetitionType.League);
 
         // Assert
         act.Should().Throw<ArgumentException>();
@@ -349,7 +352,7 @@ public class SeasonTests
         var season = CreateSeasonViaFactory();
 
         // Act
-        var act = () => season.UpdateDetails("Test", ValidStart, ValidStart, true, 38, null);
+        var act = () => season.UpdateDetails("Test", ValidStart, ValidStart, true, 38, null, CompetitionType.League);
 
         // Assert
         act.Should().Throw<ArgumentException>();
@@ -363,7 +366,7 @@ public class SeasonTests
         var farEnd = ValidStart.AddMonths(10).AddDays(1);
 
         // Act
-        var act = () => season.UpdateDetails("Test", ValidStart, farEnd, true, 38, null);
+        var act = () => season.UpdateDetails("Test", ValidStart, farEnd, true, 38, null, CompetitionType.League);
 
         // Assert
         act.Should().Throw<ArgumentException>();
@@ -376,7 +379,7 @@ public class SeasonTests
         var season = CreateSeasonViaFactory();
 
         // Act
-        var act = () => season.UpdateDetails("Test", default, ValidEnd, true, 38, null);
+        var act = () => season.UpdateDetails("Test", default, ValidEnd, true, 38, null, CompetitionType.League);
 
         // Assert
         act.Should().Throw<ArgumentException>();
@@ -389,7 +392,7 @@ public class SeasonTests
         var season = CreateSeasonViaFactory();
 
         // Act
-        var act = () => season.UpdateDetails("Test", ValidStart, default, true, 38, null);
+        var act = () => season.UpdateDetails("Test", ValidStart, default, true, 38, null, CompetitionType.League);
 
         // Assert
         act.Should().Throw<ArgumentException>();
@@ -402,7 +405,7 @@ public class SeasonTests
         var season = CreateSeasonViaFactory();
 
         // Act
-        var act = () => season.UpdateDetails("Test", ValidStart, ValidEnd, true, 0, null);
+        var act = () => season.UpdateDetails("Test", ValidStart, ValidEnd, true, 0, null, CompetitionType.League);
 
         // Assert
         act.Should().Throw<ArgumentOutOfRangeException>();
@@ -415,7 +418,7 @@ public class SeasonTests
         var season = CreateSeasonViaFactory();
 
         // Act
-        var act = () => season.UpdateDetails("Test", ValidStart, ValidEnd, true, 53, null);
+        var act = () => season.UpdateDetails("Test", ValidStart, ValidEnd, true, 53, null, CompetitionType.League);
 
         // Assert
         act.Should().Throw<ArgumentOutOfRangeException>();
@@ -428,7 +431,7 @@ public class SeasonTests
         var season = CreateSeasonViaFactory(apiLeagueId: 42);
 
         // Act
-        season.UpdateDetails("Test", ValidStart, ValidEnd, true, 38, null);
+        season.UpdateDetails("Test", ValidStart, ValidEnd, true, 38, null, CompetitionType.League);
 
         // Assert
         season.ApiLeagueId.Should().BeNull();
@@ -476,6 +479,53 @@ public class SeasonTests
 
         // Assert
         season.IsActive.Should().BeTrue();
+    }
+
+    #endregion
+
+    #region CompetitionType
+
+    [Fact]
+    public void Create_ShouldSetCompetitionType_WhenTournament()
+    {
+        // Act
+        var season = CreateSeasonViaFactory(competitionType: CompetitionType.Tournament);
+
+        // Assert
+        season.CompetitionType.Should().Be(CompetitionType.Tournament);
+    }
+
+    [Fact]
+    public void IsTournament_ShouldReturnTrue_WhenCompetitionTypeIsTournament()
+    {
+        // Act
+        var season = CreateSeasonViaFactory(competitionType: CompetitionType.Tournament);
+
+        // Assert
+        season.IsTournament.Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsTournament_ShouldReturnFalse_WhenCompetitionTypeIsLeague()
+    {
+        // Act
+        var season = CreateSeasonViaFactory(competitionType: CompetitionType.League);
+
+        // Assert
+        season.IsTournament.Should().BeFalse();
+    }
+
+    [Fact]
+    public void UpdateDetails_ShouldUpdateCompetitionType()
+    {
+        // Arrange
+        var season = CreateSeasonViaFactory(competitionType: CompetitionType.League);
+
+        // Act
+        season.UpdateDetails("2025/26 Season", ValidStart, ValidEnd, true, 38, null, CompetitionType.Tournament);
+
+        // Assert
+        season.CompetitionType.Should().Be(CompetitionType.Tournament);
     }
 
     #endregion

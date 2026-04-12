@@ -42,20 +42,28 @@ public class UserPrediction
 
     public void SetOutcome(MatchStatus status, int? actualHomeScore, int? actualAwayScore, IDateTimeProvider dateTimeProvider)
     {
-        if (status is MatchStatus.Scheduled or MatchStatus.Postponed || actualHomeScore == null || actualAwayScore == null)
-        {
-            Outcome = PredictionOutcome.Pending;
-            UpdatedAtUtc = dateTimeProvider.UtcNow;
-            return;
-        }
+        Outcome = DetermineOutcome(status, actualHomeScore, actualAwayScore);
+        UpdatedAtUtc = dateTimeProvider.UtcNow;
+    }
+
+    private PredictionOutcome DetermineOutcome(MatchStatus status, int? actualHomeScore, int? actualAwayScore)
+    {
+        if (!HasFinalScore(status, actualHomeScore, actualAwayScore))
+            return PredictionOutcome.Pending;
 
         if (PredictedHomeScore == actualHomeScore && PredictedAwayScore == actualAwayScore)
-            Outcome = PredictionOutcome.ExactScore;
-        else if (Math.Sign(PredictedHomeScore - PredictedAwayScore) == Math.Sign(actualHomeScore.Value - actualAwayScore.Value))
-            Outcome = PredictionOutcome.CorrectResult;
-        else
-            Outcome = PredictionOutcome.Incorrect;
+            return PredictionOutcome.ExactScore;
 
-        UpdatedAtUtc = dateTimeProvider.UtcNow;
+        if (Math.Sign(PredictedHomeScore - PredictedAwayScore) == Math.Sign(actualHomeScore!.Value - actualAwayScore!.Value))
+            return PredictionOutcome.CorrectResult;
+
+        return PredictionOutcome.Incorrect;
+    }
+
+    private static bool HasFinalScore(MatchStatus status, int? actualHomeScore, int? actualAwayScore)
+    {
+        return status is not (MatchStatus.Scheduled or MatchStatus.Postponed)
+               && actualHomeScore.HasValue
+               && actualAwayScore.HasValue;
     }
 }

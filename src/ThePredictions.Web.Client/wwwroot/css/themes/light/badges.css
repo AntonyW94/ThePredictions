@@ -1,0 +1,68 @@
+/* Light Theme - Badges */
+/* Scoped under .admin-light */
+
+.admin-light .badge {
+    font-weight: 600;
+}
+
+.admin-light .badge-group.--green .badge {
+    background: var(--green-600);
+    color: var(--white);
+}
+
+.admin-light .badge-group.--red .badge {
+    background: var(--red);
+    color: var(--white);
+}
+
+.admin-light .badge-group.--blue .badge {
+    background: var(--blue-700);
+    color: var(--white);
+}
+
+.admin-light .badge-group.--purple .badge {
+    background: var(--purple-300);
+    color: var(--white);
+}
+
+/* Match count badge */
+.match-count-badge {
+    background: var(--green-600);
+    color: var(--white);
+    padding: var(--space-1) var(--space-3);
+    border-radius: 50rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-left: var(--space-2);
+}
+
+/* Round metadata status badges */
+.round-meta .status-badge {
+    display: inline-block;
+    padding: var(--space-1) var(--space-3);
+    border-radius: 50rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.round-meta .status-badge.draft {
+    background: var(--grey-500);
+    color: var(--white);
+}
+
+.round-meta .status-badge.published {
+    background: var(--blue-700);
+    color: var(--white);
+}
+
+.round-meta .status-badge.inprogress {
+    background: var(--yellow);
+    color: var(--black);
+}
+
+.round-meta .status-badge.completed {
+    background: var(--green-600);
+    color: var(--white);
+}

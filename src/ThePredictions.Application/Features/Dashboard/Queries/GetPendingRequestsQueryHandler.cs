@@ -17,6 +17,7 @@ public class GetPendingRequestsQueryHandler(IApplicationReadDbConnection dbConne
                 s.[Name] AS [SeasonName],
                 lm.[Status],
                 lm.[JoinedAtUtc],
+                l.[EntryDeadlineUtc],
                 u.[FirstName] + ' ' + LEFT(u.[LastName], 1) AS [AdminName],
                 (SELECT COUNT(*) FROM [LeagueMembers] WHERE [LeagueId] = l.[Id] AND [Status] = @ApprovedStatus) AS [MemberCount],
                 l.[Price] AS [EntryFee],

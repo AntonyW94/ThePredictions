@@ -30,9 +30,11 @@
 @import url('components/cards/match-cards.css');
 @import url('components/cards/member-cards.css');
 @import url('components/cards/round-cards.css');
+@import url('components/cards/match-editor-cards.css');
 
 /* Component styles - Other */
 @import url('components/badges.css');
+@import url('components/filters.css');
 @import url('components/boosts.css');
 @import url('components/detail-list.css');
 @import url('components/buttons.css');
@@ -41,12 +43,25 @@
 @import url('components/modals.css');
 @import url('components/rank-display.css');
 
+/* Light theme overrides (scoped under .admin-light) */
+@import url('themes/light/layout.css');
+@import url('themes/light/forms.css');
+@import url('themes/light/cards.css');
+@import url('themes/light/buttons.css');
+@import url('themes/light/badges.css');
+@import url('themes/light/tabs.css');
+@import url('themes/light/match-editor.css');
+
+/* Dark theme override (scoped under .theme-dark) */
+@import url('themes/dark/dark.css');
+
 /* Page-specific styles */
 @import url('pages/dashboard.css');
 @import url('pages/home.css');
 @import url('pages/leaderboard.css');
 @import url('pages/predictions.css');
 @import url('pages/prizes.css');
+@import url('pages/tournament-structure.css');
 @import url('pages/results-grid.css');
 @import url('pages/boost-usage.css');
 

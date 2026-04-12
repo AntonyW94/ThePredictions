@@ -1,5 +1,6 @@
 @inject IDashboardStateService DashboardState
 @inject IBrowserService BrowserService
+@inject IJSRuntime JsRuntime
 
 @using ThePredictions.Web.Client.Services.Browser
 @using ThePredictions.Web.Client.Services.Dashboard
@@ -21,21 +22,23 @@
     else if (!DashboardState.ActiveRounds.Any())
     {
         <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1">
-            <p class="text-white fw-bold text-center">No active rounds available.</p>
+            <i class="bi bi-calendar2-week empty-state-icon"></i>
+            <p class="text-white-50 mt-2 mb-0 text-center">No active rounds available.</p>
         </div>
     }
     else
     {
-        <div class="carousel-wrapper carousel--multi-item">
+        <div class="carousel-wrapper @(_showTwoItems ? "carousel--multi-item" : "")">
             <div class="carousel-container" @ontouchstart="HandleTouchStart" @ontouchmove="HandleTouchMove" @ontouchend="HandleTouchEnd">
-                @if (_showTwoItems && DashboardState.ActiveRounds.Count > 2)
+                @{ var itemsPerPage = _showTwoItems ? 2 : 1; }
+                @if (DashboardState.ActiveRounds.Count > itemsPerPage)
                 {
                     <button class="carousel-btn" @onclick="ShowPrevious" disabled="@(_currentIndex == 0)">
                         <span class="bi bi-chevron-left"></span>
                     </button>
                 }
 
-                <div class="carousel-track-wrapper">
+                <div class="carousel-track-wrapper" id="carousel-track-wrapper">
                     <div class="carousel-track" style="@_trackStyle">
                         @foreach (var round in DashboardState.ActiveRounds)
                         {
@@ -48,7 +51,7 @@
                     </div>
                 </div>
 
-                @if (_showTwoItems && DashboardState.ActiveRounds.Count > 2)
+                @if (DashboardState.ActiveRounds.Count > itemsPerPage)
                 {
                     <button class="carousel-btn" @onclick="ShowNext" disabled="@IsAtEnd()">
                         <span class="bi bi-chevron-right"></span>
@@ -71,18 +74,36 @@
 </div>
 
 @code {
+    [Parameter]
+    public bool IsHalfWidth { get; set; }
+
     private int _currentIndex;
     private double _touchStartX;
     private string _trackStyle = "transform: translateX(0%);";
     private bool _showTwoItems;
+    private bool _isTabletOrAbove;
 
     protected override async Task OnInitializedAsync()
     {
         DashboardState.OnStateChange += StateHasChanged;
-        _showTwoItems = await BrowserService.IsTabletOrAbove();
+        _isTabletOrAbove = await BrowserService.IsTabletOrAbove();
+        _showTwoItems = _isTabletOrAbove && !IsHalfWidth;
 
         if (!DashboardState.ActiveRounds.Any())
             await DashboardState.LoadActiveRoundsAsync();
+    }
+
+    protected override void OnParametersSet()
+    {
+        _showTwoItems = _isTabletOrAbove && !IsHalfWidth;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (DashboardState.ActiveRounds.Any())
+        {
+            await UpdateCarouselHeightAsync();
+        }
     }
 
     private int NumberOfDots
@@ -111,7 +132,7 @@
 
     }
 
-    private void HandleTouchEnd(TouchEventArgs e)
+    private async Task HandleTouchEnd(TouchEventArgs e)
     {
         var touchEndX = e.ChangedTouches[0].ClientX;
         var diffX = _touchStartX - touchEndX;
@@ -120,42 +141,49 @@
             return;
 
         if (diffX > 0)
-            ShowNext();
+            await ShowNext();
         else
-            ShowPrevious();
+            await ShowPrevious();
     }
 
-    private void GoToSlide(int index)
+    private async Task GoToSlide(int index)
     {
         if (index < 0 || index >= NumberOfDots)
             return;
 
         _currentIndex = index;
-        UpdateTrackStyle();
+        await UpdateTrackStyle();
     }
 
-    private void ShowPrevious()
+    private async Task ShowPrevious()
     {
         if (_currentIndex <= 0)
             return;
 
         _currentIndex--;
-        UpdateTrackStyle();
+        await UpdateTrackStyle();
     }
 
-    private void ShowNext()
+    private async Task ShowNext()
     {
         if (IsAtEnd())
             return;
 
         _currentIndex++;
-        UpdateTrackStyle();
+        await UpdateTrackStyle();
     }
 
-    private void UpdateTrackStyle()
+    private async Task UpdateTrackStyle()
     {
         var percentageToMove = _showTwoItems ? 50 : 100;
         _trackStyle = $"transform: translateX(-{_currentIndex * percentageToMove}%);";
+        await UpdateCarouselHeightAsync();
+    }
+
+    private async Task UpdateCarouselHeightAsync()
+    {
+        var itemsPerPage = _showTwoItems ? 2 : 1;
+        await JsRuntime.InvokeVoidAsync("blazorInterop.updateCarouselHeight", "carousel-track-wrapper", _currentIndex, itemsPerPage);
     }
 
     private bool IsAtEnd()

@@ -7,6 +7,7 @@ public class ApplicationUser : IdentityUser
 {
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
+    public string PreferredTheme { get; set; } = "light";
   
     public static ApplicationUser Create(string firstName, string lastName, string email)
     {

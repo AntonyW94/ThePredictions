@@ -17,13 +17,17 @@ public class Match
     public int? ActualHomeTeamScore { get; private set; }
     public int? ActualAwayTeamScore { get; private set; }
     public int? ExternalId { get; private set; }
+    public int? MatchNumber { get; private set; }
     public string? PlaceholderHomeName { get; private set; }
     public string? PlaceholderAwayName { get; private set; }
+    public string? ApiRoundName { get; private set; }
+
+    public bool AreTeamsConfirmed => HomeTeamId.HasValue && AwayTeamId.HasValue;
 
     private Match() { }
 
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
-    public Match(int id, int roundId, int homeTeamId, int awayTeamId, DateTime matchDateTimeUtc, DateTime? customLockTimeUtc, MatchStatus status, int? actualHomeTeamScore, int? actualAwayTeamScore, int? externalId, string? placeholderHomeName, string? placeholderAwayName)
+    public Match(int id, int roundId, int? homeTeamId, int? awayTeamId, DateTime matchDateTimeUtc, DateTime? customLockTimeUtc, MatchStatus status, int? actualHomeTeamScore, int? actualAwayTeamScore, int? externalId, int? matchNumber, string? placeholderHomeName, string? placeholderAwayName, string? apiRoundName)
     {
         Id = id;
         RoundId = roundId;
@@ -35,8 +39,10 @@ public class Match
         ActualHomeTeamScore = actualHomeTeamScore;
         ActualAwayTeamScore = actualAwayTeamScore;
         ExternalId = externalId;
+        MatchNumber = matchNumber;
         PlaceholderHomeName = placeholderHomeName;
         PlaceholderAwayName = placeholderAwayName;
+        ApiRoundName = apiRoundName;
     }
     
     public static Match Create(int roundId, int homeTeamId, int awayTeamId, DateTime matchDateTimeUtc, int? externalId)
@@ -57,6 +63,43 @@ public class Match
             PlaceholderHomeName = null,
             PlaceholderAwayName = null
         };
+    }
+
+    public static Match CreatePlaceholder(int roundId, string placeholderHomeName, string placeholderAwayName, string apiRoundName, int? matchNumber = null)
+    {
+        Guard.Against.NegativeOrZero(roundId, parameterName: null, message: "Round ID must be greater than 0");
+        Guard.Against.NullOrWhiteSpace(placeholderHomeName, message: "Placeholder home name is required");
+        Guard.Against.NullOrWhiteSpace(placeholderAwayName, message: "Placeholder away name is required");
+
+        return new Match
+        {
+            RoundId = roundId,
+            HomeTeamId = null,
+            AwayTeamId = null,
+            MatchDateTimeUtc = DateTime.MaxValue,
+            CustomLockTimeUtc = null,
+            Status = MatchStatus.Scheduled,
+            ExternalId = null,
+            MatchNumber = matchNumber,
+            PlaceholderHomeName = placeholderHomeName,
+            PlaceholderAwayName = placeholderAwayName,
+            ApiRoundName = apiRoundName
+        };
+    }
+
+    public void SetCustomLockTime(DateTime? customLockTimeUtc)
+    {
+        CustomLockTimeUtc = customLockTimeUtc;
+    }
+
+    public void SetExternalId(int externalId)
+    {
+        ExternalId = externalId;
+    }
+
+    public void SetApiRoundName(string apiRoundName)
+    {
+        ApiRoundName = apiRoundName;
     }
 
     public void UpdateScore(int homeScore, int awayScore, MatchStatus status)
@@ -110,5 +153,25 @@ public class Match
     {
         Guard.Against.NegativeOrZero(newRoundId);
         RoundId = newRoundId;
+    }
+
+    public DateTime GetEffectiveDeadline(DateTime roundDeadline)
+    {
+        return CustomLockTimeUtc ?? roundDeadline;
+    }
+
+    public bool IsPredictionLocked(DateTime utcNow, DateTime roundDeadline)
+    {
+        return utcNow >= GetEffectiveDeadline(roundDeadline);
+    }
+
+    public void AssignTeams(int homeTeamId, int awayTeamId)
+    {
+        Guard.Against.Expression(h => h == awayTeamId, homeTeamId, "A team cannot play against itself.");
+
+        HomeTeamId = homeTeamId;
+        AwayTeamId = awayTeamId;
+        PlaceholderHomeName = null;
+        PlaceholderAwayName = null;
     }
 }

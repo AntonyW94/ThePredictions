@@ -23,8 +23,10 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
             [CustomLockTimeUtc],
             [Status],
             [ExternalId],
+            [MatchNumber],
             [PlaceholderHomeName],
-            [PlaceholderAwayName]
+            [PlaceholderAwayName],
+            [ApiRoundName]
         )
         VALUES
         (
@@ -35,8 +37,10 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
             @CustomLockTimeUtc,
             @Status,
             @ExternalId,
+            @MatchNumber,
             @PlaceholderHomeName,
-            @PlaceholderAwayName
+            @PlaceholderAwayName,
+            @ApiRoundName
         );";
 
     private const string GetRoundsWithMatchesSql = @"
@@ -53,8 +57,8 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
     public async Task<Round> CreateAsync(Round round, CancellationToken cancellationToken)
     {
         const string sql = @"
-            INSERT INTO [Rounds] ([SeasonId], [RoundNumber], [StartDateUtc], [DeadlineUtc], [ApiRoundName], [LastReminderSentUtc])
-            VALUES (@SeasonId, @RoundNumber, @StartDateUtc, @DeadlineUtc, @ApiRoundName, @LastReminderSentUtc);
+            INSERT INTO [Rounds] ([SeasonId], [RoundNumber], [DisplayName], [StartDateUtc], [DeadlineUtc], [ApiRoundName], [LastReminderSentUtc])
+            VALUES (@SeasonId, @RoundNumber, @DisplayName, @StartDateUtc, @DeadlineUtc, @ApiRoundName, @LastReminderSentUtc);
             SELECT CAST(SCOPE_IDENTITY() as int);";
 
         var command = new CommandDefinition(
@@ -63,6 +67,7 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
             {
                 round.SeasonId,
                 round.RoundNumber,
+                round.DisplayName,
                 round.StartDateUtc,
                 round.DeadlineUtc,
                 round.ApiRoundName,
@@ -79,6 +84,7 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
                 id: newRoundId,
                 seasonId: round.SeasonId,
                 roundNumber: round.RoundNumber,
+                displayName: round.DisplayName,
                 startDateUtc: round.StartDateUtc,
                 deadlineUtc: round.DeadlineUtc,
                 status: round.Status,
@@ -97,8 +103,10 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
             m.CustomLockTimeUtc,
             Status = m.Status.ToString(),
             m.ExternalId,
+            m.MatchNumber,
             m.PlaceholderHomeName,
-            m.PlaceholderAwayName
+            m.PlaceholderAwayName,
+            m.ApiRoundName
         }).ToList();
 
         var insertMatchesCommand = new CommandDefinition(
@@ -113,6 +121,7 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
             id: newRoundId,
             seasonId: round.SeasonId,
             roundNumber: round.RoundNumber,
+            displayName: round.DisplayName,
             startDateUtc: round.StartDateUtc,
             deadlineUtc: round.DeadlineUtc,
             status: round.Status,
@@ -294,6 +303,7 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
                 [Rounds]
             SET 
                 [RoundNumber] = @RoundNumber,
+                [DisplayName] = @DisplayName,
                 [StartDateUtc] = @StartDateUtc,
                 [DeadlineUtc] = @DeadlineUtc,
                 [CompletedDateUtc] = @CompletedDateUtc,
@@ -307,6 +317,7 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
         {
             round.Id,
             round.RoundNumber,
+            round.DisplayName,
             round.StartDateUtc,
             round.DeadlineUtc,
             round.CompletedDateUtc,
@@ -336,7 +347,8 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
                 Status = m.Status.ToString(),
                 m.ExternalId,
                 m.PlaceholderHomeName,
-                m.PlaceholderAwayName
+                m.PlaceholderAwayName,
+                m.ApiRoundName
             }), cancellationToken: cancellationToken);
             await Connection.ExecuteAsync(insertMatchesCommand);
         }
@@ -351,8 +363,13 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
                     [HomeTeamId] = @HomeTeamId,
                     [AwayTeamId] = @AwayTeamId,
                     [MatchDateTimeUtc] = @MatchDateTimeUtc,
+                    [CustomLockTimeUtc] = @CustomLockTimeUtc,
                     [ExternalId] = @ExternalId,
-                    [Status] = @Status
+                    [MatchNumber] = @MatchNumber,
+                    [Status] = @Status,
+                    [PlaceholderHomeName] = @PlaceholderHomeName,
+                    [PlaceholderAwayName] = @PlaceholderAwayName,
+                    [ApiRoundName] = @ApiRoundName
                 WHERE
                     [Id] = @Id;";
 
@@ -363,8 +380,13 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
                 m.HomeTeamId,
                 m.AwayTeamId,
                 m.MatchDateTimeUtc,
+                m.CustomLockTimeUtc,
                 m.ExternalId,
-                Status = m.Status.ToString()
+                m.MatchNumber,
+                Status = m.Status.ToString(),
+                m.PlaceholderHomeName,
+                m.PlaceholderAwayName,
+                m.ApiRoundName
             }), cancellationToken: cancellationToken);
             await Connection.ExecuteAsync(updateMatchesCommand);
         }
@@ -541,6 +563,7 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
                     groupedRound.Id,
                     groupedRound.SeasonId,
                     groupedRound.RoundNumber,
+                    groupedRound.DisplayName,
                     groupedRound.StartDateUtc,
                     groupedRound.DeadlineUtc,
                     groupedRound.Status,

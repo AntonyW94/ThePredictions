@@ -1,0 +1,41 @@
+/* Filter Cards */
+
+.filter-row {
+    display: none;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+@media (min-width: 768px) {
+    .filter-row {
+        display: flex;
+    }
+}
+
+.filter-card {
+    background: var(--white);
+    color: var(--purple-1000);
+    border: 1px solid var(--grey-200);
+    border-radius: var(--bs-border-radius);
+    padding: var(--space-2) var(--space-4);
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.filter-card:hover {
+    background: var(--purple-100);
+    border-color: var(--purple-300);
+}
+
+.filter-card.active {
+    background: var(--green-600);
+    color: var(--white);
+}
+
+.filter-card.active:hover {
+    background: var(--green-600);
+}

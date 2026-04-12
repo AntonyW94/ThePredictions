@@ -1,6 +1,7 @@
 using ThePredictions.Contracts.Dashboard;
 using ThePredictions.Contracts.Leaderboards;
 using ThePredictions.Contracts.Leagues;
+using ThePredictions.Domain.Common.Enumerations;
 using ThePredictions.Web.Client.Services.Leagues;
 
 namespace ThePredictions.Web.Client.Services.Dashboard;
@@ -12,6 +13,9 @@ public class DashboardStateService(ILeagueService leagueService) : IDashboardSta
     public List<LeagueLeaderboardDto> Leaderboards { get; private set; } = [];
     public List<ActiveRoundDto> ActiveRounds { get; private set; } = [];
     public List<LeagueRequestDto> PendingRequests { get; private set; } = [];
+    public List<PendingLeagueMemberDto> PendingMembers { get; private set; } = [];
+    public List<AdminLeagueSummaryDto> AdminLeagues { get; private set; } = [];
+    public bool IsAdminOfOpenLeague { get; private set; }
 
     public bool HasAvailablePrivateLeagues { get; private set; }
     public bool IsMyLeaguesLoading { get; private set; }
@@ -19,6 +23,7 @@ public class DashboardStateService(ILeagueService leagueService) : IDashboardSta
     public bool IsLeaderboardsLoading { get; private set; }
     public bool IsActiveRoundsLoading { get; private set; }
     public bool IsPendingRequestsLoading { get; private set; }
+    public bool IsPendingMembersLoading { get; private set; }
 
     public string? AvailableLeaguesErrorMessage { get; private set; }
     public string? MyLeaguesErrorMessage { get; private set; }
@@ -26,6 +31,7 @@ public class DashboardStateService(ILeagueService leagueService) : IDashboardSta
     public string? ActiveRoundsErrorMessage { get; private set; }
     public string? ActiveRoundsSuccessMessage { get; private set; }
     public string? PendingRequestsErrorMessage { get; private set; }
+    public string? PendingMembersErrorMessage { get; private set; }
 
     public event Action? OnStateChange;
 
@@ -156,7 +162,7 @@ public class DashboardStateService(ILeagueService leagueService) : IDashboardSta
         var (success, errorMessage) = await leagueService.JoinPublicLeagueAsync(leagueId);
         if (success)
         {
-            await Task.WhenAll(LoadMyLeaguesAsync(), LoadAvailableLeaguesAsync());
+            await Task.WhenAll(LoadMyLeaguesAsync(), LoadAvailableLeaguesAsync(), LoadPendingRequestsAsync());
         }
         else
         {
@@ -196,6 +202,64 @@ public class DashboardStateService(ILeagueService leagueService) : IDashboardSta
         else
         {
             PendingRequestsErrorMessage = errorMessage;
+            NotifyStateChanged();
+        }
+    }
+
+    public async Task LoadPendingMembersAsync()
+    {
+        IsPendingMembersLoading = true;
+        PendingMembersErrorMessage = null;
+        NotifyStateChanged();
+
+        try
+        {
+            var result = await leagueService.GetPendingMembersForAdminAsync();
+            IsAdminOfOpenLeague = result.IsAdminOfOpenLeague;
+            AdminLeagues = result.AdminLeagues;
+            PendingMembers = result.Members;
+        }
+        catch
+        {
+            PendingMembersErrorMessage = "Could not load pending members.";
+        }
+        finally
+        {
+            IsPendingMembersLoading = false;
+            NotifyStateChanged();
+        }
+    }
+
+    public async Task ApproveMemberAsync(int leagueId, string userId)
+    {
+        PendingMembersErrorMessage = null;
+        NotifyStateChanged();
+
+        try
+        {
+            await leagueService.UpdateMemberStatusAsync(leagueId, userId, LeagueMemberStatus.Approved);
+            await LoadPendingMembersAsync();
+        }
+        catch
+        {
+            PendingMembersErrorMessage = "Could not approve member.";
+            NotifyStateChanged();
+        }
+    }
+
+    public async Task RejectMemberAsync(int leagueId, string userId)
+    {
+        PendingMembersErrorMessage = null;
+        NotifyStateChanged();
+
+        try
+        {
+            await leagueService.UpdateMemberStatusAsync(leagueId, userId, LeagueMemberStatus.Rejected);
+            await LoadPendingMembersAsync();
+        }
+        catch
+        {
+            PendingMembersErrorMessage = "Could not reject member.";
             NotifyStateChanged();
         }
     }

@@ -32,7 +32,7 @@
 }
 
 .team-card-name {
-    color: var(--white);
+    color: var(--purple-1000);
     font-weight: 500;
     margin-bottom: 1rem;
     min-height: 48px;

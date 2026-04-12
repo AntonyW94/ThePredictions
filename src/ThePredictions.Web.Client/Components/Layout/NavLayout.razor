@@ -1,6 +1,9 @@
 ﻿@inject IAuthenticationService AuthenticationService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
+@inject IThemeService ThemeService
+
+@using ThePredictions.Web.Client.Services.Theme
 
 <nav class="navbar navbar-expand-lg navbar-dark navbar-custom @Class">
     <div class="container-fluid">
@@ -9,9 +12,18 @@
             <span class="ms-2 fw-bold">The Predictions</span>
         </a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+        <div class="d-flex align-items-center d-lg-none">
+            <AuthorizeView>
+                <Authorized>
+                    <button class="btn theme-toggle-btn me-2" @onclick="ToggleTheme" title="@(ThemeService.IsDarkMode ? "Switch to light mode" : "Switch to dark mode")">
+                        <span class="bi @(ThemeService.IsDarkMode ? "bi-lightbulb" : "bi-lightbulb-fill")" aria-hidden="true"></span>
+                    </button>
+                </Authorized>
+            </AuthorizeView>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
 
         <div class="collapse navbar-collapse" id="navbarNav">
             <AuthorizeView>
@@ -31,7 +43,12 @@
                                 </ul>
                             </li>
                         }
-                        <li class="nav-item dropdown ms-auto py-0">
+                        <li class="nav-item ms-auto py-0 d-flex align-items-center">
+                            <button class="btn nav-link theme-toggle-btn" @onclick="ToggleTheme" title="@(ThemeService.IsDarkMode ? "Switch to light mode" : "Switch to dark mode")">
+                                <span class="bi @(ThemeService.IsDarkMode ? "bi-lightbulb" : "bi-lightbulb-fill")" aria-hidden="true"></span>
+                            </button>
+                        </li>
+                        <li class="nav-item dropdown py-0">
                             <a class="nav-link d-flex align-items-center user-menu-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="User Menu">
                                 <span class="navbar-text me-2 fw-bold">
                                     @context.User.FindFirst("FirstName")?.Value
@@ -57,6 +74,12 @@
                         @if (_isUserMenuOpen)
                         {
                             <li class="nav-item"><NavLink class="nav-link mobile-nav-sub-item" href="account/details">My Details</NavLink></li>
+                            <li class="nav-item">
+                                <button class="btn nav-link mobile-nav-sub-item text-start" @onclick="ToggleTheme">
+                                    <span class="bi @(ThemeService.IsDarkMode ? "bi-lightbulb" : "bi-lightbulb-fill") me-2"></span>
+                                    @(ThemeService.IsDarkMode ? "Light Mode" : "Dark Mode")
+                                </button>
+                            </li>
                             <li class="nav-item"><button class="btn nav-link mobile-nav-sub-item text-start" @onclick="LogoutUser">Log out</button></li>
                         }
 
@@ -111,6 +134,11 @@
             NavigationManager.NavigateTo("/dashboard", forceLoad: true);
         else
             NavigationManager.NavigateTo("/", forceLoad: true);
+    }
+
+    private async Task ToggleTheme()
+    {
+        await ThemeService.ToggleThemeAsync();
     }
 
     private async Task LogoutUser()

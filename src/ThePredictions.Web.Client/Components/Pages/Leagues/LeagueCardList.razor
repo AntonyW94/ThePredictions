@@ -3,70 +3,48 @@
 
 @if (Leagues == null || !Leagues.Any())
 {
-    <p class="text-white">There are no leagues in this category.</p>
+    <div class="empty-state">
+        <span class="bi bi-trophy empty-state-icon"></span>
+        <p class="empty-state-title">No leagues yet</p>
+        <p class="empty-state-text">Leagues in this category will appear here.</p>
+    </div>
 }
 else
 {
-    <div>
+    <div class="member-list">
         @foreach (var league in Leagues)
         {
-            <div class="card">
-                <div class="header">
-                    <h5 class="fw-bold text-white">@league.Name</h5>
-                    <small class="text-white-50 fw-bold">@league.SeasonName</small>
+            <div class="member-row league-row">
+                <div class="member-info">
+                    <span class="member-name">@league.Name</span>
+                    <span class="member-date">@league.SeasonName</span>
+                    <span class="season-status-pills">
+                        <span class="season-status-pill" style="background: var(--green-600); color: var(--white)">
+                            @(league.Price > 0 ? league.Price.ToString("C", new CultureInfo("en-GB")) : "FREE")
+                        </span>
+                        <span class="season-status-pill" style="background: var(--blue-700); color: var(--white)">
+                            @league.MemberCount @(league.MemberCount == 1 ? "Member" : "Members")
+                        </span>
+                        @if (league.EntryCode != "Public")
+                        {
+                            <span class="season-status-pill" style="background: var(--purple-300); color: var(--white)">
+                                @league.EntryCode
+                            </span>
+                        }
+                    </span>
                 </div>
-                <div class="body">
-                    <dl class="mb-0 detail-list">
-                        <div class="detail-row centered">
-                            <div class="badge-group badge-group--red">
-                                <span class="badge-icon"><i class="bi bi-alarm"></i></span>
-                                <LocalTime UtcDate="@league.EntryDeadlineUtc" />
-                            </div>
-                        </div>
-                        <div class="detail-row">
-                            <div class="badge-group badge-group--green">
-                                <span class="badge-icon">
-                                    <i class="bi bi-cash-stack"></i>
-                                </span>
-                                <span>@(league.Price > 0 ? league.Price.ToString("C", new CultureInfo("en-GB")) : "FREE")</span>
-                            </div>
-                            <div class="badge-group badge-group--blue">
-                                <span class="badge-icon">
-                                    <i class="bi bi-key-fill"></i>
-                                </span>
-                                <span>
-                                    @if (league.EntryCode == "Public")
-                                    {
-                                        @league.EntryCode.ToUpper()
-                                    }
-                                    else
-                                    {
-                                        <code>@league.EntryCode</code>
-                                    }
-                                </span>
-                            </div>
-                        </div>
-                    </dl>
-                </div>
-                <div class="footer columns-2">
-                    <a class="btn purple-accent-button" title="Edit Prizes" href="@($"/leagues/{league.Id}/prizes")">
-                        <span class="bi bi-trophy-fill"></span>
-                        <span class="d-none d-md-inline">Prizes</span>
+                <div class="season-row-actions">
+                    <a class="btn btn-sm purple-accent-button" href="@($"/leagues/{league.Id}/prizes")" title="Prizes">
+                        <span class="bi bi-trophy-fill"></span><span class="d-none d-lg-inline ms-1">Prizes</span>
                     </a>
-
-                    <a class="btn blue-light-button" href="/leagues/@league.Id/members">
-                        <span class="bi bi-people-fill"></span>
-                        <span class="d-none d-md-inline">@league.MemberCount @(league.MemberCount == 1 ? "Member" : "Members")</span>
+                    <a class="btn btn-sm blue-light-button" href="/leagues/@league.Id/members" title="Members">
+                        <span class="bi bi-people-fill"></span><span class="d-none d-lg-inline ms-1">Members</span>
                     </a>
-
-                    <button class="btn green-button" @onclick="() => OnEditLeague.InvokeAsync(league.Id)">
-                        <span class="bi bi-pencil-fill"></span>
-                        <span class="d-none d-md-inline">Edit</span>
+                    <button class="btn btn-sm green-button" @onclick="() => OnEditLeague.InvokeAsync(league.Id)" title="Edit">
+                        <span class="bi bi-pencil-fill"></span><span class="d-none d-lg-inline ms-1">Edit</span>
                     </button>
-
-                    <button class="btn red-button" @onclick="() => OnDeleteLeague.InvokeAsync((league.Id, league.Name))">
+                    <button class="btn btn-sm red-button" @onclick="() => OnDeleteLeague.InvokeAsync((league.Id, league.Name))" title="Delete">
                         <span class="bi bi-trash-fill"></span>
-                        <span class="d-none d-md-inline">Delete</span>
                     </button>
                 </div>
             </div>

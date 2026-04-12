@@ -6,6 +6,12 @@ public record SeasonDto(
     DateTime StartDateUtc,
     DateTime EndDateUtc,
     bool IsActive,
-    int NumberOfRounds, 
-    int RoundCount
+    int NumberOfRounds,
+    int CompetitionType,
+    int? ApiLeagueId,
+    int RoundCount,
+    int DraftCount,
+    int PublishedCount,
+    int InProgressCount,
+    int CompletedCount
 ) : SeasonLookupDto(Id, Name, StartDateUtc);

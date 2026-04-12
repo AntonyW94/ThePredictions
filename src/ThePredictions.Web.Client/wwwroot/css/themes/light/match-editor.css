@@ -1,0 +1,194 @@
+/* Light Theme - Match Editor Cards (Edit Round page) */
+
+/* Round metadata section */
+.round-meta {
+    background: var(--white);
+    border: 1px solid var(--grey-200);
+    border-radius: var(--bs-border-radius);
+    padding: var(--space-4) var(--space-6);
+    margin-bottom: var(--space-6);
+    box-shadow: 0 1px 3px var(--black-alpha-15);
+}
+
+/* Match cards */
+.match-card {
+    background: var(--white);
+    border: 1px solid var(--grey-200);
+    border-radius: var(--bs-border-radius);
+    padding: var(--space-4);
+    margin-bottom: var(--space-3);
+    box-shadow: 0 1px 3px var(--black-alpha-15);
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+.match-card:hover {
+    box-shadow: 0 4px 12px var(--black-alpha-20);
+}
+
+/* Mobile match header */
+.match-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+}
+
+.match-card-header .form-control {
+    flex: 1;
+    min-width: 0;
+    height: 36px;
+    font-size: 0.85rem;
+    padding: 0 var(--space-3);
+    line-height: 36px;
+}
+
+/* Single-row desktop match layout */
+.match-card-row {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-3);
+}
+
+.match-card-kickoff {
+    flex: 0 0 auto;
+}
+
+.match-card-kickoff .form-control {
+    width: 200px;
+    height: 40px;
+    font-size: 0.85rem;
+}
+
+.match-card-team-select {
+    flex: 1;
+    min-width: 0;
+}
+
+.match-card-team-select .form-control {
+    height: 40px;
+    font-size: 0.9rem;
+}
+
+.match-card-delete {
+    align-self: flex-end;
+    margin-bottom: 0.35rem;
+    background: transparent;
+    color: var(--grey-300);
+    border: 1px solid var(--grey-300);
+}
+
+.match-card-delete:hover {
+    color: var(--red);
+    border-color: var(--red);
+    background: transparent;
+}
+
+.match-card-row .match-logo-large {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    flex-shrink: 0;
+    filter: drop-shadow(0 1px 2px var(--black-alpha-25));
+    margin-bottom: -4px;
+}
+
+.match-card-row .vs-badge {
+    color: var(--purple-300);
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+    margin-bottom: 8px;
+}
+
+/* Matches section header */
+.matches-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-4);
+}
+
+.matches-header h4 {
+    margin-bottom: 0;
+    font-weight: 600;
+}
+
+/* Matches container */
+.matches-section {
+    background: var(--white);
+    border: 1px solid var(--grey-200);
+    border-radius: var(--bs-border-radius);
+    padding: var(--space-6);
+    box-shadow: 0 1px 3px var(--black-alpha-15);
+    margin-bottom: 40px;
+}
+
+.matches-section .match-card {
+    border: 1px solid var(--grey-200);
+    box-shadow: none;
+    background: var(--purple-100);
+}
+
+.matches-section .match-card:hover {
+    box-shadow: 0 4px 12px var(--black-alpha-20);
+}
+
+.matches-section .match-card:last-child {
+    margin-bottom: 0;
+}
+
+/* Mobile match card layout */
+.match-card-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.match-card-mobile-teams {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+}
+
+.match-card-mobile-teams .team-select-wrapper {
+    flex: 1;
+    min-width: 0;
+}
+
+.match-card-mobile .match-logo-large {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    flex-shrink: 0;
+    filter: drop-shadow(0 1px 2px var(--black-alpha-25));
+}
+
+.match-card-mobile-teams select.form-control {
+    padding: 0 var(--space-8) 0 var(--space-3);
+    background-position: right var(--space-3) center;
+    font-size: 0.85rem;
+    height: 36px;
+    line-height: 36px;
+}
+
+.match-card-mobile .vs-badge {
+    color: var(--purple-300);
+    font-weight: 700;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+}
+
+/* Desktop refinements */
+@media (min-width: 768px) {
+    .match-card {
+        padding: var(--space-3) var(--space-6);
+    }
+
+    .match-card-header .form-control {
+        max-width: 220px;
+    }
+}

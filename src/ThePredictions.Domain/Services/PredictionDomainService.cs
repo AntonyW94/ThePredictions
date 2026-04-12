@@ -13,13 +13,21 @@ public class PredictionDomainService(IDateTimeProvider dateTimeProvider)
         if (round.DeadlineUtc < dateTimeProvider.UtcNow)
             throw new InvalidOperationException("The deadline for submitting predictions for this round has passed.");
 
-        var predictions = predictedScores.Select(p => UserPrediction.Create(
-            userId,
-            p.MatchId,
-            p.HomeScore,
-            p.AwayScore,
-            dateTimeProvider
-        )).ToList();
+        var matchesById = round.Matches.ToDictionary(m => m.Id);
+        var utcNow = dateTimeProvider.UtcNow;
+
+        var predictions = predictedScores
+            .Where(p =>
+                matchesById.TryGetValue(p.MatchId, out var match) &&
+                match.AreTeamsConfirmed &&
+                !match.IsPredictionLocked(utcNow, round.DeadlineUtc))
+            .Select(p => UserPrediction.Create(
+                userId,
+                p.MatchId,
+                p.HomeScore,
+                p.AwayScore,
+                dateTimeProvider
+            )).ToList();
 
         return predictions;
     }

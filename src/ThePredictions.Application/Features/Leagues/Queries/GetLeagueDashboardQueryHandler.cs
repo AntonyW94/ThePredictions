@@ -27,8 +27,23 @@ public class GetLeagueDashboardQueryHandler(IApplicationReadDbConnection dbConne
                 return null;
         }
         
-        var leagueName = await dbConnection.QuerySingleOrDefaultAsync<string>("SELECT [Name] FROM [Leagues] WHERE [Id] = @LeagueId", cancellationToken, new { request.LeagueId });
-        if (leagueName == null) 
+        const string leagueSql = @"
+            SELECT
+                l.[Name],
+                s.[CompetitionType],
+                s.[StartDateUtc],
+                (SELECT COUNT(*) FROM [LeagueMembers] lm WHERE lm.[LeagueId] = l.[Id] AND lm.[Status] = @ApprovedStatus) AS MemberCount,
+                COALESCE(l.[PrizeFundOverride], l.[Price] * (SELECT COUNT(*) FROM [LeagueMembers] lm WHERE lm.[LeagueId] = l.[Id] AND lm.[Status] = @ApprovedStatus)) AS TotalPrizeFund
+            FROM
+                [Leagues] l
+            JOIN
+                [Seasons] s ON l.[SeasonId] = s.[Id]
+            WHERE
+                l.[Id] = @LeagueId";
+
+        var leagueInfo = await dbConnection.QuerySingleOrDefaultAsync<(string Name, int CompetitionType, DateTime StartDateUtc, int MemberCount, decimal TotalPrizeFund)>(
+            leagueSql, cancellationToken, new { request.LeagueId, ApprovedStatus = nameof(LeagueMemberStatus.Approved) });
+        if (leagueInfo == default)
             return null;
 
         const string roundsSql = @"
@@ -60,9 +75,37 @@ public class GetLeagueDashboardQueryHandler(IApplicationReadDbConnection dbConne
         };
         var rounds = await dbConnection.QueryAsync<RoundDto>(roundsSql, cancellationToken, parameters);
 
+        const string membersSql = @"
+            SELECT
+                u.[FirstName] + ' ' + LEFT(u.[LastName], 1) AS FullName,
+                lm.[Status],
+                lm.[JoinedAtUtc]
+            FROM
+                [LeagueMembers] lm
+            JOIN
+                [AspNetUsers] u ON lm.[UserId] = u.[Id]
+            WHERE
+                lm.[LeagueId] = @LeagueId
+                AND lm.[Status] IN (@ApprovedStatus, @PendingStatus)
+            ORDER BY
+                lm.[JoinedAtUtc]";
+
+        var members = await dbConnection.QueryAsync<LeagueDashboardMemberDto>(
+            membersSql, cancellationToken, new
+            {
+                request.LeagueId,
+                ApprovedStatus = nameof(LeagueMemberStatus.Approved),
+                PendingStatus = nameof(LeagueMemberStatus.Pending)
+            });
+
         return new LeagueDashboardDto
         {
-            LeagueName = leagueName,
+            LeagueName = leagueInfo.Name,
+            CompetitionType = leagueInfo.CompetitionType,
+            SeasonStartDateUtc = leagueInfo.StartDateUtc,
+            MemberCount = leagueInfo.MemberCount,
+            TotalPrizeFund = leagueInfo.TotalPrizeFund,
+            Members = members.ToList(),
             ViewableRounds = rounds.ToList()
         };
     }

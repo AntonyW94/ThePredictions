@@ -8,12 +8,12 @@
 
 <PageTitle>Edit League</PageTitle>
 
-<div class="page-container">
+<div class="page-container admin-light">
     <div class="form-container">
-        <h3 class="text-center fw-bold text-white mb-4">Edit League</h3>
+        <h3 class="text-center fw-bold mb-4">Edit League</h3>
         @if (_model == null)
         {
-            <p class="text-center text-white"><em>Loading...</em></p>
+            <p class="text-center"><em>Loading...</em></p>
         }
         else
         {
@@ -26,42 +26,54 @@
                                BusyText="Saving..."
                                IsSaveDisabled="_isPastDeadline">
                 <ChildContent>
+                    @if (_isPastDeadline)
+                    {
+                        <div class="message-box-solid warning mb-4">
+                            This league cannot be edited because the entry deadline has passed.
+                        </div>
+                    }
+
                     <div class="mb-3">
-                        <label class="form-label text-white">Season</label>
-                        <div class="form-control-plaintext bg-purple-600 text-white fw-bold">
+                        <label class="form-label">Season</label>
+                        <div class="form-control readonly-field">
                             @_seasonName
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label for="name" class="form-label text-white">League Name</label>
+                        <label for="name" class="form-label">League Name</label>
                         <InputText id="name" class="form-control" @bind-Value="_model.Name" disabled="@_isPastDeadline" />
                         <StyledValidationMessage For="@(() => _model.Name)" />
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="price" class="form-label text-white">Entry Fee (£)</label>
+                            <label for="price" class="form-label">Entry Fee (£)</label>
                             <InputNumber id="price" class="form-control" @bind-Value="_model.Price" disabled="@_isPriceLocked" />
-                            @if (_isPriceLocked)
+                            @if (_isPriceLocked && !_isPastDeadline)
                             {
-                                <small class="form-text text-white-50">Cannot be changed after members have joined.</small>
+                                <small class="form-text text-muted">Cannot be changed after members have joined.</small>
                             }
                             <StyledValidationMessage For="@(() => _model.Price)" />
                         </div>
                         <div class="col-md-6 mb-3">
                             @if (_entryCodeForDisplay != "Public")
                             {
-                                <label class="form-label text-white">Entry Code</label>
-                                <div class="form-control-plaintext text-lg text-blue-500 fw-bold font-mono pt-1">
-                                    @_entryCodeForDisplay
+                                <label class="form-label">Entry Code</label>
+                                <div class="entry-code-display">
+                                    <div class="pin-digits">
+                                        @foreach (var ch in _entryCodeForDisplay!)
+                                        {
+                                            <span class="pin-digit">@ch</span>
+                                        }
+                                    </div>
                                 </div>
                             }
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label for="entryDeadline" class="form-label text-white">Entry Deadline</label>
+                        <label for="entryDeadline" class="form-label">Entry Deadline</label>
                         <UtcInputDate id="entryDeadline"
                                       @bind-Value="_model.EntryDeadlineUtc"
                                       Class="form-control"
@@ -71,32 +83,26 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="pointsForExactScore" class="form-label text-white">Points for Exact Score</label>
+                            <label for="pointsForExactScore" class="form-label">Points for Exact Score</label>
                             <InputNumber id="pointsForExactScore" class="form-control" @bind-Value="_model.PointsForExactScore" disabled="@_isScoringLocked" />
-                            @if (_isScoringLocked)
+                            @if (_isScoringLocked && !_isPastDeadline)
                             {
-                                <small class="form-text text-white-50">Cannot be changed after members have joined.</small>
+                                <small class="form-text text-muted">Cannot be changed after members have joined.</small>
                             }
                             <StyledValidationMessage For="@(() => _model.PointsForExactScore)" />
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label for="pointsForCorrectResult" class="form-label text-white">Points for Correct Result</label>
+                            <label for="pointsForCorrectResult" class="form-label">Points for Correct Result</label>
                             <InputNumber id="pointsForCorrectResult" class="form-control" @bind-Value="_model.PointsForCorrectResult" disabled="@_isScoringLocked" />
-                            @if (_isScoringLocked)
+                            @if (_isScoringLocked && !_isPastDeadline)
                             {
-                                <small class="form-text text-white-50">Cannot be changed after members have joined.</small>
+                                <small class="form-text text-muted">Cannot be changed after members have joined.</small>
                             }
                             <StyledValidationMessage For="@(() => _model.PointsForCorrectResult)" />
                         </div>
                     </div>
 
-                    @if (_isPastDeadline)
-                    {
-                        <div class="message-box-solid warning">   
-                            This league cannot be edited because the entry deadline has passed.
-                        </div>
-                    }
                 </ChildContent>
             </BaseFormComponent>
         }

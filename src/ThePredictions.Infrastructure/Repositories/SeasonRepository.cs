@@ -22,7 +22,8 @@ public class SeasonRepository(IDbConnectionFactory connectionFactory) : ISeasonR
                     [EndDateUtc],
                     [IsActive],
                     [NumberOfRounds],
-                    [ApiLeagueId]
+                    [ApiLeagueId],
+                    [CompetitionType]
                 )
                 VALUES
                 (
@@ -31,7 +32,8 @@ public class SeasonRepository(IDbConnectionFactory connectionFactory) : ISeasonR
                     @EndDateUtc,
                     @IsActive,
                     @NumberOfRounds,
-                    @ApiLeagueId
+                    @ApiLeagueId,
+                    @CompetitionType
                 );
                 SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
@@ -50,7 +52,8 @@ public class SeasonRepository(IDbConnectionFactory connectionFactory) : ISeasonR
             endDateUtc: season.EndDateUtc,
             isActive: season.IsActive,
             numberOfRounds: season.NumberOfRounds,
-            apiLeagueId: season.ApiLeagueId
+            apiLeagueId: season.ApiLeagueId,
+            competitionType: season.CompetitionType
         );
     }
 
@@ -74,13 +77,33 @@ public class SeasonRepository(IDbConnectionFactory connectionFactory) : ISeasonR
     public async Task<IEnumerable<Season>> GetActiveSeasonsAsync(CancellationToken cancellationToken)
     {
         const string sql = "SELECT * FROM [Seasons] WHERE [IsActive] = 1;";
-       
+
         var command = new CommandDefinition(
             commandText: sql,
             cancellationToken: cancellationToken
         );
 
         return await Connection.QueryAsync<Season>(command);
+    }
+
+    public async Task<bool> HasPredictionsAsync(int seasonId, CancellationToken cancellationToken)
+    {
+        const string sql = @"
+            SELECT CASE WHEN EXISTS (
+                SELECT 1
+                FROM [UserPredictions] up
+                INNER JOIN [Matches] m ON up.[MatchId] = m.[Id]
+                INNER JOIN [Rounds] r ON m.[RoundId] = r.[Id]
+                WHERE r.[SeasonId] = @SeasonId
+            ) THEN 1 ELSE 0 END;";
+
+        var command = new CommandDefinition(
+            commandText: sql,
+            parameters: new { SeasonId = seasonId },
+            cancellationToken: cancellationToken
+        );
+
+        return await Connection.ExecuteScalarAsync<bool>(command);
     }
 
     #endregion
@@ -97,12 +120,58 @@ public class SeasonRepository(IDbConnectionFactory connectionFactory) : ISeasonR
                     [EndDateUtc] = @EndDateUtc,
                     [IsActive] = @IsActive,
                     [NumberOfRounds] = @NumberOfRounds,
-                    [ApiLeagueId] = @ApiLeagueId
+                    [ApiLeagueId] = @ApiLeagueId,
+                    [CompetitionType] = @CompetitionType
                 WHERE [Id] = @Id;";
        
         var command = new CommandDefinition(
             commandText: sql,
             parameters: season,
+            cancellationToken: cancellationToken
+        );
+
+        await Connection.ExecuteAsync(command);
+    }
+
+    #endregion
+
+    #region Delete
+
+    public async Task DeleteAsync(int seasonId, CancellationToken cancellationToken)
+    {
+        const string sql = @"
+            DELETE ubu FROM [UserBoostUsages] ubu
+                WHERE ubu.[SeasonId] = @SeasonId;
+            DELETE ubu FROM [UserBoostUsages] ubu
+                INNER JOIN [Rounds] r ON ubu.[RoundId] = r.[Id]
+                WHERE r.[SeasonId] = @SeasonId;
+            DELETE ubu FROM [UserBoostUsages] ubu
+                INNER JOIN [Matches] m ON ubu.[MatchId] = m.[Id]
+                INNER JOIN [Rounds] r ON m.[RoundId] = r.[Id]
+                WHERE r.[SeasonId] = @SeasonId;
+
+            DELETE w FROM [Winnings] w
+                INNER JOIN [LeaguePrizeSettings] lps ON w.[LeaguePrizeSettingId] = lps.[Id]
+                INNER JOIN [Leagues] l ON lps.[LeagueId] = l.[Id]
+                WHERE l.[SeasonId] = @SeasonId;
+
+            DELETE lms FROM [LeagueMemberStats] lms
+                INNER JOIN [Leagues] l ON lms.[LeagueId] = l.[Id]
+                WHERE l.[SeasonId] = @SeasonId;
+
+            DELETE lrr FROM [LeagueRoundResults] lrr
+                INNER JOIN [Rounds] r ON lrr.[RoundId] = r.[Id]
+                WHERE r.[SeasonId] = @SeasonId;
+
+            DELETE rr FROM [RoundResults] rr
+                INNER JOIN [Rounds] r ON rr.[RoundId] = r.[Id]
+                WHERE r.[SeasonId] = @SeasonId;
+
+            DELETE FROM [Seasons] WHERE [Id] = @SeasonId;";
+
+        var command = new CommandDefinition(
+            commandText: sql,
+            parameters: new { SeasonId = seasonId },
             cancellationToken: cancellationToken
         );
 

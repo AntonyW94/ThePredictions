@@ -556,4 +556,279 @@ public class MatchTests
     }
 
     #endregion
+
+    #region GetEffectiveDeadline
+
+    [Fact]
+    public void GetEffectiveDeadline_ShouldReturnCustomLockTime_WhenSet()
+    {
+        // Arrange
+        var customLockTime = new DateTime(2025, 8, 15, 12, 0, 0, DateTimeKind.Utc);
+        var roundDeadline = new DateTime(2025, 8, 14, 11, 0, 0, DateTimeKind.Utc);
+        var match = new Match(id: 1, roundId: 1, homeTeamId: 1, awayTeamId: 2,
+            matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: customLockTime,
+            status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
+            externalId: null, matchNumber: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
+
+        // Act
+        var result = match.GetEffectiveDeadline(roundDeadline);
+
+        // Assert
+        result.Should().Be(customLockTime);
+    }
+
+    [Fact]
+    public void GetEffectiveDeadline_ShouldReturnRoundDeadline_WhenCustomLockTimeIsNull()
+    {
+        // Arrange
+        var roundDeadline = new DateTime(2025, 8, 14, 11, 0, 0, DateTimeKind.Utc);
+        var match = new Match(id: 1, roundId: 1, homeTeamId: 1, awayTeamId: 2,
+            matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
+            status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
+            externalId: null, matchNumber: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
+
+        // Act
+        var result = match.GetEffectiveDeadline(roundDeadline);
+
+        // Assert
+        result.Should().Be(roundDeadline);
+    }
+
+    #endregion
+
+    #region IsPredictionLocked
+
+    [Fact]
+    public void IsPredictionLocked_ShouldReturnTrue_WhenAfterDeadline()
+    {
+        // Arrange
+        var roundDeadline = new DateTime(2025, 8, 14, 11, 0, 0, DateTimeKind.Utc);
+        var utcNow = roundDeadline.AddMinutes(1);
+        var match = CreateMatchViaFactory();
+
+        // Act
+        var result = match.IsPredictionLocked(utcNow, roundDeadline);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsPredictionLocked_ShouldReturnFalse_WhenBeforeDeadline()
+    {
+        // Arrange
+        var roundDeadline = new DateTime(2025, 8, 14, 11, 0, 0, DateTimeKind.Utc);
+        var utcNow = roundDeadline.AddMinutes(-1);
+        var match = CreateMatchViaFactory();
+
+        // Act
+        var result = match.IsPredictionLocked(utcNow, roundDeadline);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    #endregion
+
+    #region AreTeamsConfirmed
+
+    [Fact]
+    public void AreTeamsConfirmed_ShouldReturnTrue_WhenBothTeamsSet()
+    {
+        // Arrange
+        var match = new Match(id: 1, roundId: 1, homeTeamId: 1, awayTeamId: 2,
+            matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
+            status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
+            externalId: null, matchNumber: null, placeholderHomeName: null, placeholderAwayName: null, apiRoundName: null);
+
+        // Act & Assert
+        match.AreTeamsConfirmed.Should().BeTrue();
+    }
+
+    [Fact]
+    public void AreTeamsConfirmed_ShouldReturnFalse_WhenHomeTeamIsNull()
+    {
+        // Arrange
+        var match = new Match(id: 1, roundId: 1, homeTeamId: null, awayTeamId: 2,
+            matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
+            status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
+            externalId: null, matchNumber: null, placeholderHomeName: "Winner Group A", placeholderAwayName: null,
+            apiRoundName: null);
+
+        // Act & Assert
+        match.AreTeamsConfirmed.Should().BeFalse();
+    }
+
+    [Fact]
+    public void AreTeamsConfirmed_ShouldReturnFalse_WhenAwayTeamIsNull()
+    {
+        // Arrange
+        var match = new Match(id: 1, roundId: 1, homeTeamId: 1, awayTeamId: null,
+            matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
+            status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
+            externalId: null, matchNumber: null, placeholderHomeName: null, placeholderAwayName: "Runner-up Group B",
+            apiRoundName: null);
+
+        // Act & Assert
+        match.AreTeamsConfirmed.Should().BeFalse();
+    }
+
+    #endregion
+
+    #region AssignTeams
+
+    [Fact]
+    public void AssignTeams_ShouldSetTeamsAndClearPlaceholders()
+    {
+        // Arrange
+        var match = new Match(id: 1, roundId: 1, homeTeamId: 10, awayTeamId: 20,
+            matchDateTimeUtc: ValidMatchTime, customLockTimeUtc: null,
+            status: MatchStatus.Scheduled, actualHomeTeamScore: null, actualAwayTeamScore: null,
+            externalId: null, matchNumber: null, placeholderHomeName: "Winner Group A", placeholderAwayName: "Winner Group B",
+            apiRoundName: null);
+
+        // Act
+        match.AssignTeams(30, 40);
+
+        // Assert
+        match.HomeTeamId.Should().Be(30);
+        match.AwayTeamId.Should().Be(40);
+        match.PlaceholderHomeName.Should().BeNull();
+        match.PlaceholderAwayName.Should().BeNull();
+    }
+
+    [Fact]
+    public void AssignTeams_ShouldThrow_WhenTeamPlaysItself()
+    {
+        // Arrange
+        var match = CreateMatchViaFactory();
+
+        // Act
+        var act = () => match.AssignTeams(5, 5);
+
+        // Assert
+        act.Should().Throw<ArgumentException>();
+    }
+
+    #endregion
+
+    #region CreatePlaceholder
+
+    [Fact]
+    public void CreatePlaceholder_ShouldCreateMatch_WhenValidParametersProvided()
+    {
+        // Act
+        var match = Match.CreatePlaceholder(1, "Semi-final 1", "Semi-final 1", "Semi-finals");
+
+        // Assert
+        match.RoundId.Should().Be(1);
+        match.HomeTeamId.Should().BeNull();
+        match.AwayTeamId.Should().BeNull();
+        match.PlaceholderHomeName.Should().Be("Semi-final 1");
+        match.PlaceholderAwayName.Should().Be("Semi-final 1");
+        match.ApiRoundName.Should().Be("Semi-finals");
+        match.Status.Should().Be(MatchStatus.Scheduled);
+        match.AreTeamsConfirmed.Should().BeFalse();
+        match.ExternalId.Should().BeNull();
+        match.CustomLockTimeUtc.Should().BeNull();
+        match.MatchDateTimeUtc.Should().Be(DateTime.MaxValue);
+    }
+
+    [Fact]
+    public void CreatePlaceholder_ShouldThrow_WhenRoundIdIsZero()
+    {
+        // Act
+        var act = () => Match.CreatePlaceholder(0, "TBC", "TBC", "Final");
+
+        // Assert
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void CreatePlaceholder_ShouldThrow_WhenPlaceholderHomeNameIsEmpty()
+    {
+        // Act
+        var act = () => Match.CreatePlaceholder(1, "", "TBC", "Final");
+
+        // Assert
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void CreatePlaceholder_ShouldThrow_WhenPlaceholderAwayNameIsEmpty()
+    {
+        // Act
+        var act = () => Match.CreatePlaceholder(1, "TBC", "", "Final");
+
+        // Assert
+        act.Should().Throw<ArgumentException>();
+    }
+
+    #endregion
+
+    #region SetCustomLockTime
+
+    [Fact]
+    public void SetCustomLockTime_ShouldSetValue_WhenProvided()
+    {
+        // Arrange
+        var match = CreateMatchViaFactory();
+        var lockTime = new DateTime(2025, 8, 16, 14, 30, 0, DateTimeKind.Utc);
+
+        // Act
+        match.SetCustomLockTime(lockTime);
+
+        // Assert
+        match.CustomLockTimeUtc.Should().Be(lockTime);
+    }
+
+    [Fact]
+    public void SetCustomLockTime_ShouldClearValue_WhenNull()
+    {
+        // Arrange
+        var match = CreateMatchViaFactory();
+        match.SetCustomLockTime(new DateTime(2025, 8, 16, 14, 30, 0, DateTimeKind.Utc));
+
+        // Act
+        match.SetCustomLockTime(null);
+
+        // Assert
+        match.CustomLockTimeUtc.Should().BeNull();
+    }
+
+    #endregion
+
+    #region SetExternalId
+
+    [Fact]
+    public void SetExternalId_ShouldSetValue_WhenProvided()
+    {
+        // Arrange
+        var match = Match.CreatePlaceholder(1, "TBC", "TBC", "Final");
+
+        // Act
+        match.SetExternalId(12345);
+
+        // Assert
+        match.ExternalId.Should().Be(12345);
+    }
+
+    #endregion
+
+    #region SetApiRoundName
+
+    [Fact]
+    public void SetApiRoundName_ShouldSetValue_WhenProvided()
+    {
+        // Arrange
+        var match = CreateMatchViaFactory();
+
+        // Act
+        match.SetApiRoundName("Quarter-finals");
+
+        // Assert
+        match.ApiRoundName.Should().Be("Quarter-finals");
+    }
+
+    #endregion
 }
