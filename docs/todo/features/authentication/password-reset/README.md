@@ -2,7 +2,7 @@
 
 ## Status
 
-**Not Started** | In Progress | Complete
+Not Started | In Progress | **Complete**
 
 ## Summary
 
@@ -140,37 +140,37 @@ As a Google sign-in user who tries to reset my password, I want to receive a hel
 
 ## Acceptance Criteria
 
-- [ ] Forgot password page accessible at `/authentication/forgot-password`
-- [ ] "Forgot password?" link added to login page
-- [ ] Email input validates format before submission
-- [ ] Success message always shown regardless of email existence (security)
-- [ ] Password reset email sent to users with passwords
-- [ ] Google-only users receive "use Google sign-in" email instead
-- [ ] Reset link expires after 1 hour
-- [ ] Reset link does NOT contain email address (security)
-- [ ] Reset page validates token before showing form
-- [ ] Expired/invalid tokens show friendly error with link to request new one
-- [ ] New password must meet existing requirements (8+ chars, upper, lower, digit, 4 unique)
-- [ ] Password confirmation must match
-- [ ] Token deleted after successful password reset
-- [ ] Successful reset auto-logs user in and redirects to dashboard
-- [ ] Rate limited to 3 requests per email per hour
-- [ ] All pages match existing auth page styling
+- [x] Forgot password page accessible at `/authentication/forgot-password`
+- [x] "Forgot password?" link added to login page
+- [x] Email input validates format before submission
+- [x] Success message always shown regardless of email existence (security)
+- [x] Password reset email sent to users with passwords
+- [x] Google-only users receive "use Google sign-in" email instead
+- [x] Reset link expires after 1 hour
+- [x] Reset link does NOT contain email address (security)
+- [x] Reset page validates token before showing form
+- [x] Expired/invalid tokens show friendly error with link to request new one
+- [x] New password must meet existing requirements (8+ chars, upper, lower, digit, 4 unique)
+- [x] Password confirmation must match
+- [x] Token deleted after successful password reset
+- [x] Successful reset auto-logs user in and redirects to dashboard
+- [x] Rate limited to 3 requests per email per hour
+- [x] All pages match existing auth page styling
 
 ## Tasks
 
 | # | Task | Description | Status |
 |---|------|-------------|--------|
-| 0 | [Manual Setup](./00-manual-setup.md) | Database table, Brevo templates, configuration | Not Started |
-| 1 | [Domain & Infrastructure](./01-domain-infrastructure.md) | Entity, repository, contracts, validators, and IUserManager methods | Not Started |
-| 2 | [Request Password Reset Command](./02-request-password-reset-command.md) | Create command to handle reset requests and store tokens | Not Started |
-| 3 | [Reset Password Command](./03-reset-password-command.md) | Create command to validate token and reset password | Not Started |
-| 4 | [API Endpoints](./04-api-endpoints.md) | Add endpoints to AuthController | Not Started |
-| 5 | [Email Templates](./05-email-templates.md) | Document Brevo email templates to create | Not Started |
-| 6 | [Forgot Password Page](./06-forgot-password-page.md) | Create Blazor forgot password page | Not Started |
-| 7 | [Reset Password Page](./07-reset-password-page.md) | Create Blazor reset password page | Not Started |
-| 8 | [Cleanup Endpoint](./08-cleanup-endpoint.md) | Add scheduled cleanup task for expired tokens | Not Started |
-| 9 | [Login Page Link](./09-login-page-link.md) | Add "Forgot password?" link to login page | Not Started |
+| 0 | [Manual Setup](./00-manual-setup.md) | Database table, Brevo templates, configuration | Complete |
+| 1 | [Domain & Infrastructure](./01-domain-infrastructure.md) | Entity, repository, contracts, validators, and IUserManager methods | Complete |
+| 2 | [Request Password Reset Command](./02-request-password-reset-command.md) | Create command to handle reset requests and store tokens | Complete |
+| 3 | [Reset Password Command](./03-reset-password-command.md) | Create command to validate token and reset password | Complete |
+| 4 | [API Endpoints](./04-api-endpoints.md) | Add endpoints to AuthController | Complete |
+| 5 | [Email Templates](./05-email-templates.md) | Document Brevo email templates to create | Complete |
+| 6 | [Forgot Password Page](./06-forgot-password-page.md) | Create Blazor forgot password page | Complete |
+| 7 | [Reset Password Page](./07-reset-password-page.md) | Create Blazor reset password page | Complete |
+| 8 | [Cleanup Endpoint](./08-cleanup-endpoint.md) | Add scheduled cleanup task for expired tokens | Complete |
+| 9 | [Login Page Link](./09-login-page-link.md) | Add "Forgot password?" link to login page | Complete |
 
 ## Dependencies
 
@@ -179,10 +179,10 @@ As a Google sign-in user who tries to reset my password, I want to receive a hel
 - [x] JWT authentication already in place
 - [x] User entity has `PasswordHash` field (from IdentityUser)
 - [x] Existing auth page styles available
-- [ ] **Need to create:** `PasswordResetToken` entity and table
-- [ ] **Need to create:** `IPasswordResetTokenRepository` and implementation
-- [ ] **Need to create:** Two new Brevo email templates (see Task 5)
-- [ ] **Need to add:** Two new template IDs to `TemplateSettings`
+- [x] `PasswordResetToken` entity and table
+- [x] `IPasswordResetTokenRepository` and implementation
+- [x] Two Brevo email templates (PasswordReset + PasswordResetGoogleUser)
+- [x] Two template IDs in `TemplateSettings`
 
 ## Technical Notes
 
