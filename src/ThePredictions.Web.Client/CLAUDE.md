@@ -214,6 +214,13 @@ background: var(--black-alpha-35);
 
 Create proper component CSS files in `/components/`.
 
+### Always Verify Both Light and Dark Mode
+
+When adding or changing any UI element (components, styles, icons, colours), verify it looks correct in **both** light mode and dark mode. Check that:
+- Text has sufficient contrast against its background in both themes
+- Colours use design tokens or existing utility classes that have dark mode overrides (e.g. `text-white-50` is overridden in `themes/dark/dark.css`)
+- New CSS classes include `.theme-dark` overrides where needed
+
 ## Adding New CSS Files
 
 When adding a new CSS file, update TWO places:
