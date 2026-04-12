@@ -402,8 +402,25 @@
     background-color: var(--black-alpha-25);
 }
 
+.theme-dark .match-preview-row.match-outcome-exact {
+    background-color: var(--green-600);
+}
+
+.theme-dark .match-preview-row.match-outcome-correct-result {
+    background-color: var(--yellow);
+}
+
+.theme-dark .match-preview-row.match-outcome-incorrect {
+    background-color: var(--red);
+}
+
 .theme-dark .match-preview-score {
     color: var(--white);
+}
+
+.theme-dark .match-preview-row.match-outcome-correct-result .match-preview-score,
+.theme-dark .match-preview-row.match-outcome-correct-result .match-preview-vs {
+    color: var(--purple-1000);
 }
 
 .theme-dark .outcome-summary {
