@@ -113,6 +113,7 @@ public class GetMyLeaguesQueryHandler(IApplicationReadDbConnection dbConnection)
                 WHEN l.[CompetitionType] = 1 THEN 'Exact Scores'
                 ELSE DATENAME(MONTH, ar.[StartDateUtc])
             END AS CurrentMonth,
+            ar.[StartDateUtc] AS RoundStartDateUtc,
             ISNULL(lc.[MemberCount], 0) AS MemberCount,
 
             ISNULL(stats.[OverallRank], 1) AS Rank,

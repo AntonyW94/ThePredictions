@@ -174,7 +174,23 @@
                                                     <div class="col-6 d-flex">
                                                         <div class="glass-panel secondary-rank-box w-100">
                                                             <small class="text-uppercase text-white fw-bold d-block mb-1 text-xs">@league.CurrentRound</small>
-                                                            @if (league.RoundRank.HasValue)
+                                                            @if (league.RoundStatus == nameof(RoundStatus.Published))
+                                                            {
+                                                                <div class="d-flex flex-column align-items-center justify-content-center">
+                                                                    <i class="bi bi-hourglass-split text-purple-300" style="font-size: 1.8rem;"></i>
+                                                                    <small class="text-white-50 text-2xs mt-1">
+                                                                        @if (league.RoundStartDateUtc.HasValue)
+                                                                        {
+                                                                            @($"Starts {league.RoundStartDateUtc.Value:dd MMM}")
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            @("Awaiting kick-off")
+                                                                        }
+                                                                    </small>
+                                                                </div>
+                                                            }
+                                                            else if (league.RoundRank.HasValue)
                                                             {
                                                                 <div class="d-flex align-items-center justify-content-center gap-1">
                                                                     <RankChangeArrow
@@ -204,7 +220,23 @@
                                                     <div class="col-6 d-flex">
                                                         <div class="glass-panel secondary-rank-box w-100">
                                                             <small class="text-uppercase text-white fw-bold d-block mb-1 text-xs">@league.CurrentMonth</small>
-                                                            @if (league.MonthRank.HasValue)
+                                                            @if (league.RoundStatus == nameof(RoundStatus.Published) && !league.PreRoundMonthRank.HasValue)
+                                                            {
+                                                                <div class="d-flex flex-column align-items-center justify-content-center">
+                                                                    <i class="bi bi-hourglass-split text-purple-300" style="font-size: 1.8rem;"></i>
+                                                                    <small class="text-white-50 text-2xs mt-1">
+                                                                        @if (league.RoundStartDateUtc.HasValue)
+                                                                        {
+                                                                            @($"Starts {league.RoundStartDateUtc.Value:dd MMM}")
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            @("Awaiting kick-off")
+                                                                        }
+                                                                    </small>
+                                                                </div>
+                                                            }
+                                                            else if (league.MonthRank.HasValue)
                                                             {
                                                                 <div class="d-flex align-items-center justify-content-center gap-1">
                                                                     <RankChangeArrow
