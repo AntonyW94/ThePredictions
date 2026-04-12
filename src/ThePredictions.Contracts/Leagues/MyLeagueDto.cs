@@ -9,6 +9,7 @@ public record MyLeagueDto(
 
     string CurrentRound,
     string CurrentMonth,
+    DateTime? RoundStartDateUtc,
     int? MemberCount,
 
     int? Rank,
