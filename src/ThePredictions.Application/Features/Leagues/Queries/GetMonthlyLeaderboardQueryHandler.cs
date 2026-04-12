@@ -30,14 +30,21 @@ public class GetMonthlyLeaderboardQueryHandler(
                 COALESCE(SUM(lrr.[BoostedPoints]), 0) AS [TotalPoints],
                 u.[Id] AS [UserId],
 
-                CASE 
+                CASE
                     WHEN EXISTS (
-                        SELECT 1 
+                        SELECT 1
                         FROM [Rounds] r
                         WHERE r.[Id] IN (SELECT [Id] FROM [MonthlyRounds])
-                        AND r.[Status] = @InProgressStatus                
-                    ) THEN stats.[SnapshotMonthRank] 
-                    ELSE NULL 
+                        AND r.[Status] = @InProgressStatus
+                    )
+                    AND (
+                        SELECT COUNT(*)
+                        FROM [Rounds] r2
+                        WHERE r2.[Id] IN (SELECT [Id] FROM [MonthlyRounds])
+                        AND r2.[Status] IN (@InProgressStatus, @CompletedStatus)
+                    ) > 1
+                    THEN stats.[SnapshotMonthRank]
+                    ELSE NULL
                 END AS [SnapshotRank],
 
                 CASE WHEN EXISTS (
@@ -74,7 +81,8 @@ public class GetMonthlyLeaderboardQueryHandler(
                 request.LeagueId,
                 request.Month,
                 ApprovedStatus = nameof(LeagueMemberStatus.Approved),
-                InProgressStatus = nameof(RoundStatus.InProgress)
+                InProgressStatus = nameof(RoundStatus.InProgress),
+                CompletedStatus = nameof(RoundStatus.Completed)
             }
         );
     }
