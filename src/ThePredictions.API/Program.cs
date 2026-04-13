@@ -14,6 +14,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseSecurityHeaders();
 

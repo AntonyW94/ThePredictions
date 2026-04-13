@@ -47,8 +47,9 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy.WithOrigins(builder.Configuration["ApiBaseUrl"] ?? string.Empty)
-                .WithHeaders("Content-Type", "Authorization", "Accept", "X-Api-Key", "X-Requested-With")
+                .WithHeaders("Content-Type", "Authorization", "Accept", "X-Api-Key", "X-Requested-With", "X-Correlation-Id")
                 .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .WithExposedHeaders("X-Correlation-Id")
                 .AllowCredentials();
         });
 });
@@ -100,6 +101,7 @@ app.UseSerilogRequestLogging(options =>
     };
 });
 
+app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseHttpsRedirection();
 app.UseCors(corsName);
