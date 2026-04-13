@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Logging;
@@ -17,6 +18,7 @@ using ThePredictions.Domain.Models;
 using ThePredictions.Domain.Services;
 using ThePredictions.Infrastructure.Data;
 using ThePredictions.Infrastructure.Formatters;
+using ThePredictions.Infrastructure.HealthChecks;
 using ThePredictions.Infrastructure.Identity;
 using ThePredictions.Infrastructure.Repositories;
 using ThePredictions.Infrastructure.Repositories.Boosts;
@@ -27,10 +29,19 @@ namespace ThePredictions.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static void AddInfrastructureServices(this IServiceCollection services)
+    public static void AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IDbConnectionFactory, SqlConnectionFactory>();
         services.AddScoped<IApplicationReadDbConnection, DapperReadDbConnection>();
+
+        var connectionString = configuration.GetConnectionString("DataConnection")
+                               ?? throw new InvalidOperationException("Connection string 'DataConnection' not found.");
+
+        services.AddHealthChecks()
+            .AddSqlServer(connectionString, name: "database", tags: ["ready"])
+            .AddCheck<FootballApiHealthCheck>("football-api", tags: ["ready"]);
+
+        services.AddHttpClient<FootballApiHealthCheck>();
 
         services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
@@ -95,8 +106,11 @@ public static class DependencyInjection
         services.AddScoped<IReminderService, ReminderService>();
         services.AddScoped<IBoostService, BoostService>();
         services.AddScoped<IUserManager, UserManagerService>();
-
-        services.AddHttpClient<IFootballDataService, FootballDataService>()
+        services.AddHttpClient<IFootballDataService, FootballDataService>((serviceProvider, client) =>
+        {
+            var timeoutSettings = serviceProvider.GetRequiredService<IOptions<TimeoutSettings>>().Value;
+            client.Timeout = TimeSpan.FromSeconds(timeoutSettings.FootballApiTimeoutSeconds);
+        })
             .AddResilienceHandler("FootballApi", ConfigureFootballApiResilience);
 
         services.AddScoped<ILeagueStatsService, LeagueStatsService>();
