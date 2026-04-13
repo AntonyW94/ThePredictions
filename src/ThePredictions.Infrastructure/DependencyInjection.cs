@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ThePredictions.Application.Data;
 using ThePredictions.Application.Features.Admin.Rounds.Strategies;
@@ -11,6 +12,7 @@ using ThePredictions.Domain.Models;
 using ThePredictions.Domain.Services;
 using ThePredictions.Infrastructure.Data;
 using ThePredictions.Infrastructure.Formatters;
+using ThePredictions.Infrastructure.HealthChecks;
 using ThePredictions.Infrastructure.Identity;
 using ThePredictions.Infrastructure.Repositories;
 using ThePredictions.Infrastructure.Repositories.Boosts;
@@ -21,10 +23,19 @@ namespace ThePredictions.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static void AddInfrastructureServices(this IServiceCollection services)
+    public static void AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IDbConnectionFactory, SqlConnectionFactory>();
         services.AddScoped<IApplicationReadDbConnection, DapperReadDbConnection>();
+
+        var connectionString = configuration.GetConnectionString("DataConnection")
+                               ?? throw new InvalidOperationException("Connection string 'DataConnection' not found.");
+
+        services.AddHealthChecks()
+            .AddSqlServer(connectionString, name: "database", tags: ["ready"])
+            .AddCheck<FootballApiHealthCheck>("football-api", tags: ["ready"]);
+
+        services.AddHttpClient<FootballApiHealthCheck>();
 
         services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {

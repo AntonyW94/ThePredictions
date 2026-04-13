@@ -2,7 +2,7 @@
 
 ## Status
 
-**Not Started** | In Progress | Complete
+Not Started | In Progress | **Complete**
 
 ## Summary
 
@@ -14,11 +14,12 @@ Implement ASP.NET Core health checks for monitoring application health, includin
 
 ## Requirements
 
-- [ ] Add `/health` endpoint for basic health status
-- [ ] Add `/healthz` endpoint for Kubernetes-style probes (if needed)
-- [ ] Check database connectivity
-- [ ] Check Football API availability
-- [ ] Return appropriate HTTP status codes (200 OK, 503 Service Unavailable)
+- [x] Add `/health` endpoint for basic health status
+- [x] Add `/health/live` liveness probe (always 200 if process is running)
+- [x] Add `/health/ready` readiness probe (checks dependencies)
+- [x] Check database connectivity
+- [x] Check Football API availability
+- [x] Return appropriate HTTP status codes (200 OK, 503 Service Unavailable)
 
 ## Technical Notes
 

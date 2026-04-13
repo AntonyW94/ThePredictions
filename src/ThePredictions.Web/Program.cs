@@ -7,6 +7,7 @@ using ThePredictions.Application.Configuration;
 using ThePredictions.Hosting.Shared.Extensions;
 using ThePredictions.Infrastructure;
 using ThePredictions.Infrastructure.Data;
+using ThePredictions.Infrastructure.HealthChecks;
 using Serilog;
 
 const string corsName = "ThePredictionsCors";
@@ -56,7 +57,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, "keys")));
 
 builder.Services.AddControllers();
-builder.Services.AddInfrastructureServices();
+builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApiServices(builder.Configuration);
 builder.Services.AddHostedService<DatabaseInitialiser>();
 
@@ -93,7 +94,7 @@ app.UseSerilogRequestLogging(options =>
     options.GetLevel = (httpContext, elapsed, ex) =>
     {
         var path = httpContext.Request.Path.Value;
-        if (path != null && (path.StartsWith("/_framework") || path.StartsWith("/_blazor")))
+        if (path != null && (path.StartsWith("/_framework") || path.StartsWith("/_blazor") || path.StartsWith("/health")))
             return Serilog.Events.LogEventLevel.Verbose;
 
         return Serilog.Events.LogEventLevel.Information;
@@ -136,6 +137,7 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHealthCheckEndpoints();
 app.MapFallbackToFile("index.html");
 
 app.Run();
