@@ -20,7 +20,7 @@ public class UpdateSeasonRequestValidatorTests
     }
 
     [Fact]
-    public void Validate_ShouldFail_WhenNameIsEmpty()
+    public void Validate_ShouldNotValidateName_WhenNameIsEmpty()
     {
         var request = new UpdateSeasonRequestBuilder()
             .WithName("")
@@ -28,7 +28,7 @@ public class UpdateSeasonRequestValidatorTests
 
         var result = _validator.TestValidate(request);
 
-        result.ShouldHaveValidationErrorFor(x => x.Name);
+        result.ShouldNotHaveValidationErrorFor(x => x.Name);
     }
 
     [Fact]

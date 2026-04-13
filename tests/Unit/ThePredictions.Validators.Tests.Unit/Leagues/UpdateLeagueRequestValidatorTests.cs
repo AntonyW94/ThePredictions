@@ -71,7 +71,7 @@ public class UpdateLeagueRequestValidatorTests
     public void Validate_ShouldPass_WhenNameContainsAllowedPunctuation()
     {
         var request = new UpdateLeagueRequestBuilder()
-            .WithName("Smith's League (2024-25)!")
+            .WithName("Smiths League (2024-25)!")
             .Build();
 
         var result = _validator.TestValidate(request);

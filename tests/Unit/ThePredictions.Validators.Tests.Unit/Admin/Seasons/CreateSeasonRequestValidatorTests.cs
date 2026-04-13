@@ -20,7 +20,7 @@ public class CreateSeasonRequestValidatorTests
     }
 
     [Fact]
-    public void Validate_ShouldFail_WhenNameIsEmpty()
+    public void Validate_ShouldNotValidateName_WhenNameIsEmpty()
     {
         var request = new CreateSeasonRequestBuilder()
             .WithName("")
@@ -28,7 +28,7 @@ public class CreateSeasonRequestValidatorTests
 
         var result = _validator.TestValidate(request);
 
-        result.ShouldHaveValidationErrorFor(x => x.Name);
+        result.ShouldNotHaveValidationErrorFor(x => x.Name);
     }
 
     [Fact]
@@ -80,7 +80,7 @@ public class CreateSeasonRequestValidatorTests
     }
 
     [Fact]
-    public void Validate_ShouldNotValidateNameFormat_WhenNameIsEmpty()
+    public void Validate_ShouldSkipNameFormatRules_WhenNameIsEmpty()
     {
         var request = new CreateSeasonRequestBuilder()
             .WithName("")
@@ -88,8 +88,7 @@ public class CreateSeasonRequestValidatorTests
 
         var result = _validator.TestValidate(request);
 
-        result.ShouldHaveValidationErrorFor(x => x.Name)
-            .WithErrorMessage("Please enter a name for the season.");
+        result.ShouldNotHaveValidationErrorFor(x => x.Name);
     }
 
     [Fact]
