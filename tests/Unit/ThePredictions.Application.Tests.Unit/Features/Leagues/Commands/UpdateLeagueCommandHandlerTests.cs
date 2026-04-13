@@ -54,7 +54,7 @@ public class UpdateLeagueCommandHandlerTests
         // Arrange
         var league = CreateLeague();
         var season = CreateSeason();
-        var newDeadline = _dateTimeProvider.UtcNow.AddMonths(2);
+        var newDeadline = _dateTimeProvider.UtcNow.AddMonths(2).AddDays(-2);
         var command = new UpdateLeagueCommand(1, "Updated League", 5m, newDeadline, 4, 2, "admin-user");
 
         _leagueRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(league);
