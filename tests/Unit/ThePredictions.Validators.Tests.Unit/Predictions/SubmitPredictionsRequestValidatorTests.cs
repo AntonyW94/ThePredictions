@@ -1,3 +1,4 @@
+using FluentAssertions;
 using FluentValidation.TestHelper;
 using ThePredictions.Tests.Builders.Predictions;
 using ThePredictions.Validators.Predictions;
@@ -78,6 +79,6 @@ public class SubmitPredictionsRequestValidatorTests
 
         var result = _validator.TestValidate(request);
 
-        result.ShouldHaveAnyValidationErrors();
+        result.IsValid.Should().BeFalse();
     }
 }

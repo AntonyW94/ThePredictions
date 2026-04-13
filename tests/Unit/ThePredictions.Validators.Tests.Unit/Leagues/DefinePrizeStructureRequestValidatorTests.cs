@@ -1,3 +1,4 @@
+using FluentAssertions;
 using FluentValidation.TestHelper;
 using ThePredictions.Contracts.Leagues;
 using ThePredictions.Tests.Builders.Leagues;
@@ -31,7 +32,7 @@ public class DefinePrizeStructureRequestValidatorTests
 
         var result = _validator.TestValidate(request);
 
-        result.ShouldHaveAnyValidationErrors();
+        result.IsValid.Should().BeFalse();
     }
 
     [Fact]
@@ -45,7 +46,7 @@ public class DefinePrizeStructureRequestValidatorTests
 
         var result = _validator.TestValidate(request);
 
-        result.ShouldHaveAnyValidationErrors();
+        result.IsValid.Should().BeFalse();
     }
 
     [Fact]
@@ -73,7 +74,7 @@ public class DefinePrizeStructureRequestValidatorTests
 
         var result = _validator.TestValidate(request);
 
-        result.ShouldHaveAnyValidationErrors();
+        result.IsValid.Should().BeFalse();
     }
 
     [Fact]
@@ -87,7 +88,7 @@ public class DefinePrizeStructureRequestValidatorTests
 
         var result = _validator.TestValidate(request);
 
-        result.ShouldHaveAnyValidationErrors();
+        result.IsValid.Should().BeFalse();
     }
 
     [Fact]
@@ -101,7 +102,7 @@ public class DefinePrizeStructureRequestValidatorTests
 
         var result = _validator.TestValidate(request);
 
-        result.ShouldHaveAnyValidationErrors();
+        result.IsValid.Should().BeFalse();
     }
 
     [Fact]
@@ -115,7 +116,7 @@ public class DefinePrizeStructureRequestValidatorTests
 
         var result = _validator.TestValidate(request);
 
-        result.ShouldHaveAnyValidationErrors();
+        result.IsValid.Should().BeFalse();
     }
 
     [Fact]
@@ -129,7 +130,7 @@ public class DefinePrizeStructureRequestValidatorTests
 
         var result = _validator.TestValidate(request);
 
-        result.ShouldHaveAnyValidationErrors();
+        result.IsValid.Should().BeFalse();
     }
 
     [Fact]

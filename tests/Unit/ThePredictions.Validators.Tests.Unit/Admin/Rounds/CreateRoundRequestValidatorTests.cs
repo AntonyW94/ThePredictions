@@ -1,3 +1,4 @@
+using FluentAssertions;
 using FluentValidation.TestHelper;
 using ThePredictions.Tests.Builders.Admin.Matches;
 using ThePredictions.Tests.Builders.Admin.Rounds;
@@ -153,6 +154,6 @@ public class CreateRoundRequestValidatorTests
 
         var result = _validator.TestValidate(request);
 
-        result.ShouldHaveAnyValidationErrors();
+        result.IsValid.Should().BeFalse();
     }
 }
