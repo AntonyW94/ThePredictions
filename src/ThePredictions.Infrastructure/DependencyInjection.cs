@@ -19,6 +19,7 @@ using ThePredictions.Infrastructure.HealthChecks;
 using ThePredictions.Infrastructure.Identity;
 using ThePredictions.Infrastructure.Repositories;
 using ThePredictions.Infrastructure.Repositories.Boosts;
+using ThePredictions.Infrastructure.Resilience;
 using ThePredictions.Infrastructure.Services;
 using System.Net;
 
@@ -111,7 +112,9 @@ public static class DependencyInjection
         {
             var timeoutSettings = serviceProvider.GetRequiredService<IOptions<TimeoutSettings>>().Value;
             client.Timeout = TimeSpan.FromSeconds(timeoutSettings.FootballApiTimeoutSeconds);
-        });
+        })
+            .AddResilienceHandler("FootballApi", FootballApiResilienceConfiguration.Configure);
+
         services.AddScoped<ILeagueStatsService, LeagueStatsService>();
         services.AddScoped<ILeagueMembershipService, LeagueMembershipService>();
     }
