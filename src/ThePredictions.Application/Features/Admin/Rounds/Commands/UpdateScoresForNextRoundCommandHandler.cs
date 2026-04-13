@@ -1,13 +1,17 @@
 using MediatR;
+using ThePredictions.Application.FootballApi.DTOs;
 using ThePredictions.Application.Repositories;
 using ThePredictions.Application.Services;
 using ThePredictions.Contracts.Admin.Matches;
+using ThePredictions.Domain.Common;
 using ThePredictions.Domain.Common.Enumerations;
+using ThePredictions.Domain.Models;
 
 namespace ThePredictions.Application.Features.Admin.Rounds.Commands;
 
 public class UpdateScoresForNextRoundCommandHandler(
     IRoundRepository roundRepository,
+    ISeasonRepository seasonRepository,
     IFootballDataService footballDataService,
     IMediator mediator) : IRequestHandler<UpdateScoresForNextRoundCommand>
 {
@@ -23,7 +27,7 @@ public class UpdateScoresForNextRoundCommandHandler(
 
         if (!matchesToCheck.Any())
             return;
-        
+
         var externalIds = matchesToCheck
             .Where(m => m.ExternalId.HasValue)
             .Select(m => m.ExternalId.GetValueOrDefault())
@@ -33,16 +37,20 @@ public class UpdateScoresForNextRoundCommandHandler(
             return;
 
         var liveFixtures = (await footballDataService.GetFixturesByIdsAsync(externalIds, cancellationToken)).ToList();
-        if (!liveFixtures.Any()) 
+        if (!liveFixtures.Any())
             return;
+
+        var season = await seasonRepository.GetByIdAsync(request.SeasonId, cancellationToken);
+        var isTournament = season?.IsTournament ?? false;
 
         var matchResults = liveFixtures.Where(f => f.Fixture != null && f.Goals != null).Select(fixture =>
         {
             var localMatch = activeRound.Matches.First(m => m.ExternalId == fixture.Fixture!.Id);
+            var (homeScore, awayScore) = GetScoreForMatch(fixture, localMatch, isTournament);
             return new MatchResultDto(
                 localMatch.Id,
-                fixture.Goals!.Home.GetValueOrDefault(),
-                fixture.Goals.Away.GetValueOrDefault(),
+                homeScore,
+                awayScore,
                 GetMatchStatus(fixture.Fixture!.Status.Short)
             );
         }).ToList();
@@ -54,10 +62,34 @@ public class UpdateScoresForNextRoundCommandHandler(
         }
     }
 
+    internal static (int HomeScore, int AwayScore) GetScoreForMatch(
+        FixtureResponse fixture, Match localMatch, bool isTournament)
+    {
+        if (isTournament && IsKnockoutMatch(localMatch))
+        {
+            var fulltime = fixture.Score?.FullTime;
+            if (fulltime?.Home != null && fulltime.Away != null)
+                return (fulltime.Home.Value, fulltime.Away.Value);
+        }
+
+        return (fixture.Goals!.Home.GetValueOrDefault(), fixture.Goals.Away.GetValueOrDefault());
+    }
+
+    internal static bool IsKnockoutMatch(Match match)
+    {
+        if (string.IsNullOrWhiteSpace(match.ApiRoundName))
+            return false;
+
+        if (!TournamentRoundNameParser.TryParseStage(match.ApiRoundName, out var stage))
+            return false;
+
+        return TournamentRoundNameParser.IsKnockoutStage(stage);
+    }
+
     private static MatchStatus GetMatchStatus(string apiStatus) => apiStatus switch
     {
-        "FT" => MatchStatus.Completed,
-        "HT" or "1H" or "2H" => MatchStatus.InProgress,
+        "FT" or "AET" or "PEN" => MatchStatus.Completed,
+        "HT" or "1H" or "2H" or "ET" => MatchStatus.InProgress,
         "PST" => MatchStatus.Postponed,
         _ => MatchStatus.Scheduled
     };

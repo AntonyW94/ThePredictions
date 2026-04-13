@@ -18,4 +18,7 @@ public class FixtureResponse
     
     [JsonPropertyName("goals")]
     public Goals? Goals { get; set; }
+
+    [JsonPropertyName("score")]
+    public Score? Score { get; set; }
 }
