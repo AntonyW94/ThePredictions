@@ -62,6 +62,7 @@ builder.Services.AddHostedService<DatabaseInitialiser>();
 
 builder.Services.Configure<BrevoSettings>(builder.Configuration.GetSection("Brevo"));
 builder.Services.Configure<FootballApiSettings>(builder.Configuration.GetSection("FootballApi"));
+builder.Services.Configure<FootballApiResilienceSettings>(builder.Configuration.GetSection("FootballApi:Resilience"));
 
 builder.Host.UseSerilog((context, services, configuration) => configuration
     .ReadFrom.Configuration(context.Configuration)
