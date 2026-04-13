@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ThePredictions.Application.Data;
 using ThePredictions.Application.Features.Admin.Rounds.Strategies;
@@ -10,6 +11,7 @@ using ThePredictions.Domain.Common;
 using ThePredictions.Domain.Models;
 using ThePredictions.Domain.Services;
 using ThePredictions.Infrastructure.Data;
+using ThePredictions.Infrastructure.Data.Resilience;
 using ThePredictions.Infrastructure.Formatters;
 using ThePredictions.Infrastructure.Identity;
 using ThePredictions.Infrastructure.Repositories;
@@ -21,8 +23,12 @@ namespace ThePredictions.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static void AddInfrastructureServices(this IServiceCollection services)
+    public static void AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<SqlRetryPolicyOptions>(
+            configuration.GetSection(SqlRetryPolicyOptions.SectionName));
+        services.AddSingleton<ISqlRetryPolicy, SqlRetryPolicy>();
+
         services.AddScoped<IDbConnectionFactory, SqlConnectionFactory>();
         services.AddScoped<IApplicationReadDbConnection, DapperReadDbConnection>();
 

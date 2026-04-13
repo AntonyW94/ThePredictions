@@ -56,7 +56,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, "keys")));
 
 builder.Services.AddControllers();
-builder.Services.AddInfrastructureServices();
+builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApiServices(builder.Configuration);
 builder.Services.AddHostedService<DatabaseInitialiser>();
 
