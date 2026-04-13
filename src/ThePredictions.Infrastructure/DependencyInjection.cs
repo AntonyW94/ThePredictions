@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using ThePredictions.Application.Configuration;
 using ThePredictions.Application.Data;
 using ThePredictions.Application.Features.Admin.Rounds.Strategies;
 using ThePredictions.Application.Formatters;
@@ -13,6 +15,7 @@ using ThePredictions.Domain.Services;
 using ThePredictions.Infrastructure.Data;
 using ThePredictions.Infrastructure.Data.Resilience;
 using ThePredictions.Infrastructure.Formatters;
+using ThePredictions.Infrastructure.HealthChecks;
 using ThePredictions.Infrastructure.Identity;
 using ThePredictions.Infrastructure.Repositories;
 using ThePredictions.Infrastructure.Repositories.Boosts;
@@ -31,6 +34,15 @@ public static class DependencyInjection
 
         services.AddScoped<IDbConnectionFactory, SqlConnectionFactory>();
         services.AddScoped<IApplicationReadDbConnection, DapperReadDbConnection>();
+
+        var connectionString = configuration.GetConnectionString("DataConnection")
+                               ?? throw new InvalidOperationException("Connection string 'DataConnection' not found.");
+
+        services.AddHealthChecks()
+            .AddSqlServer(connectionString, name: "database", tags: ["ready"])
+            .AddCheck<FootballApiHealthCheck>("football-api", tags: ["ready"]);
+
+        services.AddHttpClient<FootballApiHealthCheck>();
 
         services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
@@ -95,7 +107,11 @@ public static class DependencyInjection
         services.AddScoped<IReminderService, ReminderService>();
         services.AddScoped<IBoostService, BoostService>();
         services.AddScoped<IUserManager, UserManagerService>();
-        services.AddHttpClient<IFootballDataService, FootballDataService>();
+        services.AddHttpClient<IFootballDataService, FootballDataService>((serviceProvider, client) =>
+        {
+            var timeoutSettings = serviceProvider.GetRequiredService<IOptions<TimeoutSettings>>().Value;
+            client.Timeout = TimeSpan.FromSeconds(timeoutSettings.FootballApiTimeoutSeconds);
+        });
         services.AddScoped<ILeagueStatsService, LeagueStatsService>();
         services.AddScoped<ILeagueMembershipService, LeagueMembershipService>();
     }

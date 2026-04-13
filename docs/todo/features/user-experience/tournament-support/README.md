@@ -1,5 +1,11 @@
 # Tournament Support Feature Plan
 
+## Status
+
+Not Started | In Progress | **Complete**
+
+> **Note:** Core tournament support is complete. The one remaining item — 90-minute knockout scoring — is tracked separately in [`tournament-knockout-scoring/`](../tournament-knockout-scoring/README.md).
+
 ## Overview
 
 This document outlines a comprehensive plan to extend ThePredictions to support tournament-format competitions (e.g., FIFA World Cup 2026) alongside the existing league format (e.g., Premier League).
@@ -367,6 +373,7 @@ Use FIFA World Cup 2022 (League ID: 1, Season: 2022) data from API-Football for 
 
 ---
 
-*Document Version: 3.0*
+*Document Version: 4.0*
 *Created: January 2026*
 *Updated: March 2026 (simplified architecture, removed unnecessary tables)*
+*Updated: April 2026 (marked as complete; 90-minute knockout scoring tracked separately)*

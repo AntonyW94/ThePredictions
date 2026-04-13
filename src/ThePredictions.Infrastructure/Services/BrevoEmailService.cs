@@ -8,9 +8,10 @@ using ThePredictions.Application.Services;
 
 namespace ThePredictions.Infrastructure.Services;
 
-public class BrevoEmailService(IOptions<BrevoSettings> settings, ILogger<BrevoEmailService> logger) : IEmailService
+public class BrevoEmailService(IOptions<BrevoSettings> settings, IOptions<TimeoutSettings> timeoutSettings, ILogger<BrevoEmailService> logger) : IEmailService
 {
     private readonly BrevoSettings _settings = settings.Value;
+    private readonly int _timeoutMilliseconds = timeoutSettings.Value.EmailServiceTimeoutSeconds * 1000;
 
     public async System.Threading.Tasks.Task SendTemplatedEmailAsync(string to, long templateId, object parameters)
     {
@@ -29,6 +30,7 @@ public class BrevoEmailService(IOptions<BrevoSettings> settings, ILogger<BrevoEm
 
         var apiInstance = new TransactionalEmailsApi();
         apiInstance.Configuration.ApiKey["api-key"] = _settings.ApiKey;
+        apiInstance.Configuration.Timeout = _timeoutMilliseconds;
 
         return apiInstance;
     }
