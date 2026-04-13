@@ -44,6 +44,11 @@ public static class TournamentRoundNameParser
         return KnockoutMappings.TryGetValue(apiRoundName, out stage);
     }
 
+    public static bool IsKnockoutStage(TournamentStage stage)
+    {
+        return stage is not (TournamentStage.Group1 or TournamentStage.Group2 or TournamentStage.Group3);
+    }
+
     public static int CalculateExpectedMatchCount(TournamentStage stage, int totalTeams)
     {
         return stage switch
