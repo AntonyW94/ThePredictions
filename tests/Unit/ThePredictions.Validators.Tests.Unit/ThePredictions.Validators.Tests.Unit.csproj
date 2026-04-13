@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <Include>[ThePredictions.Validators]*</Include>
+    <!-- Coverage threshold only enforced on Domain tests (100% required by CLAUDE.md) -->
+    <Threshold>0</Threshold>
   </PropertyGroup>
 
   <ItemGroup>
