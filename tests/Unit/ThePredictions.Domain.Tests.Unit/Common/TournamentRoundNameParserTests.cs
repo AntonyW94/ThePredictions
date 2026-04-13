@@ -292,4 +292,27 @@ public class TournamentRoundNameParserTests
     }
 
     #endregion
+
+    #region IsKnockoutStage
+
+    [Theory]
+    [InlineData(TournamentStage.RoundOf32, true)]
+    [InlineData(TournamentStage.RoundOf16, true)]
+    [InlineData(TournamentStage.QuarterFinals, true)]
+    [InlineData(TournamentStage.SemiFinals, true)]
+    [InlineData(TournamentStage.ThirdPlace, true)]
+    [InlineData(TournamentStage.Final, true)]
+    [InlineData(TournamentStage.Group1, false)]
+    [InlineData(TournamentStage.Group2, false)]
+    [InlineData(TournamentStage.Group3, false)]
+    public void IsKnockoutStage_ShouldReturnExpectedResult_WhenStageProvided(TournamentStage stage, bool expectedResult)
+    {
+        // Act
+        var result = TournamentRoundNameParser.IsKnockoutStage(stage);
+
+        // Assert
+        result.Should().Be(expectedResult);
+    }
+
+    #endregion
 }

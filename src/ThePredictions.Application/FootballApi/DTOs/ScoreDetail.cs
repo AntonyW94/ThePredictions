@@ -1,0 +1,15 @@
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
+
+namespace ThePredictions.Application.FootballApi.DTOs;
+
+[ExcludeFromCodeCoverage]
+[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
+public class ScoreDetail
+{
+    [JsonPropertyName("home")]
+    public int? Home { get; set; }
+
+    [JsonPropertyName("away")]
+    public int? Away { get; set; }
+}

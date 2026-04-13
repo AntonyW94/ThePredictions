@@ -13,12 +13,17 @@ public class SqlConnectionFactory : IDbConnectionFactory
 
     public SqlConnectionFactory(IConfiguration configuration, IOptions<TimeoutSettings> timeoutSettings)
     {
-        var baseConnectionString = configuration.GetConnectionString("DataConnection")
+        var rawConnectionString = configuration.GetConnectionString("DataConnection")
             ?? throw new InvalidOperationException("Connection string 'DataConnection' not found.");
 
-        var builder = new SqlConnectionStringBuilder(baseConnectionString)
+        var builder = new SqlConnectionStringBuilder(rawConnectionString)
         {
-            CommandTimeout = timeoutSettings.Value.DatabaseCommandTimeoutSeconds
+            CommandTimeout = timeoutSettings.Value.DatabaseCommandTimeoutSeconds,
+            MinPoolSize = 5,
+            MaxPoolSize = 100,
+            ConnectRetryCount = 3,
+            ConnectRetryInterval = 10,
+            LoadBalanceTimeout = 300
         };
 
         _connectionString = builder.ConnectionString;
