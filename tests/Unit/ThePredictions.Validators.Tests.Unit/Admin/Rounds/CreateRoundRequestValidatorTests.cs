@@ -153,6 +153,6 @@ public class CreateRoundRequestValidatorTests
 
         var result = _validator.TestValidate(request);
 
-        result.ShouldHaveAnyValidationError();
+        result.ShouldHaveAnyValidationErrors();
     }
 }

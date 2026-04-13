@@ -78,6 +78,6 @@ public class SubmitPredictionsRequestValidatorTests
 
         var result = _validator.TestValidate(request);
 
-        result.ShouldHaveAnyValidationError();
+        result.ShouldHaveAnyValidationErrors();
     }
 }

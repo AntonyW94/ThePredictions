@@ -81,6 +81,6 @@ public class UpdateRoundRequestValidatorTests
 
         var result = _validator.TestValidate(request);
 
-        result.ShouldHaveAnyValidationError();
+        result.ShouldHaveAnyValidationErrors();
     }
 }

@@ -31,7 +31,7 @@ public class DefinePrizeStructureRequestValidatorTests
 
         var result = _validator.TestValidate(request);
 
-        result.ShouldHaveAnyValidationError();
+        result.ShouldHaveAnyValidationErrors();
     }
 
     [Fact]
@@ -45,7 +45,7 @@ public class DefinePrizeStructureRequestValidatorTests
 
         var result = _validator.TestValidate(request);
 
-        result.ShouldHaveAnyValidationError();
+        result.ShouldHaveAnyValidationErrors();
     }
 
     [Fact]
@@ -73,7 +73,7 @@ public class DefinePrizeStructureRequestValidatorTests
 
         var result = _validator.TestValidate(request);
 
-        result.ShouldHaveAnyValidationError();
+        result.ShouldHaveAnyValidationErrors();
     }
 
     [Fact]
@@ -87,7 +87,7 @@ public class DefinePrizeStructureRequestValidatorTests
 
         var result = _validator.TestValidate(request);
 
-        result.ShouldHaveAnyValidationError();
+        result.ShouldHaveAnyValidationErrors();
     }
 
     [Fact]
@@ -101,7 +101,7 @@ public class DefinePrizeStructureRequestValidatorTests
 
         var result = _validator.TestValidate(request);
 
-        result.ShouldHaveAnyValidationError();
+        result.ShouldHaveAnyValidationErrors();
     }
 
     [Fact]
@@ -115,7 +115,7 @@ public class DefinePrizeStructureRequestValidatorTests
 
         var result = _validator.TestValidate(request);
 
-        result.ShouldHaveAnyValidationError();
+        result.ShouldHaveAnyValidationErrors();
     }
 
     [Fact]
@@ -129,7 +129,7 @@ public class DefinePrizeStructureRequestValidatorTests
 
         var result = _validator.TestValidate(request);
 
-        result.ShouldHaveAnyValidationError();
+        result.ShouldHaveAnyValidationErrors();
     }
 
     [Fact]
