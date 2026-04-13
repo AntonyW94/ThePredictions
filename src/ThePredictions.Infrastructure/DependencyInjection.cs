@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using ThePredictions.Application.Configuration;
 using ThePredictions.Application.Data;
 using ThePredictions.Application.Features.Admin.Rounds.Strategies;
 using ThePredictions.Application.Formatters;
@@ -100,7 +102,11 @@ public static class DependencyInjection
         services.AddScoped<IReminderService, ReminderService>();
         services.AddScoped<IBoostService, BoostService>();
         services.AddScoped<IUserManager, UserManagerService>();
-        services.AddHttpClient<IFootballDataService, FootballDataService>();
+        services.AddHttpClient<IFootballDataService, FootballDataService>((serviceProvider, client) =>
+        {
+            var timeoutSettings = serviceProvider.GetRequiredService<IOptions<TimeoutSettings>>().Value;
+            client.Timeout = TimeSpan.FromSeconds(timeoutSettings.FootballApiTimeoutSeconds);
+        });
         services.AddScoped<ILeagueStatsService, LeagueStatsService>();
         services.AddScoped<ILeagueMembershipService, LeagueMembershipService>();
     }
