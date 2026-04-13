@@ -67,7 +67,7 @@ public class UpdateScoresForNextRoundCommandHandler(
     {
         if (isTournament && IsKnockoutMatch(localMatch))
         {
-            var fulltime = fixture.Score?.Fulltime;
+            var fulltime = fixture.Score?.FullTime;
             if (fulltime?.Home != null && fulltime.Away != null)
                 return (fulltime.Home.Value, fulltime.Away.Value);
         }

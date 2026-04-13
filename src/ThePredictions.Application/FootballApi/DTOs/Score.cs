@@ -8,13 +8,13 @@ namespace ThePredictions.Application.FootballApi.DTOs;
 public class Score
 {
     [JsonPropertyName("halftime")]
-    public ScoreDetail? Halftime { get; set; }
+    public ScoreDetail? HalfTime { get; set; }
 
     [JsonPropertyName("fulltime")]
-    public ScoreDetail? Fulltime { get; set; }
+    public ScoreDetail? FullTime { get; set; }
 
     [JsonPropertyName("extratime")]
-    public ScoreDetail? Extratime { get; set; }
+    public ScoreDetail? ExtraTime { get; set; }
 
     [JsonPropertyName("penalty")]
     public ScoreDetail? Penalty { get; set; }
