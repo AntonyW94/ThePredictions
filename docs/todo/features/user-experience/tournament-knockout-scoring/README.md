@@ -48,12 +48,21 @@ For the example above, predictions should be scored against **1-1** (fulltime), 
 
 ## Requirements
 
+<<<<<<< HEAD
 - [x] Add `Score` DTO to capture `fulltime`, `extratime`, and `penalty` from API response
 - [x] Update `FixtureResponse` to include the `score` object
 - [x] Update sync handler to use `score.fulltime` instead of `goals` for tournament knockout matches
 - [x] Group stage matches are unaffected (no extra time in group stages)
 - [x] League matches are unaffected (no extra time in leagues)
 - [x] Unit tests for score selection logic
+=======
+- [ ] Add `Score` DTO to capture `fulltime`, `extratime`, and `penalty` from API response
+- [ ] Update `FixtureResponse` to include the `score` object
+- [ ] Update sync handler to use `score.fulltime` instead of `goals` for tournament knockout matches
+- [ ] Group stage matches are unaffected (no extra time in group stages)
+- [ ] League matches are unaffected (no extra time in leagues)
+- [ ] Unit tests for score selection logic
+>>>>>>> origin/master
 - [ ] Verify with API-Football 2022 World Cup data that `score.fulltime` returns the expected 90-minute scores
 
 ## Technical Notes

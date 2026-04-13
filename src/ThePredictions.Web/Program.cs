@@ -7,6 +7,7 @@ using ThePredictions.Application.Configuration;
 using ThePredictions.Hosting.Shared.Extensions;
 using ThePredictions.Infrastructure;
 using ThePredictions.Infrastructure.Data;
+using ThePredictions.Infrastructure.HealthChecks;
 using Serilog;
 
 const string corsName = "ThePredictionsCors";
@@ -47,8 +48,9 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy.WithOrigins(builder.Configuration["ApiBaseUrl"] ?? string.Empty)
-                .WithHeaders("Content-Type", "Authorization", "Accept", "X-Api-Key", "X-Requested-With")
+                .WithHeaders("Content-Type", "Authorization", "Accept", "X-Api-Key", "X-Requested-With", "X-Correlation-Id")
                 .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .WithExposedHeaders("X-Correlation-Id")
                 .AllowCredentials();
         });
 });
@@ -56,12 +58,13 @@ builder.Services.AddCors(options =>
 builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, "keys")));
 
 builder.Services.AddControllers();
-builder.Services.AddInfrastructureServices();
+builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApiServices(builder.Configuration);
 builder.Services.AddHostedService<DatabaseInitialiser>();
 
 builder.Services.Configure<BrevoSettings>(builder.Configuration.GetSection("Brevo"));
 builder.Services.Configure<FootballApiSettings>(builder.Configuration.GetSection("FootballApi"));
+builder.Services.Configure<TimeoutSettings>(builder.Configuration.GetSection("Timeouts"));
 
 builder.Host.UseSerilog((context, services, configuration) => configuration
     .ReadFrom.Configuration(context.Configuration)
@@ -93,13 +96,14 @@ app.UseSerilogRequestLogging(options =>
     options.GetLevel = (httpContext, elapsed, ex) =>
     {
         var path = httpContext.Request.Path.Value;
-        if (path != null && (path.StartsWith("/_framework") || path.StartsWith("/_blazor")))
+        if (path != null && (path.StartsWith("/_framework") || path.StartsWith("/_blazor") || path.StartsWith("/health")))
             return Serilog.Events.LogEventLevel.Verbose;
 
         return Serilog.Events.LogEventLevel.Information;
     };
 });
 
+app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseHttpsRedirection();
 app.UseCors(corsName);
@@ -136,6 +140,7 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHealthCheckEndpoints();
 app.MapFallbackToFile("index.html");
 
 app.Run();

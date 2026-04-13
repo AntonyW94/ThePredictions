@@ -2,7 +2,7 @@
 
 ## Status
 
-**Not Started** | In Progress | Complete
+Not Started | In Progress | **Complete**
 
 ## Summary
 
@@ -15,13 +15,13 @@ Configure explicit timeouts on HttpClient and database queries to prevent hangin
 ## Requirements
 
 ### HttpClient Timeouts
-- [ ] Configure timeout on Football API HttpClient
-- [ ] Configure timeout on email service HttpClient
-- [ ] Set appropriate values based on expected response times
+- [x] Configure timeout on Football API HttpClient
+- [x] Configure timeout on email service HttpClient
+- [x] Set appropriate values based on expected response times
 
 ### Database Query Timeouts
-- [ ] Configure command timeout in Dapper queries
-- [ ] Set appropriate values for long-running queries
+- [x] Configure command timeout in Dapper queries
+- [x] Set appropriate values for long-running queries
 
 ## Recommended Timeouts
 
