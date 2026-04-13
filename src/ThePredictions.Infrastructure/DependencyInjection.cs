@@ -13,6 +13,7 @@ using ThePredictions.Domain.Common;
 using ThePredictions.Domain.Models;
 using ThePredictions.Domain.Services;
 using ThePredictions.Infrastructure.Data;
+using ThePredictions.Infrastructure.Data.Resilience;
 using ThePredictions.Infrastructure.Formatters;
 using ThePredictions.Infrastructure.HealthChecks;
 using ThePredictions.Infrastructure.Identity;
@@ -27,6 +28,10 @@ public static class DependencyInjection
 {
     public static void AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<SqlRetryPolicyOptions>(
+            configuration.GetSection(SqlRetryPolicyOptions.SectionName));
+        services.AddSingleton<ISqlRetryPolicy, SqlRetryPolicy>();
+
         services.AddScoped<IDbConnectionFactory, SqlConnectionFactory>();
         services.AddScoped<IApplicationReadDbConnection, DapperReadDbConnection>();
 
