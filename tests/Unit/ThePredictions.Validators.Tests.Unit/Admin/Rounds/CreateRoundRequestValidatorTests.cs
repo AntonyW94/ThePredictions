@@ -2,6 +2,7 @@ using FluentValidation.TestHelper;
 using ThePredictions.Tests.Builders.Admin.Matches;
 using ThePredictions.Tests.Builders.Admin.Rounds;
 using ThePredictions.Validators.Admin.Rounds;
+using Xunit;
 
 namespace ThePredictions.Validators.Tests.Unit.Admin.Rounds;
 

@@ -1,6 +1,7 @@
 using FluentValidation.TestHelper;
 using ThePredictions.Tests.Builders.Admin.Seasons;
 using ThePredictions.Validators.Admin.Seasons;
+using Xunit;
 
 namespace ThePredictions.Validators.Tests.Unit.Admin.Seasons;
 

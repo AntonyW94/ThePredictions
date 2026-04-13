@@ -1,6 +1,7 @@
 using FluentValidation.TestHelper;
 using ThePredictions.Tests.Builders.Authentication;
 using ThePredictions.Validators.Authentication;
+using Xunit;
 
 namespace ThePredictions.Validators.Tests.Unit.Authentication;
 

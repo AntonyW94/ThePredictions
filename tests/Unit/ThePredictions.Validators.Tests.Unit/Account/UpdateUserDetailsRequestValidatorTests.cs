@@ -1,6 +1,7 @@
 using FluentValidation.TestHelper;
 using ThePredictions.Tests.Builders.Account;
 using ThePredictions.Validators.Account;
+using Xunit;
 
 namespace ThePredictions.Validators.Tests.Unit.Account;
 

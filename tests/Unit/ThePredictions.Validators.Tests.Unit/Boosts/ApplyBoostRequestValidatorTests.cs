@@ -1,6 +1,7 @@
 using FluentValidation.TestHelper;
 using ThePredictions.Tests.Builders.Boosts;
 using ThePredictions.Validators.Boosts;
+using Xunit;
 
 namespace ThePredictions.Validators.Tests.Unit.Boosts;
 

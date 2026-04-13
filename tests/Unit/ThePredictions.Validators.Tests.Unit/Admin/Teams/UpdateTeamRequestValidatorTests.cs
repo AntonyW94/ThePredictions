@@ -1,6 +1,7 @@
 using FluentValidation.TestHelper;
 using ThePredictions.Tests.Builders.Admin.Teams;
 using ThePredictions.Validators.Admin.Teams;
+using Xunit;
 
 namespace ThePredictions.Validators.Tests.Unit.Admin.Teams;
 

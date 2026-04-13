@@ -2,6 +2,7 @@ using FluentValidation.TestHelper;
 using ThePredictions.Contracts.Leagues;
 using ThePredictions.Tests.Builders.Leagues;
 using ThePredictions.Validators.Leagues;
+using Xunit;
 
 namespace ThePredictions.Validators.Tests.Unit.Leagues;
 
