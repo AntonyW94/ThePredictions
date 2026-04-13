@@ -4,6 +4,7 @@ using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
+using Polly.Timeout;
 using ThePredictions.Application.Configuration;
 using ThePredictions.Application.Data;
 using ThePredictions.Application.Features.Admin.Rounds.Strategies;
