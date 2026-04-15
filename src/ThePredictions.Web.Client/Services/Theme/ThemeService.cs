@@ -37,6 +37,19 @@ public class ThemeService(ILocalStorageService localStorage, HttpClient httpClie
         }
     }
 
+    public void ToggleThemeTransient()
+    {
+        CurrentTheme = IsDarkMode ? "light" : "dark";
+        OnThemeChanged?.Invoke();
+    }
+
+    public async Task ClearPreferenceAsync()
+    {
+        CurrentTheme = "light";
+        await localStorage.RemoveItemAsync(StorageKey);
+        OnThemeChanged?.Invoke();
+    }
+
     public async Task SyncFromServerAsync(string serverTheme)
     {
         if (string.IsNullOrEmpty(serverTheme))

@@ -19,6 +19,11 @@
                         <span class="bi @(ThemeService.IsDarkMode ? "bi-lightbulb" : "bi-lightbulb-fill")" aria-hidden="true"></span>
                     </button>
                 </Authorized>
+                <NotAuthorized>
+                    <button class="btn theme-toggle-btn me-2" @onclick="ToggleThemeTransient" title="@(ThemeService.IsDarkMode ? "Switch to light mode" : "Switch to dark mode")">
+                        <span class="bi @(ThemeService.IsDarkMode ? "bi-lightbulb" : "bi-lightbulb-fill")" aria-hidden="true"></span>
+                    </button>
+                </NotAuthorized>
             </AuthorizeView>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -107,6 +112,11 @@
 
                 <NotAuthorized>
                     <ul class="navbar-nav ms-auto">
+                        <li class="nav-item py-0 d-none d-lg-flex align-items-center">
+                            <button class="btn nav-link theme-toggle-btn" @onclick="ToggleThemeTransient" title="@(ThemeService.IsDarkMode ? "Switch to light mode" : "Switch to dark mode")">
+                                <span class="bi @(ThemeService.IsDarkMode ? "bi-lightbulb" : "bi-lightbulb-fill")" aria-hidden="true"></span>
+                            </button>
+                        </li>
                         <li class="nav-item mx-1">
                             <NavLink class="nav-link" href="authentication/login">Log in</NavLink>
                         </li>
@@ -141,8 +151,14 @@
         await ThemeService.ToggleThemeAsync();
     }
 
+    private void ToggleThemeTransient()
+    {
+        ThemeService.ToggleThemeTransient();
+    }
+
     private async Task LogoutUser()
     {
+        await ThemeService.ClearPreferenceAsync();
         await AuthenticationService.LogoutAsync();
         NavigationManager.NavigateTo("/", forceLoad: true);
     }

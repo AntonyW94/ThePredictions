@@ -7,4 +7,6 @@ public interface IThemeService
     event Action? OnThemeChanged;
     Task InitialiseAsync();
     Task ToggleThemeAsync();
+    void ToggleThemeTransient();
+    Task ClearPreferenceAsync();
 }

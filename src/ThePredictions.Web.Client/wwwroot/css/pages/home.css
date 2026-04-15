@@ -93,7 +93,7 @@
 }
 
 .competitions-stat__value {
-    font-size: 1.75rem;
+    font-size: 2rem;
     font-weight: 700;
     color: var(--white);
     line-height: 1.2;
@@ -118,7 +118,7 @@
     }
 
     .competitions-stat__value {
-        font-size: 2rem;
+        font-size: 2.5rem;
     }
 }
 

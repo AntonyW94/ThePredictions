@@ -6,11 +6,11 @@
    ============================================ */
 
 .theme-dark {
-    background: var(--purple-800);
+    background: var(--purple-900);
 }
 
 .theme-dark.bg-grey-100 {
-    background-color: var(--purple-800) !important;
+    background-color: var(--purple-900) !important;
 }
 
 .theme-dark .admin-table-container {
@@ -140,6 +140,36 @@
     border-color: var(--purple-900);
 }
 
+.theme-dark .input-group:focus-within .password-toggle-btn {
+    background-color: var(--purple-800);
+    color: var(--white);
+}
+
+/* Auth pages */
+
+.theme-dark .form-container .text-purple-1000 {
+    color: var(--white) !important;
+}
+
+.theme-dark .form-container .text-grey-500 {
+    color: var(--grey-300) !important;
+}
+
+.theme-dark .form-container .border-top {
+    border-color: var(--white-alpha-15) !important;
+}
+
+.theme-dark .google-btn {
+    background-color: var(--purple-800);
+    color: var(--white);
+    border-color: var(--white-alpha-15);
+}
+
+.theme-dark .google-btn:hover {
+    background-color: var(--purple-600);
+    border-color: var(--white-alpha-25);
+}
+
 /* ============================================
    BUTTONS
    ============================================ */
@@ -177,8 +207,12 @@
    ============================================ */
 
 .theme-dark .navbar-custom {
-    background: var(--purple-800) !important;
+    background: var(--purple-900) !important;
     border-bottom: none;
+}
+
+.theme-dark .navbar-overlay {
+    background: transparent !important;
 }
 
 .theme-dark .navbar-custom .navbar-brand span {
@@ -192,6 +226,12 @@
 .theme-dark .navbar-nav .nav-item .nav-link,
 .theme-dark .navbar-nav .nav-item .navbar-text {
     color: var(--white) !important;
+}
+
+.theme-dark .navbar-nav > .nav-item:hover .nav-link,
+.theme-dark .navbar-nav > .nav-item:hover .navbar-text,
+.theme-dark .navbar-nav > .nav-item:hover .bi-person-fill {
+    color: var(--purple-800) !important;
 }
 
 /* ============================================
@@ -558,6 +598,37 @@
 
 .theme-dark .shadow {
     box-shadow: 0 8px 20px var(--black-alpha-35), inset 0 0 0 1px var(--white-alpha-05) !important;
+}
+
+/* ============================================
+   HOME PAGE
+   ============================================ */
+
+.theme-dark .home-section-light {
+    background: var(--purple-900);
+    color: var(--white);
+}
+
+.theme-dark .home-section-light h2,
+.theme-dark .home-section-light h3,
+.theme-dark .home-section-light h4,
+.theme-dark .home-section-light strong {
+    color: var(--white);
+}
+
+.theme-dark .home-section-light p,
+.theme-dark .home-section-light li {
+    color: var(--white);
+}
+
+.theme-dark .bg-purple-1000 {
+    border-top: 1px solid var(--white-alpha-08);
+    border-bottom: 1px solid var(--white-alpha-08);
+}
+
+.theme-dark .testimonial-card {
+    background-color: var(--purple-800);
+    border: 1px solid var(--white-alpha-10);
 }
 
 /* ============================================
