@@ -1,6 +1,5 @@
 using FluentAssertions;
 using NSubstitute;
-using ThePredictions.Application.Common.Models;
 using ThePredictions.Application.Features.Leagues.Commands;
 using ThePredictions.Application.Repositories;
 using ThePredictions.Application.Services;
@@ -9,6 +8,7 @@ using ThePredictions.Domain.Common.Constants;
 using ThePredictions.Domain.Common.Enumerations;
 using ThePredictions.Domain.Common.Exceptions;
 using ThePredictions.Domain.Models;
+using ThePredictions.Tests.Shared.Helpers;
 using Xunit;
 
 namespace ThePredictions.Application.Tests.Unit.Features.Leagues.Commands;
@@ -24,7 +24,8 @@ public class DefinePrizeStructureCommandHandlerTests
 
     public DefinePrizeStructureCommandHandlerTests()
     {
-        _handler = new DefinePrizeStructureCommandHandler(_leagueRepository, _seasonRepository, _userManager);
+        var dateTimeProvider = new TestDateTimeProvider(FixedNow);
+        _handler = new DefinePrizeStructureCommandHandler(_leagueRepository, _seasonRepository, _userManager, dateTimeProvider);
     }
 
     private static Season CreateSeason(int id = 1) =>

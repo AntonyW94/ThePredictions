@@ -2,13 +2,14 @@ using Ardalis.GuardClauses;
 using MediatR;
 using ThePredictions.Application.Repositories;
 using ThePredictions.Application.Services;
+using ThePredictions.Domain.Common;
 using ThePredictions.Domain.Common.Constants;
 using ThePredictions.Domain.Common.Guards;
 using ThePredictions.Domain.Models;
 
 namespace ThePredictions.Application.Features.Leagues.Commands;
 
-public class DefinePrizeStructureCommandHandler(ILeagueRepository leagueRepository, ISeasonRepository seasonRepository, IUserManager userManager) : IRequestHandler<DefinePrizeStructureCommand>
+public class DefinePrizeStructureCommandHandler(ILeagueRepository leagueRepository, ISeasonRepository seasonRepository, IUserManager userManager, IDateTimeProvider dateTimeProvider) : IRequestHandler<DefinePrizeStructureCommand>
 {
     public async Task Handle(DefinePrizeStructureCommand request, CancellationToken cancellationToken)
     {
@@ -24,7 +25,7 @@ public class DefinePrizeStructureCommandHandler(ILeagueRepository leagueReposito
         if (league.AdministratorUserId != request.DefiningUserId && !isSiteAdmin)
             throw new UnauthorizedAccessException("Only the league administrator can define the prize structure.");
 
-        if (league.EntryDeadlineUtc > DateTime.UtcNow)
+        if (league.EntryDeadlineUtc > dateTimeProvider.UtcNow)
             throw new InvalidOperationException("The prize structure cannot be defined until after the entry deadline has passed.");
 
         var totalPrizePot = league.Price * league.Members.Count;
