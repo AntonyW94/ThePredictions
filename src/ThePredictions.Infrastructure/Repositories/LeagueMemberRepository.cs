@@ -6,10 +6,9 @@ using System.Data;
 
 namespace ThePredictions.Infrastructure.Repositories;
 
-public class LeagueMemberRepository(IDbConnectionFactory connectionFactory) : ILeagueMemberRepository
+public class LeagueMemberRepository(IDbConnectionFactory connectionFactory, IDbTransactionContext transactionContext)
+    : RepositoryBase(connectionFactory, transactionContext), ILeagueMemberRepository
 {
-    private IDbConnection Connection => connectionFactory.CreateConnection();
-    
     public async Task<LeagueMember?> GetAsync(int leagueId, string userId, CancellationToken cancellationToken)
     {
         const string sql = @"
@@ -26,8 +25,8 @@ public class LeagueMemberRepository(IDbConnectionFactory connectionFactory) : IL
                 [LeagueId] = @LeagueId
                 AND [UserId] = @UserId";
 
-        var command = new CommandDefinition(sql, new { LeagueId = leagueId, UserId = userId }, cancellationToken: cancellationToken);
-        return await Connection.QueryFirstOrDefaultAsync<LeagueMember>(command); 
+        var command = new CommandDefinition(sql, new { LeagueId = leagueId, UserId = userId }, transaction: Transaction, cancellationToken: cancellationToken);
+        return await Connection.QueryFirstOrDefaultAsync<LeagueMember>(command);
     }
 
     public async Task UpdateAsync(LeagueMember member, CancellationToken cancellationToken)
@@ -50,9 +49,9 @@ public class LeagueMemberRepository(IDbConnectionFactory connectionFactory) : IL
             member.ApprovedAtUtc,
             member.LeagueId,
             member.UserId
-        }, cancellationToken: cancellationToken);
-        
-        await Connection.ExecuteAsync(command); 
+        }, transaction: Transaction, cancellationToken: cancellationToken);
+
+        await Connection.ExecuteAsync(command);
     }
 
     public async Task DeleteAsync(LeagueMember member, CancellationToken cancellationToken)
@@ -63,12 +62,12 @@ public class LeagueMemberRepository(IDbConnectionFactory connectionFactory) : IL
             WHERE
                 [LeagueId] = @LeagueId
                 AND [UserId] = @UserId";
-     
+
         var command = new CommandDefinition(sql, new
         {
             member.LeagueId,
             member.UserId
-        }, cancellationToken: cancellationToken);
+        }, transaction: Transaction, cancellationToken: cancellationToken);
 
         await Connection.ExecuteAsync(command);
     }

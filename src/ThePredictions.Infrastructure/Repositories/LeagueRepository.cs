@@ -9,10 +9,9 @@ using System.Data;
 
 namespace ThePredictions.Infrastructure.Repositories;
 
-public class LeagueRepository(IDbConnectionFactory connectionFactory, IDateTimeProvider dateTimeProvider) : ILeagueRepository
+public class LeagueRepository(IDbConnectionFactory connectionFactory, IDbTransactionContext transactionContext, IDateTimeProvider dateTimeProvider)
+    : RepositoryBase(connectionFactory, transactionContext), ILeagueRepository
 {
-    private IDbConnection Connection => connectionFactory.CreateConnection();
-
     private const string GetLeaguesWithMembersSql = @"
         SELECT
             l.*,
@@ -25,14 +24,14 @@ public class LeagueRepository(IDbConnectionFactory connectionFactory, IDateTimeP
     public async Task<League> CreateAsync(League league, CancellationToken cancellationToken)
     {
         const string sql = @"
-            INSERT INTO [Leagues] 
+            INSERT INTO [Leagues]
             (
-                [Name], 
-                [SeasonId], 
-                [Price], 
-                [AdministratorUserId], 
-                [EntryCode], 
-                [CreatedAtUtc], 
+                [Name],
+                [SeasonId],
+                [Price],
+                [AdministratorUserId],
+                [EntryCode],
+                [CreatedAtUtc],
                 [EntryDeadlineUtc],
                 [PointsForExactScore],
                 [PointsForCorrectResult],
@@ -40,14 +39,14 @@ public class LeagueRepository(IDbConnectionFactory connectionFactory, IDateTimeP
                 [HasPrizes],
                 [PrizeFundOverride]
             )
-            VALUES 
+            VALUES
             (
-                @Name, 
-                @SeasonId, 
-                @Price, 
-                @AdministratorUserId, 
-                @EntryCode, 
-                @CreatedAtUtc, 
+                @Name,
+                @SeasonId,
+                @Price,
+                @AdministratorUserId,
+                @EntryCode,
+                @CreatedAtUtc,
                 @EntryDeadlineUtc,
                 @PointsForExactScore,
                 @PointsForCorrectResult,
@@ -60,6 +59,7 @@ public class LeagueRepository(IDbConnectionFactory connectionFactory, IDateTimeP
         var command = new CommandDefinition(
             commandText: sql,
             parameters: league,
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 
@@ -84,7 +84,7 @@ public class LeagueRepository(IDbConnectionFactory connectionFactory, IDateTimeP
             isFree: league.IsFree,
             hasPrizes: league.HasPrizes,
             prizeFundOverride: league.PrizeFundOverride,
-            members: [adminMember], 
+            members: [adminMember],
             prizeSettings: null
         );
 
@@ -107,6 +107,7 @@ public class LeagueRepository(IDbConnectionFactory connectionFactory, IDateTimeP
                 member.JoinedAtUtc,
                 member.ApprovedAtUtc
             },
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 
@@ -153,6 +154,7 @@ public class LeagueRepository(IDbConnectionFactory connectionFactory, IDateTimeP
         var command = new CommandDefinition(
             commandText: sql,
             parameters: new { Id = id, ApprovedStatus = nameof(LeagueMemberStatus.Approved) },
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 
@@ -204,11 +206,11 @@ public class LeagueRepository(IDbConnectionFactory connectionFactory, IDateTimeP
     {
         const string sql = @"
         SELECT
-            l.*, 
+            l.*,
             lm.*
-        FROM 
+        FROM
             [Leagues] l
-        LEFT JOIN 
+        LEFT JOIN
             [LeagueMembers] lm ON l.[Id] = lm.[LeagueId]
         WHERE
             l.[AdministratorUserId] = @AdministratorId;";
@@ -219,7 +221,7 @@ public class LeagueRepository(IDbConnectionFactory connectionFactory, IDateTimeP
     public async Task<IEnumerable<LeagueRoundResult>> GetLeagueRoundResultsAsync(int roundId, CancellationToken cancellationToken)
     {
         const string sql = @"
-            SELECT                
+            SELECT
                 [LeagueId],
                 [RoundId],
                 [UserId],
@@ -227,26 +229,26 @@ public class LeagueRepository(IDbConnectionFactory connectionFactory, IDateTimeP
                 [BoostedPoints],
                 [HasBoost],
                 [AppliedBoostCode]
-            FROM 
+            FROM
                 [LeagueRoundResults]
-            WHERE 
+            WHERE
                 [RoundId] = @RoundId;";
 
-        return await Connection.QueryAsync<LeagueRoundResult>(new CommandDefinition(sql, new { RoundId = roundId }, cancellationToken: cancellationToken));
+        return await Connection.QueryAsync<LeagueRoundResult>(new CommandDefinition(sql, new { RoundId = roundId }, transaction: Transaction, cancellationToken: cancellationToken));
     }
 
     public async Task<IEnumerable<int>> GetLeagueIdsForSeasonAsync(int seasonId, CancellationToken cancellationToken)
     {
         const string sql = @"
-            SELECT 
-                [Id] 
-            FROM 
-                [Leagues] 
-            WHERE 
+            SELECT
+                [Id]
+            FROM
+                [Leagues]
+            WHERE
                 [SeasonId] = @SeasonId
                 AND [HasPrizes] = 1";
 
-        return await Connection.QueryAsync<int>(new CommandDefinition(sql, new { SeasonId = seasonId }, cancellationToken: cancellationToken));
+        return await Connection.QueryAsync<int>(new CommandDefinition(sql, new { SeasonId = seasonId }, transaction: Transaction, cancellationToken: cancellationToken));
     }
 
     #endregion
@@ -274,6 +276,7 @@ public class LeagueRepository(IDbConnectionFactory connectionFactory, IDateTimeP
         var leagueCommand = new CommandDefinition(
             updateLeagueSql,
             league,
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 
@@ -284,6 +287,7 @@ public class LeagueRepository(IDbConnectionFactory connectionFactory, IDateTimeP
         var deletePrizesCommand = new CommandDefinition(
             deletePrizesSql,
             new { LeagueId = league.Id },
+            transaction: Transaction,
             cancellationToken: cancellationToken);
 
         await Connection.ExecuteAsync(deletePrizesCommand);
@@ -291,11 +295,11 @@ public class LeagueRepository(IDbConnectionFactory connectionFactory, IDateTimeP
         if (league.PrizeSettings.Any())
         {
             const string insertPrizeSql = @"
-            INSERT INTO [LeaguePrizeSettings] 
+            INSERT INTO [LeaguePrizeSettings]
             (
                 [LeagueId], [PrizeType], [Rank], [PrizeAmount], [PrizeDescription]
-            ) 
-            VALUES 
+            )
+            VALUES
             (
                 @LeagueId, @PrizeType, @Rank, @PrizeAmount, @PrizeDescription
             );";
@@ -303,6 +307,7 @@ public class LeagueRepository(IDbConnectionFactory connectionFactory, IDateTimeP
             var insertPrizesCommand = new CommandDefinition(
                 insertPrizeSql,
                 league.PrizeSettings,
+                transaction: Transaction,
                 cancellationToken: cancellationToken);
             await Connection.ExecuteAsync(insertPrizesCommand);
         }
@@ -312,6 +317,7 @@ public class LeagueRepository(IDbConnectionFactory connectionFactory, IDateTimeP
         var deleteCommand = new CommandDefinition(
             deleteMembersSql,
             new { LeagueId = league.Id },
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 
@@ -330,7 +336,7 @@ public class LeagueRepository(IDbConnectionFactory connectionFactory, IDateTimeP
                 Status = m.Status.ToString(),
                 m.JoinedAtUtc,
                 m.ApprovedAtUtc
-            }), cancellationToken: cancellationToken);
+            }), transaction: Transaction, cancellationToken: cancellationToken);
 
             await Connection.ExecuteAsync(insertCommand);
         }
@@ -346,31 +352,31 @@ public class LeagueRepository(IDbConnectionFactory connectionFactory, IDateTimeP
                         rr.[RoundId],
                         rr.[UserId],
                         (
-                            (rr.[ExactScoreCount] * l.[PointsForExactScore]) + 
+                            (rr.[ExactScoreCount] * l.[PointsForExactScore]) +
                             (rr.[CorrectResultCount] * l.[PointsForCorrectResult])
                         ) AS [BasePoints]
-                    FROM 
+                    FROM
                         [RoundResults] rr
-                    INNER JOIN 
+                    INNER JOIN
                         [Rounds] r ON r.[Id] = rr.[RoundId]
-                    INNER JOIN 
+                    INNER JOIN
                         [Leagues] l ON l.[SeasonId] = r.[SeasonId]
-                    INNER JOIN 
+                    INNER JOIN
                         [LeagueMembers] lm ON lm.[LeagueId] = l.[Id] AND lm.[UserId]  = rr.[UserId] AND lm.[Status]  = @ApprovedStatus
-                    WHERE 
+                    WHERE
                         rr.[RoundId] = @RoundId
                    ) AS src
             ON target.[LeagueId] = src.[LeagueId]
                AND target.[RoundId] = src.[RoundId]
                AND target.[UserId]  = src.[UserId]
-            
+
             WHEN MATCHED THEN
-                UPDATE SET 
+                UPDATE SET
                     target.[BasePoints]       = src.[BasePoints],
                     target.[BoostedPoints]    = src.[BasePoints],
                     target.[HasBoost]         = 0,
                     target.[AppliedBoostCode] = NULL
-            
+
             WHEN NOT MATCHED BY TARGET THEN
                 INSERT ([LeagueId], [RoundId], [UserId], [BasePoints], [BoostedPoints], [HasBoost], [AppliedBoostCode])
                 VALUES (src.[LeagueId], src.[RoundId], src.[UserId], src.[BasePoints], src.[BasePoints], 0, NULL);";
@@ -382,6 +388,7 @@ public class LeagueRepository(IDbConnectionFactory connectionFactory, IDateTimeP
                 RoundId = roundId,
                 ApprovedStatus = nameof(LeagueMemberStatus.Approved)
             },
+            transaction: Transaction,
             cancellationToken: cancellationToken);
 
         await Connection.ExecuteAsync(command);
@@ -421,6 +428,7 @@ public class LeagueRepository(IDbConnectionFactory connectionFactory, IDateTimeP
                     u.HasBoost,
                     u.AppliedBoostCode
                 }),
+                transaction: Transaction,
                 cancellationToken: cancellationToken
             ));
     }
@@ -434,6 +442,7 @@ public class LeagueRepository(IDbConnectionFactory connectionFactory, IDateTimeP
         var command = new CommandDefinition(
             commandText: sql,
             parameters: param,
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 
@@ -487,6 +496,7 @@ public class LeagueRepository(IDbConnectionFactory connectionFactory, IDateTimeP
         var command = new CommandDefinition(
             commandText: sql,
             parameters: new { LeagueId = leagueId },
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 

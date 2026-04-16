@@ -6,10 +6,9 @@ using System.Data;
 
 namespace ThePredictions.Infrastructure.Repositories;
 
-public class SeasonRepository(IDbConnectionFactory connectionFactory) : ISeasonRepository
+public class SeasonRepository(IDbConnectionFactory connectionFactory, IDbTransactionContext transactionContext)
+    : RepositoryBase(connectionFactory, transactionContext), ISeasonRepository
 {
-    private IDbConnection Connection => connectionFactory.CreateConnection();
-
     #region Create
 
     public async Task<Season> CreateAsync(Season season, CancellationToken cancellationToken)
@@ -40,6 +39,7 @@ public class SeasonRepository(IDbConnectionFactory connectionFactory) : ISeasonR
         var command = new CommandDefinition(
             commandText: sql,
             parameters: season,
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 
@@ -64,10 +64,11 @@ public class SeasonRepository(IDbConnectionFactory connectionFactory) : ISeasonR
     public async Task<Season?> GetByIdAsync(int id, CancellationToken cancellationToken)
     {
         const string sql = "SELECT * FROM [Seasons] WHERE [Id] = @Id;";
-       
+
         var command = new CommandDefinition(
             commandText: sql,
             parameters: new { Id = id },
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 
@@ -80,6 +81,7 @@ public class SeasonRepository(IDbConnectionFactory connectionFactory) : ISeasonR
 
         var command = new CommandDefinition(
             commandText: sql,
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 
@@ -100,6 +102,7 @@ public class SeasonRepository(IDbConnectionFactory connectionFactory) : ISeasonR
         var command = new CommandDefinition(
             commandText: sql,
             parameters: new { SeasonId = seasonId },
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 
@@ -123,10 +126,11 @@ public class SeasonRepository(IDbConnectionFactory connectionFactory) : ISeasonR
                     [ApiLeagueId] = @ApiLeagueId,
                     [CompetitionType] = @CompetitionType
                 WHERE [Id] = @Id;";
-       
+
         var command = new CommandDefinition(
             commandText: sql,
             parameters: season,
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 
@@ -172,6 +176,7 @@ public class SeasonRepository(IDbConnectionFactory connectionFactory) : ISeasonR
         var command = new CommandDefinition(
             commandText: sql,
             parameters: new { SeasonId = seasonId },
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 

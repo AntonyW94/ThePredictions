@@ -7,10 +7,9 @@ using System.Data;
 
 namespace ThePredictions.Infrastructure.Repositories;
 
-public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRepository
+public class RoundRepository(IDbConnectionFactory connectionFactory, IDbTransactionContext transactionContext)
+    : RepositoryBase(connectionFactory, transactionContext), IRoundRepository
 {
-    private IDbConnection Connection => connectionFactory.CreateConnection();
-
     #region SQL Constants
 
     private const string AddMatchSql = @"
@@ -73,6 +72,7 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
                 round.ApiRoundName,
                 round.LastReminderSentUtc
             },
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 
@@ -112,6 +112,7 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
         var insertMatchesCommand = new CommandDefinition(
             commandText: AddMatchSql,
             parameters: matchesToInsert,
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 
@@ -177,6 +178,7 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
         var command = new CommandDefinition(
             sql,
             new { MatchIds = matchIdsList },
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 
@@ -187,19 +189,19 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
     {
         const string sql = @"
         WITH RoundMonth AS (
-            SELECT 
+            SELECT
                 MONTH([StartDateUtc]) AS TargetMonth,
                 YEAR([StartDateUtc]) AS TargetYear
             FROM [Rounds]
             WHERE [Id] = @RoundId
         )
-        SELECT 
+        SELECT
             CASE WHEN @RoundId = (
                 SELECT TOP 1 [Id]
                 FROM [Rounds]
-                WHERE 
-                    [SeasonId] = @SeasonId 
-                    AND MONTH([StartDateUtc]) = (SELECT [TargetMonth] FROM [RoundMonth]) 
+                WHERE
+                    [SeasonId] = @SeasonId
+                    AND MONTH([StartDateUtc]) = (SELECT [TargetMonth] FROM [RoundMonth])
                     AND YEAR([StartDateUtc]) = (SELECT [TargetYear] FROM [RoundMonth])
                 ORDER BY [StartDateUtc] DESC
             ) THEN 1 ELSE 0 END;";
@@ -207,6 +209,7 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
         var command = new CommandDefinition(
             sql,
             new { roundId, seasonId },
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 
@@ -216,19 +219,20 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
     public async Task<bool> IsLastRoundOfSeasonAsync(int roundId, int seasonId, CancellationToken cancellationToken)
     {
         const string sql = @"
-            SELECT 
+            SELECT
                 CASE WHEN r.[RoundNumber] = s.[NumberOfRounds] THEN 1 ELSE 0 END
-            FROM 
+            FROM
                 [dbo].[Rounds] r
-            INNER JOIN 
+            INNER JOIN
                 [dbo].[Seasons] s ON r.SeasonId = s.Id
-            WHERE 
-                r.Id = @RoundId 
+            WHERE
+                r.Id = @RoundId
                 AND r.SeasonId = @SeasonId;";
 
         var command = new CommandDefinition(
             sql,
             new { RoundId = roundId, SeasonId = seasonId },
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 
@@ -238,21 +242,22 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
     public async Task<IEnumerable<int>> GetRoundsIdsForMonthAsync(int month, int seasonId, CancellationToken cancellationToken)
     {
         const string sql = @"
-            SELECT                
+            SELECT
                 r.[Id]
-            FROM 
-                [Rounds] r 
-            WHERE 
-                r.[SeasonId] = @SeasonId 
+            FROM
+                [Rounds] r
+            WHERE
+                r.[SeasonId] = @SeasonId
                 AND MONTH(r.[StartDateUtc]) = @Month";
 
         var command = new CommandDefinition(
             sql,
             new
             {
-                Month = month, 
+                Month = month,
                 SeasonId = seasonId
             },
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 
@@ -270,8 +275,8 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
                 ORDER BY [DeadlineUtc] ASC
             )
 
-            SELECT 
-                r.*, 
+            SELECT
+                r.*,
                 m.*
             FROM [Rounds] r
             LEFT JOIN [Matches] m ON r.[Id] = m.[RoundId]
@@ -299,9 +304,9 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
     public async Task UpdateAsync(Round round, CancellationToken cancellationToken)
     {
         const string updateRoundSql = @"
-            UPDATE 
+            UPDATE
                 [Rounds]
-            SET 
+            SET
                 [RoundNumber] = @RoundNumber,
                 [DisplayName] = @DisplayName,
                 [StartDateUtc] = @StartDateUtc,
@@ -310,7 +315,7 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
                 [Status] = @Status,
                 [ApiRoundName] = @ApiRoundName,
                 [LastReminderSentUtc] = @LastReminderSentUtc
-            WHERE 
+            WHERE
                 [Id] = @Id;";
 
         var updateRoundCommand = new CommandDefinition(updateRoundSql, new
@@ -324,10 +329,10 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
             Status = round.Status.ToString(),
             round.ApiRoundName,
             round.LastReminderSentUtc
-        }, cancellationToken: cancellationToken);
+        }, transaction: Transaction, cancellationToken: cancellationToken);
         await Connection.ExecuteAsync(updateRoundCommand);
 
-        var existingMatchIdsCommand = new CommandDefinition("SELECT [Id] FROM [Matches] WHERE [RoundId] = @RoundId", new { RoundId = round.Id }, cancellationToken: cancellationToken);
+        var existingMatchIdsCommand = new CommandDefinition("SELECT [Id] FROM [Matches] WHERE [RoundId] = @RoundId", new { RoundId = round.Id }, transaction: Transaction, cancellationToken: cancellationToken);
         var existingMatchIds = (await Connection.QueryAsync<int>(existingMatchIdsCommand)).ToList();
         var incomingMatches = round.Matches.ToList();
 
@@ -349,7 +354,7 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
                 m.PlaceholderHomeName,
                 m.PlaceholderAwayName,
                 m.ApiRoundName
-            }), cancellationToken: cancellationToken);
+            }), transaction: Transaction, cancellationToken: cancellationToken);
             await Connection.ExecuteAsync(insertMatchesCommand);
         }
 
@@ -387,7 +392,7 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
                 m.PlaceholderHomeName,
                 m.PlaceholderAwayName,
                 m.ApiRoundName
-            }), cancellationToken: cancellationToken);
+            }), transaction: Transaction, cancellationToken: cancellationToken);
             await Connection.ExecuteAsync(updateMatchesCommand);
         }
 
@@ -403,7 +408,7 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
                         WHERE up.[MatchId] = [Matches].[Id]
                     );";
 
-            var deleteMatchesCommand = new CommandDefinition(deleteSql, new { MatchIdsToDelete = matchIdsToDelete }, cancellationToken: cancellationToken);
+            var deleteMatchesCommand = new CommandDefinition(deleteSql, new { MatchIdsToDelete = matchIdsToDelete }, transaction: Transaction, cancellationToken: cancellationToken);
             await Connection.ExecuteAsync(deleteMatchesCommand);
         }
     }
@@ -425,6 +430,7 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
         var command = new CommandDefinition(
             sql,
             new { TargetRoundId = targetRoundId, MatchIds = matchIdsList },
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 
@@ -434,11 +440,11 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
     public async Task UpdateLastReminderSentAsync(Round round, CancellationToken cancellationToken)
     {
         const string sql = @"
-            UPDATE 
+            UPDATE
                 [Rounds]
-            SET 
+            SET
                 [LastReminderSentUtc] = @LastReminderSentUtc
-            WHERE 
+            WHERE
                 [Id] = @Id;";
 
         var command = new CommandDefinition(
@@ -448,6 +454,7 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
                 round.Id,
                 round.LastReminderSentUtc
             },
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 
@@ -478,6 +485,7 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
                 m.ActualAwayTeamScore,
                 Status = m.Status.ToString()
             }),
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 
@@ -506,7 +514,7 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
             ON target.[RoundId] = src.[RoundId]
             AND target.[UserId] = src.[UserId]
             WHEN MATCHED THEN
-                UPDATE SET 
+                UPDATE SET
                     target.[ExactScoreCount]    = src.[ExactScoreCount],
                     target.[CorrectResultCount] = src.[CorrectResultCount],
                     target.[IncorrectCount]     = src.[IncorrectCount]
@@ -519,11 +527,12 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
             sql,
             new
             {
-                RoundId = roundId, 
-                ExactScore = (int)PredictionOutcome.ExactScore, 
-                CorrectResult = (int)PredictionOutcome.CorrectResult, 
+                RoundId = roundId,
+                ExactScore = (int)PredictionOutcome.ExactScore,
+                CorrectResult = (int)PredictionOutcome.CorrectResult,
                 Incorrect = (int)PredictionOutcome.Incorrect
             },
+            transaction: Transaction,
             cancellationToken: cancellationToken);
 
         await Connection.ExecuteAsync(command);
@@ -543,6 +552,7 @@ public class RoundRepository(IDbConnectionFactory connectionFactory) : IRoundRep
         var command = new CommandDefinition(
             commandText: sql,
             parameters: param,
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 

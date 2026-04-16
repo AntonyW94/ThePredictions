@@ -6,10 +6,9 @@ using ThePredictions.Domain.Models;
 
 namespace ThePredictions.Infrastructure.Repositories;
 
-public class TournamentRoundMappingRepository(IDbConnectionFactory connectionFactory) : ITournamentRoundMappingRepository
+public class TournamentRoundMappingRepository(IDbConnectionFactory connectionFactory, IDbTransactionContext transactionContext)
+    : RepositoryBase(connectionFactory, transactionContext), ITournamentRoundMappingRepository
 {
-    private IDbConnection Connection => connectionFactory.CreateConnection();
-
     public async Task<List<TournamentRoundMapping>> GetBySeasonIdAsync(int seasonId, CancellationToken cancellationToken)
     {
         const string sql = @"
@@ -30,6 +29,7 @@ public class TournamentRoundMappingRepository(IDbConnectionFactory connectionFac
         var command = new CommandDefinition(
             commandText: sql,
             parameters: new { SeasonId = seasonId },
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 
@@ -63,20 +63,16 @@ public class TournamentRoundMappingRepository(IDbConnectionFactory connectionFac
                 @ExpectedMatchCount
             )";
 
-        using var connection = connectionFactory.CreateConnection();
-        connection.Open();
-        using var transaction = connection.BeginTransaction();
-
-        await connection.ExecuteAsync(
+        await Connection.ExecuteAsync(
             new CommandDefinition(
                 commandText: deleteSql,
                 parameters: new { SeasonId = seasonId },
-                transaction: transaction,
+                transaction: Transaction,
                 cancellationToken: cancellationToken));
 
         foreach (var mapping in mappings)
         {
-            await connection.ExecuteAsync(
+            await Connection.ExecuteAsync(
                 new CommandDefinition(
                     commandText: insertSql,
                     parameters: new
@@ -87,10 +83,8 @@ public class TournamentRoundMappingRepository(IDbConnectionFactory connectionFac
                         mapping.Stages,
                         mapping.ExpectedMatchCount
                     },
-                    transaction: transaction,
+                    transaction: Transaction,
                     cancellationToken: cancellationToken));
         }
-
-        transaction.Commit();
     }
 }

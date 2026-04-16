@@ -6,15 +6,14 @@ using System.Data;
 
 namespace ThePredictions.Infrastructure.Repositories;
 
-public class LeagueStatsRepository(IDbConnectionFactory connectionFactory) : ILeagueStatsRepository
+public class LeagueStatsRepository(IDbConnectionFactory connectionFactory, IDbTransactionContext transactionContext)
+    : RepositoryBase(connectionFactory, transactionContext), ILeagueStatsRepository
 {
-    private IDbConnection Connection => connectionFactory.CreateConnection();
-
     public async Task SnapshotRanksForRoundStartAsync(int roundId, CancellationToken cancellationToken)
     {
         const string sql = @"
             UPDATE lms
-            SET 
+            SET
                 lms.[SnapshotOverallRank] = lms.[OverallRank],
                 lms.[SnapshotMonthRank] = lms.[MonthRank],
                 lms.[LiveRoundRank] = 1,
@@ -26,13 +25,13 @@ public class LeagueStatsRepository(IDbConnectionFactory connectionFactory) : ILe
             JOIN [Rounds] r ON l.[SeasonId] = r.[SeasonId]
             WHERE r.[Id] = @RoundId";
 
-        await Connection.ExecuteAsync(new CommandDefinition(sql, new { RoundId = roundId }, cancellationToken: cancellationToken));
+        await Connection.ExecuteAsync(new CommandDefinition(sql, new { RoundId = roundId }, transaction: Transaction, cancellationToken: cancellationToken));
     }
 
     public async Task UpdateLiveStatsAsync(int roundId, CancellationToken cancellationToken)
     {
         const string sql = @"
-            
+
             UPDATE lms
             SET lms.[LiveRoundPoints] = lrr.[BoostedPoints]
             FROM [LeagueMemberStats] lms
@@ -40,16 +39,16 @@ public class LeagueStatsRepository(IDbConnectionFactory connectionFactory) : ILe
             WHERE lrr.[RoundId] = @RoundId;
 
             WITH NewRanks AS (
-                SELECT 
-                    lms.[LeagueId], 
+                SELECT
+                    lms.[LeagueId],
                     lms.[UserId],
                     RANK() OVER (PARTITION BY lms.[LeagueId] ORDER BY lms.[LiveRoundPoints] DESC) as NewRoundRank,
                     RANK() OVER (PARTITION BY lms.[LeagueId] ORDER BY (SELECT SUM([BoostedPoints]) FROM [LeagueRoundResults] WHERE [LeagueId] = lms.[LeagueId] AND [UserId] = lms.[UserId]) DESC) as NewOverallRank,
                     RANK() OVER (PARTITION BY lms.[LeagueId] ORDER BY (
-                                                                            SELECT SUM(lrr.[BoostedPoints]) 
-                                                                            FROM [LeagueRoundResults] lrr 
-                                                                            JOIN [Rounds] r ON lrr.[RoundId] = r.[Id] 
-                                                                            WHERE lrr.[LeagueId] = lms.[LeagueId] 
+                                                                            SELECT SUM(lrr.[BoostedPoints])
+                                                                            FROM [LeagueRoundResults] lrr
+                                                                            JOIN [Rounds] r ON lrr.[RoundId] = r.[Id]
+                                                                            WHERE lrr.[LeagueId] = lms.[LeagueId]
                                                                             AND lrr.[UserId] = lms.[UserId]
                                                                             AND MONTH(r.[StartDateUtc]) = MONTH(GETUTCDATE()) AND YEAR(r.[StartDateUtc]) = YEAR(GETUTCDATE())
                                                                       ) DESC) as NewMonthRank
@@ -60,49 +59,49 @@ public class LeagueStatsRepository(IDbConnectionFactory connectionFactory) : ILe
             )
 
             UPDATE lms
-            SET 
+            SET
                 lms.[LiveRoundRank] = nr.[NewRoundRank],
                 lms.[OverallRank] = nr.[NewOverallRank],
                 lms.[MonthRank] = nr.[NewMonthRank]
             FROM [LeagueMemberStats] lms
             JOIN [NewRanks] nr ON lms.[LeagueId] = nr.[LeagueId] AND lms.[UserId] = nr.[UserId];";
 
-        await Connection.ExecuteAsync(new CommandDefinition(sql, new { RoundId = roundId }, cancellationToken: cancellationToken));
+        await Connection.ExecuteAsync(new CommandDefinition(sql, new { RoundId = roundId }, transaction: Transaction, cancellationToken: cancellationToken));
     }
 
     public async Task UpdateStableStatsAsync(int roundId, CancellationToken cancellationToken)
     {
         const string sql = @"
             WITH StableCalc AS (
-                SELECT 
-                    lm.[LeagueId], 
+                SELECT
+                    lm.[LeagueId],
                     lm.[UserId],
                     SUM(
-                        CASE 
-                           WHEN up.[Outcome] = @ExactScore THEN l.[PointsForExactScore] 
-                           WHEN up.[Outcome] = @CorrectResult THEN l.[PointsForCorrectResult] 
-                           ELSE 0 
+                        CASE
+                           WHEN up.[Outcome] = @ExactScore THEN l.[PointsForExactScore]
+                           WHEN up.[Outcome] = @CorrectResult THEN l.[PointsForCorrectResult]
+                           ELSE 0
                         END
                     ) as StablePoints
-                
+
                 FROM [LeagueMembers] lm
-                
+
                 JOIN [Leagues] l ON lm.[LeagueId] = l.[Id]
                 JOIN [Rounds] r ON l.[SeasonId] = r.[SeasonId]
                 JOIN [Matches] m ON r.[Id] = m.[RoundId]
                 JOIN [UserPredictions] up ON m.[Id] = up.[MatchId] AND up.[UserId] = lm.[UserId]
-                
-                WHERE 
-                    r.[Id] = @RoundId 
+
+                WHERE
+                    r.[Id] = @RoundId
                     AND m.[Status] = @CompletedStatus
-               
-                GROUP BY 
-                    lm.[LeagueId], 
+
+                GROUP BY
+                    lm.[LeagueId],
                     lm.[UserId]
             ),
 
             RankedStable AS (
-                SELECT 
+                SELECT
                     stats.[LeagueId],
                     stats.[UserId],
                     ISNULL(sc.[StablePoints], 0) as FinalPoints,
@@ -115,7 +114,7 @@ public class LeagueStatsRepository(IDbConnectionFactory connectionFactory) : ILe
             )
 
             UPDATE stats
-            SET 
+            SET
                 stats.[StableRoundPoints] = rs.[FinalPoints],
                 stats.[StableRoundRank] = rs.[FinalRank]
             FROM [LeagueMemberStats] stats
@@ -127,6 +126,6 @@ public class LeagueStatsRepository(IDbConnectionFactory connectionFactory) : ILe
             CompletedStatus = nameof(MatchStatus.Completed),
             PredictionOutcome.ExactScore,
             PredictionOutcome.CorrectResult
-        }, cancellationToken: cancellationToken));
+        }, transaction: Transaction, cancellationToken: cancellationToken));
     }
 }

@@ -6,39 +6,39 @@ using System.Data;
 
 namespace ThePredictions.Infrastructure.Repositories;
 
-public class TeamRepository(IDbConnectionFactory connectionFactory) : ITeamRepository
+public class TeamRepository(IDbConnectionFactory connectionFactory, IDbTransactionContext transactionContext)
+    : RepositoryBase(connectionFactory, transactionContext), ITeamRepository
 {
-    private IDbConnection Connection => connectionFactory.CreateConnection();
-
     #region Create
 
     public async Task<Team> CreateAsync(Team team, CancellationToken cancellationToken)
     {
         const string sql = @"
-                INSERT INTO [Teams] 
+                INSERT INTO [Teams]
                 (
-                    [Name], 
-                    [ShortName], 
+                    [Name],
+                    [ShortName],
                     [LogoUrl],
                     [Abbreviation],
                     [ApiTeamId]
                 )
                 OUTPUT INSERTED.*
-                VALUES 
+                VALUES
                 (
-                    @Name, 
-                    @ShortName, 
+                    @Name,
+                    @ShortName,
                     @LogoUrl,
                     @Abbreviation,
                     @ApiTeamId
                 );";
-       
+
         var command = new CommandDefinition(
             commandText: sql,
             parameters: team,
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
-        
+
         return await Connection.QuerySingleAsync<Team>(command);
     }
 
@@ -49,19 +49,20 @@ public class TeamRepository(IDbConnectionFactory connectionFactory) : ITeamRepos
     public async Task<Team?> GetByIdAsync(int id, CancellationToken cancellationToken)
     {
         const string sql = @"
-                SELECT 
-                    [Id], 
-                    [Name], 
-                    [ShortName], 
+                SELECT
+                    [Id],
+                    [Name],
+                    [ShortName],
                     [LogoUrl],
                     [Abbreviation],
                     [ApiTeamId]
-                FROM [Teams] 
+                FROM [Teams]
                 WHERE [Id] = @Id;";
-      
+
         var command = new CommandDefinition(
             commandText: sql,
             parameters: new { Id = id },
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 
@@ -71,19 +72,20 @@ public class TeamRepository(IDbConnectionFactory connectionFactory) : ITeamRepos
     public async Task<Team?> GetByApiIdAsync(int id, CancellationToken cancellationToken)
     {
         const string sql = @"
-                SELECT 
-                    [Id], 
-                    [Name], 
-                    [ShortName], 
+                SELECT
+                    [Id],
+                    [Name],
+                    [ShortName],
                     [LogoUrl],
                     [Abbreviation],
                     [ApiTeamId]
-                FROM [Teams] 
+                FROM [Teams]
                 WHERE [ApiTeamId] = @Id;";
-      
+
         var command = new CommandDefinition(
             commandText: sql,
             parameters: new { Id = id },
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 
@@ -112,6 +114,7 @@ public class TeamRepository(IDbConnectionFactory connectionFactory) : ITeamRepos
         var command = new CommandDefinition(
             commandText: sql,
             parameters: new { ApiIds = apiIdsList },
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 
@@ -128,10 +131,10 @@ public class TeamRepository(IDbConnectionFactory connectionFactory) : ITeamRepos
     public async Task UpdateAsync(Team team, CancellationToken cancellationToken)
     {
         const string sql = @"
-                UPDATE [Teams] 
-                SET 
-                    [Name] = @Name, 
-                    [ShortName] = @ShortName, 
+                UPDATE [Teams]
+                SET
+                    [Name] = @Name,
+                    [ShortName] = @ShortName,
                     [LogoUrl] = @LogoUrl,
                     [Abbreviation] = @Abbreviation,
                     [ApiTeamId] = @ApiTeamId
@@ -140,6 +143,7 @@ public class TeamRepository(IDbConnectionFactory connectionFactory) : ITeamRepos
         var command = new CommandDefinition(
             commandText: sql,
             parameters: team,
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 

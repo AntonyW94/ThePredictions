@@ -34,6 +34,7 @@ public static class DependencyInjection
         services.AddSingleton<ISqlRetryPolicy, SqlRetryPolicy>();
 
         services.AddScoped<IDbConnectionFactory, SqlConnectionFactory>();
+        services.AddScoped<IDbTransactionContext, DbTransactionContext>();
         services.AddScoped<IApplicationReadDbConnection, DapperReadDbConnection>();
 
         var connectionString = configuration.GetConnectionString("DataConnection")

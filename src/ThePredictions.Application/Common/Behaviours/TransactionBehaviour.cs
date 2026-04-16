@@ -1,17 +1,19 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using ThePredictions.Application.Common.Interfaces;
-using System.Transactions;
+using ThePredictions.Application.Data;
 
 namespace ThePredictions.Application.Common.Behaviours;
 
-public class TransactionBehaviour<TRequest, TResponse>(ILogger<TransactionBehaviour<TRequest, TResponse>> logger) : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>, ITransactionalRequest
+public class TransactionBehaviour<TRequest, TResponse>(
+    IDbTransactionContext transactionContext,
+    ILogger<TransactionBehaviour<TRequest, TResponse>> logger) : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>, ITransactionalRequest
 {
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         var requestName = typeof(TRequest).Name;
 
-        using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+        await transactionContext.BeginAsync(cancellationToken);
 
         try
         {
@@ -19,7 +21,7 @@ public class TransactionBehaviour<TRequest, TResponse>(ILogger<TransactionBehavi
 
             var response = await next(cancellationToken);
 
-            scope.Complete();
+            await transactionContext.CommitAsync(cancellationToken);
 
             logger.LogDebug("Committed transaction for {RequestName}", requestName);
 

@@ -6,10 +6,9 @@ using System.Data;
 
 namespace ThePredictions.Infrastructure.Repositories;
 
-public class UserPredictionRepository(IDbConnectionFactory connectionFactory) : IUserPredictionRepository
+public class UserPredictionRepository(IDbConnectionFactory connectionFactory, IDbTransactionContext transactionContext)
+    : RepositoryBase(connectionFactory, transactionContext), IUserPredictionRepository
 {
-    private IDbConnection Connection => connectionFactory.CreateConnection();
-
     #region Create
 
     public Task UpsertBatchAsync(IEnumerable<UserPrediction> predictions, CancellationToken cancellationToken)
@@ -19,7 +18,7 @@ public class UserPredictionRepository(IDbConnectionFactory connectionFactory) : 
         USING (SELECT @UserId AS UserId, @MatchId AS MatchId) AS source
         ON (target.[UserId] = source.[UserId] AND target.[MatchId] = source.[MatchId])
         WHEN MATCHED THEN
-            UPDATE SET 
+            UPDATE SET
                 [PredictedHomeScore] = @PredictedHomeScore,
                 [PredictedAwayScore] = @PredictedAwayScore,
                 [UpdatedAtUtc] = @UpdatedAtUtc
@@ -30,6 +29,7 @@ public class UserPredictionRepository(IDbConnectionFactory connectionFactory) : 
         var command = new CommandDefinition(
             commandText: sql,
             parameters: predictions,
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 
@@ -43,14 +43,14 @@ public class UserPredictionRepository(IDbConnectionFactory connectionFactory) : 
     public async Task<IEnumerable<UserPrediction>> GetByMatchIdsAsync(IEnumerable<int> matchIds, CancellationToken cancellationToken)
     {
         const string sql = @"
-            SELECT 
-                * 
-            FROM 
-                [UserPredictions] 
-            WHERE 
+            SELECT
+                *
+            FROM
+                [UserPredictions]
+            WHERE
                 [MatchId] IN @MatchIds";
 
-        return await Connection.QueryAsync<UserPrediction>(new CommandDefinition(sql, new { MatchIds = matchIds }, cancellationToken: cancellationToken));
+        return await Connection.QueryAsync<UserPrediction>(new CommandDefinition(sql, new { MatchIds = matchIds }, transaction: Transaction, cancellationToken: cancellationToken));
     }
 
     #endregion
@@ -60,12 +60,12 @@ public class UserPredictionRepository(IDbConnectionFactory connectionFactory) : 
     public async Task UpdateOutcomesAsync(IEnumerable<UserPrediction> predictionsToUpdate, CancellationToken cancellationToken)
     {
         const string sql = @"
-            UPDATE 
+            UPDATE
                 [UserPredictions]
-            SET 
+            SET
                 [Outcome] = @Outcome,
                 [UpdatedAtUtc] = GETUTCDATE()
-            WHERE 
+            WHERE
                 [Id] = @Id;";
 
         if (predictionsToUpdate.Any())
@@ -73,6 +73,7 @@ public class UserPredictionRepository(IDbConnectionFactory connectionFactory) : 
             var command = new CommandDefinition(
                 commandText: sql,
                 parameters: predictionsToUpdate,
+                transaction: Transaction,
                 cancellationToken: cancellationToken
             );
 

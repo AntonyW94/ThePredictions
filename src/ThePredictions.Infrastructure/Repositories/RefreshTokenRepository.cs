@@ -6,17 +6,16 @@ using System.Data;
 
 namespace ThePredictions.Infrastructure.Repositories;
 
-public class RefreshTokenRepository(IDbConnectionFactory connectionFactory) : IRefreshTokenRepository
+public class RefreshTokenRepository(IDbConnectionFactory connectionFactory, IDbTransactionContext transactionContext)
+    : RepositoryBase(connectionFactory, transactionContext), IRefreshTokenRepository
 {
-    private IDbConnection Connection => connectionFactory.CreateConnection();
-
     #region Create
 
     public async Task CreateAsync(RefreshToken token, CancellationToken cancellationToken)
     {
         const string sql = "INSERT INTO RefreshTokens (UserId, Token, Expires, Created) VALUES (@UserId, @Token, @Expires, @Created)";
 
-        var command = new CommandDefinition(sql, token, cancellationToken: cancellationToken);
+        var command = new CommandDefinition(sql, token, transaction: Transaction, cancellationToken: cancellationToken);
         await Connection.ExecuteAsync(command);
     }
 
@@ -28,7 +27,7 @@ public class RefreshTokenRepository(IDbConnectionFactory connectionFactory) : IR
     {
         const string sql = "SELECT * FROM RefreshTokens WHERE Token = @Token";
 
-        var command = new CommandDefinition(sql, new { Token = token }, cancellationToken: cancellationToken);
+        var command = new CommandDefinition(sql, new { Token = token }, transaction: Transaction, cancellationToken: cancellationToken);
         return await Connection.QuerySingleOrDefaultAsync<RefreshToken>(command);
     }
 
@@ -40,7 +39,7 @@ public class RefreshTokenRepository(IDbConnectionFactory connectionFactory) : IR
     {
         const string sql = "UPDATE [RefreshTokens] SET [Revoked] = GETUTCDATE() WHERE [UserId] = @UserId AND [Revoked] IS NULL;";
 
-        var command = new CommandDefinition(sql, new { UserId = userId }, cancellationToken: cancellationToken);
+        var command = new CommandDefinition(sql, new { UserId = userId }, transaction: Transaction, cancellationToken: cancellationToken);
         return Connection.ExecuteAsync(command);
     }
 
@@ -52,8 +51,8 @@ public class RefreshTokenRepository(IDbConnectionFactory connectionFactory) : IR
                 [Revoked] = @Revoked
             WHERE
                 [Id] = @Id;";
-        
-        var command = new CommandDefinition(sql, token, cancellationToken: cancellationToken);
+
+        var command = new CommandDefinition(sql, token, transaction: Transaction, cancellationToken: cancellationToken);
         await Connection.ExecuteAsync(command);
     }
 

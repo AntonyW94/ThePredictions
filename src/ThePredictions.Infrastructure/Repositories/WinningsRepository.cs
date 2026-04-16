@@ -7,10 +7,9 @@ using System.Data;
 
 namespace ThePredictions.Infrastructure.Repositories;
 
-public class WinningsRepository(IDbConnectionFactory connectionFactory) : IWinningsRepository
+public class WinningsRepository(IDbConnectionFactory connectionFactory, IDbTransactionContext transactionContext)
+    : RepositoryBase(connectionFactory, transactionContext), IWinningsRepository
 {
-    private IDbConnection Connection => connectionFactory.CreateConnection();
-
     public async Task AddWinningsAsync(IEnumerable<Winning> winnings, CancellationToken cancellationToken)
     {
         if (!winnings.Any())
@@ -36,54 +35,54 @@ public class WinningsRepository(IDbConnectionFactory connectionFactory) : IWinni
                 @Month
             );";
 
-        var command = new CommandDefinition(commandText: sql, parameters: winnings, cancellationToken: cancellationToken);
+        var command = new CommandDefinition(commandText: sql, parameters: winnings, transaction: Transaction, cancellationToken: cancellationToken);
         await Connection.ExecuteAsync(command);
     }
 
     public async Task DeleteWinningsForRoundAsync(int leagueId, int roundNumber, CancellationToken cancellationToken)
     {
         const string sql = @"
-            DELETE 
+            DELETE
                 w
-            FROM 
+            FROM
                 [Winnings] w
-            JOIN 
+            JOIN
                 [LeaguePrizeSettings] lps ON w.[LeaguePrizeSettingId] = lps.[Id]
-            WHERE 
-                lps.[LeagueId] = @LeagueId 
+            WHERE
+                lps.[LeagueId] = @LeagueId
                 AND w.[RoundNumber] = @RoundNumber";
 
-        var command = new CommandDefinition(sql, new { LeagueId = leagueId, RoundNumber = roundNumber }, cancellationToken: cancellationToken);
+        var command = new CommandDefinition(sql, new { LeagueId = leagueId, RoundNumber = roundNumber }, transaction: Transaction, cancellationToken: cancellationToken);
         await Connection.ExecuteAsync(command);
     }
 
     public async Task DeleteWinningsForMonthAsync(int leagueId, int month, CancellationToken cancellationToken)
     {
         const string sql = @"
-            DELETE 
+            DELETE
                 w
-            FROM 
+            FROM
                 [Winnings] w
-            JOIN 
+            JOIN
                 [LeaguePrizeSettings] lps ON w.[LeaguePrizeSettingId] = lps.[Id]
-            WHERE 
-                lps.[LeagueId] = @LeagueId 
+            WHERE
+                lps.[LeagueId] = @LeagueId
                 AND w.[Month] = @Month";
 
-        var command = new CommandDefinition(sql, new { LeagueId = leagueId, Month = month }, cancellationToken: cancellationToken);
+        var command = new CommandDefinition(sql, new { LeagueId = leagueId, Month = month }, transaction: Transaction, cancellationToken: cancellationToken);
         await Connection.ExecuteAsync(command);
     }
 
     public async Task DeleteWinningsForOverallAsync(int leagueId, CancellationToken cancellationToken)
     {
         const string sql = @"
-            DELETE 
+            DELETE
                 w
-            FROM 
+            FROM
                 [Winnings] w
-            INNER JOIN 
+            INNER JOIN
                 [LeaguePrizeSettings] lps ON w.[LeaguePrizeSettingId] = lps.[Id]
-            WHERE 
+            WHERE
                 lps.[LeagueId] = @leagueId
                 AND lps.[PrizeType] = @PrizeType;";
 
@@ -94,6 +93,7 @@ public class WinningsRepository(IDbConnectionFactory connectionFactory) : IWinni
                 LeagueId = leagueId,
                 PrizeType = PrizeType.Overall
             },
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 
@@ -103,13 +103,13 @@ public class WinningsRepository(IDbConnectionFactory connectionFactory) : IWinni
     public async Task DeleteWinningsForMostExactScoresAsync(int leagueId, CancellationToken cancellationToken)
     {
         const string sql = @"
-            DELETE 
+            DELETE
                 w
-            FROM 
+            FROM
                 [Winnings] w
-            INNER JOIN 
+            INNER JOIN
                 [LeaguePrizeSettings] lps ON w.[LeaguePrizeSettingId] = lps.[Id]
-            WHERE 
+            WHERE
                 lps.[LeagueId] = @LeagueId
                 AND lps.[PrizeType] = @PrizeType;";
 
@@ -120,6 +120,7 @@ public class WinningsRepository(IDbConnectionFactory connectionFactory) : IWinni
                 LeagueId = leagueId,
                 PrizeType = PrizeType.MostExactScores
             },
+            transaction: Transaction,
             cancellationToken: cancellationToken
         );
 

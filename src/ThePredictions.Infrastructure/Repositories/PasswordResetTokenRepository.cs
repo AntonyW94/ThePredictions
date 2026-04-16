@@ -7,10 +7,9 @@ using System.Data;
 
 namespace ThePredictions.Infrastructure.Repositories;
 
-public class PasswordResetTokenRepository(IDbConnectionFactory connectionFactory, IDateTimeProvider dateTimeProvider) : IPasswordResetTokenRepository
+public class PasswordResetTokenRepository(IDbConnectionFactory connectionFactory, IDbTransactionContext transactionContext, IDateTimeProvider dateTimeProvider)
+    : RepositoryBase(connectionFactory, transactionContext), IPasswordResetTokenRepository
 {
-    private IDbConnection Connection => connectionFactory.CreateConnection();
-
 
     #region Create
 
@@ -20,13 +19,15 @@ public class PasswordResetTokenRepository(IDbConnectionFactory connectionFactory
             INSERT INTO [PasswordResetTokens] ([Token], [UserId], [CreatedAtUtc], [ExpiresAtUtc])
             VALUES (@Token, @UserId, @CreatedAtUtc, @ExpiresAtUtc)";
 
-        await Connection.ExecuteAsync(sql, new
+        var command = new CommandDefinition(sql, new
         {
             token.Token,
             token.UserId,
             token.CreatedAtUtc,
             token.ExpiresAtUtc
-        });
+        }, transaction: Transaction, cancellationToken: cancellationToken);
+
+        await Connection.ExecuteAsync(command);
     }
 
     #endregion
@@ -40,7 +41,8 @@ public class PasswordResetTokenRepository(IDbConnectionFactory connectionFactory
             FROM [PasswordResetTokens]
             WHERE [Token] = @Token";
 
-        return await Connection.QuerySingleOrDefaultAsync<PasswordResetToken>(sql, new { Token = token });
+        var command = new CommandDefinition(sql, new { Token = token }, transaction: Transaction, cancellationToken: cancellationToken);
+        return await Connection.QuerySingleOrDefaultAsync<PasswordResetToken>(command);
     }
 
     public async Task<int> CountByUserIdSinceAsync(string userId, DateTime sinceUtc, CancellationToken cancellationToken = default)
@@ -50,7 +52,8 @@ public class PasswordResetTokenRepository(IDbConnectionFactory connectionFactory
             FROM [PasswordResetTokens]
             WHERE [UserId] = @UserId AND [CreatedAtUtc] >= @SinceUtc";
 
-        return await Connection.ExecuteScalarAsync<int>(sql, new { UserId = userId, SinceUtc = sinceUtc });
+        var command = new CommandDefinition(sql, new { UserId = userId, SinceUtc = sinceUtc }, transaction: Transaction, cancellationToken: cancellationToken);
+        return await Connection.ExecuteScalarAsync<int>(command);
     }
 
     #endregion
@@ -63,7 +66,8 @@ public class PasswordResetTokenRepository(IDbConnectionFactory connectionFactory
             DELETE FROM [PasswordResetTokens]
             WHERE [Token] = @Token";
 
-        await Connection.ExecuteAsync(sql, new { Token = token });
+        var command = new CommandDefinition(sql, new { Token = token }, transaction: Transaction, cancellationToken: cancellationToken);
+        await Connection.ExecuteAsync(command);
     }
 
     public async Task DeleteByUserIdAsync(string userId, CancellationToken cancellationToken = default)
@@ -72,7 +76,8 @@ public class PasswordResetTokenRepository(IDbConnectionFactory connectionFactory
             DELETE FROM [PasswordResetTokens]
             WHERE [UserId] = @UserId";
 
-        await Connection.ExecuteAsync(sql, new { UserId = userId });
+        var command = new CommandDefinition(sql, new { UserId = userId }, transaction: Transaction, cancellationToken: cancellationToken);
+        await Connection.ExecuteAsync(command);
     }
 
     public async Task DeleteExpiredTokensAsync(CancellationToken cancellationToken = default)
@@ -81,7 +86,8 @@ public class PasswordResetTokenRepository(IDbConnectionFactory connectionFactory
             DELETE FROM [PasswordResetTokens]
             WHERE [ExpiresAtUtc] < @NowUtc";
 
-        await Connection.ExecuteAsync(sql, new { NowUtc = dateTimeProvider.UtcNow });
+        var command = new CommandDefinition(sql, new { NowUtc = dateTimeProvider.UtcNow }, transaction: Transaction, cancellationToken: cancellationToken);
+        await Connection.ExecuteAsync(command);
     }
 
     public async Task<int> DeleteTokensOlderThanAsync(DateTime olderThanUtc, CancellationToken cancellationToken = default)
@@ -90,7 +96,8 @@ public class PasswordResetTokenRepository(IDbConnectionFactory connectionFactory
             DELETE FROM [PasswordResetTokens]
             WHERE [CreatedAtUtc] < @OlderThanUtc";
 
-        return await Connection.ExecuteAsync(sql, new { OlderThanUtc = olderThanUtc });
+        var command = new CommandDefinition(sql, new { OlderThanUtc = olderThanUtc }, transaction: Transaction, cancellationToken: cancellationToken);
+        return await Connection.ExecuteAsync(command);
     }
 
     #endregion

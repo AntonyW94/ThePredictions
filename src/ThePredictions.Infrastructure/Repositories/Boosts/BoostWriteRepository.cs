@@ -6,10 +6,9 @@ using System.Data;
 
 namespace ThePredictions.Infrastructure.Repositories.Boosts;
 
-public class BoostWriteRepository(IDbConnectionFactory connectionFactory) : IBoostWriteRepository
+public class BoostWriteRepository(IDbConnectionFactory connectionFactory, IDbTransactionContext transactionContext)
+    : RepositoryBase(connectionFactory, transactionContext), IBoostWriteRepository
 {
-    private IDbConnection Connection => connectionFactory.CreateConnection();
-
     public async Task<(bool Inserted, string? Error)> InsertUserBoostUsageAsync(
            string userId,
            int leagueId,
@@ -23,7 +22,7 @@ public class BoostWriteRepository(IDbConnectionFactory connectionFactory) : IBoo
             FROM [BoostDefinitions]
             WHERE [Code] = @BoostCode;";
 
-        var boostDefinitionCommand = new CommandDefinition(getBoostDefinitionSql, new { BoostCode = boostCode }, cancellationToken: cancellationToken);
+        var boostDefinitionCommand = new CommandDefinition(getBoostDefinitionSql, new { BoostCode = boostCode }, transaction: Transaction, cancellationToken: cancellationToken);
 
         var boostId = await Connection.QuerySingleOrDefaultAsync<int?>(boostDefinitionCommand);
         if (boostId == null)
@@ -40,7 +39,7 @@ public class BoostWriteRepository(IDbConnectionFactory connectionFactory) : IBoo
             BoostDefinitionId = boostId.Value
         };
 
-        var insertCommand = new CommandDefinition(insertSql, insertParams, cancellationToken: cancellationToken);
+        var insertCommand = new CommandDefinition(insertSql, insertParams, transaction: Transaction, cancellationToken: cancellationToken);
 
         try
         {
@@ -64,7 +63,7 @@ public class BoostWriteRepository(IDbConnectionFactory connectionFactory) : IBoo
           AND [LeagueId] = @LeagueId
           AND [RoundId] = @RoundId;";
 
-        var command = new CommandDefinition(sql, new { UserId = userId, LeagueId = leagueId, RoundId = roundId }, cancellationToken: cancellationToken);
+        var command = new CommandDefinition(sql, new { UserId = userId, LeagueId = leagueId, RoundId = roundId }, transaction: Transaction, cancellationToken: cancellationToken);
         var affected = await Connection.ExecuteAsync(command);
 
         return affected > 0;
