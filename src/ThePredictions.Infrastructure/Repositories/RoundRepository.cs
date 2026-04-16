@@ -351,6 +351,7 @@ public class RoundRepository(IDbConnectionFactory connectionFactory, IDbTransact
                 m.CustomLockTimeUtc,
                 Status = m.Status.ToString(),
                 m.ExternalId,
+                m.MatchNumber,
                 m.PlaceholderHomeName,
                 m.PlaceholderAwayName,
                 m.ApiRoundName
