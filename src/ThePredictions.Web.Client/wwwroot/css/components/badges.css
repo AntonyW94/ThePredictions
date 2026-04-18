@@ -115,7 +115,7 @@
 }
 
 .current-user-highlight .badge-group--green {
-    background-color: var(--green-600-alpha-15);
+    background-color: var(--white);
     color: var(--green-600);
 }
 
