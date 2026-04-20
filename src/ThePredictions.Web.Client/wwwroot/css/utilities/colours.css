@@ -125,6 +125,10 @@
 }
 
 /* Purples */
+.bg-purple-100 {
+    background-color: var(--purple-100);
+}
+
 .bg-purple-200 {
     background-color: var(--purple-200);
 }

@@ -19,9 +19,9 @@
                     <img src="/images/logo.png" alt="The Predictions Logo" class="mb-4 hero-image" />
                     <h1 class="display-4 fw-bold text-white">The Ultimate Football Prediction Game</h1>
                     <p class="fs-4 col-md-8 mx-auto">Challenge your friends, prove your football knowledge, and top the leaderboard. Your journey to prediction glory starts here.</p>
-                    <div class="d-flex justify-content-center align-items-center mt-4 gap-3">
-                        <NavLink class="btn btn-lg blue-light-button px-4" href="authentication/login">Log in</NavLink>
-                        <NavLink class="btn btn-lg green-button px-4" href="authentication/register">Register</NavLink>
+                    <div class="hero-cta-group mt-4">
+                        <NavLink class="btn btn-lg purple-button hero-cta" href="authentication/register">Register</NavLink>
+                        <NavLink class="btn btn-lg blue-light-button hero-cta" href="authentication/login">Login</NavLink>
                     </div>
                 </div>
             </div>
@@ -60,13 +60,13 @@
                     @if (_seasons.Any())
                     {
                         <div class="competitions-rotator"
-                             @ontouchstart="HandleTouchStart" @ontouchmove="HandleTouchMove" @ontouchend="HandleTouchEnd">
+                             @ontouchstart="HandleTouchStart" @ontouchend="HandleTouchEnd">
                             <div class="competitions-track" style="transform: translateX(-@(_currentIndex * 100)%);">
                                 @foreach (var season in _seasons)
                                 {
                                     <div class="competitions-slide">
                                         <div class="row align-items-center g-5">
-                                            <div class="col-lg-5 text-center">
+                                            <div class="col-lg-5 text-center d-none d-lg-block">
                                                 <div class="competitions-slide__icon">
                                                     @if (season.CompetitionType == 1)
                                                     {
@@ -78,7 +78,7 @@
                                                     }
                                                 </div>
                                             </div>
-                                            <div class="col-lg-7 text-white">
+                                            <div class="col-lg-7 text-white text-center text-lg-start">
                                                 <h3 class="competitions-slide__name fw-bold text-white">@season.Name</h3>
 
                                                 <div class="competitions-slide__dates text-white-50 mb-3">
@@ -97,7 +97,7 @@
                                                     }
                                                 </div>
 
-                                                <div class="competitions-stats">
+                                                <div class="competitions-stats d-none d-lg-flex">
                                                     <div class="competitions-stat">
                                                         <div class="competitions-stat__value">@season.LeagueCount</div>
                                                         <div class="competitions-stat__label">Leagues</div>
@@ -115,10 +115,19 @@
                                                     }
                                                 </div>
 
-                                                <div class="competitions-slide__cta mt-4" style="visibility: @(season.IsUpcoming == 1 ? "visible" : "hidden")">
-                                                    <NavLink class="btn btn-lg green-button px-5" href="authentication/register">
-                                                        Register to Play
-                                                    </NavLink>
+                                                <div class="competitions-slide__cta mt-4" style="visibility: @(season.IsInProgress == 1 || season.IsUpcoming == 1 ? "visible" : "hidden")">
+                                                    @if (season.IsInProgress == 1)
+                                                    {
+                                                        <NavLink class="btn btn-lg green-button px-5" href="authentication/login">
+                                                            Login to Play
+                                                        </NavLink>
+                                                    }
+                                                    else
+                                                    {
+                                                        <NavLink class="btn btn-lg green-button px-5" href="authentication/register">
+                                                            Register to Play
+                                                        </NavLink>
+                                                    }
                                                 </div>
                                             </div>
                                         </div>
@@ -155,7 +164,7 @@
                 <div class="container px-4">
                     <h2 class="text-center fw-bold mb-5">Boosts & Power-Ups</h2>
                     <div class="row align-items-center g-5">
-                        <div class="col-lg-7">
+                        <div class="col-lg-7 text-center text-lg-start">
                             <h3 class="fw-bold">Gain the Edge</h3>
                             <p>Activate the <strong>Double Up</strong> boost on any round to multiply all your points by two. It's the ultimate strategic weapon — time it right and watch yourself rocket up the leaderboard.</p>
                             <ul class="list-unstyled">
@@ -182,7 +191,7 @@
                         <div class="col-lg-6">
                             <img src="https://images.pexels.com/photos/23495488/pexels-photo-23495488.jpeg" class="img-fluid rounded-3 shadow" alt="Friends cheering while watching football on TV" />
                         </div>
-                        <div class="col-lg-6 text-white">
+                        <div class="col-lg-6 text-white text-center text-lg-start">
                             <h3 class="fw-bold text-white">It's More Than Just a Game</h3>
                             <p>The Predictions adds an extra layer of excitement to every match. It's a season-long battle of wits, luck, and football passion.</p>
                             <ul class="list-unstyled">
@@ -311,10 +320,6 @@
     private void HandleTouchStart(TouchEventArgs e)
     {
         _touchStartX = e.Touches[0].ClientX;
-    }
-
-    private static void HandleTouchMove(TouchEventArgs e)
-    {
     }
 
     private void HandleTouchEnd(TouchEventArgs e)

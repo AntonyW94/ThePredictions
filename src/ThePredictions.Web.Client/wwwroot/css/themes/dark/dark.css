@@ -13,6 +13,10 @@
     background-color: var(--purple-900) !important;
 }
 
+.theme-dark.bg-purple-100 {
+    background-color: var(--purple-800) !important;
+}
+
 .theme-dark .admin-table-container {
     background-color: var(--purple-600);
 }
@@ -605,7 +609,7 @@
    ============================================ */
 
 .theme-dark .home-section-light {
-    background: var(--purple-900);
+    background: var(--purple-800);
     color: var(--white);
 }
 
@@ -627,7 +631,6 @@
 }
 
 .theme-dark .testimonial-card {
-    background-color: var(--purple-800);
     border: 1px solid var(--white-alpha-10);
 }
 

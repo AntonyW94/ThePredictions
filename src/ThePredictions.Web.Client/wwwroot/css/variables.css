@@ -11,6 +11,7 @@
     --purple-800: #3D195B;
     --purple-700: #432468;
     --purple-600: #4A2E6C;
+    --purple-500: #5D3E85;
     --purple-300: #75559D;
     --purple-200: #963CFF;
     --purple-100: #F0EAF5;
@@ -59,6 +60,7 @@
     --white-alpha-10: rgba(255, 255, 255, 0.1);
     --white-alpha-15: rgba(255, 255, 255, 0.15);
     --white-alpha-30: rgba(255, 255, 255, 0.3);
+    --white-alpha-70: rgba(255, 255, 255, 0.7);
 
     /* Transparent Purples (for overlays, borders and tinted backgrounds) */
     --purple-200-alpha-15: rgba(150, 60, 255, 0.15);

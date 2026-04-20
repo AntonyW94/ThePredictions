@@ -59,6 +59,21 @@
         color: var(--purple-300);
     }
 
+.purple-button,
+.purple-button:disabled,
+.purple-button:active {
+    background-color: var(--purple-500);
+    border: 1px solid var(--purple-500);
+    color: var(--white);
+    font-weight: bold;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+    .purple-button:not(.badge):hover {
+        background-color: var(--white);
+        border-color: var(--purple-500);
+        color: var(--purple-500);
+    }
 .blue-light-button,
 .blue-light-button:disabled,
 .blue-light-button:active {

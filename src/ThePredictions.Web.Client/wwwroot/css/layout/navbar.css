@@ -100,6 +100,21 @@ a.navbar-brand span {
     color: var(--green-600);
 }
 
+.theme-toggle-btn--labelled {
+    display: inline-flex;
+    align-items: center;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.theme-toggle-btn--labelled .bi {
+    font-size: 1.25rem;
+}
+
+.theme-toggle-btn__label {
+    font-size: 0.9375rem;
+}
+
 .navbar-nav > .nav-item {
     transition: background-color 0.2s ease-in-out;
     border-radius: var(--bs-border-radius);

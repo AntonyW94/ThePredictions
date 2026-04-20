@@ -16,18 +16,19 @@
             <AuthorizeView>
                 <Authorized>
                     <button class="btn theme-toggle-btn me-2" @onclick="ToggleTheme" title="@(ThemeService.IsDarkMode ? "Switch to light mode" : "Switch to dark mode")">
-                        <span class="bi @(ThemeService.IsDarkMode ? "bi-lightbulb" : "bi-lightbulb-fill")" aria-hidden="true"></span>
+                        <span class="bi @(ThemeService.IsDarkMode ? "bi-sun-fill" : "bi-moon-fill")" aria-hidden="true"></span>
+                    </button>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
                     </button>
                 </Authorized>
                 <NotAuthorized>
-                    <button class="btn theme-toggle-btn me-2" @onclick="ToggleThemeTransient" title="@(ThemeService.IsDarkMode ? "Switch to light mode" : "Switch to dark mode")">
-                        <span class="bi @(ThemeService.IsDarkMode ? "bi-lightbulb" : "bi-lightbulb-fill")" aria-hidden="true"></span>
+                    <button class="btn theme-toggle-btn theme-toggle-btn--labelled" @onclick="ToggleThemeTransient" title="@(ThemeService.IsDarkMode ? "Switch to light mode" : "Switch to dark mode")">
+                        <span class="bi @(ThemeService.IsDarkMode ? "bi-sun-fill" : "bi-moon-fill") me-2" aria-hidden="true"></span>
+                        <span class="theme-toggle-btn__label">@(ThemeService.IsDarkMode ? "Light mode" : "Dark mode")</span>
                     </button>
                 </NotAuthorized>
             </AuthorizeView>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
         </div>
 
         <div class="collapse navbar-collapse" id="navbarNav">
@@ -50,7 +51,7 @@
                         }
                         <li class="nav-item ms-auto py-0 d-flex align-items-center">
                             <button class="btn nav-link theme-toggle-btn" @onclick="ToggleTheme" title="@(ThemeService.IsDarkMode ? "Switch to light mode" : "Switch to dark mode")">
-                                <span class="bi @(ThemeService.IsDarkMode ? "bi-lightbulb" : "bi-lightbulb-fill")" aria-hidden="true"></span>
+                                <span class="bi @(ThemeService.IsDarkMode ? "bi-sun-fill" : "bi-moon-fill")" aria-hidden="true"></span>
                             </button>
                         </li>
                         <li class="nav-item dropdown py-0">
@@ -81,7 +82,7 @@
                             <li class="nav-item"><NavLink class="nav-link mobile-nav-sub-item" href="account/details">My Details</NavLink></li>
                             <li class="nav-item">
                                 <button class="btn nav-link mobile-nav-sub-item text-start" @onclick="ToggleTheme">
-                                    <span class="bi @(ThemeService.IsDarkMode ? "bi-lightbulb" : "bi-lightbulb-fill") me-2"></span>
+                                    <span class="bi @(ThemeService.IsDarkMode ? "bi-sun-fill" : "bi-moon-fill") me-2"></span>
                                     @(ThemeService.IsDarkMode ? "Light Mode" : "Dark Mode")
                                 </button>
                             </li>
@@ -114,7 +115,7 @@
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item py-0 d-none d-lg-flex align-items-center">
                             <button class="btn nav-link theme-toggle-btn" @onclick="ToggleThemeTransient" title="@(ThemeService.IsDarkMode ? "Switch to light mode" : "Switch to dark mode")">
-                                <span class="bi @(ThemeService.IsDarkMode ? "bi-lightbulb" : "bi-lightbulb-fill")" aria-hidden="true"></span>
+                                <span class="bi @(ThemeService.IsDarkMode ? "bi-sun-fill" : "bi-moon-fill")" aria-hidden="true"></span>
                             </button>
                         </li>
                         <li class="nav-item mx-1">
