@@ -53,15 +53,15 @@
                         <div class="table-responsive rounded w-100">
                             <table class="leaderboard-table table-striped-purple light text-white">
                                 <thead>
-                                <tr>
-                                    @if (leaderboard.Entries.FirstOrDefault()?.IsRoundInProgress == true && leaderboard.Entries.FirstOrDefault()?.SnapshotRank.HasValue == true)
-                                    {
-                                        <th class="rank-change-col"></th>
-                                    }
-                                    <th class="rank-col">#</th>
-                                    <th class="player-name-col">Player</th>
-                                    <th class="points-col">Pts</th>
-                                </tr>
+                                    <tr>
+                                        @if (leaderboard.Entries.FirstOrDefault()?.IsRoundInProgress == true && leaderboard.Entries.FirstOrDefault()?.SnapshotRank.HasValue == true)
+                                        {
+                                            <th class="rank-change-col"></th>
+                                        }
+                                        <th class="rank-col">#</th>
+                                        <th class="player-name-col">Player</th>
+                                        <th class="points-col">Points</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
                                     @foreach (var entry in leaderboard.Entries)
@@ -70,10 +70,9 @@
                                             @if (entry.IsRoundInProgress && entry.SnapshotRank.HasValue)
                                             {
                                                 <td class="rank-change-col">
-                                                    <RankChangeArrow
-                                                        PreviousRank="@entry.SnapshotRank"
-                                                        CurrentRank="@entry.Rank"
-                                                        IsVisible="@entry.IsRoundInProgress" />
+                                                    <RankChangeArrow PreviousRank="@entry.SnapshotRank"
+                                                                     CurrentRank="@entry.Rank"
+                                                                     IsVisible="@entry.IsRoundInProgress" />
                                                 </td>
                                             }
                                             <td class="rank-col fw-bold">@entry.Rank</td>

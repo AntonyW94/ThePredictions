@@ -44,61 +44,61 @@
             </div>
 
             <div class="d-lg-none">
-                    <div class="carousel-wrapper mobile-results-carousel">
-                        <div class="carousel-container" @ontouchstart="HandleTouchStart" @ontouchmove="HandleTouchMove" @ontouchend="HandleTouchEnd">
-                            <div class="carousel-track" style="@_trackStyle">
-                                @foreach (var match in State.CurrentRoundMatches.OrderBy(m => m.MatchDateTimeUtc).ThenBy(m => m.HomeTeamShortName))
-                                {
-                                    <div class="carousel-item-wrapper">
-                                        <div class="carousel-item-content">
-                                            <MobileMatchResultCard Match="match"
-                                                                   Results="State.CurrentRoundResults"
-                                                                   DeadlineUtc="selectedRound.DeadlineUtc" />
-                                        </div>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                        <div class="carousel-dots">
-                            @for (var i = 0; i < State.CurrentRoundMatches.Count; i++)
+                <div class="carousel-wrapper mobile-results-carousel">
+                    <div class="carousel-container" @ontouchstart="HandleTouchStart" @ontouchmove="HandleTouchMove" @ontouchend="HandleTouchEnd">
+                        <div class="carousel-track" style="@_trackStyle">
+                            @foreach (var match in State.CurrentRoundMatches.OrderBy(m => m.MatchDateTimeUtc).ThenBy(m => m.HomeTeamShortName))
                             {
-                                var index = i;
-                                <span class="carousel-dot @(index == _currentIndex ? "active" : "")" @onclick="() => GoToSlide(index)"></span>
+                                <div class="carousel-item-wrapper">
+                                    <div class="carousel-item-content">
+                                        <MobileMatchResultCard Match="match"
+                                                               Results="State.CurrentRoundResults"
+                                                               DeadlineUtc="selectedRound.DeadlineUtc" />
+                                    </div>
+                                </div>
                             }
                         </div>
                     </div>
+                    <div class="carousel-dots">
+                        @for (var i = 0; i < State.CurrentRoundMatches.Count; i++)
+                        {
+                            var index = i;
+                            <span class="carousel-dot @(index == _currentIndex ? "active" : "")" @onclick="() => GoToSlide(index)"></span>
+                        }
+                    </div>
+                </div>
 
-                    <div class="card slide mt-4 mh-600">
-                        <div class="header w-100">
-                            <h6 class="text-white fw-bold mb-0 text-center">Round @(State.ViewableRounds.FirstOrDefault(r => r.Id == State.SelectedRoundId)?.RoundNumber) Points</h6>
-                        </div>
-                        <div class="body leaderboard-body">
-                            <div class="table-responsive rounded">
-                                <table class="leaderboard-table table-striped-purple light text-white">
-                                    <thead>
-                                        <tr>
-                                            <th class="rank-col fw-bold">#</th>
-                                            <th class="player-name-col fw-bold">Player</th>
-                                            <th class="points-col fw-bold">Pts</th>
+                <div class="card slide mt-4 mh-600">
+                    <div class="header w-100">
+                        <h6 class="text-white fw-bold mb-0 text-center">Round @(State.ViewableRounds.FirstOrDefault(r => r.Id == State.SelectedRoundId)?.RoundNumber) Points</h6>
+                    </div>
+                    <div class="body leaderboard-body">
+                        <div class="table-responsive rounded">
+                            <table class="leaderboard-table table-striped-purple light text-white">
+                                <thead>
+                                    <tr>
+                                        <th class="rank-col fw-bold">#</th>
+                                        <th class="player-name-col fw-bold">Player</th>
+                                        <th class="points-col fw-bold">Points</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var player in State.CurrentRoundResults.OrderByDescending(p => p.TotalPoints))
+                                    {
+                                        <tr class="@(IsWinner(player) ? "overall-round-winner" : "") @(GetUserHighlightClass(player.UserId))">
+                                            <td class="rank-col fw-bold">@player.Rank</td>
+                                            <td class="player-name-col fw-bold">@player.PlayerName</td>
+                                            <td class="points-col fw-bold">
+                                                <SmallBoostAppliedIcon Player="player" DeadlineUtc="DeadlineUtc" />
+                                                @player.TotalPoints
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var player in State.CurrentRoundResults.OrderByDescending(p => p.TotalPoints))
-                                        {
-                                            <tr class="@(IsWinner(player) ? "overall-round-winner" : "") @(GetUserHighlightClass(player.UserId))">
-                                                <td class="rank-col fw-bold">@player.Rank</td>
-                                                <td class="player-name-col fw-bold">@player.PlayerName</td>
-                                                <td class="points-col fw-bold">
-                                                    <SmallBoostAppliedIcon Player="player" DeadlineUtc="DeadlineUtc" />
-                                                    @player.TotalPoints
-                                                </td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                            </div>
+                                    }
+                                </tbody>
+                            </table>
                         </div>
                     </div>
+                </div>
             </div>
         }
     }
@@ -115,7 +115,7 @@
     private int _currentIndex;
     private string _trackStyle = "transform: translateX(0%);";
     private double _touchStartX;
-    
+
     private DateTime? DeadlineUtc => State.ViewableRounds.FirstOrDefault(r => r.Id == State.SelectedRoundId.GetValueOrDefault())?.DeadlineUtc;
 
     protected override async Task OnInitializedAsync()
@@ -192,14 +192,14 @@
 
         if (diffX > 0)
         {
-            if (_currentIndex >= State.CurrentRoundMatches.Count - 1) 
+            if (_currentIndex >= State.CurrentRoundMatches.Count - 1)
                 return;
 
             _currentIndex++;
         }
         else
         {
-            if (_currentIndex <= 0) 
+            if (_currentIndex <= 0)
                 return;
 
             _currentIndex--;
