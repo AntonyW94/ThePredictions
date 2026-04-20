@@ -5,7 +5,11 @@ namespace ThePredictions.DatabaseTools;
 
 public class DataAnonymiser
 {
-    public const string PreservedEmail = "antony.willson@hotmail.com";
+    public static readonly string[] PreservedEmails =
+    [
+        "antony.willson@hotmail.com",
+        "joelgra95@gmail.com"
+    ];
 
     private const int Seed = 12345;
 
@@ -18,15 +22,17 @@ public class DataAnonymiser
 
         var anonymised = new List<dynamic>();
         var counter = 1;
+        var preservedCount = 0;
 
         foreach (var user in users)
         {
             var dict = (IDictionary<string, object?>)user;
             var email = dict["Email"]?.ToString();
 
-            if (string.Equals(email, PreservedEmail, StringComparison.OrdinalIgnoreCase))
+            if (email is not null && PreservedEmails.Contains(email, StringComparer.OrdinalIgnoreCase))
             {
                 anonymised.Add(user);
+                preservedCount++;
                 continue;
             }
 
@@ -59,7 +65,7 @@ public class DataAnonymiser
             counter++;
         }
 
-        Console.WriteLine($"[INFO] Anonymised {counter - 1} users (1 preserved)");
+        Console.WriteLine($"[INFO] Anonymised {counter - 1} users ({preservedCount} preserved)");
         return anonymised;
     }
 

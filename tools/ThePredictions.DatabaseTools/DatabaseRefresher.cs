@@ -82,9 +82,9 @@ public class DatabaseRefresher(
 
             if (table == "AspNetUserLogins" && anonymise)
             {
-                var preservedUserId = await GetPreservedUserIdAsync(sourceConnection);
+                var preservedUserIds = await GetPreservedUserIdsAsync(sourceConnection);
 
-                if (preservedUserId is not null)
+                if (preservedUserIds.Count > 0)
                 {
                     var rows = (await sourceConnection.QueryAsync(
                         $"""
@@ -93,17 +93,17 @@ public class DatabaseRefresher(
                         FROM
                             [{table}] l
                         WHERE
-                            l.[UserId] = @UserId
+                            l.[UserId] IN @UserIds
                         """,
-                        new { UserId = preservedUserId })).ToList();
+                        new { UserIds = preservedUserIds })).ToList();
 
                     tableData[table] = rows;
-                    Console.WriteLine($"[INFO] Read {rows.Count} rows from [{table}] (preserved account only)");
+                    Console.WriteLine($"[INFO] Read {rows.Count} rows from [{table}] (preserved accounts only)");
                 }
                 else
                 {
                     tableData[table] = [];
-                    Console.WriteLine($"[INFO] Preserved account not found, skipping [{table}]");
+                    Console.WriteLine($"[INFO] No preserved accounts found, skipping [{table}]");
                 }
             }
             else
@@ -169,18 +169,20 @@ public class DatabaseRefresher(
         Console.WriteLine("[INFO] Database refresh completed.");
     }
 
-    private static async Task<string?> GetPreservedUserIdAsync(SqlConnection connection)
+    private static async Task<List<string>> GetPreservedUserIdsAsync(SqlConnection connection)
     {
-        return await connection.QueryFirstOrDefaultAsync<string>(
+        var ids = await connection.QueryAsync<string>(
             """
             SELECT
                 u.[Id]
             FROM
                 [AspNetUsers] u
             WHERE
-                u.[Email] = @Email
+                u.[Email] IN @Emails
             """,
-            new { Email = DataAnonymiser.PreservedEmail });
+            new { Emails = DataAnonymiser.PreservedEmails });
+
+        return ids.ToList();
     }
 
     private static async Task<HashSet<string>> GetTargetTablesAsync(SqlConnection connection)

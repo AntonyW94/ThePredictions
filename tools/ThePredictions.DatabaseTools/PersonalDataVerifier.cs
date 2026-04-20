@@ -40,9 +40,9 @@ public class PersonalDataVerifier(SqlConnection connection)
             WHERE
                 u.[Email] NOT LIKE '%@testmail.com'
                 AND u.[Email] NOT LIKE '%@dev.local'
-                AND u.[Email] <> @PreservedEmail
+                AND u.[Email] NOT IN @PreservedEmails
             """,
-            new { DataAnonymiser.PreservedEmail });
+            new { DataAnonymiser.PreservedEmails });
 
         var emailList = realEmails.ToList();
         if (emailList.Count > 0)
@@ -60,9 +60,9 @@ public class PersonalDataVerifier(SqlConnection connection)
             WHERE
                 u.[PasswordHash] <> 'INVALIDATED'
                 AND u.[Email] NOT LIKE '%@dev.local'
-                AND u.[Email] <> @PreservedEmail
+                AND u.[Email] NOT IN @PreservedEmails
             """,
-            new { DataAnonymiser.PreservedEmail });
+            new { DataAnonymiser.PreservedEmails });
 
         if (invalidHashes > 0)
             failures.Add($"Found {invalidHashes} user(s) with non-invalidated password hashes");
@@ -84,16 +84,19 @@ public class PersonalDataVerifier(SqlConnection connection)
 
     private async Task VerifyUserLoginsAsync(List<string> failures)
     {
-        var preservedUserId = await connection.QueryFirstOrDefaultAsync<string>(
+        var preservedUserIds = (await connection.QueryAsync<string>(
             """
             SELECT
                 u.[Id]
             FROM
                 [AspNetUsers] u
             WHERE
-                u.[Email] = @Email
+                u.[Email] IN @Emails
             """,
-            new { Email = DataAnonymiser.PreservedEmail });
+            new { Emails = DataAnonymiser.PreservedEmails })).ToList();
+
+        if (preservedUserIds.Count == 0)
+            preservedUserIds.Add(string.Empty);
 
         var unauthorisedLogins = await connection.QueryFirstOrDefaultAsync<int>(
             """
@@ -102,12 +105,12 @@ public class PersonalDataVerifier(SqlConnection connection)
             FROM
                 [AspNetUserLogins] l
             WHERE
-                l.[UserId] <> @PreservedUserId
+                l.[UserId] NOT IN @PreservedUserIds
             """,
-            new { PreservedUserId = preservedUserId ?? "" });
+            new { PreservedUserIds = preservedUserIds });
 
         if (unauthorisedLogins > 0)
-            failures.Add($"AspNetUserLogins contains {unauthorisedLogins} row(s) not belonging to preserved account");
+            failures.Add($"AspNetUserLogins contains {unauthorisedLogins} row(s) not belonging to preserved accounts");
     }
 
     private async Task VerifyUserTokensEmptyAsync(List<string> failures)
