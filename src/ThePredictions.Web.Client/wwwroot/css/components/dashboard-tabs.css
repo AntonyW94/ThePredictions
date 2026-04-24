@@ -1,0 +1,76 @@
+/* Mobile tab strip for the dashboard. Desktop ignores tab state entirely. */
+
+.dashboard-tabs {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    gap: var(--space-1);
+    padding: var(--space-3) 1rem;
+    margin: -1rem -1rem 0;
+    overflow-x: auto;
+    background: var(--purple-100);
+    scrollbar-width: none;
+}
+
+.dashboard-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.dashboard-tab {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: var(--space-2) var(--space-2);
+    border: 1px solid var(--grey-200);
+    border-radius: var(--bs-border-radius);
+    background: var(--white);
+    color: var(--purple-1000);
+    font-weight: 600;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    transition: background 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+
+.dashboard-tab .bi {
+    font-size: 0.875rem;
+}
+
+.dashboard-tab:hover {
+    border-color: var(--purple-300);
+    color: var(--purple-600);
+}
+
+.dashboard-tab--active,
+.dashboard-tab--active:hover {
+    background: var(--purple-600);
+    color: var(--white);
+    border-color: var(--purple-600);
+}
+
+/* Mobile: hide data-tab wrappers that don't match the active tab.
+   Uses :not() so natural display (flex for .row, block for .col) is preserved for the visible one. */
+.dashboard-container.dashboard--tab-play [data-tab]:not([data-tab="play"]),
+.dashboard-container.dashboard--tab-leagues [data-tab]:not([data-tab="leagues"]),
+.dashboard-container.dashboard--tab-standings [data-tab]:not([data-tab="standings"]),
+.dashboard-container.dashboard--tab-admin [data-tab]:not([data-tab="admin"]) {
+    display: none;
+}
+
+/* Desktop: tab strip hidden, all tiles visible regardless of active tab.
+   The desktop selector must match the mobile hide rule's specificity (0,4,0) to override it. */
+@media (min-width: 992px) {
+    .dashboard-tabs {
+        display: none;
+    }
+
+    .dashboard-container.dashboard--tab-play [data-tab]:not([data-tab="play"]),
+    .dashboard-container.dashboard--tab-leagues [data-tab]:not([data-tab="leagues"]),
+    .dashboard-container.dashboard--tab-standings [data-tab]:not([data-tab="standings"]),
+    .dashboard-container.dashboard--tab-admin [data-tab]:not([data-tab="admin"]) {
+        display: block;
+    }
+}

@@ -1,6 +1,7 @@
 .dashboard-container {
     width: 100%;
-    margin: auto;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* Dashboard waiting state (no rounds yet) */
@@ -133,6 +134,26 @@
 }
 
 /* Pending Members / League Admin tile */
+/* League admin tile stats row: shrink paired panels on mobile so "1 member" / "£25.00 entry" fit on one line */
+.league-stats:has(> :nth-child(2)) > .glass-panel > span {
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.league-stats:has(> :nth-child(2)) > .glass-panel > .bi {
+    font-size: 0.875rem;
+}
+
+@media (min-width: 576px) {
+    .league-stats:has(> :nth-child(2)) > .glass-panel > span {
+        font-size: 1rem;
+    }
+
+    .league-stats:has(> :nth-child(2)) > .glass-panel > .bi {
+        font-size: 1rem;
+    }
+}
+
 .pending-members-list {
     max-height: 300px;
     overflow-y: auto;

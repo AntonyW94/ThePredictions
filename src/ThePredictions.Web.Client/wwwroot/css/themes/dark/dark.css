@@ -232,6 +232,28 @@
     color: var(--green-300) !important;
 }
 
+.theme-dark .dashboard-tabs {
+    background: var(--purple-900);
+}
+
+.theme-dark .dashboard-tab {
+    background: var(--purple-600);
+    border-color: var(--white-alpha-15);
+    color: var(--white);
+}
+
+.theme-dark .dashboard-tab:hover {
+    border-color: var(--purple-300);
+    color: var(--white);
+}
+
+.theme-dark .dashboard-tab--active,
+.theme-dark .dashboard-tab--active:hover {
+    background: var(--green-600);
+    color: var(--white);
+    border-color: var(--green-600);
+}
+
 .theme-dark .theme-toggle-btn:hover,
 .theme-dark .nav-icon-btn:hover,
 .theme-dark .nav-icon-btn:focus,

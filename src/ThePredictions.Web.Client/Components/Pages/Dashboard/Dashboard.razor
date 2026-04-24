@@ -17,69 +17,89 @@
     </Authorizing>
     <Authorized>
         <div class="page-container">
-            <div class="dashboard-container">
+            @{
+                var showPendingMembers = !DashboardState.IsPendingMembersLoading && DashboardState.IsAdminOfOpenLeague;
+                var showPendingRequests = DashboardState.PendingRequests.Any() || DashboardState.IsPendingRequestsLoading;
+                var showBothAlertTiles = showPendingMembers && showPendingRequests;
+                var hasCompanionTile = showPendingMembers || showPendingRequests;
+                var activeRoundsHalfWidth = hasCompanionTile && !showBothAlertTiles;
+                var activeRoundsClass = activeRoundsHalfWidth ? "col-lg-6 mb-4" : "col-lg-12 mb-4";
+                var showAvailableLeagues = DashboardState.IsAvailableLeaguesLoading || DashboardState.AvailableLeagues.Any() || DashboardState.HasAvailablePrivateLeagues;
+                var myLeaguesClass = showAvailableLeagues ? "col-lg-6 mb-4 mb-md-0" : "col-lg-12 mb-4 mb-lg-0";
+                var showAdminTab = showPendingMembers || showPendingRequests;
+            }
+
+            <div class="dashboard-container dashboard--tab-@_activeTab">
+                <div class="dashboard-tabs d-lg-none">
+                    <button type="button" class="dashboard-tab @(_activeTab == "play" ? "dashboard-tab--active" : "")" @onclick='() => _activeTab = "play"'>
+                        <span class="bi bi-lightning-fill"></span>
+                        <span>Play</span>
+                    </button>
+                    <button type="button" class="dashboard-tab @(_activeTab == "leagues" ? "dashboard-tab--active" : "")" @onclick='() => _activeTab = "leagues"'>
+                        <span class="bi bi-trophy-fill"></span>
+                        <span>Leagues</span>
+                    </button>
+                    <button type="button" class="dashboard-tab @(_activeTab == "standings" ? "dashboard-tab--active" : "")" @onclick='() => _activeTab = "standings"'>
+                        <span class="bi bi-bar-chart-fill"></span>
+                        <span>Standings</span>
+                    </button>
+                    @if (showAdminTab)
+                    {
+                        <button type="button" class="dashboard-tab @(_activeTab == "admin" ? "dashboard-tab--active" : "")" @onclick='() => _activeTab = "admin"'>
+                            <span class="bi bi-gear-fill"></span>
+                            <span>Admin</span>
+                        </button>
+                    }
+                </div>
+
                 <div class="row align-items-stretch">
                     <div class="col-lg-8">
-                        @{
-                            var showPendingMembers = !DashboardState.IsPendingMembersLoading && DashboardState.IsAdminOfOpenLeague;
-                            var showPendingRequests = DashboardState.PendingRequests.Any() || DashboardState.IsPendingRequestsLoading;
-                            var showBothAlertTiles = showPendingMembers && showPendingRequests;
-                            var hasCompanionTile = showPendingMembers || showPendingRequests;
-                            var activeRoundsHalfWidth = hasCompanionTile && !showBothAlertTiles;
-                            var activeRoundsClass = activeRoundsHalfWidth ? "col-lg-6 mb-4" : "col-lg-12 mb-4";
-                        }
-
                         @if (showBothAlertTiles)
                         {
                             <div class="row">
-                                <div class="col-lg-6 mb-4">
+                                <div class="col-lg-6 mb-4" data-tab="admin">
                                     <PendingMembersTile />
                                 </div>
-                                <div class="col-lg-6 mb-4">
+                                <div class="col-lg-6 mb-4" data-tab="admin">
                                     <PendingRequestsTile />
                                 </div>
                             </div>
                         }
 
                         <div class="row">
-                            <div class="@activeRoundsClass">
+                            <div class="@activeRoundsClass" data-tab="play">
                                 <ActiveRoundsTile IsHalfWidth="activeRoundsHalfWidth" />
                             </div>
 
                             @if (!showBothAlertTiles && showPendingMembers)
                             {
-                                <div class="col-lg-6 mb-4">
+                                <div class="col-lg-6 mb-4" data-tab="admin">
                                     <PendingMembersTile />
                                 </div>
                             }
                             else if (!showBothAlertTiles && showPendingRequests)
                             {
-                                <div class="col-lg-6 mb-4">
+                                <div class="col-lg-6 mb-4" data-tab="admin">
                                     <PendingRequestsTile />
                                 </div>
                             }
                         </div>
 
                         <div class="row">
-                            @{
-                                var showAvailableLeagues = DashboardState.IsAvailableLeaguesLoading || DashboardState.AvailableLeagues.Any() || DashboardState.HasAvailablePrivateLeagues;
-                                var myLeaguesClass = showAvailableLeagues ? "col-lg-6 mb-4 mb-md-0" : "col-lg-12 mb-4 mb-lg-0";
-                            }
-
-                            <div class="@myLeaguesClass">
+                            <div class="@myLeaguesClass" data-tab="leagues">
                                 <MyLeaguesTile />
                             </div>
 
                             @if (showAvailableLeagues)
                             {
-                                <div class="col-lg-6 mb-4 mb-md-0">
+                                <div class="col-lg-6 mb-4 mb-md-0" data-tab="leagues">
                                     <AvailableLeaguesTile />
                                 </div>
                             }
                         </div>
                     </div>
 
-                    <div class="col-lg-4">
+                    <div class="col-lg-4" data-tab="standings">
                         <LeaderboardsTile />
                     </div>
                 </div>
@@ -89,6 +109,8 @@
 </AuthorizeView>
 
 @code {
+    private string _activeTab = "play";
+
     protected override async Task OnInitializedAsync()
     {
         DashboardState.OnStateChange += StateHasChanged;

@@ -100,7 +100,7 @@
                                             <h5 class="fw-bold text-white">@league.LeagueName</h5>
                                         </div>
                                         <div class="body">
-                                            <div class="d-flex justify-content-center gap-3 mb-3">
+                                            <div class="league-stats d-flex justify-content-center gap-3 mb-3">
                                                 <NavLink class="glass-panel glass-panel--link d-flex align-items-center gap-2 py-2 px-3" href="@($"/leagues/{league.LeagueId}/members")">
                                                     <i class="bi bi-people-fill text-white-50"></i>
                                                     <span class="text-white fw-bold">@league.MemberCount @(league.MemberCount == 1 ? "member" : "members")</span>
