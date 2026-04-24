@@ -144,8 +144,9 @@ public class GetMyLeaguesQueryHandler(IApplicationReadDbConnection dbConnection)
         LEFT JOIN [LeagueContext] lc ON l.[LeagueId] = lc.[LeagueId]
         LEFT JOIN [ActiveRoundMonthlyRanks] armr ON l.[LeagueId] = armr.[LeagueId] AND l.[UserId] = armr.[UserId]
 
-        ORDER BY 
+        ORDER BY
             CASE WHEN ar.[Status] = @InProgressStatus THEN 0 ELSE 1 END ASC,
+            l.[SeasonStartDateUtc] ASC,
             l.[Price] DESC,
             l.[LeagueName]";
 
