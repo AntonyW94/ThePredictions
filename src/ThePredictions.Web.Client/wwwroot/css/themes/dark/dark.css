@@ -22,9 +22,9 @@
 }
 
 .theme-dark .form-container {
-    background-color: var(--purple-1000);
+    background-color: var(--purple-800);
     border: 1px solid transparent;
-    box-shadow: none;
+    box-shadow: 0 0 40px var(--purple-200-alpha-15);
 }
 
 /* ============================================
@@ -161,17 +161,6 @@
 
 .theme-dark .form-container .border-top {
     border-color: var(--white-alpha-15) !important;
-}
-
-.theme-dark .google-btn {
-    background-color: var(--purple-800);
-    color: var(--white);
-    border-color: var(--white-alpha-15);
-}
-
-.theme-dark .google-btn:hover {
-    background-color: var(--purple-600);
-    border-color: var(--white-alpha-25);
 }
 
 /* ============================================

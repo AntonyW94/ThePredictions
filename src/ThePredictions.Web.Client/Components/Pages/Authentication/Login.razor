@@ -11,18 +11,16 @@
 
 <div class="page-container">
     <div class="form-container shadow">
-        <div class="position-relative mb-4">
-            <NavLink href="/" class="back-button flex-center" title="Back to Home">
-                <span class="bi bi-arrow-left-short"></span> Back to Home
-            </NavLink>
-            
-            <div class="text-center mb-4 mt-2">
-                <img src="/images/logo.png" alt="The Predictions Logo" class="auth-logo"/>
-            </div>
-            
-            <h3 class="text-center fw-bold text-purple-1000">Login</h3>
-            <h5 class="text-center fw-normal text-purple-1000 mb-4">Welcome back</h5>
+        <NavLink href="/" class="back-button" title="Back to Home">
+            <span class="bi bi-arrow-left-short"></span> Back to Home
+        </NavLink>
+
+        <div class="text-center mb-4">
+            <img src="/images/logo.png" alt="The Predictions Logo" class="auth-logo"/>
         </div>
+
+        <h3 class="text-center fw-bold text-purple-1000">Login</h3>
+        <h5 class="text-center fw-normal text-purple-1000 mb-4">Welcome back</h5>
 
         <EditForm Model="_model" OnValidSubmit="HandleLoginAsync" FormName="loginForm">
             <FluentValidationValidator />

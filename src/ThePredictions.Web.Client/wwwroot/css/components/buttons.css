@@ -102,13 +102,14 @@
 .back-button,
 .back-button:disabled,
 .back-button:active {
-    position: absolute;
-    top: -0.9375rem;
-    left: 0;
-    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.125rem;
+    margin-bottom: var(--space-10);
     color: var(--purple-1000);
     transition: color 0.2s ease-in-out;
     text-decoration: none;
+    font-weight: 500;
 }
 
     .back-button:not(.badge):hover {
@@ -116,8 +117,9 @@
         text-decoration: underline;
     }
 
-    .back-button span {
+    .back-button .bi {
         font-size: 1.5rem;
+        line-height: 1;
     }
 
 .password-toggle-btn {
