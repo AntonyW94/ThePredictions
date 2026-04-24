@@ -172,12 +172,6 @@
     border-bottom: none;
 }
 
-.member-avatar--sm {
-    width: 2rem;
-    height: 2rem;
-    font-size: 0.75rem;
-}
-
 .pending-member-approve {
     background: var(--green-600);
     color: var(--white);

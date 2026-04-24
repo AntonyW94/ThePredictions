@@ -1,0 +1,39 @@
+.user-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.625rem;
+    height: 2.625rem;
+    border-radius: 50%;
+    background-color: var(--purple-300);
+    color: var(--white);
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1;
+    flex-shrink: 0;
+    overflow: hidden;
+    user-select: none;
+}
+
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.user-avatar__initials {
+    letter-spacing: 0.02em;
+}
+
+.user-avatar--sm {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.8125rem;
+}
+
+.user-avatar--lg {
+    width: 3.25rem;
+    height: 3.25rem;
+    font-size: 1.25rem;
+}

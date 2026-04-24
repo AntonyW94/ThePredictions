@@ -23,7 +23,7 @@
 
 .theme-dark .form-container {
     background-color: var(--purple-1000);
-    border: none;
+    border: 1px solid transparent;
     box-shadow: none;
 }
 
@@ -236,6 +236,18 @@
 .theme-dark .navbar-nav > .nav-item:hover .navbar-text,
 .theme-dark .navbar-nav > .nav-item:hover .bi-person-fill {
     color: var(--purple-800) !important;
+}
+
+.theme-dark .theme-toggle-btn,
+.theme-dark .nav-icon-btn {
+    color: var(--green-300) !important;
+}
+
+.theme-dark .theme-toggle-btn:hover,
+.theme-dark .nav-icon-btn:hover,
+.theme-dark .nav-icon-btn:focus,
+.theme-dark .nav-icon-btn[aria-expanded="true"] {
+    color: var(--green-600) !important;
 }
 
 /* ============================================

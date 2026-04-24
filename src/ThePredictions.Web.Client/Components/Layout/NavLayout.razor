@@ -1,4 +1,4 @@
-﻿@inject IAuthenticationService AuthenticationService
+@inject IAuthenticationService AuthenticationService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
 @inject IThemeService ThemeService
@@ -9,125 +9,60 @@
     <div class="container-fluid">
         <a class="navbar-brand d-flex align-items-center" @onclick="GoToSmartHomepage">
             <img src="/images/logo.png" alt="The Predictions Logo" class="navbar-logo" />
-            <span class="ms-2 fw-bold">The Predictions</span>
+            <span class="ms-2 fw-bold d-none d-sm-inline">The Predictions</span>
         </a>
 
-        <div class="d-flex align-items-center d-lg-none">
-            <AuthorizeView>
-                <Authorized>
-                    <button class="btn theme-toggle-btn me-2" @onclick="ToggleTheme" title="@(ThemeService.IsDarkMode ? "Switch to light mode" : "Switch to dark mode")">
-                        <span class="bi @(ThemeService.IsDarkMode ? "bi-sun-fill" : "bi-moon-fill")" aria-hidden="true"></span>
+        <AuthorizeView>
+            <Authorized>
+                <div class="navbar-auth-actions d-flex align-items-center ms-auto">
+                    <button class="btn theme-toggle-btn theme-toggle-btn--labelled me-2" @onclick="ToggleTheme" title="@(ThemeService.IsDarkMode ? "Switch to light mode" : "Switch to dark mode")">
+                        <span class="bi @(ThemeService.IsDarkMode ? "bi-sun-fill" : "bi-moon-fill") me-2" aria-hidden="true"></span>
+                        <span class="theme-toggle-btn__label">
+                            @(ThemeService.IsDarkMode ? "Light" : "Dark")<span class="d-none d-lg-inline"> Mode</span>
+                        </span>
                     </button>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                </Authorized>
-                <NotAuthorized>
+
+                    @if (context.User.IsInRole(RoleNames.Administrator))
+                    {
+                        <div class="dropdown me-2">
+                            <button class="btn nav-icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Admin">
+                                <span class="bi bi-gear-fill" aria-hidden="true"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><NavLink class="dropdown-item" href="/leagues"><span class="bi bi-trophy me-2 fw-bold"></span>Manage Leagues</NavLink></li>
+                                <li><NavLink class="dropdown-item" href="/admin/seasons"><span class="bi bi-calendar3 me-2 fw-bold"></span>Manage Seasons</NavLink></li>
+                                <li><NavLink class="dropdown-item" href="/admin/teams"><span class="bi bi-shield-fill me-2 fw-bold"></span>Manage Teams</NavLink></li>
+                                <li><NavLink class="dropdown-item" href="/admin/users"><span class="bi bi-person-gear me-2 fw-bold"></span>Manage Users</NavLink></li>
+                            </ul>
+                        </div>
+                    }
+
+                    <div class="dropdown">
+                        <button class="btn nav-avatar-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="User Menu">
+                            <UserAvatar FirstName="@context.User.FindFirst("FirstName")?.Value"
+                                        LastName="@context.User.FindFirst("LastName")?.Value"
+                                        Size="sm" />
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><NavLink class="dropdown-item" href="account/details"><span class="bi bi-person-badge me-2 fw-bold"></span>My Details</NavLink></li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li><button class="dropdown-item d-flex align-items-center" type="button" @onclick="LogoutUser"><span class="bi bi-box-arrow-right me-2 fw-bold"></span>Log out</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </Authorized>
+
+            <NotAuthorized>
+                <div class="d-flex align-items-center ms-auto">
                     <button class="btn theme-toggle-btn theme-toggle-btn--labelled" @onclick="ToggleThemeTransient" title="@(ThemeService.IsDarkMode ? "Switch to light mode" : "Switch to dark mode")">
                         <span class="bi @(ThemeService.IsDarkMode ? "bi-sun-fill" : "bi-moon-fill") me-2" aria-hidden="true"></span>
-                        <span class="theme-toggle-btn__label">@(ThemeService.IsDarkMode ? "Light mode" : "Dark mode")</span>
+                        <span class="theme-toggle-btn__label">
+                            @(ThemeService.IsDarkMode ? "Light" : "Dark")<span class="d-none d-lg-inline"> Mode</span>
+                        </span>
                     </button>
-                </NotAuthorized>
-            </AuthorizeView>
-        </div>
-
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <AuthorizeView>
-                <Authorized>
-                    <ul class="navbar-nav w-100 d-none d-lg-flex">
-                        @if (context.User.IsInRole(RoleNames.Administrator))
-                        {
-                            <li class="nav-item dropdown py-0 d-flex align-items-center">
-                                <a class="nav-link dropdown-toggle admin-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Admin
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li><NavLink class="dropdown-item" href="/leagues">Manage Leagues</NavLink></li>
-                                    <li><NavLink class="dropdown-item" href="/admin/seasons">Manage Seasons</NavLink></li>
-                                    <li><NavLink class="dropdown-item" href="/admin/teams">Manage Teams</NavLink></li>
-                                    <li><NavLink class="dropdown-item" href="/admin/users">Manage Users</NavLink></li>
-                                </ul>
-                            </li>
-                        }
-                        <li class="nav-item ms-auto py-0 d-flex align-items-center">
-                            <button class="btn nav-link theme-toggle-btn" @onclick="ToggleTheme" title="@(ThemeService.IsDarkMode ? "Switch to light mode" : "Switch to dark mode")">
-                                <span class="bi @(ThemeService.IsDarkMode ? "bi-sun-fill" : "bi-moon-fill")" aria-hidden="true"></span>
-                            </button>
-                        </li>
-                        <li class="nav-item dropdown py-0">
-                            <a class="nav-link d-flex align-items-center user-menu-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="User Menu">
-                                <span class="navbar-text me-2 fw-bold">
-                                    @context.User.FindFirst("FirstName")?.Value
-                                </span>
-                                <span class="bi bi-person-fill user-icon" aria-hidden="true"></span>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><NavLink class="dropdown-item" href="account/details"><span class="bi bi-person-badge me-2 fw-bold"></span>My Details</NavLink></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><button class="dropdown-item d-flex align-items-center" type="button" @onclick="LogoutUser"><span class="bi bi-box-arrow-right me-2 fw-bold"></span>Log out</button></li>
-                            </ul>
-                        </li>
-                    </ul>
-
-                    <ul class="navbar-nav d-lg-none">
-                        <li class="nav-item">
-                            <button class="btn nav-link mobile-nav-header w-100 text-start" @onclick="() => _isUserMenuOpen = !_isUserMenuOpen">
-                                @context.User.FindFirst("FirstName")?.Value
-                                <span class="bi @(_isUserMenuOpen ? "bi-chevron-up" : "bi-chevron-down") float-end"></span>
-                            </button>
-                        </li>
-
-                        @if (_isUserMenuOpen)
-                        {
-                            <li class="nav-item"><NavLink class="nav-link mobile-nav-sub-item" href="account/details">My Details</NavLink></li>
-                            <li class="nav-item">
-                                <button class="btn nav-link mobile-nav-sub-item text-start" @onclick="ToggleTheme">
-                                    <span class="bi @(ThemeService.IsDarkMode ? "bi-sun-fill" : "bi-moon-fill") me-2"></span>
-                                    @(ThemeService.IsDarkMode ? "Light Mode" : "Dark Mode")
-                                </button>
-                            </li>
-                            <li class="nav-item"><button class="btn nav-link mobile-nav-sub-item text-start" @onclick="LogoutUser">Log out</button></li>
-                        }
-
-                        @if (context.User.IsInRole(RoleNames.Administrator))
-                        {
-                            <li class="nav-item">
-                                <button class="btn nav-link mobile-nav-header w-100 text-start" @onclick="() => _isAdminMenuOpen = !_isAdminMenuOpen">
-                                    Admin
-                                    <span class="bi @(_isAdminMenuOpen ? "bi-chevron-up" : "bi-chevron-down") float-end"></span>
-                                </button>
-                            </li>
-
-                            @if (_isAdminMenuOpen)
-                            {
-                                <li class="nav-item"><NavLink class="nav-link mobile-nav-sub-item" href="/leagues">Manage Leagues</NavLink></li>
-                                <li class="nav-item"><NavLink class="nav-link mobile-nav-sub-item" href="/admin/seasons">Manage Seasons</NavLink></li>
-                                <li class="nav-item"><NavLink class="nav-link mobile-nav-sub-item" href="/admin/teams">Manage Teams</NavLink></li>
-                                <li class="nav-item"><NavLink class="nav-link mobile-nav-sub-item" href="/admin/users">Manage Users</NavLink></li>
-                            }
-
-                            <li class="nav-item no-hover"><hr class="text-white"/></li>
-                        }
-                    </ul>
-                </Authorized>
-
-                <NotAuthorized>
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item py-0 d-none d-lg-flex align-items-center">
-                            <button class="btn nav-link theme-toggle-btn" @onclick="ToggleThemeTransient" title="@(ThemeService.IsDarkMode ? "Switch to light mode" : "Switch to dark mode")">
-                                <span class="bi @(ThemeService.IsDarkMode ? "bi-sun-fill" : "bi-moon-fill")" aria-hidden="true"></span>
-                            </button>
-                        </li>
-                        <li class="nav-item mx-1">
-                            <NavLink class="nav-link" href="authentication/login">Log in</NavLink>
-                        </li>
-                        <li class="nav-item mx-1">
-                            <NavLink class="nav-link" href="authentication/register">Register</NavLink>
-                        </li>
-                    </ul>
-                </NotAuthorized>
-            </AuthorizeView>
-        </div>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
     </div>
 </nav>
 
@@ -135,9 +70,6 @@
     [Parameter]
     public string? Class { get; set; }
 
-    private bool _isAdminMenuOpen;
-    private bool _isUserMenuOpen;
-    
     private async Task GoToSmartHomepage()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();

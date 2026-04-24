@@ -104,6 +104,20 @@
     background: var(--white);
 }
 
+/* Clickable glass panel (used when the panel is a link) */
+a.glass-panel,
+.glass-panel--link {
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+a.glass-panel:hover,
+.glass-panel--link:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px var(--black-alpha-25);
+}
+
 /* ============================================
    TABLE STRIPING
    ============================================ */

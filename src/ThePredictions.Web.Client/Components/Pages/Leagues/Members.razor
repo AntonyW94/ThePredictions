@@ -66,9 +66,7 @@
                         @foreach (var member in _approvedMembers)
                         {
                             <div class="member-row">
-                                <div class="member-avatar">
-                                    @member.FullName[0]
-                                </div>
+                                <UserAvatar FullName="@member.FullName" />
                                 <div class="member-info">
                                     <span class="member-name">@member.FullName</span>
                                     <span class="member-date">Joined @member.JoinedAtUtc.ToString("dd MMM yyyy")</span>
@@ -95,9 +93,7 @@
                         @foreach (var member in _pendingMembers)
                         {
                             <div class="member-row">
-                                <div class="member-avatar">
-                                    @member.FullName[0]
-                                </div>
+                                <UserAvatar FullName="@member.FullName" />
                                 <div class="member-info">
                                     <span class="member-name">@member.FullName</span>
                                     <span class="member-date">Applied @member.JoinedAtUtc.ToString("dd MMM yyyy")</span>
@@ -131,9 +127,7 @@
                         @foreach (var member in _rejectedMembers)
                         {
                             <div class="member-row">
-                                <div class="member-avatar">
-                                    @member.FullName[0]
-                                </div>
+                                <UserAvatar FullName="@member.FullName" />
                                 <div class="member-info">
                                     <span class="member-name">@member.FullName</span>
                                     <span class="member-date">Rejected @member.JoinedAtUtc.ToString("dd MMM yyyy")</span>

@@ -92,11 +92,19 @@ a.navbar-brand span {
     font-size: 1.25rem;
     padding: 0.25rem 0.5rem;
     line-height: 1;
-    color: var(--green-300);
+    color: var(--purple-700);
     transition: color 0.2s ease-in-out;
 }
 
 .theme-toggle-btn:hover {
+    color: var(--purple-1000);
+}
+
+.navbar-overlay .theme-toggle-btn {
+    color: var(--green-300);
+}
+
+.navbar-overlay .theme-toggle-btn:hover {
     color: var(--green-600);
 }
 
@@ -113,6 +121,51 @@ a.navbar-brand span {
 
 .theme-toggle-btn__label {
     font-size: 0.9375rem;
+}
+
+.nav-icon-btn {
+    padding: 0.375rem 0.625rem;
+    line-height: 1;
+    color: var(--purple-700);
+    background: transparent;
+    border: none;
+    font-size: 1.25rem;
+    border-radius: var(--bs-border-radius);
+    transition: color 0.2s ease-in-out;
+}
+
+.nav-icon-btn:hover,
+.nav-icon-btn:focus,
+.nav-icon-btn[aria-expanded="true"] {
+    color: var(--purple-1000);
+    background: transparent;
+}
+
+.navbar-overlay .nav-icon-btn {
+    color: var(--green-300);
+}
+
+.navbar-overlay .nav-icon-btn:hover,
+.navbar-overlay .nav-icon-btn:focus,
+.navbar-overlay .nav-icon-btn[aria-expanded="true"] {
+    color: var(--green-600);
+}
+
+.nav-avatar-btn {
+    padding: 0;
+    background: transparent;
+    border: none;
+    line-height: 1;
+    border-radius: 50%;
+}
+
+.nav-avatar-btn:hover,
+.nav-avatar-btn:focus {
+    background: transparent;
+}
+
+.navbar-auth-actions .dropdown-toggle::after {
+    display: none;
 }
 
 .navbar-nav > .nav-item {
@@ -132,7 +185,8 @@ a.navbar-brand span {
 
 .dropdown-menu {
     background-color: var(--white);
-    border: none;
+    border: 1px solid var(--grey-200);
+    box-shadow: 0 4px 12px var(--black-alpha-20);
 }
 
 .dropdown-item {

@@ -215,21 +215,6 @@
     border-bottom: none;
 }
 
-
-.member-avatar {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: var(--purple-300);
-    color: var(--white);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 1rem;
-    flex-shrink: 0;
-}
-
 .member-info {
     flex: 1;
     min-width: 0;

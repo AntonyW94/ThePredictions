@@ -63,7 +63,7 @@
                                                     {
                                                         <div class="pending-member-row">
                                                             <div class="d-flex align-items-center gap-2">
-                                                                <div class="member-avatar member-avatar--sm">@member.MemberName[0]</div>
+                                                                <UserAvatar FullName="@member.MemberName" Size="sm" />
                                                                 <div>
                                                                     <div class="text-white fw-bold text-sm">@member.MemberName</div>
                                                                     <small class="text-white-50 text-xs">@FormatTimeAgo(member.JoinedAtUtc)</small>
@@ -101,10 +101,10 @@
                                         </div>
                                         <div class="body">
                                             <div class="d-flex justify-content-center gap-3 mb-3">
-                                                <div class="glass-panel d-flex align-items-center gap-2 py-2 px-3">
+                                                <NavLink class="glass-panel glass-panel--link d-flex align-items-center gap-2 py-2 px-3" href="@($"/leagues/{league.LeagueId}/members")">
                                                     <i class="bi bi-people-fill text-white-50"></i>
                                                     <span class="text-white fw-bold">@league.MemberCount @(league.MemberCount == 1 ? "member" : "members")</span>
-                                                </div>
+                                                </NavLink>
                                                 @if (!league.IsFree)
                                                 {
                                                     <div class="glass-panel d-flex align-items-center gap-2 py-2 px-3">
@@ -121,7 +121,7 @@
                                                     {
                                                         <div class="pending-member-row">
                                                             <div class="d-flex align-items-center gap-2">
-                                                                <div class="member-avatar member-avatar--sm">@member.MemberName[0]</div>
+                                                                <UserAvatar FullName="@member.MemberName" Size="sm" />
                                                                 <div>
                                                                     <div class="text-white fw-bold text-sm">@member.MemberName</div>
                                                                     <small class="text-white-50 text-xs">@FormatTimeAgo(member.JoinedAtUtc)</small>

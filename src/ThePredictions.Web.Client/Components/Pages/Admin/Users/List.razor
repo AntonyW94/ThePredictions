@@ -66,9 +66,7 @@
                     var isLoggedInUser = _currentUserId == user.Id;
 
                     <div class="member-row user-row">
-                        <div class="member-avatar">
-                            @user.FullName[0]
-                        </div>
+                        <UserAvatar FullName="@user.FullName" />
                         <div class="member-info">
                             <div class="d-flex align-items-center gap-2">
                                 <span class="member-name">@user.FullName</span>

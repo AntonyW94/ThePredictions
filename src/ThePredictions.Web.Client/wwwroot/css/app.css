@@ -42,6 +42,7 @@
 @import url('components/forms.css');
 @import url('components/modals.css');
 @import url('components/rank-display.css');
+@import url('components/user-avatar.css');
 
 /* Light theme overrides (scoped under .admin-light) */
 @import url('themes/light/layout.css');

@@ -1,0 +1,59 @@
+@* Reusable avatar: shows initials by default, optional image override for future profile pics *@
+
+<div class="user-avatar @SizeClass @AdditionalClass">
+    @if (!string.IsNullOrWhiteSpace(ImageUrl))
+    {
+        <img src="@ImageUrl" alt="@DisplayName" />
+    }
+    else
+    {
+        <span class="user-avatar__initials">@Initials</span>
+    }
+</div>
+
+@code {
+    [Parameter] public string? FirstName { get; set; }
+    [Parameter] public string? LastName { get; set; }
+    [Parameter] public string? FullName { get; set; }
+    [Parameter] public string? ImageUrl { get; set; }
+    [Parameter] public string Size { get; set; } = "md";
+    [Parameter] public string? AdditionalClass { get; set; }
+
+    private string SizeClass => Size switch
+    {
+        "sm" => "user-avatar--sm",
+        "lg" => "user-avatar--lg",
+        _ => ""
+    };
+
+    private string DisplayName => !string.IsNullOrWhiteSpace(FullName)
+        ? FullName
+        : $"{FirstName} {LastName}".Trim();
+
+    private string Initials
+    {
+        get
+        {
+            if (!string.IsNullOrWhiteSpace(FirstName) || !string.IsNullOrWhiteSpace(LastName))
+            {
+                var first = !string.IsNullOrWhiteSpace(FirstName) ? char.ToUpperInvariant(FirstName[0]).ToString() : string.Empty;
+                var last = !string.IsNullOrWhiteSpace(LastName) ? char.ToUpperInvariant(LastName[0]).ToString() : string.Empty;
+
+                return first + last;
+            }
+
+            if (string.IsNullOrWhiteSpace(FullName))
+                return string.Empty;
+
+            var parts = FullName.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+            if (parts.Length >= 2)
+                return $"{char.ToUpperInvariant(parts[0][0])}{char.ToUpperInvariant(parts[^1][0])}";
+
+            if (parts.Length == 1)
+                return char.ToUpperInvariant(parts[0][0]).ToString();
+
+            return string.Empty;
+        }
+    }
+}
