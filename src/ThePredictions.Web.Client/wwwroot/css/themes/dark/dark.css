@@ -18,7 +18,7 @@
 }
 
 .theme-dark .admin-table-container {
-    background-color: var(--purple-600);
+    background-color: transparent;
 }
 
 .theme-dark .form-container {
@@ -110,19 +110,24 @@
 
 .theme-dark .form-control {
     background: var(--purple-1000);
-    border: 1px solid var(--white);
+    border: 1px solid var(--white-alpha-15);
     color: var(--white);
     border-radius: var(--bs-border-radius);
 }
 
+.theme-dark .form-control:hover {
+    border-color: var(--white-alpha-30);
+}
+
 .theme-dark .form-control:focus {
-    background: var(--purple-800);
+    background: var(--purple-1000);
     color: var(--white);
-    border-color: var(--white);
+    border-color: var(--purple-200);
+    box-shadow: 0 0 0 3px var(--purple-200-alpha-15);
 }
 
 .theme-dark .form-control::placeholder {
-    color: var(--white);
+    color: var(--white-alpha-50);
 }
 
 .theme-dark select.form-control {
@@ -142,11 +147,6 @@
 .theme-dark .input-group-text.prize-label {
     background-color: var(--purple-900);
     border-color: var(--purple-900);
-}
-
-.theme-dark .input-group:focus-within .password-toggle-btn {
-    background-color: var(--purple-800);
-    color: var(--white);
 }
 
 /* Auth pages */
@@ -192,7 +192,14 @@
 .theme-dark .password-toggle-btn {
     background-color: var(--purple-1000);
     color: var(--white);
-    border-color: var(--white);
+    border-color: var(--white-alpha-15);
+    border-left: 0;
+}
+
+.theme-dark .input-group:focus-within .password-toggle-btn {
+    background-color: var(--purple-1000);
+    border-color: var(--purple-200);
+    color: var(--white);
 }
 
 /* ============================================
@@ -693,4 +700,338 @@
 
 .theme-dark .section .collapse-icon.text-white {
     color: var(--white) !important;
+}
+
+/* ============================================
+   ADMIN PAGES
+   Neutralise the colour-forcing rules scoped under
+   .admin-light so admin pages follow dark mode.
+   Specificity must beat main:has(.admin-light) ... rules
+   in themes/light/layout.css.
+   ============================================ */
+
+.theme-dark .admin-light {
+    background: transparent;
+}
+
+main.theme-dark:has(.admin-light) {
+    background: var(--purple-900);
+}
+
+main.theme-dark:has(.admin-light) .navbar,
+main.theme-dark:has(.admin-light) .navbar-custom {
+    background: var(--purple-900) !important;
+    border-bottom: none;
+}
+
+main.theme-dark:has(.admin-light) .navbar .navbar-brand span,
+main.theme-dark:has(.admin-light) .navbar-nav .nav-item .nav-link,
+main.theme-dark:has(.admin-light) .navbar-nav .nav-item .navbar-text {
+    color: var(--white) !important;
+}
+
+main.theme-dark:has(.admin-light) .navbar-toggler-icon {
+    filter: none;
+}
+
+main.theme-dark:has(.admin-light) .navbar-logo {
+    filter: none;
+}
+
+.theme-dark .admin-light h3,
+.theme-dark .admin-light h4,
+.theme-dark .admin-light h5 {
+    color: var(--white);
+}
+
+.theme-dark .admin-light .text-white {
+    color: var(--white) !important;
+}
+
+.theme-dark .admin-light .text-white-50 {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.theme-dark .admin-light .spinner-border {
+    color: var(--white) !important;
+}
+
+.theme-dark .admin-light .form-container {
+    background: var(--purple-800);
+    border: 1px solid transparent;
+    box-shadow: 0 8px 20px var(--black-alpha-35), inset 0 0 0 1px var(--white-alpha-05);
+}
+
+.theme-dark .admin-light .form-container.extra-wide {
+    background: transparent;
+}
+
+.theme-dark .admin-light form > .d-flex:last-child {
+    background: var(--purple-1000);
+    border-top-color: var(--white-alpha-08);
+    box-shadow: 0 -2px 8px var(--black-alpha-35);
+}
+
+.theme-dark .admin-light-header {
+    background: var(--purple-800);
+    border-color: var(--white-alpha-08);
+    box-shadow: 0 4px 12px var(--black-alpha-25);
+}
+
+/* Readonly fields on admin forms */
+.theme-dark .admin-light .readonly-field {
+    background: var(--purple-1000);
+    color: var(--white);
+}
+
+/* Match editor cards (round edit page) are global, not scoped under
+   .admin-light, so they also need dark overrides when admin is dark. */
+.theme-dark .round-meta,
+.theme-dark .matches-section,
+.theme-dark .match-card {
+    background: var(--purple-800);
+    border-color: var(--white-alpha-08);
+    color: var(--white);
+    box-shadow: 0 4px 12px var(--black-alpha-25);
+}
+
+.theme-dark .matches-section .match-card {
+    background: var(--purple-1000);
+    border-color: var(--white-alpha-08);
+    box-shadow: none;
+}
+
+.theme-dark .match-card-delete {
+    color: var(--white-alpha-50);
+    border-color: var(--white-alpha-15);
+}
+
+.theme-dark .match-card-row .vs-badge,
+.theme-dark .match-card-mobile .vs-badge {
+    color: var(--purple-200);
+}
+
+/* Admin mobile tab dropdown (global selector, not scoped under .admin-light) */
+.theme-dark .admin-tabs-mobile select {
+    color: var(--white);
+    background-color: var(--purple-1000);
+    border-color: var(--white-alpha-15);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23ffffff' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+}
+
+.theme-dark .admin-tab {
+    color: var(--white-alpha-50);
+}
+
+.theme-dark .admin-tab:hover {
+    color: var(--white);
+}
+
+.theme-dark .admin-tab.active {
+    color: var(--green-600);
+    border-bottom-color: var(--green-600);
+}
+
+.theme-dark .admin-tabs {
+    border-bottom-color: var(--white-alpha-08);
+}
+
+/* Team list grid on the admin teams list */
+.theme-dark .team-list-grid {
+    background: var(--purple-800);
+    border-color: var(--white-alpha-08);
+    box-shadow: 0 4px 12px var(--black-alpha-25);
+}
+
+.theme-dark .team-list-row:hover {
+    background: var(--white-alpha-05);
+}
+
+.theme-dark .team-list-chevron {
+    color: var(--white-alpha-30);
+}
+
+/* Admin list rows (seasons, users, rounds, teams) */
+.theme-dark .admin-light .member-row {
+    border-bottom-color: var(--white-alpha-10);
+}
+
+.theme-dark .admin-light .member-row:last-child {
+    border-bottom: none;
+}
+
+/* Team list grid uses its own border rules per breakpoint */
+.theme-dark .team-list-grid .member-row,
+.theme-dark .team-list-grid .member-row:nth-child(2n) {
+    border-right-color: var(--white-alpha-10);
+}
+
+.theme-dark .admin-light .member-name {
+    color: var(--white);
+}
+
+.theme-dark .admin-light .member-date {
+    color: var(--white-alpha-50);
+}
+
+.theme-dark .member-list {
+    background: var(--purple-800);
+    border-color: var(--white-alpha-08);
+    box-shadow: 0 4px 12px var(--black-alpha-25);
+}
+
+/* Empty-state text on admin pages */
+.theme-dark .admin-light .empty-state-title {
+    color: var(--white);
+}
+
+.theme-dark .admin-light .empty-state-text {
+    color: var(--white-alpha-50);
+}
+
+/* Score value / stepper on Enter Results page */
+.theme-dark .admin-light .score-value {
+    background-color: var(--purple-1000);
+    border-color: var(--white-alpha-15);
+    color: var(--white);
+}
+
+.theme-dark .admin-light .stepper-btn {
+    color: var(--white);
+}
+
+.theme-dark .admin-light .score-input-group .vs-separator {
+    color: var(--white-alpha-50);
+}
+
+/* Season row icon */
+.theme-dark .season-row-icon {
+    background: var(--purple-1000);
+    color: var(--purple-200);
+}
+
+/* Admin button hover states — stop the white inversion from admin-light
+   buttons.css and brighten the coloured background instead. */
+.theme-dark .admin-light .green-button:hover {
+    background: var(--green-600);
+    color: var(--white);
+    border-color: var(--green-600);
+    filter: brightness(1.15);
+}
+
+.theme-dark .admin-light .red-button:hover {
+    background: var(--red);
+    color: var(--white);
+    border-color: var(--red);
+    filter: brightness(1.15);
+}
+
+.theme-dark .admin-light .blue-light-button:hover {
+    background: var(--blue-700);
+    color: var(--white);
+    border-color: var(--blue-700);
+    filter: brightness(1.15);
+}
+
+.theme-dark .admin-light .purple-accent-button:hover {
+    background: var(--purple-300);
+    color: var(--white);
+    border-color: var(--purple-300);
+    filter: brightness(1.15);
+}
+
+/* Status pills using grey-200 / grey-500 become invisible on dark. */
+.theme-dark .season-status-pill.draft {
+    background: var(--white-alpha-15);
+    color: var(--white-alpha-70);
+}
+
+.theme-dark .admin-light .status-select-pill.scheduled {
+    background-color: var(--white-alpha-15);
+    color: var(--white-alpha-70);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='rgba(255,255,255,0.7)' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+}
+
+.theme-dark .round-meta .status-badge.draft {
+    background: var(--white-alpha-15);
+    color: var(--white-alpha-70);
+}
+
+/* Auth badges (admin users page) */
+.theme-dark .auth-badge {
+    background: var(--white-alpha-10);
+    color: var(--white-alpha-50);
+}
+
+.theme-dark .auth-badge.active {
+    background: var(--purple-200);
+    color: var(--white);
+}
+
+/* Cards inside admin pages should match the form-container surface
+   (purple-800), not the darker purple-1000 used on dashboard cards. */
+.theme-dark .admin-light .card {
+    background: var(--purple-800);
+    border-color: var(--white-alpha-08);
+}
+
+.theme-dark .admin-light .card .body,
+.theme-dark .admin-light .card .body p {
+    color: var(--white);
+}
+
+/* Prize page — hero text */
+.theme-dark .prize-hero-league {
+    color: var(--white-alpha-70);
+}
+
+.theme-dark .prize-hero-subtitle {
+    color: var(--white-alpha-50);
+}
+
+/* Prize page — prize rows */
+.theme-dark .admin-light .prize-amount,
+.theme-dark .admin-light .prize-description {
+    color: var(--white);
+}
+
+.theme-dark .admin-light .prize-row {
+    border-bottom-color: var(--white-alpha-10);
+}
+
+/* Prize page — locked card state */
+.theme-dark .prize-locked-card {
+    background: var(--purple-800);
+    border-color: var(--white-alpha-08);
+    box-shadow: 0 4px 12px var(--black-alpha-25);
+}
+
+.theme-dark .prize-locked-icon {
+    background: var(--purple-1000);
+    color: var(--purple-200);
+}
+
+.theme-dark .prize-locked-text {
+    color: var(--white-alpha-70);
+}
+
+.theme-dark .prize-info-label {
+    color: var(--white-alpha-70);
+}
+
+.theme-dark .prize-info-value {
+    color: var(--white);
+}
+
+/* Detail list on admin view pages */
+.theme-dark .admin-light .detail-list dt {
+    color: var(--white-alpha-70);
+}
+
+.theme-dark .admin-light .detail-list dd {
+    color: var(--white);
+}
+
+.theme-dark .admin-light .detail-row {
+    border-bottom-color: var(--white-alpha-10);
 }
