@@ -24,17 +24,19 @@ public class DapperUserStore : IUserPasswordStore<ApplicationUser>, IUserEmailSt
         cancellationToken.ThrowIfCancellationRequested();
         using var connection = Connection;
         const string sql = @"
-                INSERT INTO [AspNetUsers] 
+                INSERT INTO [AspNetUsers]
                 (
-                    [Id], [UserName], [NormalizedUserName], [Email], [NormalizedEmail], [EmailConfirmed], 
-                    [PasswordHash], [SecurityStamp], [ConcurrencyStamp], [PhoneNumber], [PhoneNumberConfirmed], 
-                    [TwoFactorEnabled], [LockoutEnd], [LockoutEnabled], [AccessFailedCount], [FirstName], [LastName]
+                    [Id], [UserName], [NormalizedUserName], [Email], [NormalizedEmail], [EmailConfirmed],
+                    [PasswordHash], [SecurityStamp], [ConcurrencyStamp], [PhoneNumber], [PhoneNumberConfirmed],
+                    [TwoFactorEnabled], [LockoutEnd], [LockoutEnabled], [AccessFailedCount], [FirstName], [LastName],
+                    [Over18ConfirmedAtUtc], [TermsAcceptedAtUtc], [MarketingOptInAtUtc]
                 )
-                VALUES 
+                VALUES
                 (
-                    @Id, @UserName, @NormalizedUserName, @Email, @NormalizedEmail, @EmailConfirmed, 
-                    @PasswordHash, @SecurityStamp, @ConcurrencyStamp, @PhoneNumber, @PhoneNumberConfirmed, 
-                    @TwoFactorEnabled, @LockoutEnd, @LockoutEnabled, @AccessFailedCount, @FirstName, @LastName
+                    @Id, @UserName, @NormalizedUserName, @Email, @NormalizedEmail, @EmailConfirmed,
+                    @PasswordHash, @SecurityStamp, @ConcurrencyStamp, @PhoneNumber, @PhoneNumberConfirmed,
+                    @TwoFactorEnabled, @LockoutEnd, @LockoutEnabled, @AccessFailedCount, @FirstName, @LastName,
+                    @Over18ConfirmedAtUtc, @TermsAcceptedAtUtc, @MarketingOptInAtUtc
                 );";
         await connection.ExecuteAsync(sql, user);
         return IdentityResult.Success;
@@ -87,12 +89,13 @@ public class DapperUserStore : IUserPasswordStore<ApplicationUser>, IUserEmailSt
         using var connection = Connection;
         const string sql = @"
                 UPDATE [AspNetUsers] SET
-                    [UserName] = @UserName, [NormalizedUserName] = @NormalizedUserName, [Email] = @Email, 
-                    [NormalizedEmail] = @NormalizedEmail, [EmailConfirmed] = @EmailConfirmed, [PasswordHash] = @PasswordHash, 
-                    [SecurityStamp] = @SecurityStamp, [ConcurrencyStamp] = @ConcurrencyStamp, [PhoneNumber] = @PhoneNumber, 
-                    [PhoneNumberConfirmed] = @PhoneNumberConfirmed, [TwoFactorEnabled] = @TwoFactorEnabled, [LockoutEnd] = @LockoutEnd, 
-                    [LockoutEnabled] = @LockoutEnabled, [AccessFailedCount] = @AccessFailedCount, 
-                    [FirstName] = @FirstName, [LastName] = @LastName
+                    [UserName] = @UserName, [NormalizedUserName] = @NormalizedUserName, [Email] = @Email,
+                    [NormalizedEmail] = @NormalizedEmail, [EmailConfirmed] = @EmailConfirmed, [PasswordHash] = @PasswordHash,
+                    [SecurityStamp] = @SecurityStamp, [ConcurrencyStamp] = @ConcurrencyStamp, [PhoneNumber] = @PhoneNumber,
+                    [PhoneNumberConfirmed] = @PhoneNumberConfirmed, [TwoFactorEnabled] = @TwoFactorEnabled, [LockoutEnd] = @LockoutEnd,
+                    [LockoutEnabled] = @LockoutEnabled, [AccessFailedCount] = @AccessFailedCount,
+                    [FirstName] = @FirstName, [LastName] = @LastName,
+                    [Over18ConfirmedAtUtc] = @Over18ConfirmedAtUtc, [TermsAcceptedAtUtc] = @TermsAcceptedAtUtc, [MarketingOptInAtUtc] = @MarketingOptInAtUtc
                 WHERE [Id] = @Id;";
         await connection.ExecuteAsync(sql, user);
         return IdentityResult.Success;

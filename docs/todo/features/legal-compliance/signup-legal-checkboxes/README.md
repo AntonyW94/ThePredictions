@@ -2,7 +2,7 @@
 
 ## Status
 
-**Not Started** | In Progress | Complete
+Not Started | In Progress | **Complete**
 
 ## Summary
 
@@ -14,6 +14,6 @@ Legal checkboxes and verification fields required during user registration. Ensu
 
 ## Requirements
 
-- [ ] Age verification checkbox (18+)
-- [ ] Terms acceptance checkbox
-- [ ] Marketing opt-in (optional)
+- [x] Age verification checkbox (18+)
+- [x] Terms acceptance checkbox
+- [x] Marketing opt-in (optional)

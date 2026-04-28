@@ -212,4 +212,52 @@ public class RegisterRequestValidatorTests
 
         result.ShouldNotHaveValidationErrorFor(x => x.Password);
     }
+
+    [Fact]
+    public void Validate_ShouldFail_WhenOver18ConfirmedIsFalse()
+    {
+        var request = new RegisterRequestBuilder()
+            .WithOver18Confirmed(false)
+            .Build();
+
+        var result = _validator.TestValidate(request);
+
+        result.ShouldHaveValidationErrorFor(x => x.Over18Confirmed);
+    }
+
+    [Fact]
+    public void Validate_ShouldFail_WhenTermsAcceptedIsFalse()
+    {
+        var request = new RegisterRequestBuilder()
+            .WithTermsAccepted(false)
+            .Build();
+
+        var result = _validator.TestValidate(request);
+
+        result.ShouldHaveValidationErrorFor(x => x.TermsAccepted);
+    }
+
+    [Fact]
+    public void Validate_ShouldPass_WhenMarketingOptInIsFalse()
+    {
+        var request = new RegisterRequestBuilder()
+            .WithMarketingOptIn(false)
+            .Build();
+
+        var result = _validator.TestValidate(request);
+
+        result.ShouldNotHaveValidationErrorFor(x => x.MarketingOptIn);
+    }
+
+    [Fact]
+    public void Validate_ShouldPass_WhenMarketingOptInIsTrue()
+    {
+        var request = new RegisterRequestBuilder()
+            .WithMarketingOptIn(true)
+            .Build();
+
+        var result = _validator.TestValidate(request);
+
+        result.ShouldNotHaveValidationErrorFor(x => x.MarketingOptIn);
+    }
 }

@@ -1,12 +1,16 @@
 using MediatR;
 using ThePredictions.Application.Services;
 using ThePredictions.Contracts.Authentication;
+using ThePredictions.Domain.Common;
 using ThePredictions.Domain.Common.Enumerations;
 using ThePredictions.Domain.Models;
 
 namespace ThePredictions.Application.Features.Authentication.Commands.Register;
 
-public class RegisterCommandHandler(IUserManager userManager, IAuthenticationTokenService tokenService)
+public class RegisterCommandHandler(
+    IUserManager userManager,
+    IAuthenticationTokenService tokenService,
+    IDateTimeProvider dateTimeProvider)
     : IRequestHandler<RegisterCommand, AuthenticationResponse>
 {
     public async Task<AuthenticationResponse> Handle(RegisterCommand request, CancellationToken cancellationToken)
@@ -20,7 +24,13 @@ public class RegisterCommandHandler(IUserManager userManager, IAuthenticationTok
             request.LastName,
             request.Email
         );
-        
+
+        newUser.RecordRegistrationConsent(
+            request.Over18Confirmed,
+            request.TermsAccepted,
+            request.MarketingOptIn,
+            dateTimeProvider.UtcNow);
+
         var result = await userManager.CreateAsync(newUser, request.Password);
         if (!result.Succeeded)
             throw new Common.Exceptions.IdentityUpdateException(result.Errors);

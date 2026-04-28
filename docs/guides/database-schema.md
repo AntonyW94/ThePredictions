@@ -471,6 +471,9 @@ Extended ASP.NET Identity users table.
 | **FirstName** | nvarchar(100) | NO | | **Custom: User's first name** |
 | **LastName** | nvarchar(100) | NO | | **Custom: User's last name** |
 | **PreferredTheme** | nvarchar(10) | NO | 'light' | **Custom: User's theme preference ('light' or 'dark')** |
+| **Over18ConfirmedAtUtc** | datetime2 | YES | | **Custom: When the user confirmed they were 18+ during registration (GDPR proof of consent)** |
+| **TermsAcceptedAtUtc** | datetime2 | YES | | **Custom: When the user accepted the Terms of Service and Privacy Policy during registration** |
+| **MarketingOptInAtUtc** | datetime2 | YES | | **Custom: When the user opted in to marketing emails (NULL if never opted in)** |
 
 **Constraints:**
 - PK: `Id`
