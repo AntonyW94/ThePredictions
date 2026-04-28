@@ -85,12 +85,14 @@
     }
 }
 
-/* Dark theme overrides — activated via .theme-dark on an ancestor. */
+/* Dark theme overrides — activated via .theme-dark on an ancestor.
+   Matches the .form-container surface used on the login/register pages so
+   the panel sits clearly above the purple-900 page background. */
 .theme-dark .legal-page__content {
-    background: var(--purple-1000);
+    background-color: var(--purple-800);
     color: var(--white);
-    border-color: var(--white-alpha-08);
-    box-shadow: 0 4px 12px var(--black-alpha-25);
+    border-color: transparent;
+    box-shadow: 0 0 40px var(--purple-200-alpha-15);
 }
 
 .theme-dark .legal-page__content h1,
