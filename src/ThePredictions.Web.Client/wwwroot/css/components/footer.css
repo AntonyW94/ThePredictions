@@ -38,6 +38,26 @@
     display: none;
 }
 
+.site-footer__link {
+    color: var(--grey-500);
+    text-decoration: none;
+}
+
+.site-footer__link:hover,
+.site-footer__link:focus-visible {
+    color: var(--purple-700);
+    text-decoration: underline;
+}
+
+.theme-dark .site-footer__link {
+    color: var(--white-alpha-70);
+}
+
+.theme-dark .site-footer__link:hover,
+.theme-dark .site-footer__link:focus-visible {
+    color: var(--white);
+}
+
 .site-footer__copyright {
     font-size: 0.875rem;
     color: var(--grey-500);
