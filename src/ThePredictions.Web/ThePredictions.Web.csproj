@@ -131,6 +131,7 @@ System.IO.File.WriteAllText(FilePath, content);
             <CssFilesToBundle Include="$(PublishCssDir)components\rank-display.css" />
             <CssFilesToBundle Include="$(PublishCssDir)components\user-avatar.css" />
             <CssFilesToBundle Include="$(PublishCssDir)components\dashboard-tabs.css" />
+            <CssFilesToBundle Include="$(PublishCssDir)components\footer.css" />
             <CssFilesToBundle Include="$(PublishCssDir)pages\dashboard.css" />
             <CssFilesToBundle Include="$(PublishCssDir)pages\home.css" />
             <CssFilesToBundle Include="$(PublishCssDir)pages\leaderboard.css" />

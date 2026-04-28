@@ -1,0 +1,70 @@
+/* Site Footer
+   Renders at the bottom of every page below the main content.
+   Provides a slot on the left for future legal links and the
+   copyright notice on the right. Mobile-first: stacks vertically
+   on phones, becomes a single row from tablet up. */
+
+.site-footer {
+    width: 100%;
+    padding: var(--space-4) var(--space-4);
+    background: transparent;
+    border-top: 1px solid var(--grey-200);
+    color: var(--grey-500);
+    margin-top: var(--space-8);
+}
+
+.site-footer__inner {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    max-width: 87.5rem;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.site-footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-3);
+    font-size: 0.875rem;
+}
+
+/* Hide the link slot until it has children, so the layout stays
+   balanced today and accepts links tomorrow without restructuring. */
+.site-footer__links:empty {
+    display: none;
+}
+
+.site-footer__copyright {
+    font-size: 0.875rem;
+    color: var(--grey-500);
+}
+
+/* Tablet and up: single horizontal row, links left, copyright right. */
+@media (min-width: 768px) {
+    .site-footer {
+        padding: var(--space-4) var(--space-6);
+    }
+
+    .site-footer__inner {
+        flex-direction: row;
+        text-align: left;
+    }
+
+    .site-footer__links {
+        justify-content: flex-start;
+    }
+}
+
+/* Dark theme overrides — activated via .theme-dark on an ancestor. */
+.theme-dark .site-footer {
+    border-top-color: var(--white-alpha-08);
+    color: var(--white-alpha-70);
+}
+
+.theme-dark .site-footer__copyright {
+    color: var(--white-alpha-70);
+}
