@@ -14,5 +14,5 @@ Copyright notice displayed in the application footer. The copyright year should 
 
 ## Requirements
 
-- [ ] Copyright notice in footer
-- [ ] Year auto-update
+- [x] Copyright notice in footer
+- [x] Year auto-update
