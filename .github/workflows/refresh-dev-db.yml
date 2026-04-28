@@ -8,11 +8,6 @@ on:
         required: true
         type: string
 
-# Opt v4 JS actions into Node 24 ahead of GitHub's June 2026 default switch.
-# Remove once actions/checkout, actions/setup-dotnet, actions/cache ship v5.
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   refresh:
     runs-on: ubuntu-latest
@@ -20,10 +15,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '8.0.x'
 
