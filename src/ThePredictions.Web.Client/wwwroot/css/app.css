@@ -45,6 +45,7 @@
 @import url('components/user-avatar.css');
 @import url('components/dashboard-tabs.css');
 @import url('components/footer.css');
+@import url('components/cookie-consent.css');
 
 /* Light theme overrides (scoped under .admin-light) */
 @import url('themes/light/layout.css');

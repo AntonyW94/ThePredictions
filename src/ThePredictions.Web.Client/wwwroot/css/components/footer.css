@@ -32,12 +32,19 @@
     font-size: 0.875rem;
 }
 
+/* Hide the link slot until it has children, so the layout stays
+   balanced today and accepts links tomorrow without restructuring. */
+.site-footer__links:empty {
+    display: none;
+}
+
 .site-footer__link {
     color: var(--grey-500);
     text-decoration: none;
 }
 
-.site-footer__link:hover {
+.site-footer__link:hover,
+.site-footer__link:focus-visible {
     color: var(--purple-700);
     text-decoration: underline;
 }
@@ -46,14 +53,9 @@
     color: var(--white-alpha-70);
 }
 
-.theme-dark .site-footer__link:hover {
+.theme-dark .site-footer__link:hover,
+.theme-dark .site-footer__link:focus-visible {
     color: var(--white);
-}
-
-/* Hide the link slot until it has children, so the layout stays
-   balanced today and accepts links tomorrow without restructuring. */
-.site-footer__links:empty {
-    display: none;
 }
 
 .site-footer__copyright {

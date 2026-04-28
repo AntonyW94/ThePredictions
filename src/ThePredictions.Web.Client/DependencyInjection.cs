@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using ThePredictions.Web.Client.Authentication;
 using ThePredictions.Web.Client.Services.Boosts;
 using ThePredictions.Web.Client.Services.Browser;
+using ThePredictions.Web.Client.Services.Consent;
 using ThePredictions.Web.Client.Services.Dashboard;
 using ThePredictions.Web.Client.Services.Leagues;
 using ThePredictions.Web.Client.Services.Theme;
@@ -24,6 +25,7 @@ public static class DependencyInjection
         services.AddScoped<IDashboardStateService, DashboardStateService>();
         services.AddScoped<IBrowserService, BrowserService>();
         services.AddScoped<IThemeService, ThemeService>();
+        services.AddScoped<IConsentBannerService, ConsentBannerService>();
         services.AddScoped<LeagueDashboardStateService>(); 
         services.AddScoped<BoostClientService>();
         services.AddScoped<EnterResultsViewModel>();

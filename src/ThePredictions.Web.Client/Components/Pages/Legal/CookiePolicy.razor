@@ -1,0 +1,109 @@
+@page "/cookie-policy"
+@inject IConsentBannerService ConsentService
+@using ThePredictions.Web.Client.Services.Consent
+@implements IDisposable
+
+<PageTitle>Cookie Policy — The Predictions</PageTitle>
+
+<div class="legal-page">
+    <article class="legal-page__content">
+        <h1>Cookie Policy</h1>
+        <p class="legal-page__updated">Last updated: @LastUpdated</p>
+
+        <section>
+            <h2>1. What is a cookie?</h2>
+            <p>
+                A cookie is a small piece of data stored by your browser when you visit a website.
+                We also use the browser's <code>localStorage</code> for first-party functional storage
+                (such as your sign-in token and theme preference), which is similar in spirit and is
+                covered below.
+            </p>
+        </section>
+
+        <section>
+            <h2>2. Strictly necessary cookies</h2>
+            <ul>
+                <li>
+                    <strong>refreshToken</strong> — an HTTP-only cookie set by our API after sign-in.
+                    It lets us issue you a fresh access token when your session expires so you stay
+                    signed in. It expires after 7 days. Without it, you could not stay logged in.
+                </li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>3. First-party functional storage (not cookies)</h2>
+            <ul>
+                <li><strong>accessToken</strong> — short-lived JWT held in <code>localStorage</code> for API requests.</li>
+                <li><strong>themePreference</strong> — your light/dark theme choice.</li>
+                <li><strong>cookieConsent</strong> — your choices on this page.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>4. Analytics</h2>
+            <p>
+                We do <strong>not</strong> currently run any analytics or tracking. If we ever do, we
+                will only set those cookies after you accept analytics on the consent banner.
+            </p>
+        </section>
+
+        <section>
+            <h2>5. Marketing</h2>
+            <p>
+                We do <strong>not</strong> currently set marketing cookies. The same rule applies if
+                we ever do.
+            </p>
+        </section>
+
+        <section>
+            <h2>6. Manage your preferences</h2>
+            <p>
+                You can change your choices at any time. Selecting "Reopen banner" below will clear
+                your stored preference and show the consent banner again on the next page load.
+            </p>
+
+            @if (ConsentService.HasResponded && ConsentService.RespondedAtUtc.HasValue)
+            {
+                <p>
+                    Your current choice: <strong>@DescribeDecision(ConsentService.Decision)</strong>
+                    (recorded <LocalTime UtcDate="ConsentService.RespondedAtUtc.Value" />).
+                </p>
+            }
+
+            <button type="button" class="cookie-policy__btn" @onclick="ReopenBannerAsync">
+                Reopen cookie banner
+            </button>
+        </section>
+    </article>
+</div>
+
+@code {
+    private const string LastUpdated = "28 April 2026";
+
+    protected override void OnInitialized()
+    {
+        ConsentService.OnStateChange += StateHasChanged;
+    }
+
+    private async Task ReopenBannerAsync()
+    {
+        await ConsentService.ReopenAsync();
+    }
+
+    private static string DescribeDecision(CookieConsentDecision decision)
+    {
+        return decision switch
+        {
+            CookieConsentDecision.AcceptedAll => "Accepted all cookies",
+            CookieConsentDecision.RejectedNonEssential => "Essential only",
+            CookieConsentDecision.CustomPreferences => "Custom preferences",
+            _ => "No decision recorded"
+        };
+    }
+
+    public void Dispose()
+    {
+        ConsentService.OnStateChange -= StateHasChanged;
+    }
+}
