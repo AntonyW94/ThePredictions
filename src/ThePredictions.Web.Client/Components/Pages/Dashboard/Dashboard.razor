@@ -16,7 +16,7 @@
         </div>
     </Authorizing>
     <Authorized>
-        <div class="page-container">
+        <div class="page-container page-container--fits-content">
             @{
                 var showPendingMembers = !DashboardState.IsPendingMembersLoading && DashboardState.IsAdminOfOpenLeague;
                 var showPendingRequests = DashboardState.PendingRequests.Any() || DashboardState.IsPendingRequestsLoading;

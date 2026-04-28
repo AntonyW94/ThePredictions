@@ -12,6 +12,14 @@ main {
     padding: 1rem;
 }
 
+/* Pages with dynamic-height content (e.g. mobile tabbed views) opt out of
+   the viewport-fill min-height below the desktop breakpoint, so the page
+   shrinks to the active content instead of leaving the footer pinned at
+   the bottom of an empty viewport. */
+.page-container--fits-content {
+    min-height: 0;
+}
+
 .admin-table-container {
     background-color: transparent;
     padding: 1.5rem;
@@ -61,5 +69,13 @@ dd {
 
     dd {
         font-size: 1rem;
+    }
+}
+
+/* Desktop and up (--breakpoint-desktop: 992px): tabbed mobile views switch
+   to the full grid here, so restore the viewport-fill min-height. */
+@media (min-width: 992px) {
+    .page-container--fits-content {
+        min-height: calc(100vh - 3.5rem);
     }
 }
