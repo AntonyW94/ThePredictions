@@ -10,7 +10,6 @@
     background: transparent;
     border-top: 1px solid var(--grey-200);
     color: var(--grey-500);
-    margin-top: var(--space-8);
 }
 
 .site-footer__inner {
