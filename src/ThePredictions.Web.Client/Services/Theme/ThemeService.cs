@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using Blazored.LocalStorage;
+using ThePredictions.Contracts.Account;
 
 namespace ThePredictions.Web.Client.Services.Theme;
 
@@ -37,9 +38,10 @@ public class ThemeService(ILocalStorageService localStorage, HttpClient httpClie
         }
     }
 
-    public void ToggleThemeTransient()
+    public async Task ToggleThemeAsGuestAsync()
     {
         CurrentTheme = IsDarkMode ? "light" : "dark";
+        await localStorage.SetItemAsync(StorageKey, CurrentTheme);
         OnThemeChanged?.Invoke();
     }
 
@@ -50,17 +52,38 @@ public class ThemeService(ILocalStorageService localStorage, HttpClient httpClie
         OnThemeChanged?.Invoke();
     }
 
-    public async Task SyncFromServerAsync(string serverTheme)
+    public async Task SyncOnLoginAsync()
     {
-        if (string.IsNullOrEmpty(serverTheme))
-            return;
+        var localTheme = await localStorage.GetItemAsync<string>(StorageKey);
 
-        var cached = await localStorage.GetItemAsync<string>(StorageKey);
-        if (cached == serverTheme)
+        if (!string.IsNullOrEmpty(localTheme))
+        {
+            // Local choice wins — push it to the server so the account reflects it.
+            try
+            {
+                await httpClient.PutAsJsonAsync("api/account/theme", localTheme);
+            }
+            catch
+            {
+                // Fire-and-forget — next toggle will retry
+            }
             return;
+        }
 
-        CurrentTheme = serverTheme;
-        await localStorage.SetItemAsync(StorageKey, CurrentTheme);
-        OnThemeChanged?.Invoke();
+        // No local preference (e.g. fresh device) — adopt the server's saved theme.
+        try
+        {
+            var details = await httpClient.GetFromJsonAsync<UserDetails>("api/account/details");
+            if (details is null || string.IsNullOrEmpty(details.PreferredTheme))
+                return;
+
+            CurrentTheme = details.PreferredTheme;
+            await localStorage.SetItemAsync(StorageKey, CurrentTheme);
+            OnThemeChanged?.Invoke();
+        }
+        catch
+        {
+            // Best-effort — leave default in place
+        }
     }
 }

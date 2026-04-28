@@ -2,7 +2,10 @@
 
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthStateProvider
+@inject IThemeService ThemeService
 @inject ILogger<ExternalLoginCallback> Logger
+
+@using ThePredictions.Web.Client.Services.Theme
 
 @attribute [AllowAnonymous]
 
@@ -29,6 +32,7 @@
             var result = await ((ApiAuthenticationStateProvider)AuthStateProvider).LoginWithRefreshToken(RefreshToken);
             if (result)
             {
+                await ThemeService.SyncOnLoginAsync();
                 NavigationManager.NavigateTo("/dashboard", forceLoad: true);
             }
             else

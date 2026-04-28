@@ -100,6 +100,7 @@ public class ApiAuthenticationStateProvider(HttpClient httpClient, ILocalStorage
 
         logger.LogInformation("Successfully deserialised authentication response. Storing access token.");
         await localStorage.SetItemAsync("accessToken", authResponse.AccessToken);
+        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", authResponse.AccessToken);
 
         logger.LogInformation("Notifying authentication state changed.");
         NotifyUserAuthentication();
@@ -110,6 +111,7 @@ public class ApiAuthenticationStateProvider(HttpClient httpClient, ILocalStorage
     public async Task MarkUserAsAuthenticatedAsync(string accessToken)
     {
         await localStorage.SetItemAsync("accessToken", accessToken);
+        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", accessToken);
         _refreshAttempted = false;
         NotifyUserAuthentication();
     }

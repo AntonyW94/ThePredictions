@@ -54,7 +54,7 @@
 
             <NotAuthorized>
                 <div class="d-flex align-items-center ms-auto">
-                    <button class="btn theme-toggle-btn theme-toggle-btn--labelled" @onclick="ToggleThemeTransient" title="@(ThemeService.IsDarkMode ? "Switch to light mode" : "Switch to dark mode")">
+                    <button class="btn theme-toggle-btn theme-toggle-btn--labelled" @onclick="ToggleThemeAsGuest" title="@(ThemeService.IsDarkMode ? "Switch to light mode" : "Switch to dark mode")">
                         <span class="bi @(ThemeService.IsDarkMode ? "bi-sun-fill" : "bi-moon-fill") me-2" aria-hidden="true"></span>
                         <span class="theme-toggle-btn__label">
                             @(ThemeService.IsDarkMode ? "Light" : "Dark")<span class="d-none d-lg-inline"> Mode</span>
@@ -84,9 +84,9 @@
         await ThemeService.ToggleThemeAsync();
     }
 
-    private void ToggleThemeTransient()
+    private async Task ToggleThemeAsGuest()
     {
-        ThemeService.ToggleThemeTransient();
+        await ThemeService.ToggleThemeAsGuestAsync();
     }
 
     private async Task LogoutUser()

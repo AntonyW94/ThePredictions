@@ -20,7 +20,6 @@
     border-radius: var(--bs-border-radius);
     padding: var(--space-6) var(--space-4);
     line-height: 1.65;
-    box-shadow: 0 1px 3px var(--black-alpha-15);
 }
 
 .legal-page__content h1 {
@@ -87,12 +86,13 @@
 
 /* Dark theme overrides — activated via .theme-dark on an ancestor.
    Matches the .form-container surface used on the login/register pages so
-   the panel sits clearly above the purple-900 page background. */
+   the panel sits clearly above the purple-900 page background. The drop
+   shadow comes from the .shadow utility class on the wrapper, which has
+   its own .theme-dark override. */
 .theme-dark .legal-page__content {
     background-color: var(--purple-800);
     color: var(--white);
     border-color: transparent;
-    box-shadow: 0 0 40px var(--purple-200-alpha-15);
 }
 
 .theme-dark .legal-page__content h1,

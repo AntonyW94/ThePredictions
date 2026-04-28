@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using ThePredictions.Contracts.Authentication;
+using ThePredictions.Web.Client.Services.Theme;
 using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace ThePredictions.Web.Client.Authentication;
 
-public class AuthenticationService(HttpClient httpClient, AuthenticationStateProvider authenticationStateProvider) : IAuthenticationService
+public class AuthenticationService(HttpClient httpClient, AuthenticationStateProvider authenticationStateProvider, IThemeService themeService) : IAuthenticationService
 {
     public async Task<AuthenticationResponse> RegisterAsync(RegisterRequest registerRequest)
     {
@@ -13,10 +14,11 @@ public class AuthenticationService(HttpClient httpClient, AuthenticationStatePro
         if (response.IsSuccessStatusCode)
         {
             var successResponse = await response.Content.ReadFromJsonAsync<SuccessfulAuthenticationResponse>();
-            if (successResponse == null) 
+            if (successResponse == null)
                 return new FailedAuthenticationResponse("Failed to process server response.");
-          
+
             await ((ApiAuthenticationStateProvider)authenticationStateProvider).MarkUserAsAuthenticatedAsync(successResponse.AccessToken);
+            await themeService.SyncOnLoginAsync();
             return successResponse;
         }
        
@@ -51,10 +53,11 @@ public class AuthenticationService(HttpClient httpClient, AuthenticationStatePro
         if (response.IsSuccessStatusCode)
         {
             var successResponse = await response.Content.ReadFromJsonAsync<SuccessfulAuthenticationResponse>();
-            if (successResponse == null) 
+            if (successResponse == null)
                 return new FailedAuthenticationResponse("Failed to process server response.");
-         
+
             await ((ApiAuthenticationStateProvider)authenticationStateProvider).MarkUserAsAuthenticatedAsync(successResponse.AccessToken);
+            await themeService.SyncOnLoginAsync();
             return successResponse;
         }
 
@@ -107,6 +110,7 @@ public class AuthenticationService(HttpClient httpClient, AuthenticationStatePro
             if (result != null)
             {
                 await ((ApiAuthenticationStateProvider)authenticationStateProvider).MarkUserAsAuthenticatedAsync(result.AccessToken);
+                await themeService.SyncOnLoginAsync();
                 return result;
             }
         }
