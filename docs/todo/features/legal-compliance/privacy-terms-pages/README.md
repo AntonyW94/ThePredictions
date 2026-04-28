@@ -2,7 +2,7 @@
 
 ## Status
 
-**Not Started** | In Progress | Complete
+Not Started | **In Progress** | Complete
 
 ## Summary
 
@@ -14,6 +14,6 @@ Static pages displaying the Privacy Policy and Terms of Service for the applicat
 
 ## Requirements
 
-- [ ] Privacy policy page
-- [ ] Terms of service page
-- [ ] Footer links to both
+- [x] Privacy policy page
+- [x] Terms of service page
+- [x] Footer links to both
