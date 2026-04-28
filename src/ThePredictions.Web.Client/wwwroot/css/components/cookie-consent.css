@@ -188,69 +188,14 @@
     }
 }
 
-/* Cookie policy page */
-.cookie-policy {
-    max-width: 48rem;
-    margin: 0 auto;
-    padding: var(--space-6) var(--space-4);
-    color: var(--black);
-}
-
-.cookie-policy__title {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: var(--space-4);
-    color: var(--purple-900);
-}
-
-.cookie-policy__lede {
-    font-size: 1.0625rem;
-    line-height: 1.5;
-    color: var(--grey-500);
-    margin-bottom: var(--space-6);
-}
-
-.cookie-policy h2 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin-top: var(--space-6);
-    margin-bottom: var(--space-3);
-    color: var(--purple-900);
-}
-
-.cookie-policy h3 {
-    font-size: 1.0625rem;
-    font-weight: 600;
-    margin-top: var(--space-4);
-    margin-bottom: var(--space-2);
-    color: var(--purple-700);
-}
-
-.cookie-policy p,
-.cookie-policy li {
-    line-height: 1.5;
-}
-
-.cookie-policy ul {
-    padding-left: var(--space-5);
-    margin-bottom: var(--space-4);
-}
-
-.cookie-policy code {
+/* Cookie policy page — extends the shared .legal-page layout. */
+.legal-page__content code {
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     background: var(--purple-50);
     border-radius: var(--space-1);
     padding: 0 var(--space-1);
     font-size: 0.875em;
     color: var(--purple-900);
-}
-
-.cookie-policy__current {
-    background: var(--purple-50);
-    border: 1px solid var(--purple-100);
-    border-radius: var(--bs-border-radius);
-    padding: var(--space-3) var(--space-4);
-    margin: var(--space-4) 0;
 }
 
 .cookie-policy__btn {
@@ -351,31 +296,8 @@
     background: var(--white-alpha-08);
 }
 
-.theme-dark .cookie-policy {
-    color: var(--white);
-}
-
-.theme-dark .cookie-policy__title,
-.theme-dark .cookie-policy h2 {
-    color: var(--white);
-}
-
-.theme-dark .cookie-policy h3 {
-    color: var(--blue-500);
-}
-
-.theme-dark .cookie-policy__lede {
-    color: var(--white-alpha-70);
-}
-
-.theme-dark .cookie-policy code {
+.theme-dark .legal-page__content code {
     background: var(--purple-900);
-    color: var(--white);
-}
-
-.theme-dark .cookie-policy__current {
-    background: var(--purple-900);
-    border-color: var(--white-alpha-08);
     color: var(--white);
 }
 

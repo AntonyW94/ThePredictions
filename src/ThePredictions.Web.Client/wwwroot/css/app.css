@@ -68,6 +68,7 @@
 @import url('pages/tournament-structure.css');
 @import url('pages/results-grid.css');
 @import url('pages/boost-usage.css');
+@import url('pages/legal-page.css');
 
 /* Base application styles */
 @import url('app-base.css');
