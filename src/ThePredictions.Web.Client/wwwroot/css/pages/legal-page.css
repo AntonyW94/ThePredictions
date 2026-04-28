@@ -1,0 +1,112 @@
+/* Legal pages (Privacy Policy, Terms of Service)
+   Long-form prose pages reachable while logged out. Keep readable
+   typography: comfortable line-height, max-width on the body, and
+   a clear "Last updated" line. Mobile-first: tighter padding on
+   phones, more breathing room from tablet up. */
+
+.legal-page {
+    width: 100%;
+    padding: var(--space-4);
+    display: flex;
+    justify-content: center;
+}
+
+.legal-page__content {
+    width: 100%;
+    max-width: 46rem;
+    background: var(--white);
+    color: var(--purple-1000);
+    border: 1px solid var(--grey-200);
+    border-radius: var(--bs-border-radius);
+    padding: var(--space-6) var(--space-4);
+    line-height: 1.65;
+    box-shadow: 0 1px 3px var(--black-alpha-15);
+}
+
+.legal-page__content h1 {
+    font-size: 1.75rem;
+    margin-bottom: var(--space-2);
+}
+
+.legal-page__content h2 {
+    font-size: 1.25rem;
+    margin-top: var(--space-8);
+    margin-bottom: var(--space-3);
+}
+
+.legal-page__content section:first-of-type h2 {
+    margin-top: var(--space-6);
+}
+
+.legal-page__content p {
+    margin-bottom: var(--space-4);
+}
+
+.legal-page__content ul {
+    margin-bottom: var(--space-4);
+    padding-left: var(--space-6);
+}
+
+.legal-page__content li {
+    margin-bottom: var(--space-2);
+}
+
+.legal-page__content a {
+    color: var(--purple-200);
+    text-decoration: underline;
+}
+
+.legal-page__content a:hover {
+    color: var(--purple-700);
+}
+
+.legal-page__updated {
+    color: var(--grey-500);
+    font-size: 0.875rem;
+    margin-bottom: var(--space-6);
+}
+
+/* Tablet and up (--breakpoint-tablet: 768px) */
+@media (min-width: 768px) {
+    .legal-page {
+        padding: var(--space-8) var(--space-6);
+    }
+
+    .legal-page__content {
+        padding: var(--space-10) var(--space-8);
+    }
+
+    .legal-page__content h1 {
+        font-size: 2.25rem;
+    }
+
+    .legal-page__content h2 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Dark theme overrides — activated via .theme-dark on an ancestor. */
+.theme-dark .legal-page__content {
+    background: var(--purple-1000);
+    color: var(--white);
+    border-color: var(--white-alpha-08);
+    box-shadow: 0 4px 12px var(--black-alpha-25);
+}
+
+.theme-dark .legal-page__content h1,
+.theme-dark .legal-page__content h2,
+.theme-dark .legal-page__content strong {
+    color: var(--white);
+}
+
+.theme-dark .legal-page__updated {
+    color: var(--white-alpha-70);
+}
+
+.theme-dark .legal-page__content a {
+    color: var(--blue-500);
+}
+
+.theme-dark .legal-page__content a:hover {
+    color: var(--blue-700);
+}

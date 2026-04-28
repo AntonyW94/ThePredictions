@@ -32,6 +32,24 @@
     font-size: 0.875rem;
 }
 
+.site-footer__link {
+    color: var(--grey-500);
+    text-decoration: none;
+}
+
+.site-footer__link:hover {
+    color: var(--purple-700);
+    text-decoration: underline;
+}
+
+.theme-dark .site-footer__link {
+    color: var(--white-alpha-70);
+}
+
+.theme-dark .site-footer__link:hover {
+    color: var(--white);
+}
+
 /* Hide the link slot until it has children, so the layout stays
    balanced today and accepts links tomorrow without restructuring. */
 .site-footer__links:empty {
