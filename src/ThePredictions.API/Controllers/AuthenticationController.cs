@@ -37,8 +37,6 @@ public class AuthenticationController(ILogger<AuthenticationController> logger, 
             request.LastName,
             request.Email,
             request.Password,
-            request.Over18Confirmed,
-            request.TermsAccepted,
             request.MarketingOptIn);
         var result = await mediator.Send(command, cancellationToken);
 

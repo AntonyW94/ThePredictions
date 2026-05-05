@@ -29,14 +29,14 @@ public class DapperUserStore : IUserPasswordStore<ApplicationUser>, IUserEmailSt
                     [Id], [UserName], [NormalizedUserName], [Email], [NormalizedEmail], [EmailConfirmed],
                     [PasswordHash], [SecurityStamp], [ConcurrencyStamp], [PhoneNumber], [PhoneNumberConfirmed],
                     [TwoFactorEnabled], [LockoutEnd], [LockoutEnabled], [AccessFailedCount], [FirstName], [LastName],
-                    [Over18ConfirmedAtUtc], [TermsAcceptedAtUtc], [MarketingOptInAtUtc]
+                    [TermsAcceptedAtUtc], [MarketingOptInAtUtc]
                 )
                 VALUES
                 (
                     @Id, @UserName, @NormalizedUserName, @Email, @NormalizedEmail, @EmailConfirmed,
                     @PasswordHash, @SecurityStamp, @ConcurrencyStamp, @PhoneNumber, @PhoneNumberConfirmed,
                     @TwoFactorEnabled, @LockoutEnd, @LockoutEnabled, @AccessFailedCount, @FirstName, @LastName,
-                    @Over18ConfirmedAtUtc, @TermsAcceptedAtUtc, @MarketingOptInAtUtc
+                    @TermsAcceptedAtUtc, @MarketingOptInAtUtc
                 );";
         await connection.ExecuteAsync(sql, user);
         return IdentityResult.Success;
@@ -95,7 +95,7 @@ public class DapperUserStore : IUserPasswordStore<ApplicationUser>, IUserEmailSt
                     [PhoneNumberConfirmed] = @PhoneNumberConfirmed, [TwoFactorEnabled] = @TwoFactorEnabled, [LockoutEnd] = @LockoutEnd,
                     [LockoutEnabled] = @LockoutEnabled, [AccessFailedCount] = @AccessFailedCount,
                     [FirstName] = @FirstName, [LastName] = @LastName,
-                    [Over18ConfirmedAtUtc] = @Over18ConfirmedAtUtc, [TermsAcceptedAtUtc] = @TermsAcceptedAtUtc, [MarketingOptInAtUtc] = @MarketingOptInAtUtc
+                    [TermsAcceptedAtUtc] = @TermsAcceptedAtUtc, [MarketingOptInAtUtc] = @MarketingOptInAtUtc
                 WHERE [Id] = @Id;";
         await connection.ExecuteAsync(sql, user);
         return IdentityResult.Success;

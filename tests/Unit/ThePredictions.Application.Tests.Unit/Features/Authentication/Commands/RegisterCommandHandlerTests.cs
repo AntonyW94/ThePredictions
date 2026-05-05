@@ -26,12 +26,8 @@ public class RegisterCommandHandlerTests
         _handler = new RegisterCommandHandler(_userManager, _tokenService, _dateTimeProvider);
     }
 
-    private static RegisterCommand BuildCommand(
-        string email = "john@example.com",
-        bool over18Confirmed = true,
-        bool termsAccepted = true,
-        bool marketingOptIn = false) =>
-        new("John", "Doe", email, "Password123!", over18Confirmed, termsAccepted, marketingOptIn);
+    private static RegisterCommand BuildCommand(string email = "john@example.com", bool marketingOptIn = false) =>
+        new("John", "Doe", email, "Password123!", marketingOptIn);
 
     [Fact]
     public async Task Handle_ShouldReturnSuccessfulResponse_WhenRegistrationIsValid()
@@ -159,7 +155,7 @@ public class RegisterCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ShouldStampOver18AndTermsTimestamps_WhenRegistrationSucceeds()
+    public async Task Handle_ShouldStampTermsAcceptedTimestamp_WhenRegistrationSucceeds()
     {
         // Arrange
         var command = BuildCommand(marketingOptIn: false);
@@ -179,8 +175,7 @@ public class RegisterCommandHandlerTests
 
         // Assert
         capturedUser.Should().NotBeNull();
-        capturedUser!.Over18ConfirmedAtUtc.Should().Be(FixedNowUtc);
-        capturedUser.TermsAcceptedAtUtc.Should().Be(FixedNowUtc);
+        capturedUser!.TermsAcceptedAtUtc.Should().Be(FixedNowUtc);
         capturedUser.MarketingOptInAtUtc.Should().BeNull();
     }
 
@@ -205,6 +200,7 @@ public class RegisterCommandHandlerTests
 
         // Assert
         capturedUser.Should().NotBeNull();
-        capturedUser!.MarketingOptInAtUtc.Should().Be(FixedNowUtc);
+        capturedUser!.TermsAcceptedAtUtc.Should().Be(FixedNowUtc);
+        capturedUser.MarketingOptInAtUtc.Should().Be(FixedNowUtc);
     }
 }

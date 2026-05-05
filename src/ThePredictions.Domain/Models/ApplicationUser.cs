@@ -8,7 +8,6 @@ public class ApplicationUser : IdentityUser
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string PreferredTheme { get; set; } = "light";
-    public DateTime? Over18ConfirmedAtUtc { get; set; }
     public DateTime? TermsAcceptedAtUtc { get; set; }
     public DateTime? MarketingOptInAtUtc { get; set; }
 
@@ -35,15 +34,8 @@ public class ApplicationUser : IdentityUser
         PhoneNumber = phoneNumber;
     }
 
-    public void RecordRegistrationConsent(bool over18Confirmed, bool termsAccepted, bool marketingOptIn, DateTime nowUtc)
+    public void RecordRegistrationConsent(bool marketingOptIn, DateTime nowUtc)
     {
-        if (!over18Confirmed)
-            throw new ArgumentException("Age confirmation is required to register.", nameof(over18Confirmed));
-
-        if (!termsAccepted)
-            throw new ArgumentException("Terms acceptance is required to register.", nameof(termsAccepted));
-
-        Over18ConfirmedAtUtc = nowUtc;
         TermsAcceptedAtUtc = nowUtc;
         MarketingOptInAtUtc = marketingOptIn ? nowUtc : null;
     }

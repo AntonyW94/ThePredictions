@@ -30,11 +30,5 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
         RuleFor(x => x.Password)
             .NotEmpty().WithMessage("Please create a password.")
             .Length(8, 100).WithMessage("Your password must be at least 8 characters long.");
-
-        RuleFor(x => x.Over18Confirmed)
-            .Equal(true).WithMessage("Please confirm you are 18 or over.");
-
-        RuleFor(x => x.TermsAccepted)
-            .Equal(true).WithMessage("Please accept the Terms of Service and Privacy Policy.");
     }
 }

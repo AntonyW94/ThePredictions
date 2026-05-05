@@ -8,8 +8,6 @@ public class RegisterRequestBuilder
     private string _lastName = "Smith";
     private string _email = "john.smith@example.com";
     private string _password = "ValidPass1";
-    private bool _over18Confirmed = true;
-    private bool _termsAccepted = true;
     private bool _marketingOptIn;
 
     public RegisterRequestBuilder WithFirstName(string firstName)
@@ -36,18 +34,6 @@ public class RegisterRequestBuilder
         return this;
     }
 
-    public RegisterRequestBuilder WithOver18Confirmed(bool over18Confirmed)
-    {
-        _over18Confirmed = over18Confirmed;
-        return this;
-    }
-
-    public RegisterRequestBuilder WithTermsAccepted(bool termsAccepted)
-    {
-        _termsAccepted = termsAccepted;
-        return this;
-    }
-
     public RegisterRequestBuilder WithMarketingOptIn(bool marketingOptIn)
     {
         _marketingOptIn = marketingOptIn;
@@ -60,8 +46,6 @@ public class RegisterRequestBuilder
         LastName = _lastName,
         Email = _email,
         Password = _password,
-        Over18Confirmed = _over18Confirmed,
-        TermsAccepted = _termsAccepted,
         MarketingOptIn = _marketingOptIn
     };
 }

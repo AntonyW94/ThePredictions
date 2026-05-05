@@ -9,21 +9,25 @@ using ThePredictions.Application.Services;
 using ThePredictions.Contracts.Authentication;
 using ThePredictions.Domain.Common.Enumerations;
 using ThePredictions.Domain.Models;
+using ThePredictions.Tests.Shared.Helpers;
 using Xunit;
 
 namespace ThePredictions.Application.Tests.Unit.Features.Authentication.Commands;
 
 public class LoginWithGoogleCommandHandlerTests
 {
+    private static readonly DateTime FixedNowUtc = new(2026, 4, 28, 10, 30, 0, DateTimeKind.Utc);
+
     private readonly IUserManager _userManager = Substitute.For<IUserManager>();
     private readonly IAuthenticationTokenService _tokenService = Substitute.For<IAuthenticationTokenService>();
+    private readonly TestDateTimeProvider _dateTimeProvider = new(FixedNowUtc);
     private readonly LoginWithGoogleCommandHandler _handler;
 
     private static readonly DateTime ExpiresAtUtc = new(2026, 5, 1, 12, 0, 0, DateTimeKind.Utc);
 
     public LoginWithGoogleCommandHandlerTests()
     {
-        _handler = new LoginWithGoogleCommandHandler(_userManager, _tokenService);
+        _handler = new LoginWithGoogleCommandHandler(_userManager, _tokenService, _dateTimeProvider);
     }
 
     private static AuthenticateResult CreateSuccessfulAuthResult(
@@ -196,6 +200,34 @@ public class LoginWithGoogleCommandHandlerTests
 
         // Assert
         await act.Should().ThrowAsync<IdentityUpdateException>();
+    }
+
+    [Fact]
+    public async Task Handle_ShouldStampTermsAcceptedTimestamp_WhenCreatingNewUser()
+    {
+        // Arrange
+        var authResult = CreateSuccessfulAuthResult();
+        var command = new LoginWithGoogleCommand(authResult, "register");
+
+        _userManager.FindByLoginAsync("Google", "google-id-123").Returns((ApplicationUser?)null);
+        _userManager.FindByEmailAsync("john@example.com").Returns((ApplicationUser?)null);
+        ApplicationUser? capturedUser = null;
+        _userManager.CreateAsync(Arg.Do<ApplicationUser>(u => capturedUser = u))
+            .Returns(UserManagerResult.Success());
+        _userManager.AddToRoleAsync(Arg.Any<ApplicationUser>(), Arg.Any<string>())
+            .Returns(UserManagerResult.Success());
+        _userManager.AddLoginAsync(Arg.Any<ApplicationUser>(), "Google", "google-id-123")
+            .Returns(UserManagerResult.Success());
+        _tokenService.GenerateTokensAsync(Arg.Any<ApplicationUser>(), Arg.Any<CancellationToken>())
+            .Returns(("access-token", "refresh-token", ExpiresAtUtc));
+
+        // Act
+        await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        capturedUser.Should().NotBeNull();
+        capturedUser!.TermsAcceptedAtUtc.Should().Be(FixedNowUtc);
+        capturedUser.MarketingOptInAtUtc.Should().BeNull();
     }
 
     [Fact]

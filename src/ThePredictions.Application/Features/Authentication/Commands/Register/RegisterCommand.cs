@@ -8,6 +8,4 @@ public record RegisterCommand(
     string LastName,
     string Email,
     string Password,
-    bool Over18Confirmed,
-    bool TermsAccepted,
     bool MarketingOptIn) : IRequest<AuthenticationResponse>;

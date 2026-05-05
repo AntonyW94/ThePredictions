@@ -3,6 +3,7 @@ using MediatR;
 using ThePredictions.Application.Common.Exceptions;
 using ThePredictions.Application.Services;
 using ThePredictions.Contracts.Authentication;
+using ThePredictions.Domain.Common;
 using ThePredictions.Domain.Common.Enumerations;
 using ThePredictions.Domain.Common.Validation;
 using ThePredictions.Domain.Models;
@@ -10,7 +11,10 @@ using System.Security.Claims;
 
 namespace ThePredictions.Application.Features.Authentication.Commands.LoginWithGoogle;
 
-public class LoginWithGoogleCommandHandler(IUserManager userManager, IAuthenticationTokenService tokenService)
+public class LoginWithGoogleCommandHandler(
+    IUserManager userManager,
+    IAuthenticationTokenService tokenService,
+    IDateTimeProvider dateTimeProvider)
     : IRequestHandler<LoginWithGoogleCommand, AuthenticationResponse>
 {
     public async Task<AuthenticationResponse> Handle(LoginWithGoogleCommand request, CancellationToken cancellationToken)
@@ -58,6 +62,8 @@ public class LoginWithGoogleCommandHandler(IUserManager userManager, IAuthentica
             LastName = NameValidator.Sanitize(principal.FindFirstValue(ClaimTypes.Surname)),
             EmailConfirmed = true
         };
+
+        newUser.RecordRegistrationConsent(marketingOptIn: false, dateTimeProvider.UtcNow);
 
         var createResult = await userManager.CreateAsync(newUser);
         if (!createResult.Succeeded)

@@ -289,17 +289,16 @@ public class ApplicationUserTests
     #region RecordRegistrationConsent
 
     [Fact]
-    public void RecordRegistrationConsent_ShouldStampAllTimestamps_WhenAllConsentsGiven()
+    public void RecordRegistrationConsent_ShouldStampTermsAndMarketingTimestamps_WhenMarketingOptInChosen()
     {
         // Arrange
         var user = ApplicationUser.Create("John", "Doe", "john@example.com");
         var nowUtc = new DateTime(2026, 4, 28, 10, 0, 0, DateTimeKind.Utc);
 
         // Act
-        user.RecordRegistrationConsent(over18Confirmed: true, termsAccepted: true, marketingOptIn: true, nowUtc);
+        user.RecordRegistrationConsent(marketingOptIn: true, nowUtc);
 
         // Assert
-        user.Over18ConfirmedAtUtc.Should().Be(nowUtc);
         user.TermsAcceptedAtUtc.Should().Be(nowUtc);
         user.MarketingOptInAtUtc.Should().Be(nowUtc);
     }
@@ -312,40 +311,11 @@ public class ApplicationUserTests
         var nowUtc = new DateTime(2026, 4, 28, 10, 0, 0, DateTimeKind.Utc);
 
         // Act
-        user.RecordRegistrationConsent(over18Confirmed: true, termsAccepted: true, marketingOptIn: false, nowUtc);
+        user.RecordRegistrationConsent(marketingOptIn: false, nowUtc);
 
         // Assert
-        user.Over18ConfirmedAtUtc.Should().Be(nowUtc);
         user.TermsAcceptedAtUtc.Should().Be(nowUtc);
         user.MarketingOptInAtUtc.Should().BeNull();
-    }
-
-    [Fact]
-    public void RecordRegistrationConsent_ShouldThrowException_WhenOver18NotConfirmed()
-    {
-        // Arrange
-        var user = ApplicationUser.Create("John", "Doe", "john@example.com");
-        var nowUtc = new DateTime(2026, 4, 28, 10, 0, 0, DateTimeKind.Utc);
-
-        // Act
-        var act = () => user.RecordRegistrationConsent(over18Confirmed: false, termsAccepted: true, marketingOptIn: false, nowUtc);
-
-        // Assert
-        act.Should().Throw<ArgumentException>();
-    }
-
-    [Fact]
-    public void RecordRegistrationConsent_ShouldThrowException_WhenTermsNotAccepted()
-    {
-        // Arrange
-        var user = ApplicationUser.Create("John", "Doe", "john@example.com");
-        var nowUtc = new DateTime(2026, 4, 28, 10, 0, 0, DateTimeKind.Utc);
-
-        // Act
-        var act = () => user.RecordRegistrationConsent(over18Confirmed: true, termsAccepted: false, marketingOptIn: false, nowUtc);
-
-        // Assert
-        act.Should().Throw<ArgumentException>();
     }
 
     #endregion
