@@ -37,8 +37,8 @@
     left: 0;
     width: 100%;
     height: 100%;
+    overflow: visible;
     z-index: 1;
-    /* Note: filter is applied as inline style to work with SVG defs and <base href> */
     stroke-width: 0.1875rem;
     stroke-linejoin: round;
     paint-order: stroke fill;
