@@ -2,7 +2,7 @@
 
 ## Status
 
-Not Started | **In Progress** | Complete
+Not Started | In Progress | **Complete**
 
 ## Summary
 
