@@ -144,6 +144,32 @@
     border-color: var(--green-600);
 }
 
+.theme-dark .consent-toggle {
+    background: var(--purple-1000);
+    border-color: var(--white-alpha-15);
+    color: var(--white);
+}
+
+.theme-dark .consent-toggle:hover {
+    border-color: var(--white-alpha-30);
+}
+
+.theme-dark .consent-toggle-tick {
+    background: var(--white-alpha-15);
+}
+
+.theme-dark .consent-toggle-active,
+.theme-dark .consent-toggle-active:hover {
+    background: var(--green-600);
+    border-color: var(--green-600);
+    color: var(--white);
+}
+
+.theme-dark .consent-toggle-active .consent-toggle-tick {
+    background: var(--white);
+    color: var(--green-600);
+}
+
 .theme-dark .input-group-text.prize-label {
     background-color: var(--purple-900);
     border-color: var(--purple-900);

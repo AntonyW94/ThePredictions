@@ -285,4 +285,38 @@ public class ApplicationUserTests
     }
 
     #endregion
+
+    #region RecordRegistrationConsent
+
+    [Fact]
+    public void RecordRegistrationConsent_ShouldStampTermsAndMarketingTimestamps_WhenMarketingOptInChosen()
+    {
+        // Arrange
+        var user = ApplicationUser.Create("John", "Doe", "john@example.com");
+        var nowUtc = new DateTime(2026, 4, 28, 10, 0, 0, DateTimeKind.Utc);
+
+        // Act
+        user.RecordRegistrationConsent(marketingOptIn: true, nowUtc);
+
+        // Assert
+        user.TermsAcceptedAtUtc.Should().Be(nowUtc);
+        user.MarketingOptInAtUtc.Should().Be(nowUtc);
+    }
+
+    [Fact]
+    public void RecordRegistrationConsent_ShouldLeaveMarketingOptInNull_WhenMarketingNotChosen()
+    {
+        // Arrange
+        var user = ApplicationUser.Create("John", "Doe", "john@example.com");
+        var nowUtc = new DateTime(2026, 4, 28, 10, 0, 0, DateTimeKind.Utc);
+
+        // Act
+        user.RecordRegistrationConsent(marketingOptIn: false, nowUtc);
+
+        // Assert
+        user.TermsAcceptedAtUtc.Should().Be(nowUtc);
+        user.MarketingOptInAtUtc.Should().BeNull();
+    }
+
+    #endregion
 }

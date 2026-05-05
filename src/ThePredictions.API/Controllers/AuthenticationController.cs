@@ -32,7 +32,12 @@ public class AuthenticationController(ILogger<AuthenticationController> logger, 
         [FromBody, SwaggerParameter("Registration details including email, password, first name, and last name", Required = true)] RegisterRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new RegisterCommand(request.FirstName, request.LastName, request.Email, request.Password);
+        var command = new RegisterCommand(
+            request.FirstName,
+            request.LastName,
+            request.Email,
+            request.Password,
+            request.MarketingOptIn);
         var result = await mediator.Send(command, cancellationToken);
 
         if (result is not SuccessfulAuthenticationResponse success)

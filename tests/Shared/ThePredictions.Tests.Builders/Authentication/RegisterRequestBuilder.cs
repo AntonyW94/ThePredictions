@@ -8,6 +8,7 @@ public class RegisterRequestBuilder
     private string _lastName = "Smith";
     private string _email = "john.smith@example.com";
     private string _password = "ValidPass1";
+    private bool _marketingOptIn;
 
     public RegisterRequestBuilder WithFirstName(string firstName)
     {
@@ -33,11 +34,18 @@ public class RegisterRequestBuilder
         return this;
     }
 
+    public RegisterRequestBuilder WithMarketingOptIn(bool marketingOptIn)
+    {
+        _marketingOptIn = marketingOptIn;
+        return this;
+    }
+
     public RegisterRequest Build() => new()
     {
         FirstName = _firstName,
         LastName = _lastName,
         Email = _email,
-        Password = _password
+        Password = _password,
+        MarketingOptIn = _marketingOptIn
     };
 }

@@ -7,26 +7,33 @@ using ThePredictions.Application.Services;
 using ThePredictions.Contracts.Authentication;
 using ThePredictions.Domain.Common.Enumerations;
 using ThePredictions.Domain.Models;
+using ThePredictions.Tests.Shared.Helpers;
 using Xunit;
 
 namespace ThePredictions.Application.Tests.Unit.Features.Authentication.Commands;
 
 public class RegisterCommandHandlerTests
 {
+    private static readonly DateTime FixedNowUtc = new(2026, 4, 28, 10, 30, 0, DateTimeKind.Utc);
+
     private readonly IUserManager _userManager = Substitute.For<IUserManager>();
     private readonly IAuthenticationTokenService _tokenService = Substitute.For<IAuthenticationTokenService>();
+    private readonly TestDateTimeProvider _dateTimeProvider = new(FixedNowUtc);
     private readonly RegisterCommandHandler _handler;
 
     public RegisterCommandHandlerTests()
     {
-        _handler = new RegisterCommandHandler(_userManager, _tokenService);
+        _handler = new RegisterCommandHandler(_userManager, _tokenService, _dateTimeProvider);
     }
+
+    private static RegisterCommand BuildCommand(string email = "john@example.com", bool marketingOptIn = false) =>
+        new("John", "Doe", email, "Password123!", marketingOptIn);
 
     [Fact]
     public async Task Handle_ShouldReturnSuccessfulResponse_WhenRegistrationIsValid()
     {
         // Arrange
-        var command = new RegisterCommand("John", "Doe", "john@example.com", "Password123!");
+        var command = BuildCommand();
         var expiresAtUtc = new DateTime(2026, 5, 1, 12, 0, 0, DateTimeKind.Utc);
 
         _userManager.FindByEmailAsync(command.Email).Returns((ApplicationUser?)null);
@@ -52,7 +59,7 @@ public class RegisterCommandHandlerTests
     public async Task Handle_ShouldReturnFailedResponse_WhenEmailAlreadyExists()
     {
         // Arrange
-        var command = new RegisterCommand("John", "Doe", "existing@example.com", "Password123!");
+        var command = BuildCommand("existing@example.com");
         var existingUser = new ApplicationUser { Email = command.Email };
 
         _userManager.FindByEmailAsync(command.Email).Returns(existingUser);
@@ -70,7 +77,7 @@ public class RegisterCommandHandlerTests
     public async Task Handle_ShouldNotCreateUser_WhenEmailAlreadyExists()
     {
         // Arrange
-        var command = new RegisterCommand("John", "Doe", "existing@example.com", "Password123!");
+        var command = BuildCommand("existing@example.com");
         var existingUser = new ApplicationUser { Email = command.Email };
 
         _userManager.FindByEmailAsync(command.Email).Returns(existingUser);
@@ -86,7 +93,7 @@ public class RegisterCommandHandlerTests
     public async Task Handle_ShouldThrowIdentityUpdateException_WhenCreateFails()
     {
         // Arrange
-        var command = new RegisterCommand("John", "Doe", "john@example.com", "weak");
+        var command = BuildCommand();
 
         _userManager.FindByEmailAsync(command.Email).Returns((ApplicationUser?)null);
         _userManager.CreateAsync(Arg.Any<ApplicationUser>(), command.Password)
@@ -103,7 +110,7 @@ public class RegisterCommandHandlerTests
     public async Task Handle_ShouldAssignPlayerRole_WhenRegistrationSucceeds()
     {
         // Arrange
-        var command = new RegisterCommand("John", "Doe", "john@example.com", "Password123!");
+        var command = BuildCommand();
         var expiresAtUtc = new DateTime(2026, 5, 1, 12, 0, 0, DateTimeKind.Utc);
 
         _userManager.FindByEmailAsync(command.Email).Returns((ApplicationUser?)null);
@@ -127,7 +134,7 @@ public class RegisterCommandHandlerTests
     public async Task Handle_ShouldGenerateTokens_WhenRegistrationSucceeds()
     {
         // Arrange
-        var command = new RegisterCommand("John", "Doe", "john@example.com", "Password123!");
+        var command = BuildCommand();
         var expiresAtUtc = new DateTime(2026, 5, 1, 12, 0, 0, DateTimeKind.Utc);
 
         _userManager.FindByEmailAsync(command.Email).Returns((ApplicationUser?)null);
@@ -145,5 +152,55 @@ public class RegisterCommandHandlerTests
         await _tokenService.Received(1).GenerateTokensAsync(
             Arg.Any<ApplicationUser>(),
             Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_ShouldStampTermsAcceptedTimestamp_WhenRegistrationSucceeds()
+    {
+        // Arrange
+        var command = BuildCommand(marketingOptIn: false);
+        var expiresAtUtc = new DateTime(2026, 5, 1, 12, 0, 0, DateTimeKind.Utc);
+
+        _userManager.FindByEmailAsync(command.Email).Returns((ApplicationUser?)null);
+        ApplicationUser? capturedUser = null;
+        _userManager.CreateAsync(Arg.Do<ApplicationUser>(u => capturedUser = u), command.Password)
+            .Returns(UserManagerResult.Success());
+        _userManager.AddToRoleAsync(Arg.Any<ApplicationUser>(), Arg.Any<string>())
+            .Returns(UserManagerResult.Success());
+        _tokenService.GenerateTokensAsync(Arg.Any<ApplicationUser>(), Arg.Any<CancellationToken>())
+            .Returns(("access-token", "refresh-token", expiresAtUtc));
+
+        // Act
+        await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        capturedUser.Should().NotBeNull();
+        capturedUser!.TermsAcceptedAtUtc.Should().Be(FixedNowUtc);
+        capturedUser.MarketingOptInAtUtc.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Handle_ShouldStampMarketingOptInTimestamp_WhenUserOptedIn()
+    {
+        // Arrange
+        var command = BuildCommand(marketingOptIn: true);
+        var expiresAtUtc = new DateTime(2026, 5, 1, 12, 0, 0, DateTimeKind.Utc);
+
+        _userManager.FindByEmailAsync(command.Email).Returns((ApplicationUser?)null);
+        ApplicationUser? capturedUser = null;
+        _userManager.CreateAsync(Arg.Do<ApplicationUser>(u => capturedUser = u), command.Password)
+            .Returns(UserManagerResult.Success());
+        _userManager.AddToRoleAsync(Arg.Any<ApplicationUser>(), Arg.Any<string>())
+            .Returns(UserManagerResult.Success());
+        _tokenService.GenerateTokensAsync(Arg.Any<ApplicationUser>(), Arg.Any<CancellationToken>())
+            .Returns(("access-token", "refresh-token", expiresAtUtc));
+
+        // Act
+        await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        capturedUser.Should().NotBeNull();
+        capturedUser!.TermsAcceptedAtUtc.Should().Be(FixedNowUtc);
+        capturedUser.MarketingOptInAtUtc.Should().Be(FixedNowUtc);
     }
 }
