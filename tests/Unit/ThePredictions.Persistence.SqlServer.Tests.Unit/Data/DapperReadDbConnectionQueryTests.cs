@@ -46,17 +46,48 @@ public sealed class DapperReadDbConnectionQueryTests : IDisposable
 
     private DapperReadDbConnection BuildConnection(
         int slowQueryThresholdMilliseconds = 500,
-        IReadIsolationPolicy? isolationPolicy = null) =>
-        new(_connectionFactory,
+        int slowConnectionThresholdMilliseconds = 500,
+        IReadIsolationPolicy? isolationPolicy = null,
+        IDbConnectionFactory? connectionFactory = null) =>
+        new(connectionFactory ?? _connectionFactory,
             new PassThroughRetryPolicy(),
             isolationPolicy ?? new UnwrappedIsolationPolicy(),
             Options.Create(new TimeoutSettings()),
-            Options.Create(new QueryMonitoringSettings { SlowQueryThresholdMilliseconds = slowQueryThresholdMilliseconds }),
+            Options.Create(new QueryMonitoringSettings
+            {
+                SlowQueryThresholdMilliseconds = slowQueryThresholdMilliseconds,
+                SlowConnectionThresholdMilliseconds = slowConnectionThresholdMilliseconds
+            }),
             _logger);
+
+    /// <summary>
+    /// Hands back a factory that takes at least <paramref name="delayMilliseconds"/> to produce an open
+    /// connection, which is the only way to drive the connection half of the timing deterministically.
+    /// </summary>
+    private static IDbConnectionFactory SlowConnectionFactory(int delayMilliseconds)
+    {
+        var factory = Substitute.For<IDbConnectionFactory>();
+
+        factory.CreateConnection().Returns(_ =>
+        {
+            Thread.Sleep(delayMilliseconds);
+
+            var connection = new SqliteConnection(ConnectionString);
+            connection.Open();
+            return connection;
+        });
+
+        return factory;
+    }
 
     private int WarningCount() => _logger.ReceivedCalls()
         .Count(c => c.GetMethodInfo().Name == nameof(ILogger.Log)
                     && (LogLevel)c.GetArguments()[0]! == LogLevel.Warning);
+
+    private int WarningCount(string startingWith) => _logger.ReceivedCalls()
+        .Where(c => c.GetMethodInfo().Name == nameof(ILogger.Log)
+                    && (LogLevel)c.GetArguments()[0]! == LogLevel.Warning)
+        .Count(c => c.GetArguments()[2]!.ToString()!.StartsWith(startingWith, StringComparison.Ordinal));
 
     [Fact]
     public async Task QueryAsync_ShouldReturnEveryMatchingRow()
@@ -160,6 +191,48 @@ public sealed class DapperReadDbConnectionQueryTests : IDisposable
             .QuerySingleOrDefaultAsync<string>("SELECT Name FROM Leagues WHERE Id = 1", CancellationToken.None);
 
         WarningCount().Should().Be(1);
+    }
+
+    [Fact]
+    public async Task QueryAsync_ShouldWarnAboutTheConnection_WhenAcquiringItMeetsTheConnectionThreshold()
+    {
+        await BuildConnection(
+                slowQueryThresholdMilliseconds: 60_000,
+                slowConnectionThresholdMilliseconds: 300,
+                connectionFactory: SlowConnectionFactory(400))
+            .QueryAsync<string>("SELECT Name FROM Leagues", CancellationToken.None);
+
+        WarningCount("Slow connection acquisition").Should().Be(1);
+    }
+
+    [Fact]
+    public async Task QueryAsync_ShouldNotBlameTheQuery_WhenOnlyAcquiringTheConnectionWasSlow()
+    {
+        // The regression this whole split exists for. The read takes over 400ms end to end, comfortably
+        // past the 300ms query threshold, but nearly all of it was spent getting a connection - so the
+        // query threshold must see only the remainder and stay quiet. Measuring the total instead, as
+        // this did before, is what filed 73% of a fortnight's connection stalls as slow SQL.
+        await BuildConnection(
+                slowQueryThresholdMilliseconds: 300,
+                slowConnectionThresholdMilliseconds: 60_000,
+                connectionFactory: SlowConnectionFactory(400))
+            .QueryAsync<string>("SELECT Name FROM Leagues", CancellationToken.None);
+
+        WarningCount().Should().Be(0);
+    }
+
+    [Fact]
+    public async Task QueryAsync_ShouldWarnAboutBoth_WhenTheConnectionAndTheQueryAreBothSlow()
+    {
+        // Each half names its own cause, so a read with both problems reports both rather than picking one.
+        await BuildConnection(
+                slowQueryThresholdMilliseconds: 0,
+                slowConnectionThresholdMilliseconds: 300,
+                connectionFactory: SlowConnectionFactory(400))
+            .QueryAsync<string>("SELECT Name FROM Leagues", CancellationToken.None);
+
+        WarningCount("Slow connection acquisition").Should().Be(1);
+        WarningCount("Slow query").Should().Be(1);
     }
 
     private sealed class PassThroughRetryPolicy : ISqlRetryPolicy
