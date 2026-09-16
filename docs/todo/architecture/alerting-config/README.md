@@ -36,6 +36,14 @@ performance alerting, which needs a latency signal we do not currently collect.
 The first two renotify every 30 minutes while unresolved, and evaluate over 5 minutes with missing
 data treated as zero.
 
+**Database outages are filed at Information until they last an hour (2026-09-16).** The errors monitor
+needed the same treatment as the warnings one, for the same reason. Over Sep 2-16 2026, **37 of the 38
+Errors were the shared SQL instance going away** - production and development failing within 80-200ms of
+each other, in five windows lasting from seconds to ten minutes. Nobody can act on that, so it is no
+longer reported as an Error unless the outage passes 60 minutes. The monitor query is unchanged: the
+classification lives in the code, where anyone reading the middleware can see it. See
+[ADR-0021](../../../decisions/0021-a-database-outage-is-not-an-error-until-it-lasts.md).
+
 **Slow reads are counted, not announced one by one (2026-09-16).** Over Sep 2-16 2026, 114 of the
 123 Warnings were slow-query warnings - 93% of everything the warnings monitor fired on - so a
 genuine warning of any other kind was buried. `Web Warnings` now excludes them by logger rather than
