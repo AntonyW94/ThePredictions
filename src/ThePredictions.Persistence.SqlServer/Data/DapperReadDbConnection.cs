@@ -83,15 +83,27 @@ public class DapperReadDbConnection(
 
                 using var connection = connectionFactory.CreateConnection();
 
-                // Dapper would open this itself on first use, which would fold the wait for a pooled
-                // connection into the query's measured cost. Opening it here keeps the two apart. A
-                // factory that hands back an open connection has nothing to do; Dapper leaves a
-                // connection it did not open alone, and the using block still disposes it.
-                if (connection.State != ConnectionState.Open)
-                    await ((DbConnection)connection).OpenAsync(ct);
-
-                connectionStopwatch.Stop();
-                connectionMilliseconds = connectionStopwatch.ElapsedMilliseconds;
+                try
+                {
+                    // Dapper would open this itself on first use, which would fold the wait for a pooled
+                    // connection into the query's measured cost. Opening it here keeps the two apart. A
+                    // factory that hands back an open connection has nothing to do; Dapper leaves a
+                    // connection it did not open alone, and the using block still disposes it.
+                    if (connection.State != ConnectionState.Open)
+                        await ((DbConnection)connection).OpenAsync(ct);
+                }
+                finally
+                {
+                    // In a finally because a failed open is the case that matters most. Recording the cost
+                    // only on success meant an open that threw left this at zero, so the whole wait was
+                    // charged to the query - and the wait is at its longest precisely then, because the
+                    // provider gives up at Connect Timeout. A real example: a read that spent 15,006ms
+                    // failing to get a connection (the 15s default, to the millisecond) was reported as a
+                    // 15-second slow query against 0ms of connection cost, which is the exact
+                    // misattribution the split threshold exists to prevent.
+                    connectionStopwatch.Stop();
+                    connectionMilliseconds = connectionStopwatch.ElapsedMilliseconds;
+                }
 
                 return await read(connection, command);
             }, cancellationToken);
