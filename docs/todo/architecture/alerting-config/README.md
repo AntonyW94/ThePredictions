@@ -30,10 +30,25 @@ performance alerting, which needs a latency signal we do not currently collect.
 | Monitor | Query | Grouped by | Channel |
 |---------|-------|-----------|---------|
 | `Web Errors [{{env.name}}]` | `status:error service:the-predictions-web` | `service`, `env`, `@error.kind` | `#alerts-errors` |
-| `Web Warnings [{{env.name}}]` | `status:warn service:the-predictions-web` | `service`, `env` | `#alerts-warnings` |
+| `Web Warnings [{{env.name}}]` | `status:warn service:the-predictions-web -@Properties.SourceContext:ThePredictions.Persistence.SqlServer.Data.DapperReadDbConnection` | `service`, `env` | `#alerts-warnings` |
+| `Web Slow Reads [{{env.name}}]` | `status:warn service:the-predictions-web @Properties.SourceContext:ThePredictions.Persistence.SqlServer.Data.DapperReadDbConnection` | `service`, `env` | `#alerts-warnings` |
 
-Both renotify every 30 minutes while unresolved, and evaluate over 5 minutes with missing data
-treated as zero.
+The first two renotify every 30 minutes while unresolved, and evaluate over 5 minutes with missing
+data treated as zero.
+
+**Slow reads are counted, not announced one by one (2026-09-16).** Over Sep 2-16 2026, 114 of the
+123 Warnings were slow-query warnings - 93% of everything the warnings monitor fired on - so a
+genuine warning of any other kind was buried. `Web Warnings` now excludes them by logger rather than
+by message text, which survives any rewording of the log line, and leaves that monitor for the
+warnings a person can act on one at a time. `Web Slow Reads` picks them up instead and alerts only
+above **25 in a rolling hour**, because one unlucky page load firing fifteen of them is not a
+degradation and paging on it is what caused the fatigue. It does not renotify.
+
+Exclude by `@Properties.SourceContext`, not by matching the message. `DapperReadDbConnection` logs
+only those two warnings (`Slow query` and `Slow connection acquisition`), so the logger name is an
+exact partition, and the two monitors stay complements of each other when the wording changes.
+Verified at the time: the exclusion took the warnings monitor from 123 matches to 9, all of them
+`Slow transaction` warnings from the scoring command.
 
 **Group by `env`, always.** A multi-alert monitor holds a separate alert state per group, so
 grouping by environment is what lets a production breach notify while dev is already alerting.

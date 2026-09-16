@@ -20,6 +20,7 @@ public class DapperReadDbConnection(
 {
     private readonly int _commandTimeout = timeoutSettings.Value.DatabaseCommandTimeoutSeconds;
     private readonly int _slowQueryThresholdMilliseconds = queryMonitoringSettings.Value.SlowQueryThresholdMilliseconds;
+    private readonly int _slowConnectionThresholdMilliseconds = queryMonitoringSettings.Value.SlowConnectionThresholdMilliseconds;
 
     public async Task<IEnumerable<T>> QueryAsync<T>(string sql, CancellationToken cancellationToken, object? param = null)
     {
@@ -48,6 +49,12 @@ public class DapperReadDbConnection(
     //
     // Without the split every one of those looks identical in the log, and the natural reading - that
     // the query needs an index - is the wrong conclusion for two of the three.
+    //
+    // Reporting the breakdown was not enough on its own: the *decision* to warn still compared the
+    // total against one threshold, so the first two causes both arrived as "Slow query" and the
+    // reader had to re-derive which one it was every time. The two now have a threshold and a message
+    // each, so the log line names its own cause. Both can fire for a single read - that is a read
+    // with both problems, and each line stands on its own.
     private async Task<TResult> ExecuteTimedAsync<TResult>(
         string sql,
         object? param,
@@ -103,11 +110,29 @@ public class DapperReadDbConnection(
         finally
         {
             stopwatch.Stop();
-            if (stopwatch.ElapsedMilliseconds >= _slowQueryThresholdMilliseconds)
+
+            // Never negative: the connection stopwatch runs strictly inside the outer one. On a retried
+            // read the outer covers every attempt while connectionMilliseconds is only the last one's,
+            // so the remainder absorbs the abandoned attempts - which belongs with the query half, as
+            // it is time the read spent waiting on the server rather than on the pool.
+            var queryMilliseconds = stopwatch.ElapsedMilliseconds - connectionMilliseconds;
+
+            if (connectionMilliseconds >= _slowConnectionThresholdMilliseconds)
                 logger.LogWarning(
-                    "Slow query ({ElapsedMilliseconds}ms >= {ThresholdMilliseconds}ms threshold, {ConnectionMilliseconds}ms acquiring the connection, {QueuedWorkItems} work items queued on {WorkerThreads} threads): {Sql}",
+                    "Slow connection acquisition ({ConnectionMilliseconds}ms >= {ConnectionThresholdMilliseconds}ms threshold, {ElapsedMilliseconds}ms for the whole read, {QueuedWorkItems} work items queued on {WorkerThreads} threads): {Sql}",
+                    connectionMilliseconds,
+                    _slowConnectionThresholdMilliseconds,
                     stopwatch.ElapsedMilliseconds,
+                    ThreadPool.PendingWorkItemCount,
+                    ThreadPool.ThreadCount,
+                    sql);
+
+            if (queryMilliseconds >= _slowQueryThresholdMilliseconds)
+                logger.LogWarning(
+                    "Slow query ({QueryMilliseconds}ms >= {ThresholdMilliseconds}ms threshold, {ElapsedMilliseconds}ms for the whole read including {ConnectionMilliseconds}ms acquiring the connection, {QueuedWorkItems} work items queued on {WorkerThreads} threads): {Sql}",
+                    queryMilliseconds,
                     _slowQueryThresholdMilliseconds,
+                    stopwatch.ElapsedMilliseconds,
                     connectionMilliseconds,
                     ThreadPool.PendingWorkItemCount,
                     ThreadPool.ThreadCount,
