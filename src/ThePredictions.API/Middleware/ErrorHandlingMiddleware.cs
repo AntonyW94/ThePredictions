@@ -1,4 +1,7 @@
+using Microsoft.Extensions.Options;
 using ThePredictions.Application.Common.Exceptions;
+using ThePredictions.Application.Configuration;
+using ThePredictions.Application.Data;
 using ThePredictions.Domain.Common.Exceptions;
 using System.Net;
 using System.Text.Json;
@@ -22,8 +25,15 @@ namespace ThePredictions.API.Middleware;
 /// renotifies every 30 minutes while unresolved, so a bucket that also held routine refusals could not be alerted on -
 /// and a real warning arriving among them would not be noticed. See ADR-0018.
 /// </remarks>
-public class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger, IWebHostEnvironment env)
+public class ErrorHandlingMiddleware(
+    RequestDelegate next,
+    ILogger<ErrorHandlingMiddleware> logger,
+    IWebHostEnvironment env,
+    IDatabaseOutageMonitor outageMonitor,
+    IOptions<DatabaseAvailabilitySettings> databaseAvailability)
 {
+    private readonly TimeSpan _outageErrorThreshold = TimeSpan.FromMinutes(databaseAvailability.Value.OutageErrorThresholdMinutes);
+
     public async Task InvokeAsync(HttpContext context)
     {
         try
@@ -98,6 +108,23 @@ public class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandling
             // from client") rather than an OperationCanceledException. Same meaning - informational, not
             // an error.
             logger.LogInformation("Request cancelled by client ({ExceptionType}). Request path: {Path}", ex.GetType().Name, context.Request.Path);
+        }
+        // The database being absent is not a defect and, on a shared instance where downtime is part of
+        // the hosting contract, not something anybody here can act on either - so by the rule above a
+        // short outage is Information: recorded in full, invisible to alerting. It stops being
+        // unactionable once it has gone on long enough that it is no longer going to fix itself, and at
+        // that point it is an Error. The status code does not move either way; the request did fail, so
+        // the caller still gets a 500.
+        catch (Exception ex) when (outageMonitor.IsDatabaseUnavailable(ex))
+        {
+            var outage = outageMonitor.RecordFailure();
+
+            if (outage >= _outageErrorThreshold)
+                logger.LogError(ex, "Database unavailable for {OutageMinutes} minutes. Request path: {Path}", (int)outage.TotalMinutes, context.Request.Path);
+            else
+                logger.LogInformation("Database unavailable ({OutageMinutes} minutes so far). Request path: {Path}", (int)outage.TotalMinutes, context.Request.Path);
+
+            await HandleUnhandledExceptionAsync(context, ex);
         }
         catch (Exception ex)
         {

@@ -123,6 +123,8 @@ Never throw `BusinessRuleViolationException` for an infrastructure or configurat
 | `Warning` | Somebody has to act, and it is not the caller's doing | Slow query, missing index, a third party failing or returning nothing, a data condition an administrator must resolve |
 | `Error` | Unhandled or unclassified - a defect until proven otherwise | Anything reaching the final `catch` |
 
+**A database outage is the one fault whose level depends on how long it has lasted** (ADR-0021). The hosting is a shared instance where short outages are contractual and nobody can act on one, so a failure meaning the database was unreachable logs at `Information` until the outage passes 60 minutes and at `Error` after that. `IDatabaseOutageMonitor` decides both halves; the status code stays 500 either way. Do not widen what counts as unreachable to include deadlocks or command timeouts - those are a statement that ran and lost, and they still say something about our code.
+
 This is what makes the warnings alert readable. The `Web Warnings` monitor fires on **more than zero** warnings in five minutes and renotifies every 30 minutes while unresolved, so a bucket that also held routine refusals could not be alerted on - and a real warning arriving among them would not be noticed. `EmailNotConfirmedException` made the case: the same account trips that gate on every attempt until it clicks the link, so one unconfirmed player kept the channel busy on their own.
 
 **A new branch in the middleware goes in at `Information` unless somebody has to act on it.** `ErrorHandlingMiddlewareTests.InvokeAsync_ShouldLogAtInformation_ForEveryClientFault` covers the whole set, so one added at Warning fails the build.

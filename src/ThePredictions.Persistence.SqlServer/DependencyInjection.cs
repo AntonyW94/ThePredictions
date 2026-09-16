@@ -43,6 +43,7 @@ using ThePredictions.Domain.Models;
 using ThePredictions.Persistence.SqlServer.Identity;
 using ThePredictions.Persistence.SqlServer.Data;
 using ThePredictions.Persistence.SqlServer.Data.Resilience;
+using ThePredictions.Application.Configuration;
 using ThePredictions.Persistence.SqlServer.Queries.Admin.Rounds;
 using ThePredictions.Persistence.SqlServer.Queries.Badges;
 using ThePredictions.Persistence.SqlServer.Queries.Boosts;
@@ -71,6 +72,11 @@ public static class DependencyInjection
         services.Configure<SqlRetryPolicyOptions>(
             configuration.GetSection(SqlRetryPolicyOptions.SectionName));
         services.AddSingleton<ISqlRetryPolicy, SqlRetryPolicy>();
+
+        // Singleton: the outage clock has to outlive the request that noticed the database was gone.
+        services.Configure<DatabaseAvailabilitySettings>(
+            configuration.GetSection(DatabaseAvailabilitySettings.SectionName));
+        services.AddSingleton<IDatabaseOutageMonitor, DatabaseOutageMonitor>();
 
         // The level the whole query side reads at, in one place. See ADR-0019 for why it is not the default.
         services.AddSingleton<IReadIsolationPolicy, ReadUncommittedIsolationPolicy>();

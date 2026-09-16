@@ -6,9 +6,12 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NSubstitute;
 using ThePredictions.API.Middleware;
 using ThePredictions.Application.Common.Exceptions;
+using ThePredictions.Application.Configuration;
+using ThePredictions.Application.Data;
 using ThePredictions.Domain.Common.Exceptions;
 using Xunit;
 
@@ -27,11 +30,22 @@ public class ErrorHandlingMiddlewareTests
 {
     private readonly RecordingLogger<ErrorHandlingMiddleware> _logger = new();
     private readonly IWebHostEnvironment _environment = Substitute.For<IWebHostEnvironment>();
+    private readonly IDatabaseOutageMonitor _outageMonitor = Substitute.For<IDatabaseOutageMonitor>();
 
     public ErrorHandlingMiddlewareTests()
     {
         _environment.EnvironmentName.Returns("Production");
+
+        // Nothing is a database outage unless a test says so, so every existing branch is unaffected.
+        _outageMonitor.IsDatabaseUnavailable(Arg.Any<Exception>()).Returns(false);
     }
+
+    private ErrorHandlingMiddleware BuildMiddleware(RequestDelegate next) =>
+        new(next,
+            _logger,
+            _environment,
+            _outageMonitor,
+            Options.Create(new DatabaseAvailabilitySettings()));
 
     // The inversion in ADR-0016: a bare InvalidOperationException is a server-side defect (a missing
     // setting, a misused API, a result set that will not materialise), not a client mistake. If this
@@ -205,7 +219,7 @@ public class ErrorHandlingMiddlewareTests
     public async Task InvokeAsync_ShouldDoNothing_WhenTheRequestSucceeds()
     {
         var context = NewContext();
-        var middleware = new ErrorHandlingMiddleware(_ => Task.CompletedTask, _logger, _environment);
+        var middleware = BuildMiddleware(_ => Task.CompletedTask);
 
         await middleware.InvokeAsync(context);
 
@@ -254,12 +268,40 @@ public class ErrorHandlingMiddlewareTests
         LastEntry().Level.Should().Be(LogLevel.Error);
     }
 
+    // The database going missing on a shared instance is nobody's to fix, and the hosting contract says it
+    // will happen. Alerting on it trained the errors channel to be ignored, so a short outage is filed at
+    // Information like any other unactionable failure.
+    [Fact]
+    public async Task InvokeAsync_ShouldLogAtInformation_WhenTheDatabaseHasBeenUnavailableBriefly()
+    {
+        _outageMonitor.IsDatabaseUnavailable(Arg.Any<Exception>()).Returns(true);
+        _outageMonitor.RecordFailure().Returns(TimeSpan.FromMinutes(9));
+
+        var context = await InvokeWith(new InvalidOperationException("The specified network name is no longer available."));
+
+        LastEntry().Level.Should().Be(LogLevel.Information);
+        context.Response.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
+    }
+
+    // The other side of it: past the threshold the outage has stopped being something that fixes itself, so
+    // somebody does have to look, and that is what Error means.
+    [Fact]
+    public async Task InvokeAsync_ShouldLogAtError_WhenTheDatabaseHasBeenUnavailablePastTheThreshold()
+    {
+        _outageMonitor.IsDatabaseUnavailable(Arg.Any<Exception>()).Returns(true);
+        _outageMonitor.RecordFailure().Returns(TimeSpan.FromMinutes(60));
+
+        await InvokeWith(new InvalidOperationException("The specified network name is no longer available."));
+
+        LastEntry().Level.Should().Be(LogLevel.Error);
+    }
+
     private async Task<HttpContext> InvokeWith(Exception exception, Action<HttpContext>? configure = null)
     {
         var context = NewContext();
         configure?.Invoke(context);
 
-        var middleware = new ErrorHandlingMiddleware(_ => throw exception, _logger, _environment);
+        var middleware = BuildMiddleware(_ => throw exception);
         await middleware.InvokeAsync(context);
 
         return context;
