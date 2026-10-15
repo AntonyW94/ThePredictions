@@ -13,8 +13,8 @@
          because it brings a test runner, and this assembly is never executed directly - its tests are
          discovered on the concrete subclasses in each adapter's project. The extensibility package is
          what supplies [Fact] without the runner. No coverlet either: it owns no production assembly. -->
-    <PackageReference Include="xunit.v3.extensibility.core" Version="3.0.0" />
-    <PackageReference Include="FluentAssertions" Version="7.0.0" />
+    <PackageReference Include="xunit.v3.extensibility.core" Version="3.2.2" />
+    <PackageReference Include="FluentAssertions" Version="7.2.2" />
   </ItemGroup>
 
   <ItemGroup>

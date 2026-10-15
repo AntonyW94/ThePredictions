@@ -46,7 +46,7 @@ concurrency:
 
 jobs:
   journeys:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     # The stack has a container to pull, a schema to build and an application to start before the first
     # assertion runs, so the default 6 hours is far too generous to be a useful signal.
     timeout-minutes: 30

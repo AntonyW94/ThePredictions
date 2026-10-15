@@ -4,7 +4,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using ThePredictions.API.Services;
 using ThePredictions.Application.Common.Behaviours;
 using ThePredictions.Application.Common.Interfaces;

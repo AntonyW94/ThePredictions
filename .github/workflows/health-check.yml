@@ -22,7 +22,7 @@ permissions:
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     env:
       SITE: https://www.thepredictions.co.uk
     steps:

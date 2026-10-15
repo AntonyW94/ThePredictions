@@ -120,6 +120,20 @@ public class OnboardingStepRegistryTests
     }
 
     [Fact]
+    public void Build_ShouldReportOutstandingWork_WhenOnlyALockedStepRemains()
+    {
+        // Skipping everything but the league step leaves it locked behind the pass, with nothing active.
+        var checklist = Build(
+            State(),
+            OnboardingStepKeys.GetPass,
+            OnboardingStepKeys.AddMobile,
+            OnboardingStepKeys.AddPayoutDetails);
+
+        Step(checklist, OnboardingStepKeys.JoinLeague).State.Should().Be("Locked");
+        checklist.HasOutstandingSteps.Should().BeTrue();
+    }
+
+    [Fact]
     public void Build_ShouldReportNothingOutstanding_WhenEveryStepIsDone()
     {
         var checklist = Build(State(passCount: 1, leagueCount: 1, hasMobile: true, hasPayoutDetails: true));

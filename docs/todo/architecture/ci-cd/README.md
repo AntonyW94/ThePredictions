@@ -26,7 +26,7 @@ All workflows run on the **free tier** (2,000 minutes/month for private repos).
 |---------|-------|
 | Platform | GitHub Actions |
 | Cost | Free (within 2,000 mins/month) |
-| Runner | `ubuntu-latest` |
+| Runner | `ubuntu-26.04` (pinned) |
 | .NET Version | 8.0 |
 | FTP Deployment | SamKirkland/FTP-Deploy-Action |
 | Browser Testing | Playwright (Chromium) |

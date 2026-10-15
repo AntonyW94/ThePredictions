@@ -13,11 +13,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Dapper" Version="2.1.66" />
+        <PackageReference Include="Dapper" Version="2.1.89" />
         <!-- The SQL Server health probe belongs with the adapter that owns the connection. -->
-        <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="8.0.2" />
-        <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.4" />
-        <PackageReference Include="Polly" Version="8.5.2" />
+        <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="9.0.0" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.1" />
+        <PackageReference Include="Polly" Version="8.8.0" />
     </ItemGroup>
 
     <ItemGroup>

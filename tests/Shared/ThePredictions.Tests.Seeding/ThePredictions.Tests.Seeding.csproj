@@ -8,14 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.1.66" />
+    <PackageReference Include="Dapper" Version="2.1.89" />
     <!-- 6.1.4 to match Infrastructure, the persistence adapter and both consuming suites. Deliberately
          not DatabaseTools' 7.0.1: this is referenced alongside the adapter, so a different major here
          would be a diamond conflict rather than an isolated tooling bump. -->
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.4" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.1" />
     <!-- PasswordHasher, for seeding a user who can actually sign in. Only the browser suite needs that,
          but the hashing belongs next to the INSERT that stores it. -->
-    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.14" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.32" />
   </ItemGroup>
 
   <ItemGroup>

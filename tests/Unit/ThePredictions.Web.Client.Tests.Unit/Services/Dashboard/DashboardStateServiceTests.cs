@@ -428,6 +428,20 @@ public class DashboardStateServiceTests
     }
 
     [Fact]
+    public async Task SetLeagueArchivedAsync_ShouldPutTheStandingsBack_WhenOnlyTheStandingsListIsLoadedAndTheSaveFails()
+    {
+        _leagueService.GetLeaderboardsAsync().Returns([Leaderboard(1)]);
+        await _service.LoadLeaderboardsAsync();
+        _leagueService.SetLeagueArchivedAsync(1, true).Returns((false, "Nope."));
+
+        await _service.SetLeagueArchivedAsync(1, isArchived: true);
+
+        _service.Leaderboards[0].IsArchivedByUser.Should().BeFalse();
+        _service.MyLeagues.Should().BeEmpty();
+        _service.LeaderboardsErrorMessage.Should().Be("Nope.");
+    }
+
+    [Fact]
     public async Task SetLeagueArchivedAsync_ShouldCope_WhenOnlyMyLeaguesIsLoaded()
     {
         _leagueService.GetMyLeaguesAsync().Returns([League(1)]);
