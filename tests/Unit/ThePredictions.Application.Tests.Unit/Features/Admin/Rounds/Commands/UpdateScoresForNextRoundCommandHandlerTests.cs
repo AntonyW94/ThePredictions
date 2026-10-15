@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using ThePredictions.Application.Features.Admin.Rounds.Commands;
 using ThePredictions.Application.FootballApi.DTOs;
 using ThePredictions.Domain.Common.Enumerations;

@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using ThePredictions.Application.Repositories;
 using ThePredictions.Contracts.Boosts;
 using ThePredictions.Domain.Common.Enumerations;

@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using NSubstitute;
 using ThePredictions.Application.Features.Admin.EmailTests.Queries;
 using ThePredictions.Application.Services;

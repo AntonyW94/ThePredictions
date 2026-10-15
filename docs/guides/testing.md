@@ -13,7 +13,7 @@ This guide covers the testing tools, conventions, and coverage requirements for 
 | Tool | Purpose | Install Command |
 |------|---------|-----------------|
 | [xUnit](https://xunit.net/) | Test framework | Via NuGet (already in test projects) |
-| [FluentAssertions](https://fluentassertions.com/) | Assertion library | Via NuGet (already in test projects) |
+| [AwesomeAssertions](https://awesomeassertions.org/) | Assertion library (the Apache-2.0 fork of FluentAssertions; use `using AwesomeAssertions;`) | Via NuGet (already in test projects) |
 | [Coverlet](https://github.com/coverlet-coverage/coverlet) | Code coverage collector | Via NuGet (`coverlet.collector`, already in test projects) |
 | [ReportGenerator](https://github.com/danielpalme/ReportGenerator) | HTML coverage reports | `dotnet tool install --global dotnet-reportgenerator-globaltool` |
 
@@ -420,8 +420,8 @@ dotnet test tests/E2E/ThePredictions.Web.Tests.E2E
 - **Every test class carries `[Trait("Category", "E2E")]`** (inherited from `E2ETestBase`) **and exactly one
   `Level`**, on the class and not on a `[Fact]`. Convention tests enforce both. A method-level level *does*
   filter correctly, which is the trap - it would work while being invisible to the check guaranteeing it.
-- **`AwesomeAssertions`, not FluentAssertions.** This project moved first; the rest follow (roadmap Track 1
-  item 3).
+- **`AwesomeAssertions`, not FluentAssertions.** This project moved first and every other test project has
+  since followed (roadmap Track 1 item 3).
 
 ### It does not affect the 100% gate
 

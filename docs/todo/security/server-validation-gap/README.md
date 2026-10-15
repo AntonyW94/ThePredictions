@@ -433,7 +433,7 @@ No API integration test project exists yet (`ThePredictions.API.Tests.Integratio
 New file `tests/Unit/ThePredictions.Composition.Tests.Unit/Filters/FluentValidationActionFilterTests.cs` (no mocking framework needed; the project deliberately has none):
 
 ```csharp
-using FluentAssertions;
+using AwesomeAssertions;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

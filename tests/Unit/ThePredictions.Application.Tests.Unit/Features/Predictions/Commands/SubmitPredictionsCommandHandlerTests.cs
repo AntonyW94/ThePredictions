@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using NSubstitute;
 using ThePredictions.Application.Features.Predictions.Commands;
 using ThePredictions.Application.Repositories;

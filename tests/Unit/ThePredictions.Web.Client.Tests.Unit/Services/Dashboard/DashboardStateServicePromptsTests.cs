@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using NSubstitute;
 using ThePredictions.Contracts.SeasonPasses;
 using ThePredictions.Web.Client.Services.Dashboard;

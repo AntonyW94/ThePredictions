@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using ThePredictions.Domain.Services.Boosts;
 using Xunit;
 

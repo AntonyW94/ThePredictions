@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using ThePredictions.Application.Features.Admin.Seasons.Commands;
 using Xunit;
 

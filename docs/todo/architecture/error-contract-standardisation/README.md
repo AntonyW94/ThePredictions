@@ -429,7 +429,7 @@ Also update the "Throwing Errors in Handlers" snippet in the same file: the "Una
 
 There is no API test project (section 1.6), and the test-suite plan's `WebApplicationFactory` phase is not a prerequisite: `ErrorHandlingMiddleware` is a plain class testable with `DefaultHttpContext`. **Create the project now**; it becomes the natural home for future API-layer unit tests.
 
-1. **New file:** `tests\Unit\ThePredictions.API.Tests.Unit\ThePredictions.API.Tests.Unit.csproj`, mirroring `tests\Unit\ThePredictions.Application.Tests.Unit\ThePredictions.Application.Tests.Unit.csproj` (same `PropertyGroup`; same package versions already used across the test suite: `coverlet.collector` 6.0.4, `xunit.v3` 3.0.0, `xunit.runner.visualstudio` 3.0.0, `FluentAssertions` 7.0.0, `Microsoft.NET.Test.Sdk` 17.11.0, `NSubstitute` 5.3.0 - these are existing solution packages, so the "highest available version" rule for new packages does not bite; consistency wins), plus:
+1. **New file:** `tests\Unit\ThePredictions.API.Tests.Unit\ThePredictions.API.Tests.Unit.csproj`, mirroring `tests\Unit\ThePredictions.Application.Tests.Unit\ThePredictions.Application.Tests.Unit.csproj` (same `PropertyGroup`; same package versions already used across the test suite: `coverlet.collector` 6.0.4, `xunit.v3` 3.0.0, `xunit.runner.visualstudio` 3.0.0, `AwesomeAssertions` 9.6.0, `Microsoft.NET.Test.Sdk` 17.11.0, `NSubstitute` 5.3.0 - these are existing solution packages, so the "highest available version" rule for new packages does not bite; consistency wins), plus:
 
    ```xml
    <ItemGroup>
@@ -446,7 +446,7 @@ There is no API test project (section 1.6), and the test-suite plan's `WebApplic
 4. **New file:** `tests\Unit\ThePredictions.API.Tests.Unit\Middleware\ErrorHandlingMiddlewareTests.cs` with a helper and one test per mapping:
 
 ```csharp
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;

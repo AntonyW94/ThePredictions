@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using NSubstitute;
 using ThePredictions.Application.Common.Prizes;
 using ThePredictions.Contracts.Prizes;

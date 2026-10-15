@@ -50,7 +50,7 @@ jobs:
           --filter "Category!=Integration&Category!=E2E"
           /p:CollectCoverage=true
           /p:CoverletOutputFormat=cobertura
-          '/p:Exclude="[ThePredictions.Tests.*]*%2c[xunit.*]*%2c[FluentAssertions]*"'
+          '/p:Exclude="[ThePredictions.Tests.*]*%2c[xunit.*]*%2c[AwesomeAssertions]*"'
           '/p:ExcludeByAttribute="GeneratedCodeAttribute"'
           '/p:ExcludeByFile="**/*.g.cs%2c**/obj/**%2c**/*.razor%2c**/Program.cs"'
           /p:Threshold=100

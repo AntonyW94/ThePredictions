@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using ThePredictions.Application.Features.Account.Queries;
 using ThePredictions.Application.Features.Homepage.Queries;
 using ThePredictions.Application.Features.Leagues.Queries;

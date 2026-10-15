@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using ThePredictions.Persistence.SqlServer.Data;
 using Xunit;
 

@@ -1,5 +1,5 @@
 using System.ComponentModel;
-using FluentAssertions;
+using AwesomeAssertions;
 using ThePredictions.Web.Client.Utilities;
 using Xunit;
 

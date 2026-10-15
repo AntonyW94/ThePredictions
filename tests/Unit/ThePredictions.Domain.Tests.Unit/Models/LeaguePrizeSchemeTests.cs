@@ -1,5 +1,5 @@
 using ThePredictions.Domain.Common.Exceptions;
-using FluentAssertions;
+using AwesomeAssertions;
 using ThePredictions.Domain.Common.Enumerations;
 using ThePredictions.Domain.Models;
 using ThePredictions.Tests.Shared.Helpers;

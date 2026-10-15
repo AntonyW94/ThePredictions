@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using ThePredictions.Application.Features.Onboarding;
 using ThePredictions.Contracts.Onboarding;
 using Xunit;

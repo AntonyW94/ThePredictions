@@ -24,7 +24,7 @@ Restated from `CLAUDE.md` so nothing in this plan is executed in violation of th
 - **One public type per file.** The two co-located public DTO records deleted by this plan (`LeagueAdminDto`, `LeagueMemberContactDto`) are existing violations of this rule.
 - **`DateTime.UtcNow` only, and only via `IDateTimeProvider`** in handlers. No new direct `DateTime.Now`/`DateTime.UtcNow` calls.
 - **CQRS rules:** command handlers use repositories (`IXxxRepository`) and never `IApplicationReadDbConnection`; query handlers use `IApplicationReadDbConnection` and never repositories.
-- **Test naming:** `MethodName_ShouldX_WhenY()`. xUnit + FluentAssertions + NSubstitute.
+- **Test naming:** `MethodName_ShouldX_WhenY()`. xUnit + AwesomeAssertions + NSubstitute.
 - **xUnit1051:** always pass `CancellationToken.None` in tests, never a bare `default` - including inside `DidNotReceiveWithAnyArgs()` verifications. CI runs `/p:TreatWarningsAsErrors=true` and this warning fails the build.
 - **Entities in tests:** construct with the full public hydration constructor and an explicit ID, not the `Create(...)` factory.
 - **Statements on a new line after `if`** (no single-line `if (x) return;`).
@@ -1234,7 +1234,7 @@ The old `Handle_ShouldNotSendEmail_WhenAdminNotFound` test is deleted deliberate
 **15b.** `Features/Leagues/Commands/JoinLeagueCommandHandlerTests.cs` - replace the entire file content with:
 
 ```csharp
-using FluentAssertions;
+using AwesomeAssertions;
 using NSubstitute;
 using ThePredictions.Application.Common.Interfaces;
 using ThePredictions.Application.Features.Leagues.Commands;
@@ -1647,7 +1647,7 @@ Also add this assertion to `Handle_ShouldRejectMember_WhenAdministratorRejects` 
 New file: `tests/Unit/ThePredictions.Application.Tests.Unit/Common/Behaviours/TransactionBehaviourTests.cs`
 
 ```csharp
-using FluentAssertions;
+using AwesomeAssertions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -1785,7 +1785,7 @@ public class TransactionBehaviourTests
 New file: `tests/Unit/ThePredictions.Application.Tests.Unit/Common/PostCommitQueueTests.cs`
 
 ```csharp
-using FluentAssertions;
+using AwesomeAssertions;
 using NSubstitute;
 using ThePredictions.Application.Common;
 using ThePredictions.Application.Data;
@@ -1951,7 +1951,7 @@ public class NotifyMemberOfLeagueApprovalCommandHandlerTests
 
 ```csharp
 using System.Data;
-using FluentAssertions;
+using AwesomeAssertions;
 using NSubstitute;
 using ThePredictions.Application.Data;
 using ThePredictions.Infrastructure.Data;

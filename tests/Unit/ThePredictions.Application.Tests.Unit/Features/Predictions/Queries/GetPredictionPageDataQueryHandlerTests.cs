@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using NSubstitute;
 using ThePredictions.Application.Features.Predictions.Queries;
 using ThePredictions.Application.Features.Rounds.Queries;

@@ -41,7 +41,7 @@ src/
 └── ThePredictions.Web.Client       → Blazor WebAssembly UI components
 tests/
 ├── Shared/                           → Shared test helpers (TestDateTimeProvider, etc.)
-└── Unit/                             → Unit tests (xUnit + FluentAssertions)
+└── Unit/                             → Unit tests (xUnit + AwesomeAssertions)
 tools/
 ├── Test Coverage                     → Coverage scripts and settings
 └── ThePredictions.DatabaseTools      → Database refresh (dev) and backup (prod) tool
@@ -399,7 +399,7 @@ These are intentional trade-offs, not issues to fix:
 1. **Dapper over EF Core** — Chosen for performance and explicit SQL control
 2. **Blazor WASM** — Client-side rendering for responsiveness, tokens in localStorage
 3. **MediatR** — Decouples controllers from business logic
-4. **Unit tests with 100% coverage** — Domain project fully tested with xUnit, FluentAssertions, and coverlet
+4. **Unit tests with 100% coverage** — Domain project fully tested with xUnit, AwesomeAssertions, and coverlet
 5. **FTP deployment** — Hosting limitation (Fasthosts is FTP-only); publish + upload is automated via GitHub Actions, with manual publish from Visual Studio as a fallback
 6. **Separate environments** — Local (localhost), Development (hosted dev site), Production
 

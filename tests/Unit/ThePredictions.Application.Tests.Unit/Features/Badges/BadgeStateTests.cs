@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using ThePredictions.Application.Features.Badges;
 using ThePredictions.Application.Features.Badges.Queries;
 using ThePredictions.Domain.Common.Enumerations;

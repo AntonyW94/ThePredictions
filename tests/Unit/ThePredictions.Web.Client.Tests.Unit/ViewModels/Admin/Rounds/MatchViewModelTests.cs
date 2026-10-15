@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using ThePredictions.Contracts.Admin.Rounds;
 using ThePredictions.Domain.Common.Enumerations;
 using ThePredictions.Web.Client.ViewModels.Admin.Rounds;

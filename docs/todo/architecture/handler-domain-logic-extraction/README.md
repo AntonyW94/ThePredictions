@@ -37,7 +37,7 @@ DI note: `PredictionDomainService` is registered in `src\ThePredictions.Infrastr
 ## Ground rules for every part
 
 1. **Domain coverage gate.** The Domain project must keep 100% line AND branch coverage. Every part below lists the tests required to hold that. After each part, run `tools\Test Coverage\coverage-unit.bat` and confirm the report shows 100%/100% for `ThePredictions.Domain`.
-2. **Test conventions.** xUnit v3 + FluentAssertions; names `MethodName_ShouldX_WhenY`; entities in tests built with the full public constructor and explicit IDs (never `Entity.Create(...)` unless testing the factory); `CancellationToken.None`, never a bare `default` (xUnit1051 fails CI under `TreatWarningsAsErrors`).
+2. **Test conventions.** xUnit v3 + AwesomeAssertions; names `MethodName_ShouldX_WhenY`; entities in tests built with the full public constructor and explicit IDs (never `Entity.Create(...)` unless testing the factory); `CancellationToken.None`, never a bare `default` (xUnit1051 fails CI under `TreatWarningsAsErrors`).
 3. **No behaviour change.** Each part is a pure extraction. Where a micro-behaviour question arises (noted inline), the decision is recorded here so the implementer does not need to ask.
 4. **One public type per file, UK English identifiers, plain hyphens in comments** (no em dashes in newly authored text).
 5. **Data-only records** added to Domain get `[ExcludeFromCodeCoverage]` (they have no logic; compiler-generated members would otherwise drag coverage below 100%).
