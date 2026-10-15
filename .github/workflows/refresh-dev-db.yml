@@ -30,7 +30,7 @@ jobs:
 
   refresh:
     needs: migrate
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     if: github.event.inputs.confirm == 'refresh'
 
     steps:

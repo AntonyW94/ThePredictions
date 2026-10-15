@@ -39,7 +39,7 @@ on:
 jobs:
   notify:
     if: inputs.notify-on == 'always' || inputs.status == 'failure'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Post outcome to Slack
         env:

@@ -259,7 +259,7 @@ Linux engine, not Windows containers). The first run pulls ~1.5GB.
 If Docker is in Windows-container mode the failure is misleading: Testcontainers reports a **missing
 image** rather than an engine mismatch, so it reads as a bad tag. `docker pull` is what tells the
 truth (`image operating system "linux" cannot be used on this platform`). Check with
-`docker info --format '{{.OSType}}'` before assuming the tag is wrong. CI on `ubuntu-24.04` is
+`docker info --format '{{.OSType}}'` before assuming the tag is wrong. CI on `ubuntu-26.04` is
 unaffected.
 
 ```bash

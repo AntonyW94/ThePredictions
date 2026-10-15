@@ -12,7 +12,7 @@ on:
 
 jobs:
   validate:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Validate confirmation
         if: github.event.inputs.confirm != 'migrate'
