@@ -90,15 +90,23 @@ jobs:
 
       - name: Deploy to dev site via FTP
         run: |
+          # Pass 1 sends every file outside runtimes/, whether or not it looks changed. Without
+          # --transfer-all, lftp skips a file whose size matches and whose remote copy is newer,
+          # and every remote file is newer, because FTP stamps it with its upload time while a
+          # package DLL keeps its NuGet date. So an upgraded package whose DLL happens to be the
+          # same size never reaches the server. That took dev and prod down on 2026-10-15:
+          # AspNetCore.HealthChecks.SqlServer 8.0.2 and 9.0.0 are both 20,480 bytes, the server
+          # kept 8.0.2, and startup could not load 9.0.0.0. runtimes/ is ~240MB of native assets,
+          # mostly for platforms this host never loads, so it stays on the normal check in pass 2.
           sudo apt-get install -y -qq lftp > /dev/null 2>&1
           lftp -u "${{ secrets.DEV_FTP_USERNAME }},${{ secrets.DEV_FTP_PASSWORD }}" \
             "ftp://${{ vars.FTP_SERVER }}" \
             -e "set ftp:passive-mode yes; \
                 set ftp:ssl-allow no; \
                 set mirror:parallel-directories yes; \
-                echo 'Pass 1: Uploading new and changed files...'; \
-                mirror --reverse --exclude logs/ --exclude ShadowCopyDirectory/ --exclude keys/ --parallel=10 --verbose ./publish/ /htdocs/; \
-                echo 'Pass 2: Removing stale files...'; \
+                echo 'Pass 1: Uploading every file outside runtimes/...'; \
+                mirror --reverse --transfer-all --exclude ^runtimes/ --exclude logs/ --exclude ShadowCopyDirectory/ --exclude keys/ --parallel=10 --verbose ./publish/ /htdocs/; \
+                echo 'Pass 2: Uploading changed runtimes and removing stale files...'; \
                 mirror --reverse --delete --exclude logs/ --exclude ShadowCopyDirectory/ --exclude keys/ --parallel=10 --verbose ./publish/ /htdocs/; \
                 quit"
 
