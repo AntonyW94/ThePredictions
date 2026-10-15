@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using FluentValidation.TestHelper;
 using ThePredictions.Tests.Builders.Predictions;
 using ThePredictions.Validators.Predictions;

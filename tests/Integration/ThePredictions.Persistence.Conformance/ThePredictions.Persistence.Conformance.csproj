@@ -14,7 +14,7 @@
          discovered on the concrete subclasses in each adapter's project. The extensibility package is
          what supplies [Fact] without the runner. No coverlet either: it owns no production assembly. -->
     <PackageReference Include="xunit.v3.extensibility.core" Version="3.2.2" />
-    <PackageReference Include="FluentAssertions" Version="7.2.2" />
+    <PackageReference Include="AwesomeAssertions" Version="9.6.0" />
   </ItemGroup>
 
   <ItemGroup>

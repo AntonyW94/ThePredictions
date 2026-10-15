@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using ThePredictions.Domain.Common.Constants;
 using ThePredictions.Domain.Common.Enumerations;
 using ThePredictions.Domain.Models;

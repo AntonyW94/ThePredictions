@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using ThePredictions.Contracts.Admin.Users;
 using ThePredictions.Contracts.Onboarding;
 using ThePredictions.Domain.Common.Enumerations;

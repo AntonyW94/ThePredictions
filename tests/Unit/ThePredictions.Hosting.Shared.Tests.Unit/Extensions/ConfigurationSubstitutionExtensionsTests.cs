@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using AwesomeAssertions;
 using Microsoft.Extensions.Configuration;
 using ThePredictions.Hosting.Shared.Extensions;
 using Xunit;

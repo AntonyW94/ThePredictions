@@ -1,5 +1,5 @@
 using System.Net;
-using FluentAssertions;
+using AwesomeAssertions;
 using ThePredictions.Contracts.Admin.Matches;
 using ThePredictions.Contracts.Admin.Rounds;
 using ThePredictions.Domain.Common.Enumerations;

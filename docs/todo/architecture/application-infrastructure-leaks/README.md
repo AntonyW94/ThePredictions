@@ -51,7 +51,7 @@ Move `FieldEncryptionServiceTests.cs` to `tests/Unit/ThePredictions.Composition.
 2. In the moved file, change the namespace from `ThePredictions.Application.Services` to `ThePredictions.Infrastructure.Services` and add `using ThePredictions.Application.Services;` (for `IFieldEncryptionService`). Keep `using ThePredictions.Application.Configuration;` (for `FieldEncryptionSettings`, which stays in Application - it is a logic-free settings POCO like the other classes in that folder; relocating settings classes wholesale is out of scope).
 3. `src/ThePredictions.Infrastructure/DependencyInjection.cs`: no registration change needed; `FieldEncryptionService` now resolves from the `ThePredictions.Infrastructure.Services` namespace already imported at the top of the file (line 23). Confirm the file still compiles without a stray using for the old location.
 4. Move the test file to `tests/Unit/ThePredictions.Composition.Tests.Unit/Services/FieldEncryptionServiceTests.cs`, change its namespace to `ThePredictions.Composition.Tests.Unit.Services`, and add `using ThePredictions.Infrastructure.Services;` (keep `using ThePredictions.Application.Configuration;` and `using ThePredictions.Application.Services;` as needed). Add a `// TODO: move to ThePredictions.Infrastructure.Tests.Unit when that project exists (see docs/todo/architecture/test-suite/README.md)` comment at the top.
-5. Check the Composition test project has the packages the test file needs (`FluentAssertions`, `xunit.v3` - it does, verified in its `.csproj`).
+5. Check the Composition test project has the packages the test file needs (`AwesomeAssertions`, `xunit.v3` - it does, verified in its `.csproj`).
 6. Build and run tests (see Verification checklist).
 
 ---

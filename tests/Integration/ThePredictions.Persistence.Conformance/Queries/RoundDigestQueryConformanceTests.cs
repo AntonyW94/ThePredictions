@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using ThePredictions.Application.Features.Admin.Rounds.Queries;
 using ThePredictions.Domain.Common.Enumerations;
 using Xunit;

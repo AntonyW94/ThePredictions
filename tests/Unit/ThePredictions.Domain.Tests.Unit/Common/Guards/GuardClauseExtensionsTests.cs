@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using ThePredictions.Domain.Common.Exceptions;
 using ThePredictions.Domain.Common.Guards;
 using Xunit;

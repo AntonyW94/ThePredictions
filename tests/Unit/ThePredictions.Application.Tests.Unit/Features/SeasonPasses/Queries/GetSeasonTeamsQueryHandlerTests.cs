@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using NSubstitute;
 using ThePredictions.Application.Features.Admin.Teams.Queries;
 using ThePredictions.Application.Features.SeasonPasses.Queries;

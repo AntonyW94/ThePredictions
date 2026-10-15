@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using NSubstitute;
 using ThePredictions.Application.Features.External.Tasks.Queries;
 using ThePredictions.Domain.Common.Enumerations;

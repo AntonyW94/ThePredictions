@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using ThePredictions.Application.Features.Admin.Seasons.Queries;
 using ThePredictions.Contracts.Admin.Seasons;
 using ThePredictions.Contracts.Common;

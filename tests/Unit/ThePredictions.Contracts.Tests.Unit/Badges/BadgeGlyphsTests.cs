@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using AwesomeAssertions;
 using ThePredictions.Contracts.Badges;
 using Xunit;
 

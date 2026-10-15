@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using ThePredictions.Persistence.SqlServer.Migrations;
 using Xunit;
 

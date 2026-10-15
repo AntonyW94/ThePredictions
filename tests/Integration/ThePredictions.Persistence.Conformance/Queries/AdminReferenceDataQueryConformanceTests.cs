@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using ThePredictions.Application.Features.Admin.Competitions.Queries;
 using ThePredictions.Application.Features.Admin.EmailTests.Queries;
 using ThePredictions.Application.Features.Admin.PricingSettings.Queries;

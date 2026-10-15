@@ -269,7 +269,7 @@ tools/
 └── ThePredictions.DatabaseTools      → Dev database refresh & prod backup tool
 tests/
 ├── Shared/                           → Shared test helpers (TestDateTimeProvider, etc.)
-├── Unit/                             → Unit tests (xUnit + FluentAssertions)
+├── Unit/                             → Unit tests (xUnit + AwesomeAssertions)
 └── Integration/                      → Real SQL Server via Testcontainers (see docs/guides/testing.md)
 ```
 

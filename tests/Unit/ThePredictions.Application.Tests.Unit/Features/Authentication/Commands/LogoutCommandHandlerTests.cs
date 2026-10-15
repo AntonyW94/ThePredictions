@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using NSubstitute;
 using ThePredictions.Application.Features.Authentication.Commands.Logout;
 using ThePredictions.Application.Repositories;

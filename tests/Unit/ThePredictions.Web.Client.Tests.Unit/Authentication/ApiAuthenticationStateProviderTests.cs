@@ -1,6 +1,6 @@
 using System.Net;
 using System.Security.Claims;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using ThePredictions.Contracts.Authentication;

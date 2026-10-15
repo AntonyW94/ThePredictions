@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using NSubstitute;
 using ThePredictions.Application.Common.Models;
 using ThePredictions.Application.Features.Authentication.Commands.ConfirmEmail;
