@@ -5,13 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Bogus" Version="35.6.1" />
-    <PackageReference Include="Dapper" Version="2.1.66" />
+    <PackageReference Include="Bogus" Version="35.6.5" />
+    <PackageReference Include="Dapper" Version="2.1.89" />
     <PackageReference Include="dbup-sqlserver" Version="7.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.13" />
     <!-- Bumped from 5.2.2 (dbup-sqlserver 7.2.0 needs >= 6.1.4); pinned to the latest stable.
          This project is standalone (not referenced by the app), so the bump is isolated to the tooling. -->
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.1" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.1" />
   </ItemGroup>
 
   <ItemGroup>

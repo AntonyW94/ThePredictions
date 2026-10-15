@@ -17,8 +17,8 @@
     <!-- ExcludeAssets="analyzers": this package ships analyzers built against a newer compiler than the
          pinned SDK's (CS9057). Only the parsing API is needed here, so the analyzers are dropped rather
          than downgrading the package. -->
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.6.0" ExcludeAssets="analyzers" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="5.3.0" ExcludeAssets="analyzers" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.0-preview2.26190.5" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" ExcludeAssets="analyzers" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="5.9.0" ExcludeAssets="analyzers" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.1" />
   </ItemGroup>
 </Project>

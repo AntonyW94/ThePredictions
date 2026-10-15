@@ -169,6 +169,35 @@ public class BoostUsageSummaryBuilderTests
         player.Remaining.Should().Be(1);
     }
 
+    [Fact]
+    public void Build_ShouldApplyTheWindowToEveryMember()
+    {
+        var result = Build(
+            windows: [Window(10, 19, maxUses: 2)],
+            members: [Member(CurrentUserId, "Me"), Member("user-2", "Grace H")],
+            usages: [Usage(CurrentUserId, 12), Usage("user-2", 9), Usage("user-2", 15)]);
+
+        var players = result.Single().Windows.Single().PlayerUsages;
+        players.Single(p => p.UserId == CurrentUserId).Usages.Select(u => u.RoundNumber).Should().Equal(12);
+        players.Single(p => p.UserId == "user-2").Usages.Select(u => u.RoundNumber).Should().Equal(15);
+    }
+
+    // Filtering needs both ends of the window: with only a start round, every usage still counts.
+    [Fact]
+    public void BuildPlayerUsages_ShouldCountEveryUsage_WhenTheWindowHasNoEndRound()
+    {
+        var players = BoostUsageSummaryBuilder.BuildPlayerUsages(
+            [Member(CurrentUserId, "Me")],
+            [Usage(CurrentUserId, 2), Usage(CurrentUserId, 30)],
+            startRound: 10,
+            endRound: null,
+            maxUses: 3,
+            CurrentUserId,
+            inProgressRoundNumber: null);
+
+        players.Single().Usages.Select(u => u.RoundNumber).Should().Equal(2, 30);
+    }
+
     // A single window spanning the season is shown as "full season" rather than as a round range that
     // tells the player nothing.
     [Fact]

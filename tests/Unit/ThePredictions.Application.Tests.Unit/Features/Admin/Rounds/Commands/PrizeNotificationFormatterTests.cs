@@ -47,10 +47,13 @@ public class PrizeNotificationFormatterTests
         title.Should().Be("November monthly winner");
     }
 
-    [Fact]
-    public void Title_ShouldFallBack_ForMonthlyPrizeWithInvalidMonth()
+    [Theory]
+    [InlineData(null)]
+    [InlineData(0)]
+    [InlineData(13)]
+    public void Title_ShouldFallBack_ForMonthlyPrizeWithInvalidMonth(int? month)
     {
-        var title = PrizeNotificationFormatter.Title(Prize(PrizeType.Monthly, month: 0));
+        var title = PrizeNotificationFormatter.Title(Prize(PrizeType.Monthly, month: month));
 
         title.Should().Be("Monthly winner");
     }

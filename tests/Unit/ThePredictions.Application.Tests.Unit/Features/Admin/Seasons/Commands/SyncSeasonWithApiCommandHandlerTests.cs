@@ -193,6 +193,31 @@ public class SyncSeasonWithApiCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_ShouldMoveSeveralFixturesIntoTheSameRoundTogether()
+    {
+        // Two matches rescheduled into one round in the same sync land in a single move.
+        var roundOne = Round(1, 1, Week1, matches:
+        [
+            Match(1, 1, Week1, externalId: 5001),
+            Match(3, 1, Week1, externalId: 5003, homeTeamId: 105, awayTeamId: 106)
+        ]);
+        var roundTwo = Round(2, 2, Week2, matches: Match(2, 2, Week2, externalId: 5002, homeTeamId: 103, awayTeamId: 104));
+        _scenario.GivenRounds(roundOne, roundTwo);
+        _scenario.GivenApiRoundNames(RoundName(1), RoundName(2));
+        _scenario.GivenApiFixtures(
+            Fixture(5001, Week2, RoundName(2)),
+            Fixture(5002, Week2, RoundName(2), apiHomeTeamId: 3, apiAwayTeamId: 4),
+            Fixture(5003, Week2, RoundName(2), apiHomeTeamId: 5, apiAwayTeamId: 6));
+
+        await HandleAsync();
+
+        roundOne.Matches.Should().BeEmpty();
+        roundTwo.Matches.Select(m => m.ExternalId).Should().BeEquivalentTo([5001, 5002, 5003]);
+        await _scenario.Rounds.Received(1).MoveMatchesToRoundAsync(
+            Arg.Is<IEnumerable<int>>(ids => ids.OrderBy(id => id).SequenceEqual(new[] { 1, 3 })), 2, Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task Handle_ShouldMoveTheMatchInTheDatabaseBeforeSavingAnyRound()
     {
         // The move has to land first, or saving the source round would delete the match it no
