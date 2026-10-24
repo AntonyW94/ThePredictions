@@ -58,6 +58,12 @@ exact partition, and the two monitors stay complements of each other when the wo
 Verified at the time: the exclusion took the warnings monitor from 123 matches to 9, all of them
 `Slow transaction` warnings from the scoring command.
 
+Those nine were the live score update, which routinely commits in 1.1-1.4s because it rebuilds the
+season's ranks inside its transaction. Query-side reads run at READ UNCOMMITTED (ADR-0019) and are
+not held up by it, so the slow-transaction threshold was raised from 1000ms to **2000ms** to stop
+it paging on every matchday score change. The scoring command logs a per-step breakdown at
+Information (`Scored Round (ID: ...) in ...ms: load ..., ranks ...ms`) for when it does trip.
+
 **Group by `env`, always.** A multi-alert monitor holds a separate alert state per group, so
 grouping by environment is what lets a production breach notify while dev is already alerting.
 Without it the second environment is silently absorbed.
