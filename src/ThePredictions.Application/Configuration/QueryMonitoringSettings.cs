@@ -30,5 +30,12 @@ public class QueryMonitoringSettings
     // reads can be blocked for - which makes it the number to watch, not just the command's own cost.
     // Deliberately higher than the read threshold: a write transaction is expected to be slower than
     // a read, and the interesting case is one held open far longer than the reads it delays.
-    public int SlowTransactionThresholdMilliseconds { get; init; } = 1000;
+    //
+    // Why 2000ms rather than the original 1000ms? Query-side reads now run at READ UNCOMMITTED
+    // (ADR-0019), so they no longer wait on these locks at all - only other writers and a command's
+    // own repository reads do. Meanwhile the live score update routinely commits in 1.1-1.4s,
+    // because it rebuilds the season's ranks inside its transaction, so at 1000ms the warning fired
+    // on most matchday score changes without anything being wrong. 2000ms keeps a real regression
+    // visible. ScoreMatchResultsCommandHandler logs where that time goes, step by step.
+    public int SlowTransactionThresholdMilliseconds { get; init; } = 2000;
 }

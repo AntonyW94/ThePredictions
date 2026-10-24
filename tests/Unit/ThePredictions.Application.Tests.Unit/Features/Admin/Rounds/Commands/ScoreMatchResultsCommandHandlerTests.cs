@@ -1,4 +1,5 @@
 using AwesomeAssertions;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using ThePredictions.Application.Features.Admin.Rounds.Commands;
 using ThePredictions.Application.Repositories;
@@ -33,6 +34,7 @@ public class ScoreMatchResultsCommandHandlerTests
     private readonly ILeagueStatsRepository _leagueStatsRepository = Substitute.For<ILeagueStatsRepository>();
     private readonly ICurrentUserService _currentUserService = Substitute.For<ICurrentUserService>();
     private readonly IRoundResultsService _roundResultsService = Substitute.For<IRoundResultsService>();
+    private readonly ILogger<ScoreMatchResultsCommandHandler> _logger = Substitute.For<ILogger<ScoreMatchResultsCommandHandler>>();
 
     private readonly ScoreMatchResultsCommandHandler _handler;
 
@@ -40,7 +42,7 @@ public class ScoreMatchResultsCommandHandlerTests
     {
         _handler = new ScoreMatchResultsCommandHandler(
             _boostService, _roundResultsService, _roundRepository, _predictionRepository,
-            _leagueStatsRepository, _currentUserService, new TestDateTimeProvider(FixedNow));
+            _leagueStatsRepository, _currentUserService, new TestDateTimeProvider(FixedNow), _logger);
 
         _predictionRepository.GetByMatchIdsAsync(Arg.Any<IEnumerable<int>>(), Arg.Any<CancellationToken>())
             .Returns([]);
@@ -66,6 +68,11 @@ public class ScoreMatchResultsCommandHandlerTests
 
     private static ScoreMatchResultsCommand Command(params MatchResultDto[] results) =>
         new(RoundId, results.Length == 0 ? [new MatchResultDto(MatchId, 2, 1, MatchStatus.Completed)] : results.ToList());
+
+    private IEnumerable<string> InformationMessages() =>
+        _logger.ReceivedCalls()
+            .Where(c => c.GetMethodInfo().Name == nameof(ILogger.Log) && (LogLevel)c.GetArguments()[0]! == LogLevel.Information)
+            .Select(c => c.GetArguments()[2]!.ToString()!);
 
     private Task<MatchResultsOutcome> HandleAsync(ScoreMatchResultsCommand? command = null) =>
         _handler.Handle(command ?? Command(), CancellationToken.None);
@@ -289,8 +296,33 @@ public class ScoreMatchResultsCommandHandlerTests
         outcome.RoundFinished.Should().BeTrue();
     }
 
+    // ---------- step timings ----------
 
+    // The whole handler runs inside one transaction, and the slow-transaction warning only reports the total.
+    // This line is what says which step the time went on.
+    [Fact]
+    public async Task Handle_ShouldLogTheTimeEachStepTook_WhenScoresWereApplied()
+    {
+        GivenRound(RoundStatus.InProgress);
 
+        await HandleAsync();
+
+        InformationMessages().Should().ContainSingle()
+            .Which.Should().StartWith($"Scored Round (ID: {RoundId}) in ")
+            .And.Contain("load ").And.Contain("start round ").And.Contain("match scores ")
+            .And.Contain("predictions ").And.Contain("results ").And.Contain("boosts ")
+            .And.Contain("finish round ").And.Contain("ranks ");
+    }
+
+    [Fact]
+    public async Task Handle_ShouldNotLogStepTimings_WhenNoResultMatchesARealFixture()
+    {
+        GivenRound(RoundStatus.InProgress);
+
+        await HandleAsync(Command(new MatchResultDto(MatchId + 1, 1, 0, MatchStatus.Completed)));
+
+        InformationMessages().Should().BeEmpty();
+    }
 
     [Fact]
     public async Task Handle_ShouldNotStartAPublishedRound_WhenNoFixtureHasActuallyKickedOff()

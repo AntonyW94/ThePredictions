@@ -1,5 +1,7 @@
+using System.Diagnostics;
 using Ardalis.GuardClauses;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using ThePredictions.Application.Repositories;
 using ThePredictions.Application.Services;
 using ThePredictions.Application.Services.Boosts;
@@ -18,7 +20,8 @@ public class ScoreMatchResultsCommandHandler(
     IUserPredictionRepository userPredictionRepository,
     ILeagueStatsRepository leagueStatsRepository,
     ICurrentUserService currentUserService,
-    IDateTimeProvider dateTimeProvider) : IRequestHandler<ScoreMatchResultsCommand, MatchResultsOutcome>
+    IDateTimeProvider dateTimeProvider,
+    ILogger<ScoreMatchResultsCommandHandler> logger) : IRequestHandler<ScoreMatchResultsCommand, MatchResultsOutcome>
 {
     public async Task<MatchResultsOutcome> Handle(ScoreMatchResultsCommand request, CancellationToken cancellationToken)
     {
@@ -26,6 +29,10 @@ public class ScoreMatchResultsCommandHandler(
         // If not authenticated (scheduled task via API key), skip the check.
         if (currentUserService.IsAuthenticated)
             currentUserService.EnsureAdministrator();
+
+        // Each step is timed, because this whole handler runs inside one transaction and the total is what
+        // the slow-transaction warning reports. That warning alone cannot say which step the time went on.
+        var stepStopwatch = Stopwatch.StartNew();
 
         var round = await roundRepository.GetByIdAsync(request.RoundId, cancellationToken);
         Guard.Against.EntityNotFound(request.RoundId, round, "Round");
@@ -35,6 +42,8 @@ public class ScoreMatchResultsCommandHandler(
 
         if (!matchesToUpdate.Any())
             return new MatchResultsOutcome(RoundFinished: false);
+
+        var loadMilliseconds = Lap(stepStopwatch);
 
         var isRoundStarting = wasRoundPublished && matchesToUpdate.Any(m => m.Status is MatchStatus.InProgress or MatchStatus.Completed);
         if (isRoundStarting)
@@ -47,10 +56,19 @@ public class ScoreMatchResultsCommandHandler(
                 await boostService.AutoApplyUnusedBoostsForLastRoundAsync(round.Id, cancellationToken);
         }
 
+        var startRoundMilliseconds = Lap(stepStopwatch);
+
         await roundRepository.UpdateMatchScoresAsync(matchesToUpdate, cancellationToken);
+        var matchScoresMilliseconds = Lap(stepStopwatch);
+
         await ScorePredictionsAsync(matchesToUpdate, cancellationToken);
+        var predictionsMilliseconds = Lap(stepStopwatch);
+
         await roundResultsService.RecalculateAsync(round, cancellationToken);
+        var resultsMilliseconds = Lap(stepStopwatch);
+
         await boostService.ApplyRoundBoostsAsync(round.Id, cancellationToken);
+        var boostsMilliseconds = Lap(stepStopwatch);
 
         var isRoundFinishing = round.Matches.All(m => m.Status is MatchStatus.Completed or MatchStatus.Postponed);
         if (isRoundFinishing)
@@ -58,6 +76,8 @@ public class ScoreMatchResultsCommandHandler(
             round.UpdateStatus(RoundStatus.Completed, dateTimeProvider);
             await roundRepository.UpdateAsync(round, cancellationToken);
         }
+
+        var finishRoundMilliseconds = Lap(stepStopwatch);
 
         // Rebuild the cached ranks here, and only here. It has to be after the round's own status change,
         // because the recompute resolves which round the cache describes from the current statuses. And it
@@ -67,8 +87,30 @@ public class ScoreMatchResultsCommandHandler(
         // update's figures. Completion is now a separate command, sent after this one commits, so that
         // ordering is what the sequencing in UpdateMatchResultsCommandHandler preserves.
         await leagueStatsRepository.RefreshSeasonAsync(round.SeasonId, cancellationToken);
+        var ranksMilliseconds = Lap(stepStopwatch);
+
+        logger.LogInformation(
+            "Scored Round (ID: {RoundId}) in {TotalMilliseconds}ms: load {LoadMilliseconds}ms, start round {StartRoundMilliseconds}ms, match scores {MatchScoresMilliseconds}ms, predictions {PredictionsMilliseconds}ms, results {ResultsMilliseconds}ms, boosts {BoostsMilliseconds}ms, finish round {FinishRoundMilliseconds}ms, ranks {RanksMilliseconds}ms",
+            round.Id,
+            loadMilliseconds + startRoundMilliseconds + matchScoresMilliseconds + predictionsMilliseconds + resultsMilliseconds + boostsMilliseconds + finishRoundMilliseconds + ranksMilliseconds,
+            loadMilliseconds,
+            startRoundMilliseconds,
+            matchScoresMilliseconds,
+            predictionsMilliseconds,
+            resultsMilliseconds,
+            boostsMilliseconds,
+            finishRoundMilliseconds,
+            ranksMilliseconds);
 
         return new MatchResultsOutcome(isRoundFinishing);
+    }
+
+    /// <summary>Returns the milliseconds since the last lap and starts timing the next step.</summary>
+    private static long Lap(Stopwatch stepStopwatch)
+    {
+        var elapsedMilliseconds = stepStopwatch.ElapsedMilliseconds;
+        stepStopwatch.Restart();
+        return elapsedMilliseconds;
     }
 
     /// <summary>
